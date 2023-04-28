@@ -83,13 +83,13 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     final List<ExpandItem> expItems = new ArrayList<>();
     final EdmEntityType startEntity = new EdmEntityTypeDouble(nameBuilder, "Organization");
     final EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "AdministrativeDivision");
-    final SelectOption selOpts = null;
+    final SelectOption selectOpts = null;
 
-    final ExpandOption expOps = new ExpandOptionDouble("AdministrativeDivision", expItems);
+    final ExpandOption expOpts = new ExpandOptionDouble("AdministrativeDivision", expItems);
     expItems.add(new ExpandItemDouble(targetEntity));
     final List<UriResource> startResources = new ArrayList<>();
-    final UriInfoDouble uriInfo = new UriInfoDouble(selOpts);
-    uriInfo.setExpandOpts(expOps);
+    final UriInfoDouble uriInfo = new UriInfoDouble(selectOpts);
+    uriInfo.setExpandOpts(expOpts);
     uriInfo.setUriResources(startResources);
 
     startResources.add(new UriResourceNavigationDouble(startEntity));

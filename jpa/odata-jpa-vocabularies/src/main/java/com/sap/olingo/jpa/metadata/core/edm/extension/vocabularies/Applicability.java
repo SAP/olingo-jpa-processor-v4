@@ -4,6 +4,11 @@
 package com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies;
 
 /**
+ * <p>
+ * Java enumeration for TAppliesTo.
+ * See: <a href="https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#_Toc38530401">14.1.2
+ * Applicability</a>
+ *
  * @author Oliver Grande
  * @since 1.1.1
  * 04.01.2023
@@ -155,4 +160,7 @@ public enum Applicability {
     return odataApplicability;
   }
 
+  public String value() {
+    return odataApplicability;
+  }
 }

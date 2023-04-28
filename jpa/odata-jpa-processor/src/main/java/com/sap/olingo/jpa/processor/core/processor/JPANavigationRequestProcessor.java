@@ -16,6 +16,8 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
+import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -32,6 +34,7 @@ import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -89,7 +92,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       // Read Expand and Collection
       final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(),
           page);
-      result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
+      final JPAExpandWatchDog watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
+      watchDog.watch(uriInfo.getExpandOption(), uriInfo.getUriResourceParts());
+      result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary,
+          watchDog));
       // Convert tuple result into an OData Result
       EntityCollection entityCollection;
       try (JPARuntimeMeasurment converterMeassument = debugger.newMeasurement(this, "convertResult")) {
@@ -267,31 +273,37 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    */
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
       final List<JPANavigationPropertyInfo> parentHops, final UriInfoResource uriResourceInfo,
-      final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
+      final Optional<JPAKeyBoundary> keyBoundary, final JPAExpandWatchDog watchDog) throws ODataException {
 
-    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "readExpandEntities")) {
+    try (JPARuntimeMeasurment expandMeassument = debugger.newMeasurement(this, "readExpandEntities")) {
+
       final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, requestContext, cb);
       final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();
-      // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
-      // For performance reasons the expand query should only return results for the results of the higher-level query.
-      // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
-      // sub-query.
-      // For $top and $skip things are more difficult as the Subquery does not support LIMIT and OFFSET, this is
-      // done on the TypedQuery created out of the CriteriaQuery. In addition not all databases support LIMIT within a
-      // sub-query used within EXISTS.
-      // Solution: Forward the highest and lowest key from the root and create a "between" those.
+      if (watchDog.getRemainingLevels() > 0) {
+        // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
+        // x?$expand=*(levels=3)
+        // For performance reasons the expand query should only return results for the results of the higher-level
+        // query.
+        // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
+        // sub-query.
+        // For $top and $skip things are more difficult as the Subquery does not support LIMIT and OFFSET, this is
+        // done on the TypedQuery created out of the CriteriaQuery. In addition not all databases support LIMIT within a
+        // sub-query used within EXISTS.
+        // Solution: Forward the highest and lowest key from the root and create a "between" those.
 
-      final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
-          .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
-      for (final JPAExpandItemInfo item : itemInfoList) {
-        final JPAAbstractExpandQuery expandQuery = factory.createQuery(item, keyBoundary);
-        final JPAExpandQueryResult expandResult = expandQuery.execute();
-        if (expandResult.getNoResults() > 0)
-          // Only go to the next hop if the current one has a result
-          expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), keyBoundary));
-        allExpResults.put(item.getExpandAssociation(), expandResult);
+        final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
+            .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
+        for (final JPAExpandItemInfo item : watchDog.filter(itemInfoList)) {
+          final JPAAbstractExpandQuery expandQuery = factory.createQuery(item, keyBoundary);
+          final JPAExpandQueryResult expandResult = expandQuery.execute();
+          if (expandResult.getNoResults() > 0)
+            // Only go to the next hop if the current one has a result
+            expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), keyBoundary,
+                watchDog));
+          allExpResults.put(item.getExpandAssociation(), expandResult);
+        }
+        watchDog.levelProcessed();
       }
-
       // process collection attributes
       final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
           .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
@@ -303,5 +315,16 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       }
       return allExpResults;
     }
+  }
+
+  private static Optional<JPAAnnotatable> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
+
+    final EdmBindingTarget bindingTarget = Util.determineBindingTarget(requestContext.getUriInfo()
+        .getUriResourceParts());
+    if (bindingTarget instanceof EdmEntitySet)
+      return requestContext.getEdmProvider().getServiceDocument().getEntitySet(bindingTarget.getName())
+          .map(JPAAnnotatable.class::cast);
+    return Optional.empty();
   }
 }

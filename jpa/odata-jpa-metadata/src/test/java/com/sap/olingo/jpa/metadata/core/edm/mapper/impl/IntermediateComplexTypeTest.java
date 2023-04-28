@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +26,6 @@ import org.mockito.stubbing.Answer;
 import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
@@ -42,14 +42,15 @@ import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 class IntermediateComplexTypeTest extends TestMappingRoot {
   private Set<EmbeddableType<?>> etList;
   private IntermediateSchema schema;
-  private JPAReferences references;
+  private IntermediateAnnotationInformation annotationInfo;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     etList = emf.getMetamodel().getEmbeddables();
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
     schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(
-        Reflections.class));
+        Reflections.class), annotationInfo);
   }
 
   @Test

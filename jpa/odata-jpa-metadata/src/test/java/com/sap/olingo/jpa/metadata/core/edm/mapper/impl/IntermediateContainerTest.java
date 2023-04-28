@@ -27,8 +27,6 @@ import org.reflections8.util.ConfigurationBuilder;
 import org.reflections8.util.FilterBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityContainerAccess;
@@ -45,37 +43,38 @@ class IntermediateContainerTest extends TestMappingRoot {
   private final HashMap<String, IntermediateSchema> schemas = new HashMap<>();
   private Set<EntityType<?>> etList;
   private IntermediateSchema schema;
-  private List<AnnotationProvider> annotationProvider;
-  private JPAReferences refrences;
+  private IntermediateAnnotationInformation annotationInfo;
+  private IntermediateReferences references;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
-    final Reflections r =
+    references = mock(IntermediateReferences.class);
+    final Reflections reflections =
         new Reflections(
             new ConfigurationBuilder()
                 .forPackages(PACKAGE1, PACKAGE2)
                 .filterInputsBy(new FilterBuilder().includePackage(PACKAGE1, PACKAGE2))
                 .setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner()));
 
-    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), references);
+    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
+        annotationInfo);
     etList = emf.getMetamodel().getEntities();
     schemas.put(PUNIT_NAME, schema);
-    annotationProvider = new ArrayList<>();
-    refrences = mock(JPAReferences.class);
+
   }
 
   @Test
   void checkContainerCanBeCreated() throws ODataJPAModelException {
-    assertNotNull(new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME), schemas, annotationProvider,
-        refrences));
+    assertNotNull(new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME), schemas, annotationInfo));
   }
 
   @Test
   void checkGetName() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
     assertEquals("ComSapOlingoJpaContainer", container.getExternalName());
   }
 
@@ -83,7 +82,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNoEntitySets() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
     assertEquals(TestDataConstants.NO_ENTITY_SETS.value, container.getEdmItem().getEntitySets().size());
   }
 
@@ -91,7 +90,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNoSingletons() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
     assertEquals(TestDataConstants.NO_SINGLETONS.value, container.getEdmItem().getSingletons().size());
   }
 
@@ -99,7 +98,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetEntitySetName() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
     final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (final CsdlEntitySet entitySet : entitySets) {
       if (entitySet.getName().equals("BusinessPartners")) return;
@@ -111,7 +110,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetEntitySetType() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
     final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (final CsdlEntitySet entitySet : entitySets) {
       if (entitySet.getName().equals("BusinessPartners")) {
@@ -126,7 +125,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNoNavigationPropertyBindings() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
     final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (final CsdlEntitySet entitySet : entitySets) {
@@ -142,7 +141,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNavigationPropertyBindingsTarget() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
     final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (final CsdlEntitySet entitySet : entitySets) {
@@ -162,7 +161,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNavigationPropertyBindingsPath() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
     final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (final CsdlEntitySet entitySet : entitySets) {
@@ -180,7 +179,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNavigationPropertyBindingsPathComplexType() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
     final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (final CsdlEntitySet entitySet : entitySets) {
@@ -198,7 +197,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNavigationPropertyBindingsPathComplexTypeNested() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
     final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (final CsdlEntitySet entitySet : entitySets) {
@@ -216,25 +215,25 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkGetNoFunctionImportIfBound() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
-    final List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
-    for (final CsdlFunctionImport funcImport : funcImports) {
-      if (funcImport.getName().equals("CountRoles")) {
+    final List<CsdlFunctionImport> functionImports = container.getEdmItem().getFunctionImports();
+    for (final CsdlFunctionImport functionImport : functionImports) {
+      if (functionImport.getName().equals("CountRoles")) {
         fail("Bound function must not generate a function import");
       }
     }
   }
 
   @Test
-  void checkGetNoFunctionImportIfUnBoundHasImportFalse() throws ODataJPAModelException {
+  void checkGetNoFunctionImportIfUnboundHasImportFalse() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
-    final List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
-    for (final CsdlFunctionImport funcImport : funcImports) {
-      if (funcImport.getName().equals("max")) {
+    final List<CsdlFunctionImport> functionImports = container.getEdmItem().getFunctionImports();
+    for (final CsdlFunctionImport functionImport : functionImports) {
+      if (functionImport.getName().equals("max")) {
         fail("UnBound function must not generate a function import if not annotated");
       }
     }
@@ -243,26 +242,26 @@ class IntermediateContainerTest extends TestMappingRoot {
   @Test
   void checkGetNoFunctionImportForJavaBasedFunction() throws ODataJPAModelException {
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
-    final List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
-    for (final CsdlFunctionImport funcImport : funcImports) {
-      if ("Sum".equals(funcImport.getName()))
+    final List<CsdlFunctionImport> functionImports = container.getEdmItem().getFunctionImports();
+    for (final CsdlFunctionImport functionImport : functionImports) {
+      if ("Sum".equals(functionImport.getName()))
         return;
-      System.out.println(funcImport.getName());
+      System.out.println(functionImport.getName());
     }
     fail("Import not found");
   }
 
   @Test
-  void checkGetFunctionImportIfUnBoundHasImportTrue() throws ODataJPAModelException {
+  void checkGetFunctionImportIfUnboundHasImportTrue() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
-    final List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
-    for (final CsdlFunctionImport funcImport : funcImports) {
-      if (funcImport.getName().equals("Olingo V4 ")) {
+    final List<CsdlFunctionImport> functionImports = container.getEdmItem().getFunctionImports();
+    for (final CsdlFunctionImport functionImport : functionImports) {
+      if (functionImport.getName().equals("Olingo V4 ")) {
         fail("UnBound function must be generate a function import is annotated");
       }
     }
@@ -272,7 +271,7 @@ class IntermediateContainerTest extends TestMappingRoot {
   void checkAnnotationSet() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
     final List<CsdlAnnotation> act = container.getEdmItem().getAnnotations();
     assertEquals(1, act.size());
     assertEquals("Capabilities.AsynchronousRequestsSupported", act.get(0).getTerm());
@@ -285,7 +284,7 @@ class IntermediateContainerTest extends TestMappingRoot {
         PUNIT_NAME), getEntityType("BestOrganization"), schema);
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas, annotationProvider, refrences);
+        PUNIT_NAME), schemas, annotationInfo);
 
     final JPAElement act = container.getEntitySet(et);
     assertNotNull(act);

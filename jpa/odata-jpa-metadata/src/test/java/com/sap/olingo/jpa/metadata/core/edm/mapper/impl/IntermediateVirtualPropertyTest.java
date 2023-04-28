@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.persistence.metamodel.Attribute;
@@ -29,11 +30,14 @@ class IntermediateVirtualPropertyTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private IntermediateVirtualProperty cut;
   private Attribute<?, ?> jpaAttribute;
+  private IntermediateAnnotationInformation annotationInfo;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
-    final Reflections r = mock(Reflections.class);
-    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+    final Reflections reflections = mock(Reflections.class);
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
+    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
+        annotationInfo);
     jpaAttribute = mock(Attribute.class);
     when(jpaAttribute.getJavaMember()).thenReturn(null);
     when(jpaAttribute.getName()).thenReturn("DummyName");

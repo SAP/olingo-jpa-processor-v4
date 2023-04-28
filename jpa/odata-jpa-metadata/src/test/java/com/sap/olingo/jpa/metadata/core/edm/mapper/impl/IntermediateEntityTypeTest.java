@@ -81,16 +81,19 @@ import com.sap.olingo.jpa.processor.core.util.TestDataConstants;
 class IntermediateEntityTypeTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private IntermediateSchema errorSchema;
+  private IntermediateAnnotationInformation annotationInfo;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
-    final Reflections r = mock(Reflections.class);
-    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
+    final Reflections reflections = mock(Reflections.class);
+    when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
-
-    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
-    errorSchema = new IntermediateSchema(new JPADefaultEdmNameBuilder(ERROR_PUNIT), errorEmf.getMetamodel(), r);
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
+    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
+        annotationInfo);
+    errorSchema = new IntermediateSchema(new JPADefaultEdmNameBuilder(ERROR_PUNIT), errorEmf.getMetamodel(),
+        reflections, annotationInfo);
   }
 
   @Test
@@ -168,21 +171,21 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetAllNaviProperties() throws ODataJPAModelException {
+  void checkGetAllNavigationProperties() throws ODataJPAModelException {
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals(1, et.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
   }
 
   @Test
-  void checkGetNaviPropertyByNameNotNull() throws ODataJPAModelException {
+  void checkGetNavigationPropertyByNameNotNull() throws ODataJPAModelException {
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertNotNull(et.getEdmItem().getNavigationProperty("Roles"));
   }
 
   @Test
-  void checkGetNaviPropertyByNameCorrectEntity() throws ODataJPAModelException {
+  void checkGetNavigationPropertyByNameCorrectEntity() throws ODataJPAModelException {
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals("Roles", et.getEdmItem().getNavigationProperty("Roles").getName());
@@ -855,6 +858,24 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
+  void checkConvertStringToPathWithSimpleCollectionPath() throws ODataJPAModelException, ODataPathNotFoundException {
+    final IntermediateEntityType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
+    final ODataPropertyPath act = et.convertStringToPath("comment");
+    assertNotNull(act);
+    assertEquals("Comment", act.getPathAsString());
+  }
+
+  @Test
+  void checkConvertStringToPathWithComplexCollectionPath() throws ODataJPAModelException, ODataPathNotFoundException {
+    final IntermediateEntityType<Collection> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Collection.class), schema);
+    final ODataPropertyPath act = et.convertStringToPath("nested");
+    assertNotNull(act);
+    assertEquals("Nested", act.getPathAsString());
+  }
+
+  @Test
   void checkConvertStringToPathThrowsExceptionUnknownPart() throws ODataJPAModelException {
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
@@ -916,7 +937,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkJavaAnnotationsRetunsExistingOnce() {
+  void checkJavaAnnotationsReturnsExistingOnce() {
     final IntermediateStructuredType<AdministrativeDivision> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     final String packageName = Table.class.getPackage().getName();
@@ -929,7 +950,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkJavaAnnotationsRetunsEmptyIfNonPresent() {
+  void checkJavaAnnotationsReturnsEmptyIfNonPresent() {
     final IntermediateStructuredType<AdministrativeDivision> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     final Map<String, Annotation> act = et.javaAnnotations("org.example.test");

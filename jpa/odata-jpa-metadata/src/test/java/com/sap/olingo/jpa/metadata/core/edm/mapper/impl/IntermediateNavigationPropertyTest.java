@@ -14,6 +14,7 @@ import static org.mockito.Mockito.withSettings;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,20 +75,23 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
+  private IntermediateAnnotationInformation annotationInfo;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
-    final Reflections r = mock(Reflections.class);
-    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
+    final Reflections reflections = mock(Reflections.class);
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
+    when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
 
-    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
+        annotationInfo);
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
   }
 
   @Test
-  void checkNaviPropertyCanBeCreated() throws ODataJPAModelException {
+  void checkNavigationPropertyCanBeCreated() throws ODataJPAModelException {
     final EntityType<?> et = helper.getEntityType(BusinessPartner.class);
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
     final JPAAssociationAttribute act = new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -748,8 +752,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     final IntermediateStructuredType<Person> et = schema.getEntityType(Person.class);
     final Attribute<?, ?> attribute = helper.getAttribute(helper.getEntityType(Person.class), "image");
     final IntermediateNavigationProperty<Person> property = new IntermediateNavigationProperty<>(
-        new JPADefaultEdmNameBuilder(
-            PUNIT_NAME), et, attribute, schema);
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), et, attribute, schema);
     final List<? extends JPAJoinColumn> act = property.getJoinColumns();
     assertEquals(1, act.size());
     assertEquals("\"Image_ID\"", act.get(0).getName());
@@ -763,8 +766,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     final Attribute<?, ?> attribute = helper.getAttribute(helper.getEntityType(AssociationOneToOneSource.class),
         "defaultTarget");
     final IntermediateNavigationProperty<AssociationOneToOneSource> property =
-        new IntermediateNavigationProperty<>(
-            new JPADefaultEdmNameBuilder(PUNIT_NAME), et, attribute, schema);
+        new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), et, attribute, schema);
     final List<? extends JPAJoinColumn> act = property.getJoinColumns();
     assertEquals(1, act.size());
     assertEquals("DEFAULTTARGET_ID", act.get(0).getName());

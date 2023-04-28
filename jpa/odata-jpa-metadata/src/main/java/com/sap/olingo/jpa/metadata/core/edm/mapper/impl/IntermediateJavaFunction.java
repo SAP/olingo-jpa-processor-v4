@@ -35,7 +35,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
       final Method javaFunction, final IntermediateSchema schema) throws ODataJPAModelException {
 
     super(nameBuilder, jpaFunction, schema,
-        IntNameBuilder.buildFunctionName(jpaFunction).isEmpty() ? javaFunction.getName() : IntNameBuilder
+        InternalNameBuilder.buildFunctionName(jpaFunction).isEmpty() ? javaFunction.getName() : InternalNameBuilder
             .buildFunctionName(jpaFunction));
 
     this.setExternalName(jpaFunction.name().isEmpty()
@@ -81,7 +81,8 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_NAME_REQUIRED,
               javaFunction.getName(), javaFunction.getDeclaringClass().getName());
         final JPAParameter parameter = new IntermediateFunctionParameter(nameBuilder, definedParameter, nameBuilder
-            .buildPropertyName(definedParameter.name()), declaredParameter.getName(), types[i]);
+            .buildPropertyName(definedParameter.name()), declaredParameter.getName(), types[i],
+            getAnnotationInformation());
         parameterList.add(parameter);
       }
     }

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.annotation.CheckForNull;
 
-public interface JPAAnnotatable {
+public interface ODataAnnotatable {
 
   /**
    * Converts a path given as a string of internal (Java) attribute names into a JPAPath.

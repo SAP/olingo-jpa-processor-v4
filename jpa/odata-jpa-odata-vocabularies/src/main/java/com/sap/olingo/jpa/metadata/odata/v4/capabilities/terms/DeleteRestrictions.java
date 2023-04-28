@@ -26,8 +26,7 @@ import com.sap.olingo.jpa.metadata.odata.v4.general.Vocabulary;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-@Vocabulary(alias = "Capabilities", appliesTo = { Applicability.ENTITY_SET, Applicability.SINGLETON,
-    Applicability.ENTITY_TYPE })
+@Vocabulary(alias = "Capabilities", appliesTo = { Applicability.ENTITY_SET, Applicability.SINGLETON })
 public @interface DeleteRestrictions {
   /**
    * Entities can be deleted

@@ -27,6 +27,7 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
+import org.apache.olingo.server.api.uri.UriResourceSingleton;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
@@ -115,8 +116,8 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
     List<Property> properties = result.getEntities().get(0).getProperties();
 
     for (final UriResource hop : uriInfo.getUriResourceParts()) {
-      if (hop.getKind().equals(UriResourceKind.entitySet)
-          && ((UriResourceEntitySet) hop).getEntitySet() == targetEdmBindingTarget
+      if (isTopLevel(hop)
+          && asTopLevel(hop) == targetEdmBindingTarget
           || hop.getKind().equals(UriResourceKind.navigationProperty)
               && ((UriResourceNavigation) hop).getType() == targetEdmBindingTarget.getEntityType())
         found = true;
@@ -129,6 +130,17 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
       }
     }
     return property;
+  }
+
+  protected EdmBindingTarget asTopLevel(final UriResource hop) {
+    return hop.getKind().equals(UriResourceKind.entitySet)
+        ? ((UriResourceEntitySet) hop).getEntitySet()
+        : ((UriResourceSingleton) hop).getSingleton();
+  }
+
+  protected boolean isTopLevel(final UriResource hop) {
+    return hop.getKind().equals(UriResourceKind.entitySet)
+        || hop.getKind().equals(UriResourceKind.singleton);
   }
 
   private Property getProperty(final String name, final List<Property> properties) {

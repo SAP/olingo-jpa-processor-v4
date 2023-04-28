@@ -39,7 +39,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
       final IntermediateSchema schema, final String internalName) {
 
-    super(nameBuilder, internalName);
+    super(nameBuilder, internalName, schema.getAnnotationInformation());
     this.jpaFunction = jpaFunction;
     this.schema = schema;
   }
@@ -115,14 +115,17 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   protected class IntermediateFunctionParameter extends IntermediateOperationParameter {
     private final EdmParameter jpaParameter;
 
-    IntermediateFunctionParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter) {
-      super(nameBuilder, jpaParameter, jpaParameter.name(), jpaParameter.parameterName(), jpaParameter.type());
+    IntermediateFunctionParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter,
+        final IntermediateAnnotationInformation annotationInfo) {
+      super(nameBuilder, jpaParameter, jpaParameter.name(), jpaParameter.parameterName(), jpaParameter.type(),
+          annotationInfo);
       this.jpaParameter = jpaParameter;
     }
 
     IntermediateFunctionParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter,
-        final String externalName, final String internalName, final Class<?> type) {
-      super(nameBuilder, jpaParameter, externalName, internalName, type);
+        final String externalName, final String internalName, final Class<?> type,
+        final IntermediateAnnotationInformation annotationInfo) {
+      super(nameBuilder, jpaParameter, externalName, internalName, type, annotationInfo);
       this.jpaParameter = jpaParameter;
     }
 

@@ -1,12 +1,13 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
@@ -16,6 +17,9 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateModelItemAccess;
@@ -23,22 +27,25 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateModelIt
 abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
   protected static JPAEdmMetadataPostProcessor postProcessor = new DefaultEdmPostProcessor();
-  protected static final JPANameBuilder IntNameBuilder = new JPANameBuilder();
+  protected static final JPANameBuilder InternalNameBuilder = new JPANameBuilder();
   protected final JPAEdmNameBuilder nameBuilder;
   protected final String internalName;
   protected final List<CsdlAnnotation> edmAnnotations;
+  private final IntermediateAnnotationInformation annotationInformation;
   private boolean toBeIgnored;
   private String externalName;
 
-  static void setPostProcessor(final JPAEdmMetadataPostProcessor pP) {
-    postProcessor = pP;
+  static void setPostProcessor(final JPAEdmMetadataPostProcessor processor) {
+    postProcessor = processor;
   }
 
-  IntermediateModelElement(final JPAEdmNameBuilder nameBuilder, final String internalName) {
+  IntermediateModelElement(final JPAEdmNameBuilder nameBuilder, final String internalName,
+      final IntermediateAnnotationInformation annotationInformation) {
     super();
     this.nameBuilder = nameBuilder;
     this.internalName = internalName;
     this.edmAnnotations = new ArrayList<>();
+    this.annotationInformation = annotationInformation;
   }
 
   @Override
@@ -99,14 +106,12 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return extractionTarget;
   }
 
-  protected IntermediateModelElement findModelElementByEdmItem(final String edmEntityItemName,
-      final Map<String, ? extends IntermediateModelElement> buffer) {
+  protected <T extends IntermediateModelElement> IntermediateModelElement findModelElementByEdmItem(
+      final String edmEntityItemName, final Map<String, T> buffer) {
 
-    for (final Entry<String, ?> bufferItem : buffer.entrySet()) {
-      final IntermediateModelElement modelElement = (IntermediateModelElement) bufferItem.getValue();
-
-      if (edmEntityItemName.equals(modelElement.getExternalName())) {
-        return modelElement;
+    for (final T bufferItem : buffer.values()) {
+      if (edmEntityItemName.equals(bufferItem.getExternalName())) {
+        return bufferItem;
       }
     }
     return null;
@@ -233,4 +238,41 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   protected final boolean emptyString(final String value) {
     return value == null || value.isEmpty();
   }
+
+  protected IntermediateAnnotationInformation getAnnotationInformation() {
+    return annotationInformation;
+  }
+
+  protected CsdlAnnotation filterAnnotation(final String alias, final String term) {
+    final String annotationFqn = annotationInformation.getReferences().convertAlias(alias) + "." + term;
+    return edmAnnotations.stream()
+        .filter(a -> annotationFqn.equals(a.getTerm()))
+        .findFirst()
+        .orElse(null);
+  }
+
+  protected void retrieveAnnotations(final ODataAnnotatable annotatable, final Applicability applicability) {
+    for (final AnnotationProvider provider : annotationInformation.getAnnotationProvider())
+      edmAnnotations.addAll(provider.getAnnotations(applicability, annotatable, annotationInformation.getReferences()));
+  }
+
+  protected Map<String, Annotation> findJavaAnnotation(final String packageName, final Class<?> clazz) {
+    return findJavaAnnotation(packageName, clazz.getAnnotations());
+  }
+
+  protected Map<String, Annotation> findJavaAnnotation(final String packageName,
+      final AnnotatedElement annotatedElement) {
+    return findJavaAnnotation(packageName, annotatedElement.getAnnotations());
+  }
+
+  private Map<String, Annotation> findJavaAnnotation(final String packageName, final Annotation[] annotations) {
+    final Map<String, Annotation> result = new HashMap<>();
+    for (final Annotation a : annotations) {
+      if (a.annotationType().getPackage().getName().equals(packageName)) {
+        result.put(a.annotationType().getSimpleName(), a);
+      }
+    }
+    return result;
+  }
+
 }

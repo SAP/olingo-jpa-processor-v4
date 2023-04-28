@@ -64,8 +64,8 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
 
   @Test
   void checkPropertyCanBeCreated() throws ODataJPAModelException {
-    final EmbeddableType<?> emtype = helper.getEmbeddableType("PostalAddressData");
-    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(emtype, "countryName");
+    final EmbeddableType<?> type = helper.getEmbeddableType("PostalAddressData");
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(type, "countryName");
     assertNotNull(new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema));
   }
 
@@ -432,7 +432,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
   private Attribute<?, ?> createAttributeMock(final boolean association, final boolean associationName,
       final int langFields) {
     final Attribute<?, ?> attribute = mock(Attribute.class);
-    final ManagedType<?> mgedType = mock(ManagedType.class);
+    final ManagedType<?> managedType = mock(ManagedType.class);
     final Member member = mock(AnnotatedMember.class);
 
     when(attribute.getName()).thenReturn("WithLocationField");
@@ -440,7 +440,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
     when(attribute.getDeclaringType()).thenAnswer(new Answer<ManagedType<?>>() {
       @Override
       public ManagedType<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return mgedType;
+        return managedType;
       }
     });
     when(attribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
@@ -450,7 +450,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
       }
     });
 
-    when(mgedType.getJavaType()).thenAnswer(new Answer<Class<BusinessPartner>>() {
+    when(managedType.getJavaType()).thenAnswer(new Answer<Class<BusinessPartner>>() {
       @Override
       public Class<BusinessPartner> answer(final InvocationOnMock invocation) throws Throwable {
         return BusinessPartner.class;

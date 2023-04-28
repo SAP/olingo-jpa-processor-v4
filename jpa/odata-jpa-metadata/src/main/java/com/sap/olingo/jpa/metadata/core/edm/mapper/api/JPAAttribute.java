@@ -13,7 +13,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAAttribute extends JPAElement {
+public interface JPAAttribute extends JPAElement, JPAAnnotatable {
   /**
    * Returns an instance of the converter defined at the attribute, in case an explicit conversion is required. That is,
    * Olingo does not support the Java type. In that case the JPA Processor converts the attribute into the DB type

@@ -11,20 +11,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
+import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourceSingleton;
+import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
+import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +41,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
 import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
+import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 class UtilTest extends TestBase {
   private UriInfoResource uriInfo;
@@ -78,18 +85,18 @@ class UtilTest extends TestBase {
   @Test
   void testDetermineAssociationThrowExceptionOnStartNull() throws ODataJPAModelException {
     final JPAServiceDocument sd = mock(JPAServiceDocument.class);
-    final EdmType naviStart = mock(EdmType.class);
-    when(sd.getEntity(naviStart)).thenReturn(null);
-    assertThrows(ODataJPAUtilException.class, () -> Util.determineAssociation(sd, naviStart, new StringBuilder(
+    final EdmType navigationStart = mock(EdmType.class);
+    when(sd.getEntity(navigationStart)).thenReturn(null);
+    assertThrows(ODataJPAUtilException.class, () -> Util.determineAssociation(sd, navigationStart, new StringBuilder(
         "Start")));
   }
 
   @Test
-  void testDetermineAssociationRethrowsException() throws ODataJPAModelException {
+  void testDetermineAssociationReThrowsException() throws ODataJPAModelException {
     final JPAServiceDocument sd = mock(JPAServiceDocument.class);
-    final EdmType naviStart = mock(EdmType.class);
-    when(sd.getEntity(naviStart)).thenThrow(ODataJPAModelException.class);
-    assertThrows(ODataJPAUtilException.class, () -> Util.determineAssociation(sd, naviStart, new StringBuilder(
+    final EdmType navigationStart = mock(EdmType.class);
+    when(sd.getEntity(navigationStart)).thenThrow(ODataJPAModelException.class);
+    assertThrows(ODataJPAUtilException.class, () -> Util.determineAssociation(sd, navigationStart, new StringBuilder(
         "Start")));
   }
 
@@ -206,6 +213,26 @@ class UtilTest extends TestBase {
     assertEquals(1, act.getKeyPredicates().size());
   }
 
+  @Test
+  void testDetermineAssociationsNavigationPathAndStar() throws ODataException {
+    final TestHelper helper = getHelper();
+    final ExpandOption expandOption = mock(ExpandOption.class);
+    final ExpandItem expandItem = mock(ExpandItem.class);
+    when(expandItem.isStar()).thenReturn(Boolean.TRUE);
+    when(expandOption.getExpandItems()).thenReturn(Collections.singletonList(expandItem));
+
+    final UriResourceEntitySet es = createEntitySetResource("Persons");
+    final UriResourceComplexProperty property = createComplexPropertyResource("AdministrativeInformation");
+
+    resourceParts.add(es);
+    resourceParts.add(property);
+
+    final Map<JPAExpandItem, JPAAssociationPath> act = Util.determineAssociations(helper.sd, resourceParts,
+        expandOption);
+
+    assertEquals(2, act.size());
+  }
+
   private UriResourceNavigation createNavigationResource() {
     final EdmNavigationProperty property = mock(EdmNavigationProperty.class);
     final UriResourceNavigation navigation = mock(UriResourceNavigation.class);
@@ -216,11 +243,37 @@ class UtilTest extends TestBase {
     return navigation;
   }
 
+  private UriResourceEntitySet createEntitySetResource(final String string) {
+    final EdmEntitySet es = mock(EdmEntitySet.class);
+    when(es.getName()).thenReturn("Persons");
+    return createEntitySetResource(es);
+  }
+
   private UriResourceEntitySet createEntitySetResource(final EdmEntitySet es) {
     final UriResourceEntitySet resourceItem = mock(UriResourceEntitySet.class);
     when(resourceItem.getKind()).thenReturn(UriResourceKind.entitySet);
     when(resourceItem.getEntitySet()).thenReturn(es);
     when(resourceItem.getKeyPredicates()).thenReturn(Collections.emptyList());
+    return resourceItem;
+  }
+
+  private UriResourceComplexProperty createComplexPropertyResource(final String string) {
+    final EdmProperty property = mock(EdmProperty.class);
+    final EdmComplexType complexType = mock(EdmComplexType.class);
+    when(property.getName()).thenReturn("AdministrativeInformation");
+    when(complexType.getNamespace()).thenReturn(PUNIT_NAME);
+    when(complexType.getName()).thenReturn("AdministrativeInformation");
+
+    return createComplexPropertyResource(complexType, property);
+  }
+
+  private UriResourceComplexProperty createComplexPropertyResource(final EdmComplexType complexType,
+      final EdmProperty property) {
+    final UriResourceComplexProperty resourceItem = mock(UriResourceComplexProperty.class);
+
+    when(resourceItem.getKind()).thenReturn(UriResourceKind.complexProperty);
+    when(resourceItem.getProperty()).thenReturn(property);
+    when(resourceItem.getComplexType()).thenReturn(complexType);
     return resourceItem;
   }
 }

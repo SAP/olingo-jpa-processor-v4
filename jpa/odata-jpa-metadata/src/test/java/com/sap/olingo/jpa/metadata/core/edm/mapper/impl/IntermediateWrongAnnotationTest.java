@@ -12,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
@@ -38,9 +40,11 @@ class IntermediateWrongAnnotationTest {
   private TestHelper helper;
   protected static final String PUNIT_NAME = "error";
   protected static EntityManagerFactory emf;
+  protected IntermediateAnnotationInformation annotationInfo;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
@@ -82,7 +86,7 @@ class IntermediateWrongAnnotationTest {
         NavigationAttributeProtected.class), "teams");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateNavigationProperty<NavigationAttributeProtected>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        () -> new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
             helper.schema.getEntityType(NavigationAttributeProtected.class), jpaAttribute, helper.schema));
 
     assertEquals(NOT_SUPPORTED_PROTECTED_NAVIGATION.name(), act.getId());

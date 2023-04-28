@@ -39,6 +39,7 @@ import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -65,6 +66,7 @@ final class JPAOrderByBuilder {
   private final From<?, ?> target;
   private final CriteriaBuilder cb;
   private final List<String> groups;
+  private final JPAOrderByBuilderWatchDog watchDog;
 
   JPAOrderByBuilder(final JPAEntityType jpaEntity, final From<?, ?> target, final CriteriaBuilder cb,
       final List<String> groups) {
@@ -73,6 +75,17 @@ final class JPAOrderByBuilder {
     this.target = target;
     this.cb = cb;
     this.groups = groups;
+    this.watchDog = new JPAOrderByBuilderWatchDog();
+  }
+
+  JPAOrderByBuilder(final JPAAnnotatable annotatable, final JPAEntityType jpaEntity, final From<?, ?> target,
+      final CriteriaBuilder cb, final List<String> groups) throws ODataJPAQueryException {
+    super();
+    this.jpaEntity = jpaEntity;
+    this.target = target;
+    this.cb = cb;
+    this.groups = groups;
+    this.watchDog = new JPAOrderByBuilderWatchDog(annotatable);
   }
 
   /**
@@ -119,6 +132,7 @@ final class JPAOrderByBuilder {
       if (uriResource.getOrderByOption() != null) {
         LOGGER.trace(LOG_ORDER_BY);
         addOrderByFromUriResource(joinTables, result, orderBys, uriResource.getOrderByOption());
+        watchDog.watch(result);
       }
       if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null
           || (page != null && page.getTop() != Integer.MAX_VALUE)) {
@@ -279,16 +293,16 @@ final class JPAOrderByBuilder {
       if (expression instanceof Member) {
         final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
         JPAStructuredType type = jpaEntity;
-        Path<?> p = target;
+        Path<?> path = target;
         final StringBuilder externalPath = new StringBuilder();
         for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
           if (isPrimitiveSimpleProperty(uriResourceItem)) {
-            p = convertPropertyPath(type, uriResourceItem, p);
-            addOrderByExpression(orders, orderByItem, orderByPaths, p);
+            path = convertPropertyPath(type, uriResourceItem, path);
+            addOrderByExpression(orders, orderByItem, orderByPaths, path);
           } else if (isComplexSimpleProperty(uriResourceItem)) {
             final JPAAttribute attribute = getAttribute(type, uriResourceItem);
             addPathByAttribute(externalPath, attribute);
-            p = p.get(attribute.getInternalName());
+            path = path.get(attribute.getInternalName());
             type = attribute.getStructuredType();
           } else if (uriResourceItem instanceof UriResourceNavigation
               || (uriResourceItem instanceof UriResourceProperty

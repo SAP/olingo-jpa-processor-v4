@@ -18,7 +18,6 @@ import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
-import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.ExpandRestrictions;
 
 @EdmFunction(
     name = "SiblingsBound",
@@ -62,7 +61,6 @@ import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.ExpandRestriction
     parameter = {
         @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class) })
 
-@ExpandRestrictions(maxLevels = 2)
 @IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "AdministrativeDivision")
 @Table(schema = "\"OLINGO\"", name = "\"AdministrativeDivision\"")

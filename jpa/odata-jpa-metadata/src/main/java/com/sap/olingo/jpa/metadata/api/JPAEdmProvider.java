@@ -48,6 +48,12 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     this(namespace, Objects.requireNonNull(emf.getMetamodel()), postProcessor, packageName, Collections.emptyList());
   }
 
+  public JPAEdmProvider(@Nonnull final String namespace, final EntityManagerFactory emf,
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) throws ODataException {
+    this(namespace, Objects.requireNonNull(emf.getMetamodel()), postProcessor, packageName, annotationProvider);
+  }
+
   public JPAEdmProvider(@Nonnull final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
       final List<AnnotationProvider> annotationProvider) throws ODataException {

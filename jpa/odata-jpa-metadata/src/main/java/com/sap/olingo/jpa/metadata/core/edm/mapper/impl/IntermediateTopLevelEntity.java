@@ -9,9 +9,7 @@ import java.util.Optional;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAAnnotatable;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
@@ -25,23 +23,19 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 abstract class IntermediateTopLevelEntity extends IntermediateModelElement implements JPATopLevelEntity,
-    JPAAnnotatable {
+    ODataAnnotatable {
 
   final IntermediateEntityType<?> entityType;
-  final List<AnnotationProvider> annotationProvider;
-  final JPAReferences references;
 
   IntermediateTopLevelEntity(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et,
-      final List<AnnotationProvider> annotationProvider, final JPAReferences references) {
+      final IntermediateAnnotationInformation annotationInfo) {
 
-    super(nameBuilder, IntNameBuilder.buildEntitySetName(nameBuilder, et));
+    super(nameBuilder, InternalNameBuilder.buildEntitySetName(nameBuilder, et), annotationInfo);
     this.entityType = et;
-    this.annotationProvider = annotationProvider;
-    this.references = references;
   }
 
   protected List<CsdlNavigationPropertyBinding> determinePropertyBinding() throws ODataJPAModelException {
-    final List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<>();
+    final List<CsdlNavigationPropertyBinding> navigationPropBindingList = new ArrayList<>();
     final List<JPAAssociationPath> navigationPropertyList = entityType.getAssociationPathList();
     if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
@@ -53,18 +47,18 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
                 .asSingleton())) {
           continue;
         }
-        final CsdlNavigationPropertyBinding navPropBinding = new CsdlNavigationPropertyBinding();
+        final CsdlNavigationPropertyBinding navigationPropBinding = new CsdlNavigationPropertyBinding();
 
-        navPropBinding.setPath(navigationPropertyPath.getAlias());
+        navigationPropBinding.setPath(navigationPropertyPath.getAlias());
 
         // TODO Check is FQN is better here
         final JPAAssociationAttribute navigationProperty = navigationPropertyPath.getLeaf();
-        navPropBinding.setTarget(nameBuilder.buildEntitySetName(navigationProperty.getTargetEntity()
+        navigationPropBinding.setTarget(nameBuilder.buildEntitySetName(navigationProperty.getTargetEntity()
             .getExternalName()));
-        navPropBindingList.add(navPropBinding);
+        navigationPropBindingList.add(navigationPropBinding);
       }
     }
-    return navPropBindingList;
+    return navigationPropBindingList;
   }
 
   /**

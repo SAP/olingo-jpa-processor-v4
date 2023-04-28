@@ -19,6 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 class IntermediateModelElementTest {
   private IntermediateModelElementImpl cut;
+  private IntermediateAnnotationInformation annotationInfo;
 
   static Stream<Arguments> boxPrimitive() {
     return Stream.of(
@@ -42,7 +43,7 @@ class IntermediateModelElementTest {
 
   @BeforeEach
   void setup() {
-    cut = new IntermediateModelElementImpl(new JPADefaultEdmNameBuilder("Dummy"), "Test");
+    cut = new IntermediateModelElementImpl(new JPADefaultEdmNameBuilder("Dummy"), "Test", annotationInfo);
   }
 
   @ParameterizedTest
@@ -63,8 +64,9 @@ class IntermediateModelElementTest {
 
   private class IntermediateModelElementImpl extends IntermediateModelElement {
 
-    public IntermediateModelElementImpl(final JPADefaultEdmNameBuilder nameBuilder, final String internalName) {
-      super(nameBuilder, internalName);
+    public IntermediateModelElementImpl(final JPADefaultEdmNameBuilder nameBuilder, final String internalName,
+        final IntermediateAnnotationInformation annotationInfo) {
+      super(nameBuilder, internalName, annotationInfo);
     }
 
     @Override

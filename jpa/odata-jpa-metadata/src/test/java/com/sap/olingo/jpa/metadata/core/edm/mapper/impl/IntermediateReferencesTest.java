@@ -27,7 +27,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AppliesTo;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabularyReadException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -211,7 +211,7 @@ class IntermediateReferencesTest extends TestMappingRoot {
 
     final IntermediateReferenceAccess ref = cut.addReference(CORE_V1_URL, CORE_V1_PATH);
     ref.addInclude("Org.OData.Core.V1", "Core");
-    final List<CsdlTerm> act = cut.getTerms("Core", AppliesTo.ENTITY_SET);
+    final List<CsdlTerm> act = cut.getTerms("Core", Applicability.ENTITY_SET);
     assertNotNull(act);
     assertEquals(6, act.size());
 

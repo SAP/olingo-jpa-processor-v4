@@ -46,12 +46,12 @@ public interface IntermediateReferenceList extends ReferenceList {
    * Loads a referenced external CSDL document from the file system. The document has to be a XML document.
    * @param uri A uniquely identifier of a referenced document, so two references MUST NOT specify the same URI.
    * @param path Path to the CSDL document
-   * @param charset Character set to be used when loading the document.
+   * @param charSet Character set to be used when loading the document.
    * @return
    * @throws ODataJPAModelException
    */
   public IntermediateReferenceAccess addReference(@Nonnull final String uri, @Nonnull final String path,
-      @Nonnull final Charset charset) throws ODataJPAModelException;
+      @Nonnull final Charset charSet) throws ODataJPAModelException;
 
   public interface IntermediateReferenceAccess extends ReferenceAccess {
     public URI getURI();

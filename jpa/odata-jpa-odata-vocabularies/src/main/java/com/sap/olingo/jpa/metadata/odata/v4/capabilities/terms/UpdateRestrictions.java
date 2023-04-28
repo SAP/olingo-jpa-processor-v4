@@ -14,7 +14,7 @@ import com.sap.olingo.jpa.metadata.odata.v4.general.Vocabulary;
 
 /**
  * OData core annotation <a href =
- * "https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Capabilities.V1.xml#L600"><i>InsertRestrictions</i></a>:
+ * "https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Capabilities.V1.xml#L690"><i>InsertRestrictions</i></a>:
  * <br>
  * Restrictions on insert operations.
  * <p>

@@ -80,7 +80,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
 
   IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType<S> parent,
       final Attribute<?, ?> jpaAttribute, final IntermediateSchema schema) throws ODataJPAModelException {
-    super(nameBuilder, IntNameBuilder.buildAssociationName(jpaAttribute));
+    super(nameBuilder, InternalNameBuilder.buildAssociationName(jpaAttribute), schema.getAnnotationInformation());
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
     this.sourceType = parent;
@@ -260,6 +260,14 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
       lazyBuildEdmItem();
     }
     return edmNaviProperty;
+  }
+
+  @Override
+  public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    if (edmNaviProperty == null) {
+      lazyBuildEdmItem();
+    }
+    return filterAnnotation(alias, term);
   }
 
   PersistentAttributeType getJoinCardinality() {
@@ -648,16 +656,16 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
   private void fillMissingName(final boolean isSourceOne, final IntermediateJoinColumn intermediateColumn)
       throws ODataJPAModelException {
 
-    final String refColumnName = intermediateColumn.getReferencedColumnName();
+    final String referencedColumnName = intermediateColumn.getReferencedColumnName();
     final String name = intermediateColumn.getName();
 
     if (isSourceOne && (name == null || name.isEmpty()))
       intermediateColumn.setName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
           .getKey().get(0)).getDBFieldName());
-    else if (isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
+    else if (isSourceOne && (referencedColumnName == null || referencedColumnName.isEmpty()))
       intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetType)
           .getKey().get(0)).getDBFieldName());
-    else if (!isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
+    else if (!isSourceOne && (referencedColumnName == null || referencedColumnName.isEmpty()))
       intermediateColumn.setName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (name == null || name.isEmpty()))

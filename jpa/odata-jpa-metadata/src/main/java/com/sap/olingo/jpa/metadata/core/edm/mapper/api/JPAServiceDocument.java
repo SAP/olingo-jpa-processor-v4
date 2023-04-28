@@ -2,8 +2,10 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -47,8 +49,7 @@ public interface JPAServiceDocument extends CustomETagSupport {
   /**
    *
    * Returns the internal representation of an entity type by given entity set or singleton name. Entity types that are
-   * annotated
-   * with EdmIgnore are ignored.
+   * annotated with EdmIgnore are ignored.
    * @param edmTargetName
    * @return null if not found
    * @throws ODataJPAModelException
@@ -83,6 +84,14 @@ public interface JPAServiceDocument extends CustomETagSupport {
 
   @CheckForNull
   JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException;
+
+  /**
+   * Find an entity set based on the external name. Entity sets marked as with EdmIgnore are ignored
+   * @param edmTargetName
+   * @return
+   * @throws ODataJPAModelException
+   */
+  Optional<JPAEntitySet> getEntitySet(@Nonnull final String edmTargetName) throws ODataJPAModelException;
 
   List<EdmxReference> getReferences();
 

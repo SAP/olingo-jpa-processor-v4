@@ -86,6 +86,9 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneTarget</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManySource</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManyTarget</class>	
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsSingleton</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.DetailSettings</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.validation.mode" value="NONE" />

@@ -22,8 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
@@ -38,6 +38,7 @@ import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.FilterRestriction
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.FilterRestrictions.FilterExpressionRestrictionType;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateMethod;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateRestrictions;
+import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Immutable;
 
 @ExpandRestrictions(maxLevels = 2, nonExpandableProperties = { "roles" })
 @FilterFunctions({ "at", "sum" })
@@ -48,28 +49,44 @@ import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateRestriction
 @UpdateRestrictions(updateMethod = UpdateMethod.PATCH)
 @CountRestrictions(nonCountableProperties = {},
     nonCountableNavigationProperties = { "parent", "children" })
+
 @EdmIgnore
 class JavaAnnotationConverterTest {
 
-  private static final String CAPABILITIES_ANNOTATIONS = "vocabularies/Org.OData.Capabilities.V1.xml";
   private JPAReferences references;
-  private JPAAnnotatable annotatable;
+  private ODataAnnotatable annotatable;
+  @Immutable
   private CsdlDocument vocabulary;
   private JavaAnnotationConverter cut;
 
   @BeforeEach
   void setup() throws IOException, ODataJPAVocabulariesException {
-    vocabulary = new CsdlDocumentReader().readFromResource(CAPABILITIES_ANNOTATIONS, Charset.defaultCharset());
-    references = new ReferencesImpl(vocabulary);
-    annotatable = mock(JPAAnnotatable.class);
+    vocabulary = new CsdlDocumentReader().readFromResource(JavaBasedCapabilitiesAnnotationsProvider.PATH,
+        Charset.defaultCharset());
+    references = new References(vocabulary);
+    annotatable = mock(ODataAnnotatable.class);
     cut = new JavaAnnotationConverter();
   }
 
   @Test
-  void checkAnnotationWithoutAliaseIgnored() {
+  void checkAnnotationWithoutAliasIgnored() {
     final EdmIgnore ignore = this.getClass().getAnnotation(EdmIgnore.class);
     final Optional<CsdlAnnotation> act = cut.convert(references, ignore, annotatable);
     assertFalse(act.isPresent());
+  }
+
+  @Test
+  void checkAnnotationWithPrimitiveType() throws ODataJPAVocabulariesException, IOException, NoSuchFieldException,
+      SecurityException {
+    vocabulary = new CsdlDocumentReader().readFromResource(JavaBasedCoreAnnotationsProvider.PATH,
+        Charset.defaultCharset());
+    references = new References(vocabulary);
+
+    final Immutable immutable = this.getClass().getDeclaredField("vocabulary").getAnnotation(Immutable.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, immutable, annotatable);
+
+    assertTrue(act.isPresent());
+    assertEquals(JavaBasedCoreAnnotationsProvider.NAMESPACE + "." + "Immutable", act.get().getTerm());
   }
 
   @Test
@@ -82,7 +99,7 @@ class JavaAnnotationConverterTest {
     final Optional<CsdlAnnotation> act = cut.convert(references, er, annotatable);
 
     assertTrue(act.isPresent());
-    assertEquals(JavaAnnotationConverter.CAPABILITIES_NAMESPACE + ".ExpandRestrictions", act.get().getTerm());
+    assertEquals(JavaBasedCapabilitiesAnnotationsProvider.NAMESPACE + ".ExpandRestrictions", act.get().getTerm());
     assertTrue(act.get().getExpression() instanceof CsdlRecord);
     assertNotNull(new FullQualifiedName(act.get().getTerm()));
     final List<CsdlPropertyValue> actProperties = ((CsdlRecord) act.get().getExpression()).getPropertyValues();
@@ -105,9 +122,8 @@ class JavaAnnotationConverterTest {
     final Optional<CsdlAnnotation> act = cut.convert(references, ff, annotatable);
 
     assertTrue(act.isPresent());
-    assertEquals(JavaAnnotationConverter.CAPABILITIES_NAMESPACE + "." + "FilterFunctions", act.get().getTerm());
+    assertEquals(JavaBasedCapabilitiesAnnotationsProvider.NAMESPACE + "." + "FilterFunctions", act.get().getTerm());
     assertEquals(2, ((CsdlCollection) act.get().getExpression()).getItems().size());
-
   }
 
   @Test

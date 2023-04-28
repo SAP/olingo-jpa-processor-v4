@@ -6,6 +6,7 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_CALCULATOR_WRONG_PARAMETER;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_KEY_NOT_SUPPORTED;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -51,6 +52,11 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -70,7 +76,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
  *
  */
 abstract class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess,
-    JPAAttribute {
+    ODataAnnotatable, JPAAttribute {
   private static final Log LOGGER = LogFactory.getLog(IntermediateProperty.class);
   private static final int UPPER_LIMIT_PRECISION_TEMP = 12;
   private static final int LOWER_LIMIT_PRECISION_TEMP = 0;
@@ -95,8 +101,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   private Constructor<? extends EdmTransientPropertyCalculator<?>> transientCalculatorConstructor;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
-      final IntermediateSchema schema) throws ODataJPAModelException {
-    super(nameBuilder, IntNameBuilder.buildAttributeName(jpaAttribute));
+      final IntermediateSchema schema)
+      throws ODataJPAModelException {
+    super(nameBuilder, InternalNameBuilder.buildAttributeName(jpaAttribute), schema.getAnnotationInformation());
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
     this.managedType = jpaAttribute.getDeclaringType();
@@ -213,12 +220,34 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return requiredAttributes != null;
   }
 
+  @Override
+  public ODataPropertyPath convertStringToPath(final String internalPath) throws ODataPathNotFoundException {
+    return null;
+  }
+
+  @Override
+  public ODataNavigationPath convertStringToNavigationPath(final String internalPath)
+      throws ODataPathNotFoundException {
+    return null;
+  }
+
+  @Override
+  public Annotation javaAnnotation(final String name) {
+    return null;
+  }
+
+  @Override
+  public Map<String, Annotation> javaAnnotations(final String packageName) {
+    return findJavaAnnotation(packageName, ((AnnotatedElement) this.jpaAttribute.getJavaMember()));
+  }
+
   protected void buildProperty(final JPAEdmNameBuilder nameBuilder) throws ODataJPAModelException {
     // Set element specific attributes of super type
     this.setExternalName(nameBuilder.buildPropertyName(internalName));
     entityType = dbType = determinePropertyType();
 
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+      retrieveAnnotations(this, Applicability.PROPERTY);
       determineIgnore();
       determineStructuredType();
       determineInternalTypesFromConverter();
@@ -238,16 +267,16 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName);
   }
 
-  protected FullQualifiedName determineTypeByPersistenceType(final Enum<?> persistanceType)
+  protected FullQualifiedName determineTypeByPersistenceType(final Enum<?> persistenceType)
       throws ODataJPAModelException {
-    if (PersistentAttributeType.BASIC.equals(persistanceType) || PersistenceType.BASIC.equals(persistanceType)) {
+    if (PersistentAttributeType.BASIC.equals(persistenceType) || PersistenceType.BASIC.equals(persistenceType)) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
       if (odataType == null)
         return getSimpleType();
       else
         return odataType.getExternalFQN();
     }
-    if (PersistentAttributeType.EMBEDDED.equals(persistanceType) || PersistenceType.EMBEDDABLE.equals(persistanceType))
+    if (PersistentAttributeType.EMBEDDED.equals(persistenceType) || PersistenceType.EMBEDDABLE.equals(persistenceType))
       return buildFQN(type.getExternalName());
     else
       return EdmPrimitiveTypeKind.Boolean.getFullQualifiedName();
@@ -275,6 +304,11 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       edmProperty.setMapping(createMapper());
       edmProperty.setAnnotations(edmAnnotations);
     }
+  }
+
+  @Override
+  public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    return filterAnnotation(alias, term);
   }
 
   /**
@@ -495,9 +529,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       throw new ODataJPAModelException(TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS,
           calculator.getName(), jpaAttribute.getName(),
           jpaAttribute.getJavaMember().getDeclaringClass().getName());
-    final Constructor<?> c = calculator.getConstructors()[0];
-    if (c.getParameters() != null) {
-      for (final Parameter p : c.getParameters()) {
+    final Constructor<?> constructor = calculator.getConstructors()[0];
+    if (constructor.getParameters() != null) {
+      for (final Parameter p : constructor.getParameters()) {
         if (!(p.getType().isAssignableFrom(EntityManager.class)
             || p.getType().isAssignableFrom(JPAParameter.class)
             || p.getType().isAssignableFrom(JPAHttpHeaderMap.class)))
@@ -506,7 +540,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
               jpaAttribute.getJavaMember().getDeclaringClass().getName());
       }
     }
-    return (Constructor<? extends EdmTransientPropertyCalculator<?>>) c;
+    return (Constructor<? extends EdmTransientPropertyCalculator<?>>) constructor;
   }
 
   private void determineDBFieldName() {
@@ -516,9 +550,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       // TODO allow default name
       dbFieldName = jpaColumnDetails.name();
       if (dbFieldName.isEmpty()) {
-        final StringBuilder s = new StringBuilder(DB_FIELD_NAME_PATTERN);
-        s.replace(1, 3, internalName);
-        dbFieldName = s.toString();
+        final StringBuilder stringBuilder = new StringBuilder(DB_FIELD_NAME_PATTERN);
+        stringBuilder.replace(1, 3, internalName);
+        dbFieldName = stringBuilder.toString();
       }
     } else {
       // Hibernate problem: Hibernate tested with 5.6.7 did not provide Column annotation

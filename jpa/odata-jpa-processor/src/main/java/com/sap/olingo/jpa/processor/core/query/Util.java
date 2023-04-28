@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -41,6 +42,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
@@ -51,45 +53,48 @@ public final class Util {
   public static final String VALUE_RESOURCE = "$VALUE";
   private static final Log LOGGER = LogFactory.getLog(Util.class);
 
-  public static JPAAssociationPath determineAssociation(final JPAServiceDocument sd, final EdmType naviStart,
+  public static JPAAssociationPath determineAssociation(final JPAServiceDocument sd, final EdmType navigationStart,
       final StringBuilder associationName) throws ODataApplicationException {
 
-    final JPAEntityType naviStartType;
+    final JPAEntityType navigationStartType;
     try {
-      naviStartType = sd.getEntity(naviStart);
-      if (naviStartType == null)
+      navigationStartType = sd.getEntity(navigationStart);
+      if (navigationStartType == null)
         throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
-      return naviStartType.getAssociationPath(associationName.toString());
+      return navigationStartType.getAssociationPath(associationName.toString());
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST, e);
     }
   }
 
   public static JPAAssociationPath determineAssociationPath(final JPAServiceDocument sd,
-      final UriResourcePartTyped naviStart, final StringBuilder associationName) throws ODataApplicationException {
+      final UriResourcePartTyped navigationStart, final StringBuilder associationName)
+      throws ODataApplicationException {
 
-    JPAEntityType naviStartType = null;
+    JPAEntityType navigationStartType = null;
     try {
-      if (naviStart instanceof UriResourceEntitySet) {
-        if (((UriResourceEntitySet) naviStart).getTypeFilterOnEntry() != null)
-          naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getTypeFilterOnEntry());
-        else if (((UriResourceEntitySet) naviStart).getTypeFilterOnCollection() != null)
-          naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getTypeFilterOnCollection());
+      if (navigationStart instanceof UriResourceEntitySet) {
+        if (((UriResourceEntitySet) navigationStart).getTypeFilterOnEntry() != null)
+          navigationStartType = sd.getEntity(((UriResourceEntitySet) navigationStart).getTypeFilterOnEntry());
+        else if (((UriResourceEntitySet) navigationStart).getTypeFilterOnCollection() != null)
+          navigationStartType = sd.getEntity(((UriResourceEntitySet) navigationStart).getTypeFilterOnCollection());
         else
-          naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
+          navigationStartType = sd.getEntity(((UriResourceEntitySet) navigationStart).getType());
       }
-      if (naviStart instanceof UriResourceSingleton) {
-        naviStartType = sd.getEntity(((UriResourceSingleton) naviStart).getType());
-      } else if (naviStart instanceof UriResourceNavigation) {
-        if (((UriResourceNavigation) naviStart).getTypeFilterOnEntry() != null)
-          naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getTypeFilterOnEntry());
+      if (navigationStart instanceof UriResourceSingleton) {
+        navigationStartType = sd.getEntity(((UriResourceSingleton) navigationStart).getType());
+      } else if (navigationStart instanceof UriResourceNavigation) {
+        if (((UriResourceNavigation) navigationStart).getTypeFilterOnEntry() != null)
+          navigationStartType = sd.getEntity(((UriResourceNavigation) navigationStart).getTypeFilterOnEntry());
         else
-          naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
+          navigationStartType = sd.getEntity(((UriResourceNavigation) navigationStart).getProperty().getType());
       }
-      JPAAssociationPath path = naviStartType == null ? null : naviStartType.getAssociationPath(associationName
-          .toString());
-      if (path == null && naviStartType != null) {
-        final JPACollectionAttribute collection = naviStartType.getCollectionAttribute(associationName.toString());
+      JPAAssociationPath path = navigationStartType == null ? null : navigationStartType.getAssociationPath(
+          associationName
+              .toString());
+      if (path == null && navigationStartType != null) {
+        final JPACollectionAttribute collection = navigationStartType.getCollectionAttribute(associationName
+            .toString());
         if (collection != null)
           path = collection.asAssociation();
       }
@@ -124,18 +129,26 @@ public final class Util {
       // Example4 : ?$expand=*
       // Example5 : ?$expand=*/$ref,Parent
       // Example6 : ?$expand=Parent($levels=2)
-      // Example7 : ?$expand=BusinessPartner/com.sap.olingo.jpa.Person
+      // Example7 : ?$expand=*($levels=2)
+      // Example8 : ?$expand=BusinessPartner/com.sap.olingo.jpa.Person
       StringBuilder associationName;
       for (final ExpandItem item : expandOption.getExpandItems()) {
         if (item.isStar()) {
           final EdmBindingTarget edmBindingTarget = determineBindingTarget(startResourceList);
           try {
-            final JPAEntityType jpaEntityType = sd.getEntity(edmBindingTarget.getName());
-            if (jpaEntityType == null)
+            final JPAStructuredType jpaStructuredType = sd.getEntity(edmBindingTarget.getName());
+            if (jpaStructuredType == null)
               throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
-            final List<JPAAssociationPath> associationPaths = jpaEntityType.getAssociationPathList();
+            final List<JPAAssociationPath> associationPaths = jpaStructuredType.getAssociationPathList();
             for (final JPAAssociationPath path : associationPaths) {
-              pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
+              if (associationNamePrefix.length() == 0 ||
+                  path.getAlias().startsWith(associationNamePrefix.toString())) {
+                if (item.getLevelsOption() != null && path.getSourceType() == path.getTargetType())
+                  pathList.put(new JPAExpandLevelWrapper(expandOption, (JPAEntityType) path.getTargetType(),
+                      findNavigationProperty(edmBindingTarget, path), item), path);
+                else
+                  pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
+              }
             }
           } catch (final ODataJPAModelException e) {
             throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST, e);
@@ -156,7 +169,7 @@ public final class Util {
             }
           }
           if (item.getLevelsOption() != null)
-            pathList.put(new JPAExpandLevelWrapper(sd, expandOption), Util.determineAssociation(sd,
+            pathList.put(new JPAExpandLevelWrapper(sd, expandOption, item), Util.determineAssociation(sd,
                 ((UriResourcePartTyped) startResourceItem).getType(), associationName));
           else
             pathList.put(new JPAExpandItemWrapper(sd, item), Util.determineAssociation(sd,
@@ -174,7 +187,7 @@ public final class Util {
   public static EdmBindingTargetInfo determineBindingTargetAndKeys(final List<UriResource> resources) {
     EdmBindingTarget targetEdmBindingTarget = null;
     List<UriParameter> targetKeyPredicates = new ArrayList<>();
-    StringBuilder naviPropertyName = new StringBuilder();
+    StringBuilder navigationPropertyName = new StringBuilder();
 
     for (final UriResource resourceItem : resources) {
       if (resourceItem.getKind() == UriResourceKind.entitySet) {
@@ -182,30 +195,30 @@ public final class Util {
         targetKeyPredicates = ((UriResourceEntitySet) resourceItem).getKeyPredicates();
       }
       if (resourceItem.getKind() == UriResourceKind.singleton) {
-        targetEdmBindingTarget = determineBindingTragetOfSingleton((UriResourceSingleton) resourceItem);
+        targetEdmBindingTarget = determineBindingTargetOfSingleton((UriResourceSingleton) resourceItem);
         targetKeyPredicates = Collections.emptyList();
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
-        naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(PATH_SEPARATOR);
+        navigationPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
+        navigationPropertyName.append(PATH_SEPARATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
-        naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
+        navigationPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
         targetKeyPredicates = ((UriResourceNavigation) resourceItem).getKeyPredicates();
         final EdmBindingTarget edmBindingTarget = determineBindingTargetOfNavigation(targetEdmBindingTarget,
-            (UriResourceNavigation) resourceItem, naviPropertyName);
+            (UriResourceNavigation) resourceItem, navigationPropertyName);
         if (edmBindingTarget instanceof EdmEntitySet || edmBindingTarget instanceof EdmBoundCast)
           targetEdmBindingTarget = edmBindingTarget;
-        naviPropertyName = new StringBuilder();
+        navigationPropertyName = new StringBuilder();
       }
     }
-    return new EdmBindingTargetResult(targetEdmBindingTarget, targetKeyPredicates, naviPropertyName.toString());
+    return new EdmBindingTargetResult(targetEdmBindingTarget, targetKeyPredicates, navigationPropertyName.toString());
   }
 
   private static EdmBindingTarget determineBindingTargetOfNavigation(final EdmBindingTarget targetEdmBindingTarget,
-      final UriResourceNavigation resourceItem, final StringBuilder naviPropertyName) {
+      final UriResourceNavigation resourceItem, final StringBuilder navigationPropertyName) {
 
-    final EdmBindingTarget target = targetEdmBindingTarget.getRelatedBindingTarget(naviPropertyName
+    final EdmBindingTarget target = targetEdmBindingTarget.getRelatedBindingTarget(navigationPropertyName
         .toString());
     if (target instanceof EdmBindingTarget) {
       if (resourceItem.getTypeFilterOnEntry() != null)
@@ -232,7 +245,7 @@ public final class Util {
   public static EdmBindingTargetInfo determineModifyEntitySetAndKeys(@Nonnull final List<UriResource> resources) {
     EdmEntitySet targetEdmEntitySet = null;
     List<UriParameter> targetKeyPredicates = new ArrayList<>();
-    StringBuilder naviPropertyName = new StringBuilder();
+    StringBuilder navigationPropertyName = new StringBuilder();
 
     for (final UriResource resourceItem : resources) {
       if (resourceItem.getKind() == UriResourceKind.entitySet) {
@@ -240,23 +253,23 @@ public final class Util {
         targetKeyPredicates = ((UriResourceEntitySet) resourceItem).getKeyPredicates();
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
-        naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(PATH_SEPARATOR);
+        navigationPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
+        navigationPropertyName.append(PATH_SEPARATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
-        naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
+        navigationPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
         final List<UriParameter> keyPredicates = ((UriResourceNavigation) resourceItem).getKeyPredicates();
         if (!keyPredicates.isEmpty()) {
           targetKeyPredicates = keyPredicates;
-          final EdmBindingTarget edmBindingTarget = targetEdmEntitySet.getRelatedBindingTarget(naviPropertyName
+          final EdmBindingTarget edmBindingTarget = targetEdmEntitySet.getRelatedBindingTarget(navigationPropertyName
               .toString());
           if (edmBindingTarget instanceof EdmEntitySet)
             targetEdmEntitySet = (EdmEntitySet) edmBindingTarget;
-          naviPropertyName = new StringBuilder();
+          navigationPropertyName = new StringBuilder();
         }
       }
     }
-    return new EdmBindingTargetResult(targetEdmEntitySet, targetKeyPredicates, naviPropertyName.toString());
+    return new EdmBindingTargetResult(targetEdmEntitySet, targetKeyPredicates, navigationPropertyName.toString());
   }
 
   /**
@@ -415,7 +428,7 @@ public final class Util {
     return targetEdmBindingTarget;
   }
 
-  private static EdmBindingTarget determineBindingTragetOfSingleton(final UriResourceSingleton resourceItem) {
+  private static EdmBindingTarget determineBindingTargetOfSingleton(final UriResourceSingleton resourceItem) {
     EdmBindingTarget targetEdmBindingTarget;
     if (resourceItem.getEntityTypeFilter() != null) {
       targetEdmBindingTarget = new EdmBoundCast(resourceItem.getEntityTypeFilter(), resourceItem.getSingleton());
@@ -432,6 +445,12 @@ public final class Util {
     if (associationName.length() > 0)
       associationName.append(PATH_SEPARATOR);
     associationName.append(pathSegment);
+  }
+
+  private static EdmNavigationProperty findNavigationProperty(final EdmBindingTarget bindingTarget,
+      final JPAAssociationPath path) {
+    // Is this sufficient for path via complex types?
+    return bindingTarget.getEntityType().getNavigationProperty(path.getAlias());
   }
 
   private Util() {

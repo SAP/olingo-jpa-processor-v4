@@ -17,6 +17,6 @@ public interface JPAReferences {
 
   public <T extends CsdlNamed> Optional<T> getType(@Nonnull final FullQualifiedName fqn);
 
-  public List<CsdlTerm> getTerms(@Nonnull String schemaAlias, @Nonnull AppliesTo appliesTo);
+  public List<CsdlTerm> getTerms(@Nonnull String schemaAlias, @Nonnull Applicability appliesTo);
 
 }

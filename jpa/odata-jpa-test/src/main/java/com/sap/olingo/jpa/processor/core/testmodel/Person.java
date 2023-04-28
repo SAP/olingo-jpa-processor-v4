@@ -25,6 +25,7 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
@@ -69,6 +70,10 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
   @Convert(converter = AccessRightsConverter.class)
   @Column(name = "\"AccessRights\"")
   private AccessRights[] accessRights;
+
+  @EdmIgnore
+  @Column(name = "\"Image_ID\"")
+  private String imageId;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"Image_ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,

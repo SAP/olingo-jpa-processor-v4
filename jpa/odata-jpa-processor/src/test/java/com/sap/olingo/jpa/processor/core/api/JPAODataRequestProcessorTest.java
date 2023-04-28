@@ -132,9 +132,6 @@ class JPAODataRequestProcessorTest {
           cut.updateComplex(null, null, null, null, null);
         },
         () -> {
-          cut.countComplexCollection(request, response, uriInfo);
-        },
-        () -> {
           cut.deletePrimitiveValue(request, response, uriInfo);
         });
   }
@@ -309,19 +306,19 @@ class JPAODataRequestProcessorTest {
 
   @ParameterizedTest
   @MethodSource("notSupportedMethodsProvider")
-  void checkNutSupportedThrowsNotImplemented(final Executable m) {
+  void checkNutSupportedThrowsNotImplemented(final Executable method) {
 
-    final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, m);
+    final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, method);
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
   }
 
   @ParameterizedTest
   @MethodSource("throwsSerializerExceptionMethodsProvider")
-  void checkCreateEntityPropagateSerializerException(final Executable m) throws SerializerException {
+  void checkCreateEntityPropagateSerializerException(final Executable method) throws SerializerException {
     when(odata.createSerializer(JSON, Collections.emptyList()))
         .thenThrow(SerializerException.class);
 
-    assertThrows(ODataException.class, m);
+    assertThrows(ODataException.class, method);
   }
 
   @Test

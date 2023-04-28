@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -50,6 +51,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   private PluralAttribute<?, ?, ?> jpaAttribute;
   private ManagedType<?> managedType;
   private IntermediateSchema schema;
+  private IntermediateAnnotationInformation annotationInfo;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
@@ -58,7 +60,8 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     jpaAttribute = mock(PluralAttribute.class);
     managedType = mock(ManagedType.class);
-    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(Reflections.class));
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
+    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(Reflections.class), annotationInfo);
   }
 
   @SuppressWarnings("unchecked")

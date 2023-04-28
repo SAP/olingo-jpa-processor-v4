@@ -9,6 +9,7 @@ import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
+import org.apache.olingo.server.api.uri.UriResourceSingleton;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -32,7 +33,8 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
       throws ODataException {
     final UriResource uriResource = uriInfo.getUriResourceParts().get(0);
 
-    if (uriResource instanceof UriResourceEntitySet) {
+    if (uriResource instanceof UriResourceEntitySet
+        || uriResource instanceof UriResourceSingleton) {
       final EntityCollection result = countEntities();
       createSuccessResponse(response, ContentType.TEXT_PLAIN, serializer.serialize(request, result));
     } else {

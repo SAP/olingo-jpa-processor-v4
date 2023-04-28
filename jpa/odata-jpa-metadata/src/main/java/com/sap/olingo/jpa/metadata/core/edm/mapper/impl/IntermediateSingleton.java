@@ -6,8 +6,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPASingleton;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -26,9 +25,9 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
   private CsdlSingleton edmSingleton;
 
   IntermediateSingleton(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et,
-      final List<AnnotationProvider> annotationProvider, final JPAReferences references)
+      final IntermediateAnnotationInformation annotationInfo)
       throws ODataJPAModelException {
-    super(nameBuilder, et, annotationProvider, references);
+    super(nameBuilder, et, annotationInfo);
     setExternalName(nameBuilder.buildSingletonName(et.getEdmItem()));
   }
 
@@ -40,6 +39,7 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmSingleton == null) {
+      retrieveAnnotations(this, Applicability.SINGLETON);
       postProcessor.processSingleton(this);
       edmSingleton = new CsdlSingleton();
 
@@ -63,4 +63,13 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
     }
     return edmSingleton;
   }
+
+  @Override
+  public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    if (edmSingleton == null) {
+      lazyBuildEdmItem();
+    }
+    return filterAnnotation(alias, term);
+  }
+
 }

@@ -49,25 +49,28 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
 
   @Test
   void checkByEntityAnnotationGetName() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
-    assertEquals("CountRoles", func.getEdmItem().getName());
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
+    assertEquals("CountRoles", function.getEdmItem().getName());
   }
 
   @Test
   void checkByEntityAnnotationGetFunctionName() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
-    assertEquals("COUNT_ROLES", func.getUserDefinedFunction());
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
+    assertEquals("COUNT_ROLES", function.getUserDefinedFunction());
   }
 
   @Test
   void checkByEntityAnnotationInputParameterBound() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
 
     final List<CsdlParameter> expInput = new ArrayList<>();
     final CsdlParameter param = new CsdlParameter();
@@ -75,13 +78,14 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
     param.setType(new FullQualifiedName("com.sap.olingo.jpa.BusinessPartner"));
     param.setNullable(false);
     expInput.add(param);
-    Assertions.assertListEquals(expInput, func.getEdmItem().getParameters(), CsdlParameter.class);
+    Assertions.assertListEquals(expInput, function.getEdmItem().getParameters(), CsdlParameter.class);
   }
 
   @Test
   void checkByEntityAnnotationInputParameterBoundCompoundKey() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(helper.getEntityType(AdministrativeDivision.class), "SiblingsBound"),
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(helper.getEntityType(AdministrativeDivision.class), "SiblingsBound"),
         AdministrativeDivision.class, helper.schema);
 
     final List<CsdlParameter> expInput = new ArrayList<>();
@@ -90,14 +94,15 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
     param.setType(new FullQualifiedName("com.sap.olingo.jpa.AdministrativeDivision"));
     param.setNullable(false);
     expInput.add(param);
-    Assertions.assertListEquals(expInput, func.getEdmItem().getParameters(), CsdlParameter.class);
+    Assertions.assertListEquals(expInput, function.getEdmItem().getParameters(), CsdlParameter.class);
   }
 
   @Test
   void checkByEntityAnnotationInputParameter2() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "IsPrime"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "IsPrime"), BusinessPartner.class, helper.schema);
 
     final List<CsdlParameter> expInput = new ArrayList<>();
     final CsdlParameter param = new CsdlParameter();
@@ -107,119 +112,128 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
     param.setPrecision(32);
     param.setScale(0);
     expInput.add(param);
-    Assertions.assertListEquals(expInput, func.getEdmItem().getParameters(), CsdlParameter.class);
+    Assertions.assertListEquals(expInput, function.getEdmItem().getParameters(), CsdlParameter.class);
   }
 
   @Test
   void checkByEntityAnnotationInputParameterIsEnumeration() throws ODataJPAModelException {
 
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(helper.getEntityType(Person.class), "CheckRights"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(helper.getEntityType(Person.class), "CheckRights"), BusinessPartner.class,
+        helper.schema);
 
-    assertNotNull(func.getEdmItem().getParameters());
-    assertEquals(2, func.getEdmItem().getParameters().size());
-    assertEquals(PUNIT_NAME + ".AccessRights", func.getEdmItem().getParameters().get(0).getTypeFQN()
+    assertNotNull(function.getEdmItem().getParameters());
+    assertEquals(2, function.getEdmItem().getParameters().size());
+    assertEquals(PUNIT_NAME + ".AccessRights", function.getEdmItem().getParameters().get(0).getTypeFQN()
         .getFullQualifiedNameAsString());
-    assertEquals("Edm.Int32", func.getEdmItem().getParameters().get(1).getTypeFQN()
+    assertEquals("Edm.Int32", function.getEdmItem().getParameters().get(1).getTypeFQN()
         .getFullQualifiedNameAsString());
   }
 
   @Test
   void checkByEntityAnnotationResultParameterIsEmpty() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
 
-    assertEquals(PUNIT_NAME + ".BusinessPartner", func.getEdmItem().getReturnType().getType());
+    assertEquals(PUNIT_NAME + ".BusinessPartner", function.getEdmItem().getReturnType().getType());
   }
 
   @Test
   void checkByEntityAnnotationIsBound() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
 
-    assertTrue(func.getEdmItem().isBound());
-    assertTrue(func.isBound());
-    assertEquals(PUNIT_NAME + ".BusinessPartner", func.getEdmItem().getParameters().get(0).getTypeFQN()
+    assertTrue(function.getEdmItem().isBound());
+    assertTrue(function.isBound());
+    assertEquals(PUNIT_NAME + ".BusinessPartner", function.getEdmItem().getParameters().get(0).getTypeFQN()
         .getFullQualifiedNameAsString());
   }
 
   @Test
   void checkByEntityAnnotationResultParameterSimple() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "IsPrime"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "IsPrime"), BusinessPartner.class, helper.schema);
 
-    assertEquals(EdmPrimitiveTypeKind.Boolean.getFullQualifiedName().getFullQualifiedNameAsString(), func.getEdmItem()
+    assertEquals(EdmPrimitiveTypeKind.Boolean.getFullQualifiedName().getFullQualifiedNameAsString(), function
+        .getEdmItem()
         .getReturnType().getType());
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   void checkByEntityAnnotationResultParameterIsEntity() throws ODataJPAModelException {
-    final IntermediateFunction func = (IntermediateFunction) new IntermediateFunctionFactory().create(
+    final IntermediateFunction function = (IntermediateFunction) new IntermediateFunctionFactory().create(
         new JPADefaultEdmNameBuilder(
             PUNIT_NAME), helper.getEntityType(Organization.class), helper.schema).get("AllCustomersByABC");
-    assertEquals(PUNIT_NAME + ".Organization", func.getEdmItem().getReturnType().getType());
+    assertEquals(PUNIT_NAME + ".Organization", function.getEdmItem().getReturnType().getType());
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   void checkByEntityAnnotationResultParameterIsCollectionFalse() throws ODataJPAModelException {
-    IntermediateFunction func = (IntermediateFunction) new IntermediateFunctionFactory().create(
+    IntermediateFunction function = (IntermediateFunction) new IntermediateFunctionFactory().create(
         new JPADefaultEdmNameBuilder(
             PUNIT_NAME), helper.getEntityType(Organization.class), helper.schema).get("AllCustomersByABC");
-    assertTrue(func.getEdmItem().getReturnType().isCollection());
+    assertTrue(function.getEdmItem().getReturnType().isCollection());
 
-    func = (IntermediateFunction) new IntermediateFunctionFactory().create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    function = (IntermediateFunction) new IntermediateFunctionFactory().create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         helper.getEntityType(BusinessPartner.class), helper.schema).get("IsPrime");
-    assertFalse(func.getEdmItem().getReturnType().isCollection());
+    assertFalse(function.getEdmItem().getReturnType().isCollection());
   }
 
   @Test
   void checkByEntityAnnotationResultParameterNotGiven() throws ODataJPAModelException {
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema);
 
-    assertTrue(func.getEdmItem().getReturnType().isCollection());
-    assertEquals(PUNIT_NAME + ".BusinessPartner", func.getEdmItem().getReturnType().getType());
-    assertEquals(BusinessPartner.class, func.getResultParameter().getType());
+    assertTrue(function.getEdmItem().getReturnType().isCollection());
+    assertEquals(PUNIT_NAME + ".BusinessPartner", function.getEdmItem().getReturnType().getType());
+    assertEquals(BusinessPartner.class, function.getResultParameter().getType());
   }
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   void checkByEntityAnnotationResultParameterIsNullable() throws ODataJPAModelException {
-    IntermediateFunction func = (IntermediateFunction) new IntermediateFunctionFactory().create(
+    IntermediateFunction function = (IntermediateFunction) new IntermediateFunctionFactory().create(
         new JPADefaultEdmNameBuilder(
             PUNIT_NAME), helper.getEntityType(Organization.class), helper.schema).get("AllCustomersByABC");
-    assertTrue(func.getEdmItem().getReturnType().isNullable());
+    assertTrue(function.getEdmItem().getReturnType().isNullable());
 
-    func = (IntermediateFunction) new IntermediateFunctionFactory().create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    function = (IntermediateFunction) new IntermediateFunctionFactory().create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         helper.getEntityType(BusinessPartner.class), helper.schema).get("IsPrime");
-    assertFalse(func.getEdmItem().getReturnType().isNullable());
+    assertFalse(function.getEdmItem().getReturnType().isNullable());
   }
 
   @Test
   void checkByEntityAnnotationResultParameterEnumerationType() throws ODataJPAModelException {
 
-    final IntermediateFunction func = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(helper.getEntityType(Person.class), "ReturnRights"), BusinessPartner.class, helper.schema);
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(helper.getEntityType(Person.class), "ReturnRights"), BusinessPartner.class,
+        helper.schema);
 
-    assertNotNull(func.getEdmItem().getReturnType());
-    assertEquals(PUNIT_NAME + ".AccessRights", func.getEdmItem().getReturnType().getTypeFQN()
+    assertNotNull(function.getEdmItem().getReturnType());
+    assertEquals(PUNIT_NAME + ".AccessRights", function.getEdmItem().getReturnType().getTypeFQN()
         .getFullQualifiedNameAsString());
   }
 
   @Test
   void checkReturnTypeEmbedded() throws ODataJPAModelException {
-    final EdmFunction func = mock(EdmFunction.class);
-    final EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
+    final EdmFunction function = mock(EdmFunction.class);
+    final EdmFunction.ReturnType returnType = mock(EdmFunction.ReturnType.class);
     // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
-    when(func.returnType()).thenReturn(retType);
-    when(func.parameter()).thenReturn(new EdmParameter[0]);
-    when(retType.type()).thenAnswer(new Answer<Class<?>>() {
+    when(function.returnType()).thenReturn(returnType);
+    when(function.parameter()).thenReturn(new EdmParameter[0]);
+    when(returnType.type()).thenAnswer(new Answer<Class<?>>() {
 
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
@@ -227,7 +241,8 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
       }
     });
 
-    final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), func,
+    final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        function,
         BusinessPartner.class, helper.schema);
     assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getTypeFQN()
         .getFullQualifiedNameAsString());
@@ -235,9 +250,9 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
 
   @Test
   void checkReturnsEntitySetPathForBound() throws ODataJPAModelException {
-    final EdmFunction func = createBoundFunction();
+    final EdmFunction function = createBoundFunction();
     final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        func, Person.class, helper.schema);
+        function, Person.class, helper.schema);
 
     assertNotNull(act.getEdmItem());
     assertTrue(act.getEdmItem().isBound());
@@ -246,18 +261,18 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
 
   @Test
   void checkThrowsExceptionOnEntitySetGivenUnbound() throws ODataJPAModelException {
-    final EdmFunction func = createBoundFunction();
-    when(func.isBound()).thenReturn(false);
+    final EdmFunction function = createBoundFunction();
+    when(function.isBound()).thenReturn(false);
 
     final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        func, Person.class, helper.schema);
+        function, Person.class, helper.schema);
     assertThrows(ODataJPAModelException.class, () -> act.getEdmItem());
   }
 
   @Test
   void checkThrowsExceptionOnEntitySetGivenNoEntityReturnType() throws ODataJPAModelException {
-    final EdmFunction func = createBoundFunction();
-    when(func.returnType().type()).thenAnswer(new Answer<Class<?>>() {
+    final EdmFunction function = createBoundFunction();
+    when(function.returnType().type()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return AdministrativeInformation.class;
@@ -265,18 +280,18 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
     });
 
     final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        func, Person.class, helper.schema);
+        function, Person.class, helper.schema);
     assertThrows(ODataJPAModelException.class, () -> act.getEdmItem());
   }
 
   @Test
   void checkReturnTypeUnknown() throws ODataJPAModelException {
-    final EdmFunction func = mock(EdmFunction.class);
-    final EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
+    final EdmFunction function = mock(EdmFunction.class);
+    final EdmFunction.ReturnType returnType = mock(EdmFunction.ReturnType.class);
     // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
-    when(func.returnType()).thenReturn(retType);
-    when(func.parameter()).thenReturn(new EdmParameter[0]);
-    when(retType.type()).thenAnswer(new Answer<Class<?>>() {
+    when(function.returnType()).thenReturn(returnType);
+    when(function.parameter()).thenReturn(new EdmParameter[0]);
+    when(returnType.type()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return DateConverter.class;
@@ -284,7 +299,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
     });
     IntermediateFunction act;
     try {
-      act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), func, BusinessPartner.class,
+      act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), function, BusinessPartner.class,
           helper.schema);
       act.getEdmItem();
     } catch (final ODataJPAModelException e) {
@@ -295,18 +310,18 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   }
 
   private EdmFunction createBoundFunction() {
-    final EdmFunction func = mock(EdmFunction.class);
-    final EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
-    when(func.isBound()).thenReturn(true);
-    when(func.entitySetPath()).thenReturn("Person/Roles");
-    when(func.returnType()).thenReturn(retType);
-    when(func.parameter()).thenReturn(new EdmParameter[0]);
-    when(retType.type()).thenAnswer(new Answer<Class<?>>() {
+    final EdmFunction function = mock(EdmFunction.class);
+    final EdmFunction.ReturnType returnType = mock(EdmFunction.ReturnType.class);
+    when(function.isBound()).thenReturn(true);
+    when(function.entitySetPath()).thenReturn("Person/Roles");
+    when(function.returnType()).thenReturn(returnType);
+    when(function.parameter()).thenReturn(new EdmParameter[0]);
+    when(returnType.type()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return BusinessPartnerRole.class;
       }
     });
-    return func;
+    return function;
   }
 }

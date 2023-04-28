@@ -30,5 +30,10 @@ public abstract class JPAEdmMetadataPostProcessor {
    */
   public abstract void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName);
 
+  /**
+   * Option to provide references to external CSDL documents. The document must be an XML document
+   * @param references List of refernces to external CSDL documents.
+   * @throws ODataJPAModelException
+   */
   public abstract void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException;
 }

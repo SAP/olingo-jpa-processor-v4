@@ -20,18 +20,18 @@ import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AppliesTo;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAAnnotatable;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabularyReadException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceAccess;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceList;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.ExpandRestrictions;
 
 @ExpandRestrictions(maxLevels = 2, nonExpandableProperties = { "roles" })
-class JavaBasedODataAnnotaionsProviderTest {
-  JavaBasedODataAnnotaionsProvider cut;
-  JPAAnnotatable annotatable;
+class JavaBasedODataAnnotationsProviderTest {
+  JavaBasedCapabilitiesAnnotationsProvider cut;
+  ODataAnnotatable annotatable;
   JPAReferences references;
   List<CsdlTerm> terms;
   CsdlTerm term;
@@ -40,16 +40,16 @@ class JavaBasedODataAnnotaionsProviderTest {
   @BeforeEach
   void setup() {
     references = mock(JPAReferences.class);
-    annotatable = mock(JPAAnnotatable.class);
+    annotatable = mock(ODataAnnotatable.class);
     terms = new ArrayList<>();
     term = mock(CsdlTerm.class);
     converter = mock(JavaAnnotationConverter.class);
-    cut = new JavaBasedODataAnnotaionsProvider(converter);
+    cut = new JavaBasedCapabilitiesAnnotationsProvider(converter);
   }
 
   @Test
   void checkGetAnnotationsNPEOnReferenceNull() {
-    assertThrows(NullPointerException.class, () -> cut.getAnnotations(AppliesTo.ENTITY_SET, annotatable, null));
+    assertThrows(NullPointerException.class, () -> cut.getAnnotations(Applicability.ENTITY_SET, annotatable, null));
   }
 
   @Test
@@ -63,7 +63,7 @@ class JavaBasedODataAnnotaionsProviderTest {
   void checkGetAnnotationsNPEAnnotatableToNull() {
     terms.add(term);
     when(references.getTerms(any(), any())).thenReturn(terms);
-    assertThrows(NullPointerException.class, () -> cut.getAnnotations(AppliesTo.ENTITY_SET, null, references));
+    assertThrows(NullPointerException.class, () -> cut.getAnnotations(Applicability.ENTITY_SET, null, references));
   }
 
   @Test
@@ -76,7 +76,7 @@ class JavaBasedODataAnnotaionsProviderTest {
     when(annotatable.javaAnnotations(any())).thenReturn(Collections.singletonMap("ExpandTest", expandAnnotation));
     when(converter.convert(references, expandAnnotation, annotatable)).thenReturn(Optional.of(converted));
 
-    final Collection<CsdlAnnotation> act = cut.getAnnotations(AppliesTo.ENTITY_SET, annotatable, references);
+    final Collection<CsdlAnnotation> act = cut.getAnnotations(Applicability.ENTITY_SET, annotatable, references);
     assertEquals(1, act.size());
     assertEquals(converted, act.stream().findFirst().get());
   }
@@ -93,7 +93,7 @@ class JavaBasedODataAnnotaionsProviderTest {
     when(annotatable.javaAnnotations(any())).thenReturn(Collections.singletonMap("ExpandTest", expandAnnotation));
     when(converter.convert(references, expandAnnotation, annotatable)).thenReturn(Optional.of(converted));
 
-    final Collection<CsdlAnnotation> act = cut.getAnnotations(AppliesTo.ENTITY_SET, annotatable, references);
+    final Collection<CsdlAnnotation> act = cut.getAnnotations(Applicability.ENTITY_SET, annotatable, references);
     assertEquals(1, act.size());
     assertEquals(converted, act.stream().findFirst().get());
   }
@@ -109,7 +109,7 @@ class JavaBasedODataAnnotaionsProviderTest {
     when(annotatable.javaAnnotations(any())).thenReturn(Collections.singletonMap("ExpandTest", expandAnnotation));
     when(converter.convert(references, expandAnnotation, annotatable)).thenReturn(Optional.empty());
 
-    final Collection<CsdlAnnotation> act = cut.getAnnotations(AppliesTo.ENTITY_SET, annotatable, references);
+    final Collection<CsdlAnnotation> act = cut.getAnnotations(Applicability.ENTITY_SET, annotatable, references);
     assertTrue(act.isEmpty());
   }
 
@@ -125,7 +125,7 @@ class JavaBasedODataAnnotaionsProviderTest {
     when(converter.convert(references, expandAnnotation, annotatable)).thenReturn(Optional.empty());
     when(converter.convert(references, null, annotatable)).thenThrow(NullPointerException.class);
 
-    final Collection<CsdlAnnotation> act = cut.getAnnotations(AppliesTo.ENTITY_SET, annotatable, references);
+    final Collection<CsdlAnnotation> act = cut.getAnnotations(Applicability.ENTITY_SET, annotatable, references);
     assertTrue(act.isEmpty());
   }
 
@@ -139,7 +139,7 @@ class JavaBasedODataAnnotaionsProviderTest {
   }
 
   @Test
-  void checkAddReferencesAddCapabilitiesRethrowsException() throws ODataVocabularyReadException {
+  void checkAddReferencesAddCapabilitiesReThrowsException() throws ODataVocabularyReadException {
     final ReferenceList ref = mock(ReferenceList.class);
     when(ref.addReference(any(), eq("vocabularies/Org.OData.Capabilities.V1.xml")))
         .thenThrow(ODataVocabularyReadException.class);

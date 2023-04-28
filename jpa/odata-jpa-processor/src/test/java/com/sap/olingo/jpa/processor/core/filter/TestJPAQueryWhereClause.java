@@ -36,9 +36,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "Organizations?$filter=ID eq '3'");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("3", orgs.get(0).get("ID").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(1, organizations.size());
+    assertEquals("3", organizations.get(0).get("ID").asText());
   }
 
   @Test
@@ -49,8 +49,8 @@ class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
     // This test shall ensure that the Date Time value is mapped correct.
     // Unfortunately the query returns an empty result locally, but 10 rows on Jenkins
-    final ArrayNode orgs = helper.getValues();
-    assertNotNull(orgs);
+    final ArrayNode organizations = helper.getValues();
+    assertNotNull(organizations);
   }
 
   @Test
@@ -60,9 +60,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "Organizations?$filter=LocationName eq 'Deutschland'");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("10", orgs.get(0).get("ID").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(1, organizations.size());
+    assertEquals("10", organizations.get(0).get("ID").asText());
   }
 
   @Test
@@ -72,9 +72,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "Organizations?$filter=LocationName eq 'Deutschland'&$select=ID");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("10", orgs.get(0).get("ID").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(1, organizations.size());
+    assertEquals("10", organizations.get(0).get("ID").asText());
   }
 
   @Test
@@ -84,9 +84,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "Organizations?$filter=ABCClass eq com.sap.olingo.jpa.ABCClassification'A'");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("1", orgs.get(0).get("ID").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(1, organizations.size());
+    assertEquals("1", organizations.get(0).get("ID").asText());
   }
 
   @Test
@@ -95,9 +95,9 @@ class TestJPAQueryWhereClause extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter='3' eq ID");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("3", orgs.get(0).get("ID").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(1, organizations.size());
+    assertEquals("3", organizations.get(0).get("ID").asText());
   }
 
   static Stream<Arguments> getFilterQuery() {
@@ -182,8 +182,8 @@ class TestJPAQueryWhereClause extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(numberOfResults, orgs.size(), text);
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(numberOfResults, organizations.size(), text);
   }
 
   static Stream<Arguments> getEnumQuery() {
@@ -216,9 +216,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and CodeID eq 'NUTS2' and DivisionCode eq 'BE25'");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("BEL", orgs.get(0).get("CountryCode").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(1, organizations.size());
+    assertEquals("BEL", organizations.get(0).get("CountryCode").asText());
   }
 
   @Test
@@ -228,9 +228,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and (DivisionCode eq 'BE25' or  DivisionCode eq 'BE24')&$orderby=DivisionCode desc");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
-    assertEquals("BE25", orgs.get(0).get("DivisionCode").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(2, organizations.size());
+    assertEquals("BE25", organizations.get(0).get("DivisionCode").asText());
   }
 
   @Test
@@ -240,9 +240,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and DivisionCode eq 'BE25' or  CodeID eq '3166-1'&$orderby=DivisionCode desc");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(5, orgs.size());
-    assertEquals("USA", orgs.get(0).get("DivisionCode").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(5, organizations.size());
+    assertEquals("USA", organizations.get(0).get("DivisionCode").asText());
   }
 
   @Test
@@ -252,9 +252,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and contains(tolower(DivisionCode),tolower('BE1'))&$orderby=DivisionCode asc");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
-    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(3, organizations.size());
+    assertEquals("BE1", organizations.get(0).get("DivisionCode").asText());
   }
 
   @Test
@@ -264,9 +264,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and contains(DivisionCode,'BE1')&$orderby=DivisionCode asc");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
-    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(3, organizations.size());
+    assertEquals("BE1", organizations.get(0).get("DivisionCode").asText());
   }
 
   @Test
@@ -276,13 +276,13 @@ class TestJPAQueryWhereClause extends TestBase {
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and tolower(DivisionCode) eq tolower('BE1')");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(1, organizations.size());
+    assertEquals("BE1", organizations.get(0).get("DivisionCode").asText());
   }
 
   @Test
-  void testFilterhComparisonViaNavigationContainingFunction() throws IOException, ODataException {
+  void testFilterComparisonViaNavigationContainingFunction() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles?$filter=tolower(Organization/Name1) eq 'third org.'");
@@ -292,7 +292,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterhComparisonTwoFunctionsContainingNavigationNotSupported() throws IOException, ODataException {
+  void testFilterComparisonTwoFunctionsContainingNavigationNotSupported() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles?$filter=tolower(Organization/Name1) eq tolower(Organization/Name2)");
@@ -300,7 +300,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterhComparisonViaNavigationContainingNestedFunctionNotSupported() throws IOException,
+  void testFilterComparisonViaNavigationContainingNestedFunctionNotSupported() throws IOException,
       ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -318,8 +318,8 @@ class TestJPAQueryWhereClause extends TestBase {
 
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(2, organizations.size());
   }
 
   @Test
@@ -331,8 +331,8 @@ class TestJPAQueryWhereClause extends TestBase {
         "BusinessPartnerProtecteds?$filter=Roles/any(d:d/RoleCategory eq 'X')", claims);
 
     helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(2, organizations.size());
   }
 
   @Test
@@ -427,8 +427,8 @@ class TestJPAQueryWhereClause extends TestBase {
         "BusinessPartnerRoleProtecteds?$filter=contains(BupaPartnerProtected/Name1, 'o')", claims);
 
     helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(0, orgs.size());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(0, organizations.size());
   };
 
   @Test
@@ -442,8 +442,8 @@ class TestJPAQueryWhereClause extends TestBase {
         "BusinessPartnerRoleProtecteds?$filter=BupaPartnerProtected/Type eq '1'", claims);
 
     helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(3, organizations.size());
   };
 
   @Test
@@ -537,10 +537,10 @@ class TestJPAQueryWhereClause extends TestBase {
         "Organizations?$filter=Name1 eq 'Third Org.'&$expand=Roles");
 
     helper.assertStatus(200);
-    final ArrayNode org = helper.getValues();
-    assertNotNull(org);
-    assertEquals(1, org.size());
-    assertEquals(3, org.get(0).get("Roles").size());
+    final ArrayNode organization = helper.getValues();
+    assertNotNull(organization);
+    assertEquals(1, organization.size());
+    assertEquals(3, organization.get(0).get("Roles").size());
   }
 
   @Test
@@ -595,9 +595,9 @@ class TestJPAQueryWhereClause extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps?$select=FirstLevel/TransientCollection&$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')");
     helper.assertStatus(200);
-    final ArrayNode org = helper.getValues();
-    assertNotNull(org);
-    assertEquals(1, org.size());
+    final ArrayNode organization = helper.getValues();
+    assertNotNull(organization);
+    assertEquals(1, organization.size());
   }
 
   @Test

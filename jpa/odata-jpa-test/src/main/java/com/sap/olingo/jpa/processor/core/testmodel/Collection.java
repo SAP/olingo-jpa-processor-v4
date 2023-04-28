@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
@@ -14,8 +14,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
-
-import com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter;
 
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"Collections\"")
@@ -35,9 +33,9 @@ public class Collection {
       joinColumns = @JoinColumn(name = "\"ID\""))
   private List<CollectionNestedComplex> nested; // Must not be assigned to an ArrayList
 
-  @Convert(converter = OffsetDateTimeConverter.class)
+// @Convert(converter = OffsetDateTimeConverter.class)
   @Column(name = "\"Timestamp\"")
-  private OffsetDateTime dateTime;
+  private Timestamp dateTime;
 
   @Convert(converter = LocalDateTimeConverter.class)
   @Column(name = "\"Timestamp\"", insertable = false, updatable = false)

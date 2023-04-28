@@ -9,11 +9,15 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
@@ -30,6 +34,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 
 class JPAExpandLevelWrapperTest {
@@ -64,12 +69,18 @@ class JPAExpandLevelWrapperTest {
     selectOption = mock(SelectOption.class);
     skipOption = mock(SkipOption.class);
     topOption = mock(TopOption.class);
-    item = mock(ExpandItem.class);
-    itemList = Arrays.asList(item);
+    itemList = new ArrayList<>();
+    item = buildItem(null);
+    itemList.add(item);
 
+    cut = new JPAExpandLevelWrapper(sd, option, item);
+  }
+
+  private ExpandItem buildItem(final UriInfoResource infoResource) {
+    final ExpandItem item = mock(ExpandItem.class);
     when(option.getExpandItems()).thenReturn(itemList);
     when(item.getLevelsOption()).thenReturn(levelOption);
-    when(item.getResourcePath()).thenReturn(null);
+    when(item.getResourcePath()).thenReturn(infoResource);
     when(item.getFilterOption()).thenReturn(filterOption);
     when(item.getCountOption()).thenReturn(countOption);
     when(item.getOrderByOption()).thenReturn(orderByOption);
@@ -77,7 +88,7 @@ class JPAExpandLevelWrapperTest {
     when(item.getSelectOption()).thenReturn(selectOption);
     when(item.getSkipOption()).thenReturn(skipOption);
     when(item.getTopOption()).thenReturn(topOption);
-    cut = new JPAExpandLevelWrapper(sd, option);
+    return item;
   }
 
   @Test
@@ -181,7 +192,7 @@ class JPAExpandLevelWrapperTest {
     assertNotNull(act.getExpandOption());
     assertEquals(startTypeFilter, act.getStartTypeFilter());
     final LevelsExpandOption actLevelOptions = act.getExpandOption().getExpandItems().get(0).getLevelsOption();
-    assertEquals(0, actLevelOptions.getValue());
+    assertEquals(1, actLevelOptions.getValue());
     assertFalse(actLevelOptions.isMax());
 
   }
@@ -194,5 +205,45 @@ class JPAExpandLevelWrapperTest {
 
     assertEquals(1, act.getValue());
     assertTrue(act.isMax());
+  }
+
+  @Test
+  void checkEntityTypeViaConstructor() throws ODataApplicationException {
+    final JPAEntityType et = mock(JPAEntityType.class);
+    cut = new JPAExpandLevelWrapper(option, et, null, item);
+
+    when(levelOption.getValue()).thenReturn(2);
+    when(levelOption.isMax()).thenReturn(false);
+    final LevelsExpandOption act = cut.getExpandOption().getExpandItems().get(0).getLevelsOption();
+
+    assertEquals(1, act.getValue());
+    assertFalse(act.isMax());
+    assertEquals(et, cut.getEntityType());
+  }
+
+  @Test
+  void checkTwoLevelItems() throws ODataApplicationException {
+    final UriInfoResource infoResource = mock(UriInfoResource.class);
+    final UriResource resource = mock(UriResource.class);
+    final List<UriResource> resourceList = Collections.singletonList(resource);
+    when(infoResource.getUriResourceParts()).thenReturn(resourceList);
+    final ExpandItem secondItem = buildItem(infoResource);
+    itemList.add(secondItem);
+    final JPAEntityType et = mock(JPAEntityType.class);
+    when(levelOption.getValue()).thenReturn(2);
+    when(levelOption.isMax()).thenReturn(false);
+    cut = new JPAExpandLevelWrapper(option, et, null, secondItem);
+
+    final List<ExpandItem> act = cut.getExpandOption().getExpandItems();
+    assertEquals(1, act.size());
+    UriInfoResource resourcePath = act.get(0).getResourcePath();
+    assertEquals(resourceList, resourcePath.getUriResourceParts());
+
+    cut = new JPAExpandLevelWrapper(option, et, null, item);
+    final List<ExpandItem> act2 = cut.getExpandOption().getExpandItems();
+    assertEquals(1, act2.size());
+    resourcePath = act2.get(0).getResourcePath();
+    assertEquals(Collections.emptyList(), resourcePath.getUriResourceParts());
+
   }
 }

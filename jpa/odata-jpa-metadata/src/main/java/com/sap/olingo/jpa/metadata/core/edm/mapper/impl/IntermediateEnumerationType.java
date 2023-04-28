@@ -27,8 +27,9 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   private EdmEnumeration annotation;
   private List<?> javaMembers;
 
-  IntermediateEnumerationType(final JPAEdmNameBuilder nameBuilder, final Class<? extends Enum<?>> javaEnum) {
-    super(nameBuilder, javaEnum.getSimpleName());
+  IntermediateEnumerationType(final JPAEdmNameBuilder nameBuilder, final Class<? extends Enum<?>> javaEnum,
+      final IntermediateAnnotationInformation annotationInfo) {
+    super(nameBuilder, javaEnum.getSimpleName(), annotationInfo);
     this.setExternalName(nameBuilder.buildEnumerationTypeName(javaEnum));
     this.javaEnum = javaEnum;
   }

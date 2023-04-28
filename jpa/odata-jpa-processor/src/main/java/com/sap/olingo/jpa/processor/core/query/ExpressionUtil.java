@@ -83,7 +83,7 @@ public final class ExpressionUtil {
   }
 
   /**
-   * Converts a OData attribute into an JPA path. Sets the alias to the alias of the OData path of the attribute.
+   * Converts an OData attribute into an JPA path. Sets the alias to the alias of the OData path of the attribute.
    * @param root From the path be derived from
    * @param et OData Entity Type
    * @param jpaAttributes Attribute to be converted into an JPA path

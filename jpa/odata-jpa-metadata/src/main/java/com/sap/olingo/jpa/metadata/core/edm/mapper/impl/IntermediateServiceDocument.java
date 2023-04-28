@@ -58,10 +58,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final JPAEdmNameBuilder nameBuilder;
   private final IntermediateEntityContainer container;
   private final Map<String, IntermediateSchema> schemaListInternalKey;
-  private final IntermediateReferences references;
   private final JPAEdmMetadataPostProcessor pP;
   private final Reflections reflections;
   private Map<String, JPAProtectionInfo> claims;
+  private final IntermediateAnnotationInformation annotationInfo;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
@@ -86,24 +86,24 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     IntermediateModelElement.setPostProcessor(pP);
 
     this.reflections = createReflections(packageName);
-    this.references = new IntermediateReferences();
-    pP.provideReferences(this.references);
-    addReferencestFromAnnotationProvider(annotationProvider);
+    this.annotationInfo = new IntermediateAnnotationInformation(annotationProvider);
+    pP.provideReferences(annotationInfo.asReferenceList());
+    addReferencesFromAnnotationProvider(annotationProvider);
     this.nameBuilder = nameBuilder;
     this.jpaMetamodel = jpaMetamodel;
     this.schemaListInternalKey = new HashMap<>();
+
     buildIntermediateSchemas();
-    this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey, annotationProvider,
-        references);
+    this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey, annotationInfo);
     setContainer();
   }
 
-  private void addReferencestFromAnnotationProvider(final List<AnnotationProvider> annotationProvider)
+  private void addReferencesFromAnnotationProvider(final List<AnnotationProvider> annotationProvider)
       throws ODataJPAModelException {
 
     try {
       for (final AnnotationProvider provider : annotationProvider) {
-        provider.addReferences(this.references);
+        provider.addReferences(this.annotationInfo.asReferenceList());
       }
     } catch (final ODataVocabularyReadException e) {
       throw new ODataJPAModelException(e);
@@ -118,7 +118,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public List<CsdlSchema> getAllSchemas() throws ODataJPAModelException {
     final List<CsdlSchema> allSchemas = getEdmSchemas();
-    allSchemas.addAll(references.getSchemas());
+    allSchemas.addAll(annotationInfo.getSchemas());
     return allSchemas;
   }
 
@@ -252,6 +252,18 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * (non-Javadoc)
    *
    * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntitySet(com.sap.olingo.jpa.metadata.core.
+   * edm.mapper.api.JPAEntityType)
+   */
+  @Override
+  public Optional<JPAEntitySet> getEntitySet(final String edmTargetName) throws ODataJPAModelException {
+    return Optional.ofNullable(container.getEntitySet(edmTargetName));
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getFunction(org.apache.olingo.commons.api.edm.
    * EdmFunction)
    */
@@ -285,7 +297,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    */
   @Override
   public List<EdmxReference> getReferences() {
-    return references.getEdmReferences();
+    return annotationInfo.getEdmReferences();
   }
 
   /*
@@ -296,7 +308,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    */
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) {
-    return this.references.getTerm(termName).orElse(null);
+    return annotationInfo.getReferences().getTerm(termName).orElse(null);
   }
 
   /*
@@ -330,7 +342,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   private void buildIntermediateSchemas() throws ODataJPAModelException {
-    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections);
+    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections, annotationInfo);
     schemaListInternalKey.put(schema.internalName, schema);
   }
 

@@ -26,12 +26,14 @@ public abstract class IntermediateOperationFactory<O extends IntermediateOperati
   }
 
   abstract O createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
-      final Method m, final Object functionDescription) throws ODataJPAModelException;
+      final Method method, final Object functionDescription)
+      throws ODataJPAModelException;
 
   @SuppressWarnings("unchecked")
   Map<String, O> createOperationMap(final JPAEdmNameBuilder nameBuilder, final Reflections reflections,
       final IntermediateSchema schema, final Class<? extends ODataOperation> clazz,
-      final Class<? extends Annotation> annotation) throws ODataJPAModelException {
+      final Class<? extends Annotation> annotation)
+      throws ODataJPAModelException {
 
     final Map<String, O> operations = new HashMap<>();
     if (reflections != null) {
@@ -50,13 +52,14 @@ public abstract class IntermediateOperationFactory<O extends IntermediateOperati
 
   private void processOneClass(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
       final Class<? extends Annotation> annotation, final Map<String, O> operations,
-      final Class<? extends ODataOperation> operationClass) throws ODataJPAModelException {
+      final Class<? extends ODataOperation> operationClass)
+      throws ODataJPAModelException {
 
     for (final Method m : Arrays.asList(operationClass.getMethods())) {
       final Object operationDescription = m.getAnnotation(annotation);
       if (operationDescription != null) {
-        final IntermediateOperation operation = createOperation(nameBuilder, schema, m, operationDescription);
-        operations.put(operation.getInternalName(), createOperation(nameBuilder, schema, m, operationDescription));
+        final O operation = createOperation(nameBuilder, schema, m, operationDescription);
+        operations.put(operation.getInternalName(), operation);
       }
     }
   }

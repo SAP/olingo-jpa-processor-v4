@@ -40,7 +40,7 @@ public @interface CountRestrictions {
    * The properties are given as an array of attributes path. In case the path
    * is composed, path segments joined together by forward slashes (/) e.g <i>address/cityName</i>.
    */
-  String[] nonCountableProperties();
+  String[] nonCountableProperties() default {};
 
   /**
    * Members of these navigation properties cannot be counted
@@ -48,5 +48,5 @@ public @interface CountRestrictions {
    * The navigation properties are given as an array of attributes path. In case the path
    * is composed, path segments joined together by forward slashes (/) e.g <i>address/cityName</i>.
    */
-  String[] nonCountableNavigationProperties();
+  String[] nonCountableNavigationProperties() default {};
 }

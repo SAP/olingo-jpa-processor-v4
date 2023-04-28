@@ -10,14 +10,14 @@ import org.apache.olingo.commons.api.edm.provider.CsdlNamed;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AppliesTo;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.CsdlDocument;
 
-public class ReferencesImpl implements JPAReferences {
+public class References implements JPAReferences {
   private final CsdlDocument vocabulary;
 
-  public ReferencesImpl(final CsdlDocument vocabulary) {
+  public References(final CsdlDocument vocabulary) {
     super();
     this.vocabulary = vocabulary;
   }
@@ -25,7 +25,7 @@ public class ReferencesImpl implements JPAReferences {
   @Override
   public String convertAlias(final String alias) {
     return vocabulary.getSchemas().values().stream()
-        .filter(s -> s.getAlias().equals(alias))
+        .filter(schema -> schema.getAlias().equals(alias))
         .findFirst()
         .map(s -> s.getNamespace())
         .orElse(null);
@@ -66,7 +66,7 @@ public class ReferencesImpl implements JPAReferences {
   }
 
   @Override
-  public List<CsdlTerm> getTerms(final String capabilitiesAlias, final AppliesTo appliesTo) {
+  public List<CsdlTerm> getTerms(final String capabilitiesAlias, final Applicability appliesTo) {
     // TODO Auto-generated method stub
     return null;
   }

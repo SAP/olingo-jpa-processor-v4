@@ -32,10 +32,10 @@ class JPAPathTest extends TestMappingRoot {
   @BeforeEach
   void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
-    organization = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
-        Organization.class), helper.schema);
-    bupaWithGroup = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
-        BusinessPartnerWithGroups.class), helper.schema);
+    organization = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
+        .getEntityType(Organization.class), helper.schema);
+    bupaWithGroup = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper.getEntityType(BusinessPartnerWithGroups.class), helper.schema);
   }
 
   @Test
@@ -109,7 +109,7 @@ class JPAPathTest extends TestMappingRoot {
   }
 
   @Test
-  void checkIsPartOfGroupReturnsTrueOnAnnotatedBelogsToIt() throws ODataJPAModelException {
+  void checkIsPartOfGroupReturnsTrueOnAnnotatedBelongsToIt() throws ODataJPAModelException {
 
     final JPAPath act = bupaWithGroup.getPath("Country");
     assertTrue(act.isPartOfGroups(Arrays.asList("Person")));
@@ -124,7 +124,7 @@ class JPAPathTest extends TestMappingRoot {
   }
 
   @Test
-  void checkIsPartOfGroupReturnsFalseOnAnnotatedDoesNotBelogsToIt() throws ODataJPAModelException {
+  void checkIsPartOfGroupReturnsFalseOnAnnotatedDoesNotBelongsToIt() throws ODataJPAModelException {
 
     final JPAPath act = bupaWithGroup.getPath("Country");
     assertFalse(act.isPartOfGroups(Arrays.asList("Test")));

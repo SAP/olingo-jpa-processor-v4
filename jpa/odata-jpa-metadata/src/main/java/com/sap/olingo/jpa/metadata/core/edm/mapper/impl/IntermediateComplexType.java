@@ -46,13 +46,13 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmStructuralType == null) {
       buildPropertyList();
-      buildNaviPropertyList();
+      buildNavigationPropertyList();
       addTransientProperties();
       edmStructuralType = new CsdlComplexType();
 
       edmStructuralType.setName(this.getExternalName());
       edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
-      edmStructuralType.setNavigationProperties(extractEdmModelElements(declaredNaviPropertiesMap));
+      edmStructuralType.setNavigationProperties(extractEdmModelElements(declaredNavigationPropertiesMap));
       edmStructuralType.setBaseType(determineBaseType());
       // TODO Abstract
       // edmComplexType.setAbstract(isAbstract)

@@ -5,8 +5,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 abstract class IntermediateOperation extends IntermediateModelElement {
 
-  IntermediateOperation(final JPAEdmNameBuilder nameBuilder, final String internalName) {
-    super(nameBuilder, internalName);
+  IntermediateOperation(final JPAEdmNameBuilder nameBuilder, final String internalName,
+      final IntermediateAnnotationInformation annotationInfo) {
+    super(nameBuilder, internalName, annotationInfo);
   }
 
   abstract boolean hasImport();

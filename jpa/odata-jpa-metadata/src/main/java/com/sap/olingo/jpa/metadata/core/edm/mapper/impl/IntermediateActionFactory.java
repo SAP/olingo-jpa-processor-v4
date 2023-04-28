@@ -19,8 +19,9 @@ class IntermediateActionFactory extends IntermediateOperationFactory<Intermediat
 //Description
   @Override
   IntermediateJavaAction createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
-      final Method m, final Object functionDescription) throws ODataJPAModelException {
-    return new IntermediateJavaAction(nameBuilder, (EdmAction) functionDescription, m, schema);
+      final Method method, final Object functionDescription)
+      throws ODataJPAModelException {
+    return new IntermediateJavaAction(nameBuilder, (EdmAction) functionDescription, method, schema);
   }
 
   @SuppressWarnings("unchecked")

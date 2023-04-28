@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCapabilitiesAnnotationsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.Assertions;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
@@ -28,22 +29,23 @@ class TestJPAProcessorExpand extends TestBase {
 
   @BeforeAll
   static void classSetup() {
-    System.setProperty("org.slf4j.simpleLogger.log.com.sap.olingo.jpa.processor.core.query", "TRACE");
+    System.setProperty("organization.slf4j.simpleLogger.log.com.sap.olingo.jpa.processor.core.query", "TRACE");
   }
 
   @Test
   void testExpandEntitySet() throws IOException, ODataException {
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID&$expand=Roles");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$orderby=ID&$expand=Roles");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    ObjectNode org = (ObjectNode) orgs.get(0);
-    ArrayNode roles = (ArrayNode) org.get("Roles");
+    final ArrayNode organizations = helper.getValues();
+    ObjectNode organization = (ObjectNode) organizations.get(0);
+    ArrayNode roles = (ArrayNode) organization.get("Roles");
     assertEquals(1, roles.size());
 
-    org = (ObjectNode) orgs.get(3);
-    roles = (ArrayNode) org.get("Roles");
+    organization = (ObjectNode) organizations.get(3);
+    roles = (ArrayNode) organization.get("Roles");
     assertEquals(3, roles.size());
   }
 
@@ -53,8 +55,8 @@ class TestJPAProcessorExpand extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('2')?$expand=Roles");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    final ArrayNode roles = (ArrayNode) org.get("Roles");
+    final ObjectNode organization = helper.getValue();
+    final ArrayNode roles = (ArrayNode) organization.get("Roles");
     assertEquals(2, roles.size());
     int found = 0;
     for (final JsonNode role : roles) {
@@ -100,9 +102,9 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$orderby=Name1&$select=Name1&$expand=Roles");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(9);
-    final ArrayNode roles = (ArrayNode) org.get("Roles");
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(9);
+    final ArrayNode roles = (ArrayNode) organization.get("Roles");
     assertEquals(3, roles.size());
 
   }
@@ -137,8 +139,8 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations('3')/Address?$expand=AdministrativeDivision");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    final ObjectNode created = (ObjectNode) org.get("AdministrativeDivision");
+    final ObjectNode organization = helper.getValue();
+    final ObjectNode created = (ObjectNode) organization.get("AdministrativeDivision");
     assertEquals("USA", created.get("ParentDivisionCode").asText());
   }
 
@@ -149,8 +151,8 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations('3')?$expand=AdministrativeInformation/Created/User");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    final ObjectNode admin = (ObjectNode) org.get("AdministrativeInformation");
+    final ObjectNode organization = helper.getValue();
+    final ObjectNode admin = (ObjectNode) organization.get("AdministrativeInformation");
     final ObjectNode created = (ObjectNode) admin.get("Created");
     assertNotNull(created.get("User"));
 
@@ -174,8 +176,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE253',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($expand=Children)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ObjectNode parent = (ObjectNode) div.get("Parent");
+    final ObjectNode divisions = helper.getValue();
+    final ObjectNode parent = (ObjectNode) divisions.get("Parent");
     assertNotNull(parent.get("Children"));
     final ArrayNode children = (ArrayNode) parent.get("Children");
     assertEquals(8, children.size());
@@ -188,8 +190,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='33016',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($expand=Parent($expand=Parent))");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ObjectNode parent = (ObjectNode) div.get("Parent");
+    final ObjectNode divisions = helper.getValue();
+    final ObjectNode parent = (ObjectNode) divisions.get("Parent");
     assertNotNull(parent.get("Parent"));
     assertNotNull(parent.get("Parent").get("CodeID"));
     assertEquals("NUTS3", parent.get("CodeID").asText());
@@ -209,8 +211,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent($expand=Parent($expand=Parent))");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ObjectNode parent = (ObjectNode) div.get("Parent");
+    final ObjectNode divisions = helper.getValue();
+    final ObjectNode parent = (ObjectNode) divisions.get("Parent");
     assertNotNull(parent.get("CodeID"));
     assertEquals("NUTS1", parent.get("CodeID").asText());
   }
@@ -221,8 +223,8 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations('3')/Address?$select=Country&$expand=AdministrativeDivision($expand=Parent)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ObjectNode admin = (ObjectNode) div.get("AdministrativeDivision");
+    final ObjectNode divisions = helper.getValue();
+    final ObjectNode admin = (ObjectNode) divisions.get("AdministrativeDivision");
     assertNotNull(admin);
     final ObjectNode parent = (ObjectNode) admin.get("Parent");
     assertEquals("3166-1", parent.get("CodeID").asText());
@@ -235,8 +237,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE253',CodeID='3',CodePublisher='NUTS')?$expand=Parent/Parent");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ObjectNode parent = (ObjectNode) div.get("Parent");
+    final ObjectNode divisions = helper.getValue();
+    final ObjectNode parent = (ObjectNode) divisions.get("Parent");
     assertNotNull(parent.get("Parent").get("CodeID"));
     assertEquals("1", parent.get("Parent").get("CodeID").asText());
   }
@@ -248,8 +250,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE253',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent/CodeID");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ObjectNode parent = (ObjectNode) div.get("Parent");
+    final ObjectNode divisions = helper.getValue();
+    final ObjectNode parent = (ObjectNode) divisions.get("Parent");
     assertNotNull(parent.get("CodeID"));
     assertEquals("NUTS2", parent.get("CodeID").asText());
     // TODO: Check how to create the response correctly
@@ -262,8 +264,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'&$expand=Children($orderby=DivisionCode)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ArrayNode children = (ArrayNode) div.get("value").get(0).get("Children");
+    final ObjectNode divisions = helper.getValue();
+    final ArrayNode children = (ArrayNode) divisions.get("value").get(0).get("Children");
     assertNotNull(children);
     assertEquals(3, children.size());
     assertEquals("BE211", children.get(0).get("DivisionCode").asText());
@@ -277,8 +279,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'&$top=2&$expand=Children($orderby=DivisionCode)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ArrayNode children = (ArrayNode) div.get("value").get(0).get("Children");
+    final ObjectNode divisions = helper.getValue();
+    final ArrayNode children = (ArrayNode) divisions.get("value").get(0).get("Children");
     assertNotNull(children);
     assertEquals(3, children.size());
     assertEquals("BE211", children.get(0).get("DivisionCode").asText());
@@ -292,8 +294,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode desc)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ArrayNode children = (ArrayNode) div.get("Children");
+    final ObjectNode divisions = helper.getValue();
+    final ArrayNode children = (ArrayNode) divisions.get("Children");
     assertEquals(5, children.size());
     assertEquals("BE25", children.get(0).get("DivisionCode").asText());
   }
@@ -322,8 +324,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode asc)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ArrayNode children = (ArrayNode) div.get("Children");
+    final ObjectNode divisions = helper.getValue();
+    final ArrayNode children = (ArrayNode) divisions.get("Children");
     assertEquals(5, children.size());
     assertEquals("BE21", children.get(0).get("DivisionCode").asText());
   }
@@ -334,8 +336,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$select=CodeID&$expand=Children($top=2;$orderby=DivisionCode desc)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ArrayNode children = (ArrayNode) div.get("Children");
+    final ObjectNode divisions = helper.getValue();
+    final ArrayNode children = (ArrayNode) divisions.get("Children");
     assertEquals(2, children.size());
     assertEquals("BE25", children.get(0).get("DivisionCode").asText());
   }
@@ -346,8 +348,8 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($top=2;$skip=2;$orderby=DivisionCode desc)");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ArrayNode children = (ArrayNode) div.get("Children");
+    final ObjectNode divisions = helper.getValue();
+    final ArrayNode children = (ArrayNode) divisions.get("Children");
     assertEquals(2, children.size());
     assertEquals("BE23", children.get(0).get("DivisionCode").asText());
   }
@@ -358,12 +360,12 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$count=true&$expand=Roles($count=true)");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    assertNotNull(org.get("Roles"));
-    final ArrayNode roles = (ArrayNode) org.get("Roles");
-    assertNotNull(org.get("Roles@odata.count"));
-    assertEquals(roles.size(), org.get("Roles@odata.count").asInt());
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(0);
+    assertNotNull(organization.get("Roles"));
+    final ArrayNode roles = (ArrayNode) organization.get("Roles");
+    assertNotNull(organization.get("Roles@odata.count"));
+    assertEquals(roles.size(), organization.get("Roles@odata.count").asInt());
   }
 
   @Test
@@ -394,12 +396,12 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$count=true&$expand=Roles($count=true)&$orderby=Roles/$count desc");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    assertNotNull(org.get("Roles"));
-    final ArrayNode roles = (ArrayNode) org.get("Roles");
-    assertNotNull(org.get("Roles@odata.count"));
-    assertEquals(roles.size(), org.get("Roles@odata.count").asInt());
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(0);
+    assertNotNull(organization.get("Roles"));
+    final ArrayNode roles = (ArrayNode) organization.get("Roles");
+    assertNotNull(organization.get("Roles@odata.count"));
+    assertEquals(roles.size(), organization.get("Roles@odata.count").asInt());
   }
 
   @Test
@@ -426,9 +428,9 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations('2')?$expand=Roles/$count");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Roles@odata.count"));
-    assertEquals(2, org.get("Roles@odata.count").asInt());
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("Roles@odata.count"));
+    assertEquals(2, organization.get("Roles@odata.count").asInt());
   }
 
   @Disabled("ODataJsonSerializer.writeExpandedNavigationProperty does not write a \"@odata.count\" for to 1 relations")
@@ -450,11 +452,11 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$count=true&$expand=Roles($count=true;$top=1)&$orderby=Roles/$count desc");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    assertNotNull(org.get("Roles"));
-    assertNotNull(org.get("Roles@odata.count"));
-    assertEquals(3, org.get("Roles@odata.count").asInt());
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(0);
+    assertNotNull(organization.get("Roles"));
+    assertNotNull(organization.get("Roles@odata.count"));
+    assertEquals(3, organization.get("Roles@odata.count").asInt());
   }
 
   @Test
@@ -464,11 +466,11 @@ class TestJPAProcessorExpand extends TestBase {
 
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    assertEquals("3", org.get("ID").asText());
-    assertNotNull(org.get("Roles"));
-    final ArrayNode roles = (ArrayNode) org.get("Roles");
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(0);
+    assertEquals("3", organization.get("ID").asText());
+    assertNotNull(organization.get("Roles"));
+    final ArrayNode roles = (ArrayNode) organization.get("Roles");
     assertEquals(3, roles.size());
     final ObjectNode firstRole = (ObjectNode) roles.get(0);
     assertEquals("C", firstRole.get("RoleCategory").asText());
@@ -524,15 +526,16 @@ class TestJPAProcessorExpand extends TestBase {
 
   @Test
   void testExpandCompleteEntitySet() throws IOException, ODataException {
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$expand=Roles&$orderby=ID");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$expand=Roles&$orderby=ID");
 
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    assertEquals("1", org.get("ID").asText());
-    assertNotNull(org.get("Roles"));
-    final ArrayNode roles = (ArrayNode) org.get("Roles");
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(0);
+    assertEquals("1", organization.get("ID").asText());
+    assertNotNull(organization.get("Roles"));
+    final ArrayNode roles = (ArrayNode) organization.get("Roles");
     assertEquals(1, roles.size());
     final ObjectNode firstRole = (ObjectNode) roles.get(0);
     assertEquals("A", firstRole.get("RoleCategory").asText());
@@ -544,11 +547,11 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent,Children");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Parent"));
-    final ObjectNode parent = (ObjectNode) org.get("Parent");
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("Parent"));
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
     assertNotNull(parent.get("DivisionCode"));
-    final ArrayNode children = (ArrayNode) org.get("Children");
+    final ArrayNode children = (ArrayNode) organization.get("Children");
     assertEquals(7, children.size());
   }
 
@@ -558,11 +561,11 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=*");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Parent"));
-    final ObjectNode parent = (ObjectNode) org.get("Parent");
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("Parent"));
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
     assertNotNull(parent.get("DivisionCode"));
-    final ArrayNode children = (ArrayNode) org.get("Children");
+    final ArrayNode children = (ArrayNode) organization.get("Children");
     assertEquals(7, children.size());
   }
 
@@ -572,11 +575,11 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=*");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Parent"));
-    final ObjectNode parent = (ObjectNode) org.get("Parent");
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("Parent"));
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
     assertNotNull(parent.get("DivisionCode"));
-    final ArrayNode children = (ArrayNode) org.get("Children");
+    final ArrayNode children = (ArrayNode) organization.get("Children");
     assertEquals(7, children.size());
   }
 
@@ -586,12 +589,12 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($levels=1)");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Parent"));
-    final ObjectNode parent = (ObjectNode) org.get("Parent");
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("Parent"));
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
     assertNotNull(parent.get("DivisionCode"));
-    final TextNode divCode = (TextNode) parent.get("DivisionCode");
-    assertEquals("BE258", divCode.asText());
+    final TextNode divisionCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE258", divisionCode.asText());
   }
 
   @Test
@@ -600,17 +603,63 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($levels=2)");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertFalse(org.get("Parent") instanceof NullNode);
-    final ObjectNode parent = (ObjectNode) org.get("Parent");
-    final TextNode parentDivCode = (TextNode) parent.get("DivisionCode");
-    assertEquals("BE258", parentDivCode.asText());
+    final ObjectNode organization = helper.getValue();
+    assertFalse(organization.get("Parent") instanceof NullNode);
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
+    final TextNode parentDivisionCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE258", parentDivisionCode.asText());
 
     assertFalse(parent.get("Parent") instanceof NullNode);
     final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
     assertNotNull(grandParent.get("DivisionCode"));
-    final TextNode grandparentDivCode = (TextNode) grandParent.get("DivisionCode");
-    assertEquals("BE25", grandparentDivCode.asText());
+    final TextNode grandparentDivisionCode = (TextNode) grandParent.get("DivisionCode");
+    assertEquals("BE25", grandparentDivisionCode.asText());
+
+    assertTrue(grandParent.get("Parent") == null || grandParent.get("Parent") instanceof NullNode);
+  }
+
+  @Test
+  void testExpandStarAndLevel2() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=*($levels=2)");
+    helper.assertStatus(200);
+
+    final ObjectNode organization = helper.getValue();
+    assertFalse(organization.get("Parent") instanceof NullNode);
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
+    final TextNode parentDivisionCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE258", parentDivisionCode.asText());
+
+    assertFalse(parent.get("Parent") instanceof NullNode);
+    final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
+    assertNotNull(grandParent.get("DivisionCode"));
+    final TextNode grandparentDivisionCode = (TextNode) grandParent.get("DivisionCode");
+    assertEquals("BE25", grandparentDivisionCode.asText());
+
+    assertTrue(grandParent.get("Parent") == null || grandParent.get("Parent") instanceof NullNode);
+  }
+
+  @Test
+  void testExpandStarAndLevel1() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE258',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=*($levels=1)");
+    helper.assertStatus(200);
+
+    final ObjectNode organization = helper.getValue();
+    assertFalse(organization.get("Parent") instanceof NullNode);
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
+    final TextNode parentDivisionCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE25", parentDivisionCode.asText());
+
+    assertTrue(parent.get("Parent") == null || parent.get("Parent") instanceof NullNode);
+
+    assertFalse(organization.get("Children") instanceof NullNode);
+    final ArrayNode children = (ArrayNode) organization.get("AllDescriptions");
+    assertTrue(children.size() > 0);
+
+    assertFalse(organization.get("AllDescriptions") instanceof NullNode);
+    final ArrayNode allDescriptions = (ArrayNode) organization.get("AllDescriptions");
+    assertTrue(allDescriptions.size() > 0);
   }
 
   @Disabled("Not implemented")
@@ -620,17 +669,17 @@ class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE241',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($levels=max)");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertFalse(org.get("Parent") instanceof NullNode);
-    final ObjectNode parent = (ObjectNode) org.get("Parent");
-    final TextNode parentDivCode = (TextNode) parent.get("DivisionCode");
-    assertEquals("BE24", parentDivCode.asText());
+    final ObjectNode organization = helper.getValue();
+    assertFalse(organization.get("Parent") instanceof NullNode);
+    final ObjectNode parent = (ObjectNode) organization.get("Parent");
+    final TextNode parentDivisionsCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE24", parentDivisionsCode.asText());
 
     assertFalse(parent.get("Parent") instanceof NullNode);
     final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
     assertNotNull(grandParent.get("DivisionCode"));
-    final TextNode grandparentDivCode = (TextNode) grandParent.get("DivisionCode");
-    assertEquals("BE2", grandparentDivCode.asText());
+    final TextNode grandparentDivisionsCode = (TextNode) grandParent.get("DivisionCode");
+    assertEquals("BE2", grandparentDivisionsCode.asText());
   }
 
   @Test
@@ -638,8 +687,8 @@ class TestJPAProcessorExpand extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')?$expand=*");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Roles"));
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("Roles"));
 
   }
 
@@ -655,8 +704,8 @@ class TestJPAProcessorExpand extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('2')?$select=Name1&$expand=SupportEngineers($select=FirstName,LastName)");
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("SupportEngineers"));
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("SupportEngineers"));
 
   }
 
@@ -666,9 +715,9 @@ class TestJPAProcessorExpand extends TestBase {
         "JoinSources(1)?$expand=OneToMany($top=1)");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("OneToMany"));
-    final ArrayNode oneToMany = (ArrayNode) org.get("OneToMany");
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("OneToMany"));
+    final ArrayNode oneToMany = (ArrayNode) organization.get("OneToMany");
     assertEquals(1, oneToMany.size());
   }
 
@@ -678,17 +727,17 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations('1')?$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$expand=SupportedOrganizations)");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("SupportEngineers"));
-    final ArrayNode supportEngs = (ArrayNode) org.get("SupportEngineers");
-    for (int i = 0; i < supportEngs.size(); i++) {
-      final ObjectNode supportEng = (ObjectNode) supportEngs.get(i);
-      final ArrayNode supportOrgs = (ArrayNode) supportEng.get("SupportedOrganizations");
-      assertNotNull(supportOrgs);
-      if (supportEng.get("ID").asText().equals("98")) {
-        assertEquals(1, supportOrgs.size());
-      } else if (supportEng.get("ID").asText().equals("97")) {
-        assertEquals(2, supportOrgs.size());
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("SupportEngineers"));
+    final ArrayNode supportEngineers = (ArrayNode) organization.get("SupportEngineers");
+    for (int i = 0; i < supportEngineers.size(); i++) {
+      final ObjectNode supportEngineer = (ObjectNode) supportEngineers.get(i);
+      final ArrayNode supportOrganizations = (ArrayNode) supportEngineer.get("SupportedOrganizations");
+      assertNotNull(supportOrganizations);
+      if (supportEngineer.get("ID").asText().equals("98")) {
+        assertEquals(1, supportOrganizations.size());
+      } else if (supportEngineer.get("ID").asText().equals("97")) {
+        assertEquals(2, supportOrganizations.size());
       } else
         fail("Unexpected result");
     }
@@ -700,20 +749,20 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$top=1&$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$expand=SupportedOrganizations)&$orderby=ID");
     helper.assertStatus(200);
 
-    final ArrayNode org = (ArrayNode) helper.getValue().get("value");
-    assertNotNull(org);
-    assertNotNull(org.get(0));
-    assertNotNull(org.get(0).get("SupportEngineers"));
-    final ArrayNode supportEngs = (ArrayNode) org.get(0).get("SupportEngineers");
-    assertEquals(2, supportEngs.size());
-    for (int i = 0; i < supportEngs.size(); i++) {
-      final ObjectNode supportEng = (ObjectNode) supportEngs.get(i);
-      final ArrayNode supportOrgs = (ArrayNode) supportEng.get("SupportedOrganizations");
-      assertNotNull(supportOrgs);
-      if (supportEng.get("ID").asText().equals("98")) {
-        assertEquals(1, supportOrgs.size());
-      } else if (supportEng.get("ID").asText().equals("97")) {
-        assertEquals(2, supportOrgs.size());
+    final ArrayNode organization = (ArrayNode) helper.getValue().get("value");
+    assertNotNull(organization);
+    assertNotNull(organization.get(0));
+    assertNotNull(organization.get(0).get("SupportEngineers"));
+    final ArrayNode supportEngineers = (ArrayNode) organization.get(0).get("SupportEngineers");
+    assertEquals(2, supportEngineers.size());
+    for (int i = 0; i < supportEngineers.size(); i++) {
+      final ObjectNode supportEngineer = (ObjectNode) supportEngineers.get(i);
+      final ArrayNode supportOrganizations = (ArrayNode) supportEngineer.get("SupportedOrganizations");
+      assertNotNull(supportOrganizations);
+      if (supportEngineer.get("ID").asText().equals("98")) {
+        assertEquals(1, supportOrganizations.size());
+      } else if (supportEngineer.get("ID").asText().equals("97")) {
+        assertEquals(2, supportOrganizations.size());
       } else
         fail("Unexpected result");
     }
@@ -726,16 +775,16 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$top=1&$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$top=1;$expand=SupportedOrganizations($top=1))&$orderby=ID");
     helper.assertStatus(200);
 
-    final ArrayNode org = (ArrayNode) helper.getValue().get("value");
-    assertNotNull(org);
-    assertNotNull(org.get(0));
-    assertNotNull(org.get(0).get("SupportEngineers"));
-    final ArrayNode supportEngs = (ArrayNode) org.get(0).get("SupportEngineers");
-    assertEquals(1, supportEngs.size());
-    final ObjectNode supportEng = (ObjectNode) supportEngs.get(0);
-    assertEquals("97", supportEng.get("ID").asText());
-    final ArrayNode supportOrgs = (ArrayNode) supportEng.get("SupportedOrganizations");
-    assertEquals(1, supportOrgs.size());
+    final ArrayNode organization = (ArrayNode) helper.getValue().get("value");
+    assertNotNull(organization);
+    assertNotNull(organization.get(0));
+    assertNotNull(organization.get(0).get("SupportEngineers"));
+    final ArrayNode supportEngineers = (ArrayNode) organization.get(0).get("SupportEngineers");
+    assertEquals(1, supportEngineers.size());
+    final ObjectNode supportEngineer = (ObjectNode) supportEngineers.get(0);
+    assertEquals("97", supportEngineer.get("ID").asText());
+    final ArrayNode supportOrganizations = (ArrayNode) supportEngineer.get("SupportedOrganizations");
+    assertEquals(1, supportOrganizations.size());
 
   }
 
@@ -752,12 +801,12 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$top=1&$select=Name1&$expand=SupportEngineers($select=FirstName,LastName)&$orderby=ID desc");
     helper.assertStatus(200);
 
-    final ArrayNode org = (ArrayNode) helper.getValue().get("value");
-    assertNotNull(org);
-    assertNotNull(org.get(0));
-    assertEquals("9", org.get(0).get("ID").asText());
-    assertNotNull(org.get(0).get("SupportEngineers"));
-    assertEquals(0, ((ArrayNode) org.get(0).get("SupportEngineers")).size());
+    final ArrayNode organization = (ArrayNode) helper.getValue().get("value");
+    assertNotNull(organization);
+    assertNotNull(organization.get(0));
+    assertEquals("9", organization.get(0).get("ID").asText());
+    assertNotNull(organization.get(0).get("SupportEngineers"));
+    assertEquals(0, ((ArrayNode) organization.get(0).get("SupportEngineers")).size());
   }
 
   @Test
@@ -766,8 +815,8 @@ class TestJPAProcessorExpand extends TestBase {
         "Persons?$select=LastName&$expand=Teams");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org);
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization);
   }
 
   @Test
@@ -776,9 +825,9 @@ class TestJPAProcessorExpand extends TestBase {
         "JoinSources(1)?$expand=OneToMany");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("OneToMany"));
-    final ArrayNode oneToMany = (ArrayNode) org.get("OneToMany");
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("OneToMany"));
+    final ArrayNode oneToMany = (ArrayNode) organization.get("OneToMany");
     assertEquals(2, oneToMany.size());
   }
 
@@ -790,16 +839,16 @@ class TestJPAProcessorExpand extends TestBase {
     final int status = helper.getStatus();
     // Status is either 500 for sub query based expand or 200 for join based expand
     if (status == 500) {
-      final ObjectNode org = helper.getValue();
-      final ObjectNode err = (ObjectNode) org.get("error");
+      final ObjectNode organization = helper.getValue();
+      final ObjectNode err = (ObjectNode) organization.get("error");
       final String msg = err.get("message").asText();
       assertTrue(msg.contains("JoinHiddenRelation"));
     } else {
       helper.assertStatus(200);
 
-      final ObjectNode org = helper.getValue();
-      assertNotNull(org.get("OneToManyHidden"));
-      final ArrayNode oneToMany = (ArrayNode) org.get("OneToManyHidden");
+      final ObjectNode organization = helper.getValue();
+      assertNotNull(organization.get("OneToManyHidden"));
+      final ArrayNode oneToMany = (ArrayNode) organization.get("OneToManyHidden");
       assertEquals(2, oneToMany.size());
     }
   }
@@ -810,9 +859,9 @@ class TestJPAProcessorExpand extends TestBase {
         "JoinSources(1)/Complex?$expand=OneToManyComplex");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("OneToManyComplex"));
-    final ArrayNode oneToMany = (ArrayNode) org.get("OneToManyComplex");
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization.get("OneToManyComplex"));
+    final ArrayNode oneToMany = (ArrayNode) organization.get("OneToManyComplex");
     assertEquals(2, oneToMany.size());
   }
 
@@ -862,12 +911,12 @@ class TestJPAProcessorExpand extends TestBase {
         "Organizations?$top=2&$skip=2&$expand=Roles($count=true;$top=1)");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(1);
-    assertEquals(2, orgs.size());
-    assertNotNull(org.get("Roles"));
-    assertNotNull(org.get("Roles@odata.count"));
-    assertEquals(3, org.get("Roles@odata.count").asInt());
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(1);
+    assertEquals(2, organizations.size());
+    assertNotNull(organization.get("Roles"));
+    assertNotNull(organization.get("Roles@odata.count"));
+    assertEquals(3, organization.get("Roles@odata.count").asInt());
   }
 
   @Test
@@ -922,11 +971,83 @@ class TestJPAProcessorExpand extends TestBase {
 
   @Tag(Assertions.CB_ONLY_TEST)
   @Test
-  void testExpandToOneVitualProperty() throws IOException, ODataException {
+  void testExpandToOneVirtualProperty() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AssociationOneToOneSources?$expand=DefaultTarget");
     helper.assertStatus(200);
     final ArrayNode sources = helper.getValues();
     assertEquals(3, sources.size());
+  }
+
+  @Test
+  void testExpandStarIgnoresNonExpandable() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AnnotationsParents(CodePublisher='Eurostat',CodeID='NUTS2',DivisionCode='BE25')?$expand=*",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(200);
+
+    final ObjectNode division = helper.getValue();
+    final ArrayNode children = (ArrayNode) division.get("Children");
+    assertTrue(children.isEmpty());
+    final ObjectNode parent = (ObjectNode) division.get("Parent");
+    assertNotNull(parent);
+  }
+
+  @Test
+  void testExpandMaxLevelsIgnoresNonExpandable() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AnnotationsParents(CodePublisher='Eurostat',CodeID='LAU2',DivisionCode='33011')?$expand=Parent($levels=max)",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(200);
+
+    final ObjectNode division = helper.getValue();
+    final ObjectNode parent = (ObjectNode) division.get("Parent");
+    assertNotNull(parent);
+    final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
+    assertNotNull(grandParent);
+
+    final JsonNode grandGrandParent = grandParent.get("Parent");
+    assertTrue(grandGrandParent == null || grandGrandParent instanceof NullNode);
+  }
+
+  @Test
+  void testExpandMaxLevelsIgnoresNonExpandable2() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AnnotationsParents(CodePublisher='Eurostat',CodeID='NUTS3',DivisionCode='BE251')?$expand=Parent($levels=max),ActualParent($levels=max)",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(200);
+
+    final ObjectNode division = helper.getValue();
+    final ObjectNode parent = (ObjectNode) division.get("Parent");
+    assertNotNull(parent);
+    final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
+    assertNotNull(grandParent);
+
+    final JsonNode grandGrandParent = grandParent.get("Parent");
+    assertTrue(grandGrandParent == null || grandGrandParent instanceof NullNode);
+
+    final ObjectNode actualParent = (ObjectNode) division.get("ActualParent");
+    assertNotNull(actualParent);
+    final ObjectNode actualGrandParent = (ObjectNode) actualParent.get("ActualParent");
+    assertNotNull(actualGrandParent);
+  }
+
+  @Test
+  void testExpandNavigationPathWithStar() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons('99')/AdministrativeInformation?$expand=*",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(200);
+
+    final ObjectNode person = helper.getValue();
+    final ObjectNode created = (ObjectNode) person.get("Created");
+    assertNotNull(created);
+    final ObjectNode user = (ObjectNode) created.get("User");
+    assertNotNull(user);
+
+    final ObjectNode updated = (ObjectNode) person.get("Updated");
+    assertNotNull(updated);
+    final ObjectNode user2 = (ObjectNode) updated.get("User");
+    assertNotNull(user2);
   }
 }

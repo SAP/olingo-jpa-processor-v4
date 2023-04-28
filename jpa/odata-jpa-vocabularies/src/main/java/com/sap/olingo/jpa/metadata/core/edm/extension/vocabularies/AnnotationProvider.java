@@ -8,8 +8,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
 public interface AnnotationProvider {
 
-  Collection<CsdlAnnotation> getAnnotations(@Nonnull final AppliesTo appliesTo, @Nonnull JPAAnnotatable annotatable,
-      @Nonnull JPAReferences references);
+  Collection<CsdlAnnotation> getAnnotations(@Nonnull final Applicability appliesTo,
+      @Nonnull ODataAnnotatable annotatable, @Nonnull JPAReferences references);
 
   void addReferences(@Nonnull ReferenceList references) throws ODataVocabularyReadException;
 

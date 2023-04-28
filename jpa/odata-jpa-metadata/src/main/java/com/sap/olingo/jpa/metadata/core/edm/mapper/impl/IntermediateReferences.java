@@ -26,7 +26,7 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
 
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AppliesTo;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabularyReadException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceAccess;
@@ -36,7 +36,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.CsdlDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.CsdlDocumentReader;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.ODataJPAVocabulariesException;
 
-final class IntermediateReferences implements IntermediateReferenceList, JPAReferences {
+class IntermediateReferences implements IntermediateReferenceList, JPAReferences {
 
   final List<IntermediateReference> references = new ArrayList<>();
   private List<EdmxReference> edmxReferences = new ArrayList<>();
@@ -119,7 +119,7 @@ final class IntermediateReferences implements IntermediateReferenceList, JPARefe
   }
 
   @Override
-  public List<CsdlTerm> getTerms(final String schemaAlias, final AppliesTo appliesTo) {
+  public List<CsdlTerm> getTerms(final String schemaAlias, final Applicability appliesTo) {
     final List<CsdlTerm> result = new ArrayList<>();
     final Optional<List<CsdlTerm>> termsOfSchema = getSchema(schemaAlias).map(CsdlSchema::getTerms);
     if (termsOfSchema.isPresent()) {

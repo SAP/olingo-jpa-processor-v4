@@ -26,7 +26,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   IntermediateDataBaseFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
       final Class<?> definingPOJO, final IntermediateSchema schema) {
 
-    super(nameBuilder, jpaFunction, schema, IntNameBuilder.buildFunctionName(jpaFunction));
+    super(nameBuilder, jpaFunction, schema, InternalNameBuilder.buildFunctionName(jpaFunction));
     this.setExternalName(jpaFunction.name());
     this.jpaDefiningPOJO = definingPOJO;
   }
@@ -45,7 +45,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   public List<JPAParameter> getParameter() {
     final List<JPAParameter> parameterList = new ArrayList<>();
     for (final EdmParameter jpaParameter : jpaFunction.parameter()) {
-      parameterList.add(new IntermediateFunctionParameter(nameBuilder, jpaParameter));
+      parameterList.add(new IntermediateFunctionParameter(nameBuilder, jpaParameter, getAnnotationInformation()));
     }
     return parameterList;
   }

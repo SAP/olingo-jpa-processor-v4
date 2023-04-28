@@ -6,9 +6,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AppliesTo;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -27,9 +25,8 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
   private CsdlEntitySet edmEntitySet;
 
   IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et,
-      final List<AnnotationProvider> annotationProvider, final JPAReferences references)
-      throws ODataJPAModelException {
-    super(nameBuilder, et, annotationProvider, references);
+      final IntermediateAnnotationInformation annotationInfo) throws ODataJPAModelException {
+    super(nameBuilder, et, annotationInfo);
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
   }
 
@@ -55,7 +52,7 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEntitySet == null) {
-      retrieveAnnotations();
+      retrieveAnnotations(this, Applicability.ENTITY_SET);
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
 
@@ -80,8 +77,12 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
     return edmEntitySet;
   }
 
-  private void retrieveAnnotations() {
-    for (final AnnotationProvider provider : annotationProvider)
-      edmAnnotations.addAll(provider.getAnnotations(AppliesTo.ENTITY_SET, this, references));
+  @Override
+  public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    if (edmEntitySet == null) {
+      lazyBuildEdmItem();
+    }
+    return filterAnnotation(alias, term);
   }
+
 }

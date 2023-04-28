@@ -228,15 +228,15 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   @Override
   public String getTableName() {
     final AnnotatedElement a = jpaManagedType.getJavaType();
-    Table t = null;
+    Table table = null;
 
     if (a != null)
-      t = a.getAnnotation(Table.class);
+      table = a.getAnnotation(Table.class);
     final IntermediateStructuredType<?> baseType = getBaseType();
-    if (t == null && baseType != null)
+    if (table == null && baseType != null)
       return ((IntermediateEntityType<?>) baseType).getTableName();
-    return (t == null) ? jpaManagedType.getJavaType().getSimpleName().toUpperCase(Locale.ENGLISH)
-        : buildFQTableName(t.schema(), t.name());
+    return (table == null) ? jpaManagedType.getJavaType().getSimpleName().toUpperCase(Locale.ENGLISH)
+        : buildFQTableName(table.schema(), table.name());
   }
 
   @Override
@@ -275,10 +275,9 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   @Override
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
     final List<JPAPath> result = new ArrayList<>();
-    for (final Entry<String, JPAPathImpl> path : this.resolvedPathMap.entrySet()) {
-      final JPAPath p = path.getValue();
-      if (!p.ignore() && p.getAlias().startsWith(selectItemPath.getAlias()))
-        result.add(p);
+    for (final JPAPath path : this.resolvedPathMap.values()) {
+      if (!path.ignore() && path.getAlias().startsWith(selectItemPath.getAlias()))
+        result.add(path);
     }
     return result;
   }
@@ -310,7 +309,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmStructuralType == null) {
       buildPropertyList();
-      buildNaviPropertyList();
+      buildNavigationPropertyList();
       addTransientProperties();
       addVirtualProperties();
       determineExtensionQueryProvide();
@@ -320,7 +319,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       edmStructuralType.setName(getExternalName());
       edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
       edmStructuralType.setNavigationProperties(extractEdmModelElements(
-          declaredNaviPropertiesMap));
+          declaredNavigationPropertiesMap));
       ((CsdlEntityType) edmStructuralType).setKey(extractEdmKeyElements());
       edmStructuralType.setAbstract(determineAbstract());
       edmStructuralType.setBaseType(determineBaseType());
@@ -360,17 +359,17 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   boolean dbEquals(final String dbCatalog, final String dbSchema, final String dbTableName) {
     final AnnotatedElement a = jpaManagedType.getJavaType();
-    Table t = null;
+    Table table = null;
     if (a != null)
-      t = a.getAnnotation(Table.class);
-    if (t == null)
+      table = a.getAnnotation(Table.class);
+    if (table == null)
       return (dbCatalog == null || dbCatalog.isEmpty())
           && (dbSchema == null || dbSchema.isEmpty())
           && dbTableName.equals(getTableName());
     else
-      return dbCatalog.equals(t.catalog())
-          && dbSchema.equals(t.schema())
-          && dbTableName.equals(t.name());
+      return dbCatalog.equals(table.catalog())
+          && dbSchema.equals(table.schema())
+          && dbTableName.equals(table.name());
   }
 
   boolean determineAbstract() {
