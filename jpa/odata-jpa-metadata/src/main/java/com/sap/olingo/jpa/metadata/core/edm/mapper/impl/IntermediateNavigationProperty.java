@@ -264,9 +264,6 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
 
   @Override
   public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
-    if (edmNaviProperty == null) {
-      lazyBuildEdmItem();
-    }
     return filterAnnotation(alias, term);
   }
 

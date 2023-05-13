@@ -427,8 +427,8 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
 
   @Test
   void checkPostProcessorAnnotationAdded() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class),
         "roles");
@@ -440,8 +440,8 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
 
   @Test
   void checkPostProcessorSetOnDelete() throws ODataJPAModelException {
-    final PostProcessorOneDelete pPDouble = new PostProcessorOneDelete();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+    final PostProcessorOneDelete postProcessorDouble = new PostProcessorOneDelete();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(AdministrativeDivision.class),
         "children");
@@ -864,9 +864,32 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     assertFalse(cut.getRequiredDbColumns().isEmpty());
   }
 
+  @Test
+  void checkGetJavaTypeReturnsNull() throws ODataJPAModelException {
+    final EntityType<?> et = helper.getEntityType(AdministrativeDivision.class);
+
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+
+    assertNull(cut.getJavaType());
+  }
+
+  @Test
+  void checkGetAnnotationReturnsNullAnnotationUnknown() throws ODataJPAModelException {
+    final EntityType<?> et = helper.getEntityType(AdministrativeDivision.class);
+
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+    assertNull(cut.getAnnotation("Capabilities", "Filter"));
+  }
+
   private Attribute<?, ?> createDummyAttribute() {
     final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
-    final ManagedType<?> mgrType = mock(ManagedType.class);
+    final ManagedType<?> managedType = mock(ManagedType.class);
     final Member member = mock(Member.class, withSettings().extraInterfaces(AnnotatedElement.class));
     when(jpaAttribute.getName()).thenReturn("willi");
     when(jpaAttribute.isCollection()).thenReturn(false);
@@ -879,10 +902,10 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     when(jpaAttribute.getDeclaringType()).thenAnswer(new Answer<ManagedType<?>>() {
       @Override
       public ManagedType<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return mgrType;
+        return managedType;
       }
     });
-    when(mgrType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+    when(managedType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return BusinessPartner.class;
@@ -923,9 +946,9 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
         final String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(ADMIN_CANONICAL_NAME)) {
         if (property.getInternalName().equals("children")) {
-          final CsdlOnDelete oD = new CsdlOnDelete();
-          oD.setAction(CsdlOnDeleteAction.None);
-          property.setOnDelete(oD);
+          final CsdlOnDelete onDelete = new CsdlOnDelete();
+          onDelete.setAction(CsdlOnDeleteAction.None);
+          property.setOnDelete(onDelete);
         }
       }
     }

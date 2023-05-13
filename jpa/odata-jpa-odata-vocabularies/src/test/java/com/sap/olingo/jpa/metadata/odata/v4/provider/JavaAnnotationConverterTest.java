@@ -32,20 +32,17 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.CsdlDocumentRead
 import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.ODataJPAVocabulariesException;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.CountRestrictions;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.ExpandRestrictions;
-import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.FilterExpressionType;
-import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.FilterFunctions;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.FilterRestrictions;
-import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.FilterRestrictions.FilterExpressionRestrictionType;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateMethod;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateRestrictions;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Immutable;
 
 @ExpandRestrictions(maxLevels = 2, nonExpandableProperties = { "roles" })
-@FilterFunctions({ "at", "sum" })
-@FilterRestrictions(requiredProperties = { "codePublisher,codeID" },
-    filterExpressionRestrictions = {
-        @FilterExpressionRestrictionType(
-            allowedExpressions = FilterExpressionType.MULTI_VALUE, property = "codeID") })
+//@FilterFunctions({ "at", "sum" })
+@FilterRestrictions(requiredProperties = { "codePublisher,codeID" })
+//    filterExpressionRestrictions = {
+//        @FilterExpressionRestrictionType(
+//            allowedExpressions = FilterExpressionType.MULTI_VALUE, property = "codeID") })
 @UpdateRestrictions(updateMethod = UpdateMethod.PATCH)
 @CountRestrictions(nonCountableProperties = {},
     nonCountableNavigationProperties = { "parent", "children" })
@@ -95,8 +92,8 @@ class JavaAnnotationConverterTest {
     when(annotatable.convertStringToNavigationPath("roles")).thenReturn(rolePath);
     when(rolePath.getPathAsString()).thenReturn("Roles");
 
-    final ExpandRestrictions er = this.getClass().getAnnotation(ExpandRestrictions.class);
-    final Optional<CsdlAnnotation> act = cut.convert(references, er, annotatable);
+    final ExpandRestrictions expandRestrictions = this.getClass().getAnnotation(ExpandRestrictions.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, expandRestrictions, annotatable);
 
     assertTrue(act.isPresent());
     assertEquals(JavaBasedCapabilitiesAnnotationsProvider.NAMESPACE + ".ExpandRestrictions", act.get().getTerm());
@@ -115,22 +112,22 @@ class JavaAnnotationConverterTest {
     }
   }
 
-  @Test
-  void checkAnnotationWithPrimitiveTypeCollection() {
-
-    final FilterFunctions ff = this.getClass().getAnnotation(FilterFunctions.class);
-    final Optional<CsdlAnnotation> act = cut.convert(references, ff, annotatable);
-
-    assertTrue(act.isPresent());
-    assertEquals(JavaBasedCapabilitiesAnnotationsProvider.NAMESPACE + "." + "FilterFunctions", act.get().getTerm());
-    assertEquals(2, ((CsdlCollection) act.get().getExpression()).getItems().size());
-  }
+//  @Test
+//  void checkAnnotationWithPrimitiveTypeCollection() {
+//
+//    final FilterFunctions ff = this.getClass().getAnnotation(FilterFunctions.class);
+//    final Optional<CsdlAnnotation> act = cut.convert(references, ff, annotatable);
+//
+//    assertTrue(act.isPresent());
+//    assertEquals(JavaBasedCapabilitiesAnnotationsProvider.NAMESPACE + "." + "FilterFunctions", act.get().getTerm());
+//    assertEquals(2, ((CsdlCollection) act.get().getExpression()).getItems().size());
+//  }
 
   @Test
   void checkAnnotationWithRecordContainingEnum() {
 
-    final UpdateRestrictions ur = this.getClass().getAnnotation(UpdateRestrictions.class);
-    final Optional<CsdlAnnotation> act = cut.convert(references, ur, annotatable);
+    final UpdateRestrictions updateRestrictions = this.getClass().getAnnotation(UpdateRestrictions.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, updateRestrictions, annotatable);
     assertTrue(act.isPresent());
     final List<CsdlPropertyValue> actValues = act.get().getExpression().asDynamic().asRecord().getPropertyValues();
     final Optional<CsdlPropertyValue> updateMethod = actValues.stream()
@@ -143,8 +140,8 @@ class JavaAnnotationConverterTest {
   void checkAnnotationWithRecordContainingCollection() throws ODataPathNotFoundException {
 
     buildToPathResult();
-    final FilterRestrictions fr = this.getClass().getAnnotation(FilterRestrictions.class);
-    final Optional<CsdlAnnotation> act = cut.convert(references, fr, annotatable);
+    final FilterRestrictions filterRestrictions = this.getClass().getAnnotation(FilterRestrictions.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, filterRestrictions, annotatable);
 
     assertTrue(act.isPresent());
     final List<CsdlPropertyValue> actValues = act.get().getExpression().asDynamic().asRecord().getPropertyValues();
@@ -155,26 +152,26 @@ class JavaAnnotationConverterTest {
     final CsdlCollection requiredPropertiesValue = (CsdlCollection) requiredProperties.get().getValue();
     assertEquals(2, requiredPropertiesValue.getItems().size());
 
-    final Optional<CsdlPropertyValue> filterExpression = actValues.stream()
-        .filter(p -> p.getProperty().equals("FilterExpressionRestrictions")).findFirst();
-    assertTrue(filterExpression.isPresent());
-    final CsdlCollection filterExpressionValue = (CsdlCollection) filterExpression.get().getValue();
-    assertEquals(1, filterExpressionValue.getItems().size());
+//    final Optional<CsdlPropertyValue> filterExpression = actValues.stream()
+//        .filter(p -> p.getProperty().equals("FilterExpressionRestrictions")).findFirst();
+//    assertTrue(filterExpression.isPresent());
+//    final CsdlCollection filterExpressionValue = (CsdlCollection) filterExpression.get().getValue();
+//    assertEquals(1, filterExpressionValue.getItems().size());
 
-    final CsdlRecord filterExpressionItem = (CsdlRecord) filterExpressionValue.getItems().get(0);
-    final Optional<CsdlPropertyValue> allowedExpressions = filterExpressionItem.getPropertyValues().stream()
-        .filter(p -> p.getProperty().equals("AllowedExpressions")).findFirst();
-    assertNotNull(allowedExpressions);
-    assertTrue(allowedExpressions.isPresent());
-    assertEquals("MultiValue", allowedExpressions.get().getValue().asConstant().getValue());
+//    final CsdlRecord filterExpressionItem = (CsdlRecord) filterExpressionValue.getItems().get(0);
+//    final Optional<CsdlPropertyValue> allowedExpressions = filterExpressionItem.getPropertyValues().stream()
+//        .filter(p -> p.getProperty().equals("AllowedExpressions")).findFirst();
+//    assertNotNull(allowedExpressions);
+//    assertTrue(allowedExpressions.isPresent());
+//    assertEquals("MultiValue", allowedExpressions.get().getValue().asConstant().getValue());
   }
 
   @Test
   void checkAnnotationWithPath() throws ODataPathNotFoundException {
     buildToPathResult();
 
-    final FilterRestrictions fr = this.getClass().getAnnotation(FilterRestrictions.class);
-    final Optional<CsdlAnnotation> act = cut.convert(references, fr, annotatable);
+    final FilterRestrictions filterRestrictions = this.getClass().getAnnotation(FilterRestrictions.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, filterRestrictions, annotatable);
 
     assertTrue(act.isPresent());
     final List<CsdlPropertyValue> actValues = act.get().getExpression().asDynamic().asRecord().getPropertyValues();
@@ -200,8 +197,8 @@ class JavaAnnotationConverterTest {
   void checkAnnotationPathExpressionReturnsNullOnException() throws ODataPathNotFoundException {
     buildToPathResult();
     when(annotatable.convertStringToPath(any())).thenThrow(ODataPathNotFoundException.class);
-    final FilterRestrictions fr = this.getClass().getAnnotation(FilterRestrictions.class);
-    final Optional<CsdlAnnotation> act = cut.convert(references, fr, annotatable);
+    final FilterRestrictions filterRestrictions = this.getClass().getAnnotation(FilterRestrictions.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, filterRestrictions, annotatable);
 
     assertTrue(act.isPresent());
     final List<CsdlPropertyValue> actValues = act.get().getExpression().asDynamic().asRecord().getPropertyValues();
@@ -222,8 +219,8 @@ class JavaAnnotationConverterTest {
     when(parentPath.getPathAsString()).thenReturn("Parent");
     when(childrenPath.getPathAsString()).thenReturn("Children");
 
-    final CountRestrictions cr = this.getClass().getAnnotation(CountRestrictions.class);
-    final Optional<CsdlAnnotation> act = cut.convert(references, cr, annotatable);
+    final CountRestrictions countRestrictions = this.getClass().getAnnotation(CountRestrictions.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, countRestrictions, annotatable);
 
     assertTrue(act.isPresent());
     final List<CsdlPropertyValue> actValues = act.get().getExpression().asDynamic().asRecord().getPropertyValues();

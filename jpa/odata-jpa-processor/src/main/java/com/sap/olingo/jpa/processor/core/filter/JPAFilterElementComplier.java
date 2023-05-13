@@ -127,4 +127,9 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   public List<String> getGroups() {
     return groups;
   }
+
+  @Override
+  public Optional<JPAFilterRestrictionsWatchDog> getWatchDog() {
+    return Optional.empty();
+  }
 }

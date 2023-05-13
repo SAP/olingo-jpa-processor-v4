@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.SortRestrictions;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.ComputedDefaultValue;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Immutable;
 
-@FilterRestrictions(requiredProperties = { "parentCodeID", "parentDivisionCode" })
+@FilterRestrictions(requiresFilter = true, requiredProperties = { "parentCodeID", "parentDivisionCode" })
 @SortRestrictions(ascendingOnlyProperties = { "parentDivisionCode" }, descendingOnlyProperties = { "countryCode" },
     nonSortableProperties = { "alternativeCode" })
 @ExpandRestrictions(maxLevels = 2, nonExpandableProperties = { "children" })

@@ -42,4 +42,6 @@ interface JPAFilterComplierAccess {
 
   List<String> getGroups();
 
+  Optional<JPAFilterRestrictionsWatchDog> getWatchDog();
+
 }

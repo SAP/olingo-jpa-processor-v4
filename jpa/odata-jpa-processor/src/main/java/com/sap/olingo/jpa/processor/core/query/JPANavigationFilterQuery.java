@@ -40,7 +40,7 @@ public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
 
     super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em, parent, from, association,
         claimsProvider);
-    this.keyPredicates = Util.determineKeyPredicates(uriResourceItem);
+    this.keyPredicates = Utility.determineKeyPredicates(uriResourceItem);
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
 
     this.locale = parent.getLocale();
@@ -57,7 +57,7 @@ public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
 
     super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em, parent, from,
         association, claimsProvider);
-    this.keyPredicates = Util.determineKeyPredicates(uriResourceItem);
+    this.keyPredicates = Utility.determineKeyPredicates(uriResourceItem);
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
 
     this.locale = parent.getLocale();

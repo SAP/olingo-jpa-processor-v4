@@ -64,7 +64,7 @@ public final class JPANavigationPropertyInfo {
 
     this.navigationTarget = uriResource;
     this.associationPath = associationPath;
-    this.keyPredicates = uriResource.isCollection() ? Collections.emptyList() : Util.determineKeyPredicates(
+    this.keyPredicates = uriResource.isCollection() ? Collections.emptyList() : Utility.determineKeyPredicates(
         uriResource);
     this.uriInfo = uriInfo;
     this.sd = sd;

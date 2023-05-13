@@ -42,6 +42,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -258,6 +259,19 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public Optional<JPAEntitySet> getEntitySet(final String edmTargetName) throws ODataJPAModelException {
     return Optional.ofNullable(container.getEntitySet(edmTargetName));
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getTopLevelEntity(java.lang.String)
+   */
+  @Override
+  public Optional<JPATopLevelEntity> getTopLevelEntity(final String edmTargetName) throws ODataJPAModelException {
+    return Optional.ofNullable(container.getEntitySet(edmTargetName) != null
+        ? container.getEntitySet(edmTargetName)
+        : container.getSingleton(edmTargetName));
   }
 
   /*

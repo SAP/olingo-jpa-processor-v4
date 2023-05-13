@@ -93,6 +93,15 @@ public interface JPAServiceDocument extends CustomETagSupport {
    */
   Optional<JPAEntitySet> getEntitySet(@Nonnull final String edmTargetName) throws ODataJPAModelException;
 
+  /**
+   * Find an entity set or singleton based on the external name. Entity sets or singletons marked as with EdmIgnore are
+   * ignored
+   * @param edmTargetName
+   * @return
+   * @throws ODataJPAModelException
+   */
+  Optional<JPATopLevelEntity> getTopLevelEntity(@Nonnull final String edmTargetName) throws ODataJPAModelException;
+
   List<EdmxReference> getReferences();
 
   CsdlTerm getTerm(final FullQualifiedName termName);

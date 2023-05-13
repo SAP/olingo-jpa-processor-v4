@@ -46,7 +46,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.Utility;
 
 class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
@@ -191,6 +191,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
         } else
           return new JPAJavaFunctionOperator(this, (UriResourceFunction) resource, (JPAJavaFunction) jpaFunction);
       }
+      jpaComplier.getWatchDog().ifPresent(watchDog -> watchDog.watch(attributePath));
       return new JPAMemberOperator(this.jpaComplier.getRoot(), member, jpaComplier
           .getAssociation(), this.jpaComplier.getGroups(), attributePath);
     }
@@ -298,7 +299,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
     if (jpaEntityType == null)
       return null;
-    final String attributePathName = Util.determinePropertyNavigationPath(member.getResourcePath()
+    final String attributePathName = Utility.determinePropertyNavigationPath(member.getResourcePath()
         .getUriResourceParts());
     JPAPath selectItemPath = null;
     try {

@@ -50,13 +50,17 @@ public class JPAOrderByBuilderWatchDog extends AbstractWatchDog {
     try {
       externalName = annotatable.getExternalName();
       annotation = Optional.ofNullable(annotatable.getAnnotation(VOCABULARY_ALIAS, TERM));
-      if (annotation.isPresent()) {
-        properties = getAnnotationProperties(annotation);
-      } else
-        properties = Collections.emptyMap();
+      properties = determineProperties();
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private Map<String, CsdlExpression> determineProperties() {
+    if (annotation.isPresent()) {
+      return getAnnotationProperties(annotation);
+    } else
+      return Collections.emptyMap();
   }
 
   JPAOrderByBuilderWatchDog() {

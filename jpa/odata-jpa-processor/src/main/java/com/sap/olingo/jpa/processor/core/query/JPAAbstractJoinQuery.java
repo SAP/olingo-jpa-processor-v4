@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.CheckForNull;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
@@ -29,6 +28,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
+import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
@@ -50,6 +51,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -63,6 +65,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
+import com.sap.olingo.jpa.processor.core.filter.JPAFilterRestrictionsWatchDog;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
@@ -76,19 +79,23 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected final List<JPANavigationPropertyInfo> navigationInfo;
   protected final JPANavigationPropertyInfo lastInfo;
   protected final JPAODataRequestContextAccess requestContext;
+  protected Optional<JPAEntitySet> entitySet;
+
+  protected static Optional<JPAEntitySet> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
+
+    final EdmBindingTarget bindingTarget = Utility.determineBindingTarget(requestContext.getUriInfo()
+        .getUriResourceParts());
+    if (bindingTarget instanceof EdmEntitySet)
+      return requestContext.getEdmProvider().getServiceDocument().getEntitySet(bindingTarget.getName());
+    return Optional.empty();
+  }
 
   JPAAbstractJoinQuery(final OData odata, final JPAEntityType jpaEntityType,
       final JPAODataRequestContextAccess requestContext, final List<JPANavigationPropertyInfo> navigationInfo)
       throws ODataException {
 
     this(odata, jpaEntityType, requestContext.getUriInfo(), requestContext, navigationInfo);
-  }
-
-  JPAAbstractJoinQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
-      final List<JPANavigationPropertyInfo> navigationInfo)
-      throws ODataException {
-    this(odata, navigationInfo.get(0).getEntityType(), requestContext.getUriInfo(), requestContext,
-        navigationInfo);
   }
 
   JPAAbstractJoinQuery(final OData odata, final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
@@ -103,12 +110,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     this.page = requestContext.getPage();
     this.navigationInfo = navigationInfo;
     this.lastInfo = determineLastInfo(navigationInfo);
-  }
-
-  @CheckForNull
-  private static JPAEntityType determineCast(final UriInfoResource uriInfo) {
-
-    return null;
+    this.entitySet = Optional.empty();
   }
 
   @SuppressWarnings("unchecked")
@@ -171,9 +173,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       ODataJPAModelException {
 
     final boolean targetIsCollection = determineTargetIsCollection(uriResource);
-    final String pathPrefix = Util.determinePropertyNavigationPrefix(uriResource.getUriResourceParts());
+    final String pathPrefix = Utility.determinePropertyNavigationPrefix(uriResource.getUriResourceParts());
 
-    if (Util.VALUE_RESOURCE.equals(pathPrefix))
+    if (Utility.VALUE_RESOURCE.equals(pathPrefix))
       jpaPathList.getODataSelections().addAll(buildPathValue(jpaEntity));
     else if (select == null || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar()) {
       if (pathPrefix == null || pathPrefix.isEmpty())
@@ -325,8 +327,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       // https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt
       try {
         whereCondition = addWhereClause(whereCondition, navigationInfo.get(navigationInfo.size() - 1)
-            .getFilterCompiler()
-            .compile());
+            .getFilterCompiler().compile());
       } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
             HttpStatusCode.BAD_REQUEST, e);
@@ -524,7 +525,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       final Collection<JPAPath> jpaPathList)
       throws ODataApplicationException {
 
-    final Map<JPAExpandItem, JPAAssociationPath> associationPathList = Util.determineAssociations(sd, uriResource
+    final Map<JPAExpandItem, JPAAssociationPath> associationPathList = Utility.determineAssociations(sd, uriResource
         .getUriResourceParts(), uriResource.getExpandOption());
     if (!associationPathList.isEmpty()) {
       final List<JPAPath> tmpPathList = new ArrayList<>(jpaPathList);
@@ -594,19 +595,20 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   /**
    * Skips all those properties that are or belong to a collection property or marked as transient. E.g
    * (Organization)Comment or (Person)InhouseAddress/Room
-   * @param selPathList
+   * @param selectablePathList
    * @param allPathList
    * @throws ODataJPAProcessorException
    * @throws ODataJPAModelException
    */
-  private void copySelectableProperties(final SelectionPathInfo<JPAPath> selPathList, final List<JPAPath> allPathList)
+  private void copySelectableProperties(final SelectionPathInfo<JPAPath> selectablePathList,
+      final List<JPAPath> allPathList)
       throws ODataJPAProcessorException, ODataJPAModelException {
     for (final JPAPath p : allPathList) {
       boolean skip = false;
       for (final JPAElement pathElement : p.getPath()) {
         if (pathElement instanceof JPAAttribute) {
           if (((JPAAttribute) pathElement).isTransient()) {
-            addTransientAttribute(jpaEntity, selPathList, p);
+            addTransientAttribute(jpaEntity, selectablePathList, p);
           }
           if (((JPAAttribute) pathElement).isCollection() || ((JPAAttribute) pathElement).isTransient()) {
             skip = true;
@@ -615,7 +617,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         }
       }
       if (!skip)
-        selPathList.getODataSelections().add(p);
+        selectablePathList.getODataSelections().add(p);
     }
   }
 
@@ -691,13 +693,16 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         final JPAEntityType targetEt = (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(); // NOSONAR
         final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
+        final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(
+            ((JPAAssociationAttribute) element));
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, targetEt, converter, this, path,
-            lastInfo.getAssociationPath(), subContext));
+            lastInfo.getAssociationPath(), subContext, watchDog));
       } else {
         final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
+        final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(entitySet.orElse(null));
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, jpaEntity, converter, this, lastInfo
-            .getAssociationPath(), subContext));
+            .getAssociationPath(), subContext, watchDog));
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, BAD_REQUEST, e);

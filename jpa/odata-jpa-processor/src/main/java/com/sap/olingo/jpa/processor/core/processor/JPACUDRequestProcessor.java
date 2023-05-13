@@ -53,6 +53,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -69,7 +70,7 @@ import com.sap.olingo.jpa.processor.core.modify.JPACreateResultFactory;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.Utility;
 
 public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
@@ -91,7 +92,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "clearFields")) {
       final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
-      final EdmBindingTargetInfo edmEntitySetInfo = Util.determineBindingTargetAndKeys(uriInfo.getUriResourceParts());
+      final EdmBindingTargetInfo edmEntitySetInfo = Utility.determineBindingTargetAndKeys(uriInfo
+          .getUriResourceParts());
 
       final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, uriInfo.getUriResourceParts(),
           request.getAllHeaders());
@@ -122,7 +124,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, DEBUG_CREATE_ENTITY)) {
       final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
-      final EdmBindingTargetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
+      final EdmBindingTargetInfo edmEntitySetInfo = Utility.determineModifyEntitySetAndKeys(uriInfo
+          .getUriResourceParts());
       final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo
           .getUriResourceParts());
 
@@ -177,9 +180,10 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // Note: only in our example we can assume that the first segment is the EntitySet
       final UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
       final EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
-
+      Optional<JPATopLevelEntity> es = Optional.empty();
       // 2. Convert Key from URL to JPA
       try {
+        es = sd.getTopLevelEntity(edmEntitySet.getName());
         et = sd.getEntity(edmEntitySet.getName());
         if (et == null)
           throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySet.getName());
@@ -192,7 +196,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       } catch (final ODataException e) {
         throw new ODataJPAProcessorException(e, BAD_REQUEST);
       }
-      final JPARequestEntity requestEntity = createRequestEntity(et, jpaKeyPredicates, request.getAllHeaders());
+      final JPARequestEntity requestEntity = createRequestEntity(es, et, jpaKeyPredicates, request.getAllHeaders());
 
       // 3. Perform Delete
       JPAODataTransaction ownTransaction = null;
@@ -223,7 +227,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, DEBUG_UPDATE_ENTITY)) {
       final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
-      final EdmBindingTargetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
+      final EdmBindingTargetInfo edmBindingTargetInfo = Utility.determineModifyEntitySetAndKeys(uriInfo
+          .getUriResourceParts());
       final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo
           .getUriResourceParts());
 
@@ -234,7 +239,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // navigation properties. For single-valued navigation properties this replaces the relationship. For
       // collection-valued navigation properties this adds to the relationship.
       // TODO navigation properties this replaces the relationship
-      final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request
+      final JPARequestEntity requestEntity = createRequestEntity(edmBindingTargetInfo, odataEntity, request
           .getAllHeaders());
 
       // Update entity
@@ -284,9 +289,9 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
       if (updateResult.wasCreate()) {
         createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(),
-            (EdmEntitySet) edmEntitySetInfo.getEdmBindingTarget(), updateResult.getModifiedEntity()); // Singleton
+            (EdmEntitySet) edmBindingTargetInfo.getEdmBindingTarget(), updateResult.getModifiedEntity()); // Singleton
       } else {
-        createUpdateResponse(request, response, responseFormat, requestEntity, edmEntitySetInfo, updateResult);
+        createUpdateResponse(request, response, responseFormat, requestEntity, edmBindingTargetInfo, updateResult);
       }
     }
   }
@@ -309,29 +314,17 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     return targetMethod;
   }
 
-  final JPARequestEntity createRequestEntity(final EdmEntitySet edmEntitySet, final Entity odataEntity,
+  final JPARequestEntity createRequestEntity(final EdmBindingTargetInfo edmBindingTargetInfo, final Entity odataEntity,
       final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     try {
-      final JPAEntityType et = sd.getEntity(edmEntitySet.getName());
+      final JPAEntityType et = sd.getEntity(edmBindingTargetInfo.getName());
+      final Optional<JPATopLevelEntity> es = sd.getTopLevelEntity(edmBindingTargetInfo.getName());
       if (et == null)
-        throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySet.getName());
-      return createRequestEntity(et, odataEntity, new HashMap<>(0), headers, null);
-    } catch (final ODataException e) {
-      throw new ODataJPAProcessorException(e, BAD_REQUEST);
-    }
-  }
-
-  final JPARequestEntity createRequestEntity(final EdmBindingTargetInfo edmEntitySetInfo, final Entity odataEntity,
-      final Map<String, List<String>> headers) throws ODataJPAProcessorException {
-
-    try {
-      final JPAEntityType et = sd.getEntity(edmEntitySetInfo.getName());
-      if (et == null)
-        throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySetInfo.getName());
-      final Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
-      final JPARequestEntityImpl requestEntity = (JPARequestEntityImpl) createRequestEntity(et, odataEntity, keys,
-          headers, et.getAssociationPath(edmEntitySetInfo.getNavigationPath()));
+        throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmBindingTargetInfo.getName());
+      final Map<String, Object> keys = helper.convertUriKeys(odata, et, edmBindingTargetInfo.getKeyPredicates());
+      final JPARequestEntityImpl requestEntity = (JPARequestEntityImpl) createRequestEntity(es, et, odataEntity, keys,
+          headers, et.getAssociationPath(edmBindingTargetInfo.getNavigationPath()));
       requestEntity.setBeforeImage(createBeforeImage(requestEntity, em));
       return requestEntity;
     } catch (final ODataException e) {
@@ -347,7 +340,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
    * @return
    * @throws ODataJPAProcessorException
    */
-  final JPARequestEntity createRequestEntity(final JPAEntityType et, final Entity odataEntity,
+  final JPARequestEntity createRequestEntity(final Optional<JPATopLevelEntity> topLevelEntity, final JPAEntityType et,
+      final Entity odataEntity,
       final Map<String, Object> keys, final Map<String, List<String>> headers,
       final JPAAssociationPath jpaAssociationPath) throws ODataJPAProcessorException {
 
@@ -357,14 +351,15 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = createInlineEntities(et, odataEntity,
             headers);
         final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks = createRelationLinks(et, odataEntity);
-        return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers,
-            requestContext);
+        return new JPARequestEntityImpl(topLevelEntity, et, jpaAttributes, relatedEntities, relationLinks, keys,
+            headers, requestContext);
       } else {
         // Handle requests like POST
         // .../AdministrativeDivisions(DivisionCode='DE6',CodeID='NUTS1',CodePublisher='Eurostat')/Children
         final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = createInlineEntities(odataEntity,
             jpaAssociationPath, headers);
-        return new JPARequestEntityImpl(et, Collections.emptyMap(), relatedEntities, Collections.emptyMap(), keys,
+        return new JPARequestEntityImpl(topLevelEntity, et, Collections.emptyMap(), relatedEntities, Collections
+            .emptyMap(), keys,
             headers, requestContext);
       }
 
@@ -380,14 +375,15 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
    * @param headers
    * @return
    */
-  final JPARequestEntity createRequestEntity(final JPAEntityType et, final Map<String, Object> keys,
-      final Map<String, List<String>> headers) {
+  final JPARequestEntity createRequestEntity(final Optional<JPATopLevelEntity> es, final JPAEntityType et,
+      final Map<String, Object> keys, final Map<String, List<String>> headers) {
 
     final Map<String, Object> jpaAttributes = new HashMap<>(0);
     final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = new HashMap<>(0);
     final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks = new HashMap<>(0);
 
-    return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers, requestContext);
+    return new JPARequestEntityImpl(es, et, jpaAttributes, relatedEntities, relationLinks, keys, headers,
+        requestContext);
   }
 
   private Entity convertEntity(final JPAEntityType et, final Object result, final Map<String, List<String>> headers)
@@ -536,8 +532,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = new HashMap<>(1);
     final List<JPARequestEntity> inlineEntities = new ArrayList<>();
 
-    inlineEntities.add(createRequestEntity((JPAEntityType) path.getTargetType(), odataEntity, new HashMap<>(0), headers,
-        null));
+    inlineEntities.add(createRequestEntity(Optional.empty(), (JPAEntityType) path.getTargetType(), odataEntity,
+        new HashMap<>(0), headers, null));
 
     relatedEntities.put(path, inlineEntities);
 
@@ -552,17 +548,18 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     for (final JPAAssociationPath path : et.getAssociationPathList()) {
       List<Property> stProperties = odataEntity.getProperties();
-      Property p = null;
+      Property property = null;
       for (final JPAElement pathItem : path.getPath()) {
         if (pathItem == path.getLeaf()) { // We have reached the target and can process further
-          final Link navigationLink = p != null ? p.asComplex().getNavigationLink(pathItem.getExternalName())
+          final Link navigationLink = property != null ? property.asComplex().getNavigationLink(pathItem
+              .getExternalName())
               : odataEntity.getNavigationLink(pathItem.getExternalName());
           createInlineEntities((JPAEntityType) path.getTargetType(), headers, relatedEntities, navigationLink, path);
         }
-        p = findProperty(pathItem.getExternalName(), stProperties);
-        if (p == null) break;
-        if (p.isComplex()) {
-          stProperties = p.asComplex().getValue();
+        property = findProperty(pathItem.getExternalName(), stProperties);
+        if (property == null) break;
+        if (property.isComplex()) {
+          stProperties = property.asComplex().getValue();
         }
       }
     }
@@ -577,11 +574,12 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final List<JPARequestEntity> inlineEntities = new ArrayList<>();
     if (path.getLeaf().isCollection()) {
       for (final Entity e : navigationLink.getInlineEntitySet().getEntities()) {
-        inlineEntities.add(createRequestEntity(st, e, new HashMap<>(0), headers, null));
+        inlineEntities.add(createRequestEntity(Optional.empty(), st, e, new HashMap<>(0), headers, null));
       }
       relatedEntities.put(path, inlineEntities);
     } else {
-      inlineEntities.add(createRequestEntity(st, navigationLink.getInlineEntity(), new HashMap<>(0), headers, null));
+      inlineEntities.add(createRequestEntity(Optional.empty(), st, navigationLink.getInlineEntity(), new HashMap<>(0),
+          headers, null));
       relatedEntities.put(path, inlineEntities);
     }
   }
@@ -623,11 +621,12 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     try {
       final JPAEntityType et = sd.getEntity(edmEntitySetInfo
           .getEdmBindingTarget().getName());
+      final Optional<JPATopLevelEntity> es = sd.getTopLevelEntity(edmEntitySetInfo.getName());
       final Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
       final Map<String, Object> jpaAttributes = convertUriPath(et, resourceParts);
 
-      return new JPARequestEntityImpl(et, jpaAttributes, Collections.emptyMap(), Collections.emptyMap(), keys, headers,
-          requestContext);
+      return new JPARequestEntityImpl(es, et, jpaAttributes, Collections.emptyMap(), Collections.emptyMap(), keys,
+          headers, requestContext);
 
     } catch (final ODataException e) {
       throw new ODataJPAProcessorException(e, BAD_REQUEST);

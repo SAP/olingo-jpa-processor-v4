@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.Utility;
 
 final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   private final ArrayList<JPAPath> pathList = new ArrayList<>();
@@ -77,8 +77,8 @@ final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
     final UriResourceKind uriResourceKind = member.getResourcePath().getUriResourceParts().get(0).getKind();
 
     if ((uriResourceKind == UriResourceKind.primitiveProperty || uriResourceKind == UriResourceKind.complexProperty)
-        && !Util.hasNavigation(member.getResourcePath().getUriResourceParts())) {
-      final String path = Util.determinePropertyNavigationPath(member.getResourcePath().getUriResourceParts());
+        && !Utility.hasNavigation(member.getResourcePath().getUriResourceParts())) {
+      final String path = Utility.determinePropertyNavigationPath(member.getResourcePath().getUriResourceParts());
       JPAPath selectItemPath = null;
       try {
         selectItemPath = jpaEntityType.getPath(path);

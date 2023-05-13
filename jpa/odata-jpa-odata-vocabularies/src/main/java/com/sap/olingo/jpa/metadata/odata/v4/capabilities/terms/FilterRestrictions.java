@@ -33,6 +33,11 @@ public @interface FilterRestrictions {
   boolean filterable() default true;
 
   /**
+   * $filter is required
+   */
+  boolean requiresFilter() default false;
+
+  /**
    * Optional: These properties must be specified in the $filter clause (properties of derived types are not allowed
    * here)
    * <p>
@@ -42,19 +47,20 @@ public @interface FilterRestrictions {
   String[] requiredProperties() default {};
 
   /**
+   * Not supported yet
    * Allowed subset of expressions
    * @return
    */
-  FilterExpressionRestrictionType[] filterExpressionRestrictions() default {};
-
-  @interface FilterExpressionRestrictionType {
-    /**
-     * Path to the restricted property
-     * <p>
-     * The properties are given as an attribute path.
-     */
-    String property();
-
-    FilterExpressionType allowedExpressions();
-  }
+//  FilterExpressionRestrictionType[] filterExpressionRestrictions() default {};
+//
+//  @interface FilterExpressionRestrictionType {
+//    /**
+//     * Path to the restricted property
+//     * <p>
+//     * The properties are given as an attribute path.
+//     */
+//    String property();
+//
+//    FilterExpressionType allowedExpressions();
+//  }
 }

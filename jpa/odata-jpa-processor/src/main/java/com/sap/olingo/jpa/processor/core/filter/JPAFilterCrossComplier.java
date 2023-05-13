@@ -22,6 +22,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.query.JPAAbstractJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
@@ -56,6 +57,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final Optional<JPAODataClaimProvider> claimsProvider;
   final List<String> groups;
   private From<?, ?> root;
+  private Optional<JPAFilterRestrictionsWatchDog> watchDog;
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
@@ -80,6 +82,23 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     this.parent = parent;
     this.claimsProvider = requestContext.getClaimsProvider();
     this.groups = groupsProvider.isPresent() ? groupsProvider.get().getGroups() : Collections.emptyList();
+    this.watchDog = Optional.empty();
+  }
+
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
+      final JPAOperationConverter converter, final JPAAbstractJoinQuery parent, final JPAAssociationPath association,
+      final JPAODataRequestContextAccess requestContext, final JPAFilterRestrictionsWatchDog watchDog) {
+    this(odata, sd, jpaEntityType, converter, parent, association, requestContext);
+    this.watchDog = Optional.ofNullable(watchDog);
+  }
+
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
+      final JPAOperationConverter converter, final JPAAbstractQuery parent, final From<?, ?> from,
+      final JPAAssociationPath association, final JPAODataRequestContextAccess requestContext,
+      final JPAFilterRestrictionsWatchDog watchDog) {
+    this(odata, sd, jpaEntityType, converter, parent, association, requestContext);
+    this.root = from;
+    this.watchDog = Optional.ofNullable(watchDog);
   }
 
   /*
@@ -158,4 +177,8 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     return groups;
   }
 
+  @Override
+  public Optional<JPAFilterRestrictionsWatchDog> getWatchDog() {
+    return watchDog;
+  }
 }

@@ -18,6 +18,7 @@ import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
+import org.apache.olingo.commons.api.edm.EdmSingleton;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -43,7 +44,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-class UtilTest extends TestBase {
+class UtilityTest extends TestBase {
   private UriInfoResource uriInfo;
   private List<UriResource> resourceParts;
 
@@ -64,7 +65,7 @@ class UtilTest extends TestBase {
     when(edmType.getName()).thenReturn(CurrentUser.class.getSimpleName());
 
     resourceParts.add(resourcePart);
-    final List<JPANavigationPropertyInfo> act = Util.determineNavigationPath(helper.sd, resourceParts, uriInfo);
+    final List<JPANavigationPropertyInfo> act = Utility.determineNavigationPath(helper.sd, resourceParts, uriInfo);
     assertNotNull(act);
     assertEquals(1, act.size());
   }
@@ -78,7 +79,7 @@ class UtilTest extends TestBase {
     when(singletonType.getName()).thenReturn(Singleton.class.getSimpleName());
     when(source.getType()).thenReturn(singletonType);
 
-    final JPAAssociationPath act = Util.determineAssociationPath(helper.sd, source, associationName);
+    final JPAAssociationPath act = Utility.determineAssociationPath(helper.sd, source, associationName);
     assertNotNull(act);
   }
 
@@ -87,7 +88,7 @@ class UtilTest extends TestBase {
     final JPAServiceDocument sd = mock(JPAServiceDocument.class);
     final EdmType navigationStart = mock(EdmType.class);
     when(sd.getEntity(navigationStart)).thenReturn(null);
-    assertThrows(ODataJPAUtilException.class, () -> Util.determineAssociation(sd, navigationStart, new StringBuilder(
+    assertThrows(ODataJPAUtilException.class, () -> Utility.determineAssociation(sd, navigationStart, new StringBuilder(
         "Start")));
   }
 
@@ -96,7 +97,7 @@ class UtilTest extends TestBase {
     final JPAServiceDocument sd = mock(JPAServiceDocument.class);
     final EdmType navigationStart = mock(EdmType.class);
     when(sd.getEntity(navigationStart)).thenThrow(ODataJPAModelException.class);
-    assertThrows(ODataJPAUtilException.class, () -> Util.determineAssociation(sd, navigationStart, new StringBuilder(
+    assertThrows(ODataJPAUtilException.class, () -> Utility.determineAssociation(sd, navigationStart, new StringBuilder(
         "Start")));
   }
 
@@ -107,7 +108,7 @@ class UtilTest extends TestBase {
     final UriParameter keyElement = mock(UriParameter.class);
     final List<UriParameter> keys = Collections.singletonList(keyElement);
     when(es.getKeyPredicates()).thenReturn(keys);
-    final List<UriParameter> act = Util.determineKeyPredicates(es);
+    final List<UriParameter> act = Utility.determineKeyPredicates(es);
     assertEquals(keys, act);
   }
 
@@ -118,7 +119,7 @@ class UtilTest extends TestBase {
     final UriParameter keyElement = mock(UriParameter.class);
     final List<UriParameter> keys = Collections.singletonList(keyElement);
     when(navigation.getKeyPredicates()).thenReturn(keys);
-    final List<UriParameter> act = Util.determineKeyPredicates(navigation);
+    final List<UriParameter> act = Utility.determineKeyPredicates(navigation);
     assertEquals(keys, act);
   }
 
@@ -126,7 +127,7 @@ class UtilTest extends TestBase {
   void testDetermineKeySingleton() throws ODataApplicationException {
 
     final UriResourceSingleton singleton = mock(UriResourceSingleton.class);
-    final List<UriParameter> act = Util.determineKeyPredicates(singleton);
+    final List<UriParameter> act = Utility.determineKeyPredicates(singleton);
     assertTrue(act.isEmpty());
   }
 
@@ -138,7 +139,7 @@ class UtilTest extends TestBase {
 
     final List<UriResource> resources = Arrays.asList(resourceItem);
 
-    final EdmBindingTargetInfo act = Util.determineModifyEntitySetAndKeys(resources);
+    final EdmBindingTargetInfo act = Utility.determineModifyEntitySetAndKeys(resources);
     assertEquals(es, act.getEdmBindingTarget());
     assertEquals("", act.getNavigationPath());
     assertEquals(0, act.getKeyPredicates().size());
@@ -155,7 +156,7 @@ class UtilTest extends TestBase {
 
     final List<UriResource> resources = Arrays.asList(resourceItem);
 
-    final EdmBindingTargetInfo act = Util.determineModifyEntitySetAndKeys(resources);
+    final EdmBindingTargetInfo act = Utility.determineModifyEntitySetAndKeys(resources);
     assertEquals(es, act.getEdmBindingTarget());
     assertEquals("", act.getNavigationPath());
     assertEquals(1, act.getKeyPredicates().size());
@@ -169,7 +170,7 @@ class UtilTest extends TestBase {
     final UriResourceNavigation navigation = createNavigationResource();
     final List<UriResource> resources = Arrays.asList(entitySet, navigation);
 
-    final EdmBindingTargetInfo act = Util.determineModifyEntitySetAndKeys(resources);
+    final EdmBindingTargetInfo act = Utility.determineModifyEntitySetAndKeys(resources);
     assertEquals(es, act.getEdmBindingTarget());
     assertEquals("Navigation", act.getNavigationPath());
     assertEquals(0, act.getKeyPredicates().size());
@@ -187,7 +188,7 @@ class UtilTest extends TestBase {
     final List<UriParameter> keyParameters = Arrays.asList(keyParameter);
     when(navigation.getKeyPredicates()).thenReturn(keyParameters);
 
-    final EdmBindingTargetInfo act = Util.determineModifyEntitySetAndKeys(resources);
+    final EdmBindingTargetInfo act = Utility.determineModifyEntitySetAndKeys(resources);
     assertEquals(es, act.getEdmBindingTarget());
     assertEquals("", act.getNavigationPath());
     assertEquals(1, act.getKeyPredicates().size());
@@ -195,7 +196,6 @@ class UtilTest extends TestBase {
 
   @Test
   void testDetermineModifyEntitySetAndKeysPlusNavigationKeyTarget() {
-
     final EdmEntitySet es = mock(EdmEntitySet.class);
     final UriResourceEntitySet entitySet = createEntitySetResource(es);
     final UriResourceNavigation navigation = createNavigationResource();
@@ -207,10 +207,36 @@ class UtilTest extends TestBase {
     final EdmEntitySet newTarget = mock(EdmEntitySet.class);
     when(es.getRelatedBindingTarget("Navigation")).thenReturn(newTarget);
 
-    final EdmBindingTargetInfo act = Util.determineModifyEntitySetAndKeys(resources);
+    final EdmBindingTargetInfo act = Utility.determineModifyEntitySetAndKeys(resources);
     assertEquals(newTarget, act.getEdmBindingTarget());
     assertEquals("", act.getNavigationPath());
     assertEquals(1, act.getKeyPredicates().size());
+  }
+
+  @Test
+  void testDetermineModifyEntitySetSingleton() {
+    final EdmSingleton single = mock(EdmSingleton.class);
+    final UriResourceSingleton resourceItem = createSingletonResource(single);
+
+    final List<UriResource> resources = Arrays.asList(resourceItem);
+
+    final EdmBindingTargetInfo act = Utility.determineModifyEntitySetAndKeys(resources);
+    assertEquals(single, act.getEdmBindingTarget());
+    assertEquals("", act.getNavigationPath());
+    assertEquals(0, act.getKeyPredicates().size());
+  }
+
+  @Test
+  void testDetermineModifyEntitySetSingletonPlusNavigation() {
+    final EdmSingleton single = mock(EdmSingleton.class);
+    final UriResourceSingleton resourceItem = createSingletonResource(single);
+    final UriResourceNavigation navigation = createNavigationResource();
+    final List<UriResource> resources = Arrays.asList(resourceItem, navigation);
+
+    final EdmBindingTargetInfo act = Utility.determineModifyEntitySetAndKeys(resources);
+    assertEquals(single, act.getEdmBindingTarget());
+    assertEquals("Navigation", act.getNavigationPath());
+    assertEquals(0, act.getKeyPredicates().size());
   }
 
   @Test
@@ -227,7 +253,7 @@ class UtilTest extends TestBase {
     resourceParts.add(es);
     resourceParts.add(property);
 
-    final Map<JPAExpandItem, JPAAssociationPath> act = Util.determineAssociations(helper.sd, resourceParts,
+    final Map<JPAExpandItem, JPAAssociationPath> act = Utility.determineAssociations(helper.sd, resourceParts,
         expandOption);
 
     assertEquals(2, act.size());
@@ -254,6 +280,19 @@ class UtilTest extends TestBase {
     when(resourceItem.getKind()).thenReturn(UriResourceKind.entitySet);
     when(resourceItem.getEntitySet()).thenReturn(es);
     when(resourceItem.getKeyPredicates()).thenReturn(Collections.emptyList());
+    return resourceItem;
+  }
+
+  private UriResourceSingleton createSingletonResource(final String string) {
+    final EdmSingleton es = mock(EdmSingleton.class);
+    when(es.getName()).thenReturn("Singleton");
+    return createSingletonResource(es);
+  }
+
+  private UriResourceSingleton createSingletonResource(final EdmSingleton es) {
+    final UriResourceSingleton resourceItem = mock(UriResourceSingleton.class);
+    when(resourceItem.getKind()).thenReturn(UriResourceKind.singleton);
+    when(resourceItem.getSingleton()).thenReturn(es);
     return resourceItem;
   }
 

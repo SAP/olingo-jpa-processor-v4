@@ -213,7 +213,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(byResource);
 
     final UriResourceValue valueResource = mock(UriResourceValue.class);
-    when(valueResource.getSegmentValue()).thenReturn(Util.VALUE_RESOURCE.toLowerCase());
+    when(valueResource.getSegmentValue()).thenReturn(Utility.VALUE_RESOURCE.toLowerCase());
     resourcePath.add(valueResource);
 
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo).getODataSelections();
@@ -247,7 +247,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(byResource);
 
     final UriResourceValue valueResource = mock(UriResourceValue.class);
-    when(valueResource.getSegmentValue()).thenReturn(Util.VALUE_RESOURCE.toLowerCase());
+    when(valueResource.getSegmentValue()).thenReturn(Utility.VALUE_RESOURCE.toLowerCase());
     resourcePath.add(valueResource);
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo).getODataSelections();
     assertEquals(2, act.size());

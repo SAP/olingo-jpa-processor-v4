@@ -44,6 +44,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasur
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
+import com.sap.olingo.jpa.processor.core.filter.JPAFilterRestrictionsWatchDog;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
@@ -132,13 +133,15 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   }
 
   protected final JPAFilterCrossComplier addFilterCompiler(final JPANavigationPropertyInfo naviInfo)
-      throws ODataJPAModelException, ODataJPAProcessorException {
+      throws ODataJPAModelException, ODataJPAProcessorException, ODataJPAQueryException {
 
     final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(naviInfo.getUriInfo(),
         requestContext);
+
+    final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(this.association.getLeaf());
     return new JPAFilterCrossComplier(odata, sd, naviInfo.getEntityType(), converter, this,
-        naviInfo.getFromClause(), null, subContext);
+        naviInfo.getFromClause(), null, subContext, watchDog);
   }
 
   @Override
@@ -176,7 +179,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     }
   }
 
-  void setFilter(final JPANavigationPropertyInfo naviInfo) throws ODataJPAModelException, ODataJPAProcessorException {
+  void setFilter(final JPANavigationPropertyInfo naviInfo) throws ODataJPAModelException, ODataJPAProcessorException,
+      ODataJPAQueryException {
     if (naviInfo.getFilterCompiler() == null)
       naviInfo.setFilterCompiler(addFilterCompiler(naviInfo));
   }

@@ -55,7 +55,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAKeyBoundary;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.Utility;
 
 public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
   private final ServiceMetadata serviceMetadata;
@@ -167,10 +167,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     if (page != null && page.getSkipToken() != null) {
       try {
         if (page.getSkipToken() instanceof String)
-          return new URI(Util.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
+          return new URI(Utility.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
               + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.getSkipToken() + "'");
         else
-          return new URI(Util.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
+          return new URI(Utility.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
               + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + page.getSkipToken().toString());
       } catch (final URISyntaxException e) {
         throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
@@ -183,7 +183,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final String name;
     if (entities.isEmpty())
       return false;
-    name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
+    name = Utility.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
     final Property property = entities.get(0).getProperty(name);
     if (property != null) {
       for (final Property p : ((ComplexValue) property.getValue()).getValue()) {
@@ -201,7 +201,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         && ((lastItem.getKind() == UriResourceKind.primitiveProperty
             || lastItem.getKind() == UriResourceKind.complexProperty
             || lastItem.getKind() == UriResourceKind.entitySet
-                && !Util.determineKeyPredicates(lastItem).isEmpty())
+                && !Utility.determineKeyPredicates(lastItem).isEmpty())
             || lastItem.getKind() == UriResourceKind.singleton));
   }
 
@@ -233,7 +233,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final String name;
     if (entities.isEmpty())
       return false;
-    name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
+    name = Utility.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
     final Property property = entities.get(0).getProperty(name);
     return (property != null && property.getValue() == null);
   }
@@ -320,7 +320,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private static Optional<JPAAnnotatable> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
-    final EdmBindingTarget bindingTarget = Util.determineBindingTarget(requestContext.getUriInfo()
+    final EdmBindingTarget bindingTarget = Utility.determineBindingTarget(requestContext.getUriInfo()
         .getUriResourceParts());
     if (bindingTarget instanceof EdmEntitySet)
       return requestContext.getEdmProvider().getServiceDocument().getEntitySet(bindingTarget.getName())

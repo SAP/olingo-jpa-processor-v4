@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +37,8 @@ import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
@@ -55,6 +59,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
+import com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource;
 import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
@@ -82,6 +87,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private IntermediateSchema errorSchema;
   private IntermediateAnnotationInformation annotationInfo;
+  private IntermediateReferences references;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
@@ -89,7 +95,8 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final Reflections reflections = mock(Reflections.class);
     when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
-    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
+    references = mock(IntermediateReferences.class);
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), references);
     schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
         annotationInfo);
     errorSchema = new IntermediateSchema(new JPADefaultEdmNameBuilder(ERROR_PUNIT), errorEmf.getMetamodel(),
@@ -222,8 +229,8 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
   @Test
   void checkGetPropertiesSkipIgnored() throws ODataJPAModelException {
-    final PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+    final PostProcessorSetIgnore postProcessorDouble = new PostProcessorSetIgnore();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
@@ -635,7 +642,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkEntityWithMappedSuperClassContainsAllNaviProperties() throws ODataJPAModelException {
+  void checkEntityWithMappedSuperClassContainsAllNavigationProperties() throws ODataJPAModelException {
     final IntermediateEntityType<SalesTeam> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         getEntityType(SalesTeam.class), schema);
 
@@ -644,14 +651,14 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkTransientWithRefComplex() throws ODataJPAModelException {
+  void checkTransientWithReferenceComplex() throws ODataJPAModelException {
     final IntermediateEntityType<TransientRefComplex> et = new IntermediateEntityType<>(nameBuilder,
         getEntityType(TransientRefComplex.class), schema);
     assertTrue(et.getAttribute("concatenatedName").get().isTransient());
   }
 
   @Test
-  void checkTransientWithRefIgnore() throws ODataJPAModelException {
+  void checkTransientWithReferenceIgnore() throws ODataJPAModelException {
     final IntermediateEntityType<TransientRefIgnore> et = new IntermediateEntityType<>(nameBuilder,
         getEntityType(TransientRefIgnore.class), schema);
     assertTrue(et.getAttribute("concatenatedAddr").get().isTransient());
@@ -968,7 +975,93 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertNotNull(act);
   }
 
-  private void assertComplexAnnotated(final List<JPAProtectionInfo> act, final String expClaimName,
+  @Test
+  void checkGetAnnotationReturnsExistingAnnotation() throws ODataJPAModelException {
+    createAnnotation();
+    final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
+    final CsdlAnnotation act = et.getAnnotation("Capabilities", "FilterRestrictions");
+    assertNotNull(act);
+  }
+
+  @Test
+  void checkGetAnnotationReturnsNullAliasUnknown() throws ODataJPAModelException {
+    createAnnotation();
+    final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
+    assertNull(et.getAnnotation("Capability", "FilterRestrictions"));
+  }
+
+  @Test
+  void checkGetAnnotationReturnsNullAnnotationUnknown() throws ODataJPAModelException {
+    createAnnotation();
+    final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
+    assertNull(et.getAnnotation("Capabilities", "Filter"));
+  }
+
+  @Test
+  void checkGetSearchablePathReturnsListWithSearchable() throws ODataJPAModelException {
+    createAnnotation();
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivisionDescription.class), schema);
+    final List<JPAPath> act = et.getSearchablePath();
+    assertEquals(1, act.size());
+    assertEquals("Name", act.get(0).getAlias());
+  }
+
+  @Test
+  void checkGetSearchablePathReturnsEmptyListWhenNoSearchable() throws ODataJPAModelException {
+    createAnnotation();
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+    final List<JPAPath> act = et.getSearchablePath();
+    assertTrue(act.isEmpty());
+  }
+
+  @Test
+  void checkDbEqualsSchemaNull() {
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+    assertFalse(et.dbEquals("Test", null, "\"AdministrativeDivision\""));
+  }
+
+  @Test
+  void checkDbEqualsCatalogNull() {
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+    assertFalse(et.dbEquals(null, "\"OLINGO\"", "\"AdministrativeDivision\""));
+  }
+
+  @Test
+  void checkDbEqualsCatalogSchemaNull() {
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+    assertFalse(et.dbEquals(null, null, "\"AdministrativeDivision\""));
+  }
+
+  @Test
+  void checkDbEqualsCatalogEmpty() {
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+    assertTrue(et.dbEquals("", "\"OLINGO\"", "\"AdministrativeDivision\""));
+  }
+
+  @Test
+  void checkDbEqualsTableFromParent() {
+    final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
+    assertTrue(et.dbEquals("", "\"OLINGO\"", "\"BusinessPartner\""), et.getTableName());
+  }
+
+  @Test
+  void checkDbEqualsTableFromParentWithFullQualifiedName() {
+    final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
+    assertTrue(et.dbEquals("", "", "\"OLINGO\".\"BusinessPartner\""), et.getTableName());
+  }
+
+  void assertComplexAnnotated(final List<JPAProtectionInfo> act, final String expClaimName,
       final String pathElement) {
     for (final JPAProtectionInfo info : act) {
       if (info.getClaimName().equals(expClaimName)) {
@@ -979,6 +1072,18 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
       }
     }
     fail("Complex attribute not found for: " + expClaimName);
+  }
+
+  private void createAnnotation() {
+    final AnnotationProvider annotationProvider = mock(AnnotationProvider.class);
+    final List<CsdlAnnotation> annotations = new ArrayList<>();
+    final CsdlAnnotation annotation = mock(CsdlAnnotation.class);
+    annotations.add(annotation);
+    when(references.convertAlias("Capabilities")).thenReturn("Org.OData.Capabilities.V1");
+    when(annotation.getTerm()).thenReturn("Org.OData.Capabilities.V1.FilterRestrictions");
+    annotationInfo.getAnnotationProvider().add(annotationProvider);
+    when(annotationProvider.getAnnotations(eq(Applicability.ENTITY_TYPE), any(), any()))
+        .thenReturn(annotations);
   }
 
   private void assertInherited(final List<JPAProtectionInfo> act) {

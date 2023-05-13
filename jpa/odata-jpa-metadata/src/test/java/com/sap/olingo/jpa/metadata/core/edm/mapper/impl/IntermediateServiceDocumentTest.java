@@ -61,6 +61,13 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
         arguments("Dummy", true));
   }
 
+  static Stream<Arguments> getTopLevelEntityByExternalName() {
+    return Stream.of(
+        arguments("BusinessPartners", false),
+        arguments("CurrentUser", false),
+        arguments("Dummy", true));
+  }
+
   static Stream<Arguments> getEnumType() {
     return Stream.of(
         arguments("com.sap.olingo.jpa.AccessRights", false),
@@ -388,6 +395,15 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
       assertFalse(cut.getEntitySet(esName).isPresent());
     else
       assertTrue(cut.getEntitySet(esName).isPresent());
+  }
+
+  @ParameterizedTest
+  @MethodSource("getTopLevelEntityByExternalName")
+  void checkGetTopLevelEntityByExternalName(final String esName, final boolean isEmpty) throws ODataJPAModelException {
+    if (isEmpty)
+      assertFalse(cut.getTopLevelEntity(esName).isPresent());
+    else
+      assertTrue(cut.getTopLevelEntity(esName).isPresent());
   }
 
   private IntermediateServiceDocument createCutWithCustomNameBuilder() throws ODataJPAModelException {

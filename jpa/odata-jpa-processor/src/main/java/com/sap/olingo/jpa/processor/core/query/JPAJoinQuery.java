@@ -16,10 +16,10 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -29,7 +29,6 @@ import org.apache.olingo.server.api.uri.UriResource;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -39,32 +38,20 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
-  private final Optional<JPAEntitySet> entitySet;
-
   private static List<JPANavigationPropertyInfo> determineNavigationInfo(
       final JPAServiceDocument sd, final UriInfoResource uriResource) throws ODataException {
 
-    return Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriResource);
+    return Utility.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriResource);
   }
 
   private static JPAEntityType determineTargetEntityType(final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
     final List<UriResource> resources = requestContext.getUriInfo().getUriResourceParts();
-    final EdmBindingTarget bindingTarget = Util.determineBindingTarget(resources);
+    final EdmBindingTarget bindingTarget = Utility.determineBindingTarget(resources);
     if (bindingTarget instanceof EdmBoundCast)
       return requestContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getEntityType());
     return requestContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getName());
-  }
-
-  private static Optional<JPAEntitySet> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)
-      throws ODataException {
-
-    final EdmBindingTarget bindingTarget = Util.determineBindingTarget(requestContext.getUriInfo()
-        .getUriResourceParts());
-    if (bindingTarget instanceof EdmEntitySet)
-      return requestContext.getEdmProvider().getServiceDocument().getEntitySet(bindingTarget.getName());
-    return Optional.empty();
   }
 
   @Nonnull
@@ -73,7 +60,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
     final List<UriResource> resources = requestContext.getUriInfo().getUriResourceParts();
     try {
-      final EdmBindingTarget bindingTarget = Util.determineBindingTarget(resources);
+      final EdmBindingTarget bindingTarget = Utility.determineBindingTarget(resources);
       return Optional.ofNullable(requestContext.getEdmProvider().getServiceDocument() // NOSONAR
           .getEntity(bindingTarget.getEntityType()))
           .orElseThrow(() -> new ODataJPAQueryException(QUERY_PREPARATION_ENTITY_UNKNOWN, INTERNAL_SERVER_ERROR,
@@ -89,7 +76,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     super(odata, determineTargetEntityType(requestContext),
         requestContext, determineNavigationInfo(requestContext.getEdmProvider().getServiceDocument(), requestContext
             .getUriInfo()));
-    this.entitySet = determineTargetEntitySet(requestContext);
+    entitySet = determineTargetEntitySet(requestContext);
   }
 
   /**
@@ -144,13 +131,13 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       if (!orderByNavigationAttributes.isEmpty())
         cq.groupBy(createGroupBy(joinTables, root, selectionPath.joinedPersistent()));
 
-      final TypedQuery<Tuple> tq = em.createQuery(cq);
-      addTopSkip(tq);
+      final TypedQuery<Tuple> typedQuery = em.createQuery(cq);
+      addTopSkip(typedQuery);
 
       final HashMap<String, List<Tuple>> result = new HashMap<>(1);
       List<Tuple> intermediateResult;
       try (JPARuntimeMeasurment resultMeassument = debugger.newMeasurement(this, "getResultList")) {
-        intermediateResult = tq.getResultList();
+        intermediateResult = typedQuery.getResultList();
       }
       result.put(ROOT_RESULT_KEY, intermediateResult);
       return returnResult(selectionPath.joinedRequested(), result);
@@ -176,7 +163,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   }
 
   private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
-    return addWhereClause(super.createWhere(uriResource, navigationInfo), createProtectionWhere(claimsProvider));
+
+    final Expression<Boolean> filter = super.createWhere(uriResource, navigationInfo);
+    return addWhereClause(filter, createProtectionWhere(claimsProvider));
   }
 
   /**

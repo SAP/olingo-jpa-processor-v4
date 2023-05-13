@@ -36,3 +36,11 @@ ct
 geospatial
 param
 Rethrows
+bupa
+Inline
+Http
+POJO
+Deserializer
+postfix
+filterable
+selectable

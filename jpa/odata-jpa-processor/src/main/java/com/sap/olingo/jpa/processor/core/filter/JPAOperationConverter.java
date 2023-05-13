@@ -84,20 +84,20 @@ public class JPAOperationConverter {
 
     switch (jpaOperator.getOperator()) {
       case EQ:
-        return equalExpression((l, r) -> (cb.equal(l, r)), (l, r) -> (cb.equal(l, r)), l -> (cb.isNull(l)),
+        return equalExpression((left, right) -> (cb.equal(left, right)), (left, right) -> (cb.equal(left, right)), left -> (cb.isNull(left)),
             jpaOperator);
       case NE:
-        return equalExpression((l, r) -> (cb.notEqual(l, r)), (l, r) -> (cb.notEqual(l, r)), l -> (cb.isNotNull(l)),
+        return equalExpression((left, right) -> (cb.notEqual(left, right)), (left, right) -> (cb.notEqual(left, right)), left -> (cb.isNotNull(left)),
             jpaOperator);
       case GE:
-        return comparisonExpression((l, r) -> (cb.greaterThanOrEqualTo(l, r)), (l, r) -> (cb.greaterThanOrEqualTo(l,
-            r)), jpaOperator);
+        return comparisonExpression((left, right) -> (cb.greaterThanOrEqualTo(left, right)), (left, right) -> (cb.greaterThanOrEqualTo(left,
+            right)), jpaOperator);
       case GT:
-        return comparisonExpression((l, r) -> (cb.greaterThan(l, r)), (l, r) -> (cb.greaterThan(l, r)), jpaOperator);
+        return comparisonExpression((left, right) -> (cb.greaterThan(left, right)), (left, right) -> (cb.greaterThan(left, right)), jpaOperator);
       case LT:
-        return comparisonExpression((l, r) -> (cb.lessThan(l, r)), (l, r) -> (cb.lessThan(l, r)), jpaOperator);
+        return comparisonExpression((left, right) -> (cb.lessThan(left, right)), (left, right) -> (cb.lessThan(left, right)), jpaOperator);
       case LE:
-        return comparisonExpression((l, r) -> (cb.lessThanOrEqualTo(l, r)), (l, r) -> (cb.lessThanOrEqualTo(l, r)),
+        return comparisonExpression((left, right) -> (cb.lessThanOrEqualTo(left, right)), (left, right) -> (cb.lessThanOrEqualTo(left, right)),
             jpaOperator);
       default:
         return dbConverter.convert(jpaOperator);

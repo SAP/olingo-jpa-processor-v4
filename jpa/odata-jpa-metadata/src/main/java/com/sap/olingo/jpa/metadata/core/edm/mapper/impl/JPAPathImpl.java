@@ -44,11 +44,11 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    final JPAPathImpl other = (JPAPathImpl) obj;
+  public boolean equals(final Object object) {
+    if (this == object) return true;
+    if (object == null) return false;
+    if (getClass() != object.getClass()) return false;
+    final JPAPathImpl other = (JPAPathImpl) object;
     if (alias == null) {
       if (other.alias != null) return false;
     } else if (!alias.equals(other.alias)) return false;

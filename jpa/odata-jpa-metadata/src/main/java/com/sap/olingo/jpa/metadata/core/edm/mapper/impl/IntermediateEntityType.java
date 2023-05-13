@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -83,10 +84,14 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   @Override
+  public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    buildEdmTypeIfEmpty();
+    return filterAnnotation(alias, term);
+  }
+
+  @Override
   public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      lazyBuildEdmItem();
-    }
+    buildEdmTypeIfEmpty();
     final Optional<JPAAttribute> a = super.getAttribute(internalName);
     if (a.isPresent())
       return a;
@@ -95,9 +100,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   @Override
   public Optional<JPAAttribute> getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      lazyBuildEdmItem();
-    }
+    buildEdmTypeIfEmpty();
     final Optional<JPAAttribute> a = super.getAttribute(uriResourceItem);
     if (a.isPresent())
       return a;
@@ -167,9 +170,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   @Override
   public List<JPAPath> getKeyPath() throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      lazyBuildEdmItem();
-    }
+    buildEdmTypeIfEmpty();
     final List<JPAPath> result = new ArrayList<>();
     for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesMap.entrySet()) {
       final JPAAttribute attribute = property.getValue();
@@ -248,17 +249,13 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   @Override
   public boolean hasEtag() throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      lazyBuildEdmItem();
-    }
+    buildEdmTypeIfEmpty();
     return etagPath.isPresent();
   }
 
   @Override
   public boolean hasStream() throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      lazyBuildEdmItem();
-    }
+    buildEdmTypeIfEmpty();
     return this.determineHasStream();
   }
 
@@ -314,7 +311,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       addVirtualProperties();
       determineExtensionQueryProvide();
       postProcessor.processEntityType(this);
-
+      retrieveAnnotations(this, Applicability.ENTITY_TYPE);
       edmStructuralType = new CsdlEntityType();
       edmStructuralType.setName(getExternalName());
       edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
@@ -330,10 +327,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       checkPropertyConsistency(); //
       // TODO determine OpenType
     }
-  }
-
-  private <A extends Annotation> Optional<A> getAnnotation(final Class<?> annotated, final Class<A> type) {
-    return Optional.ofNullable(annotated.getAnnotation(type));
   }
 
   /**
@@ -357,19 +350,30 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return asTopLevelOnly;
   }
 
-  boolean dbEquals(final String dbCatalog, final String dbSchema, final String dbTableName) {
+  /**
+   *
+   * @param dbCatalog
+   * @param dbSchema
+   * @param dbTableName
+   * @return
+   */
+  boolean dbEquals(final String dbCatalog, final String dbSchema, @Nonnull final String dbTableName) {
     final AnnotatedElement a = jpaManagedType.getJavaType();
     Table table = null;
     if (a != null)
       table = a.getAnnotation(Table.class);
-    if (table == null)
-      return (dbCatalog == null || dbCatalog.isEmpty())
-          && (dbSchema == null || dbSchema.isEmpty())
-          && dbTableName.equals(getTableName());
-    else
-      return dbCatalog.equals(table.catalog())
-          && dbSchema.equals(table.schema())
-          && dbTableName.equals(table.name());
+    if (table == null) {
+      if (dbSchema != null && !dbSchema.isEmpty()) {
+        return getTableName().equals(buildFQTableName(dbSchema, dbTableName));
+      } else {
+        return (dbCatalog == null || dbCatalog.isEmpty())
+            && (dbSchema == null || dbSchema.isEmpty())
+            && dbTableName.equals(getTableName());
+      }
+    } else
+      return table.catalog().equals(dbCatalog)
+          && table.schema().equals(dbSchema)
+          && table.name().equals(dbTableName);
   }
 
   boolean determineAbstract() {
@@ -394,9 +398,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   @Override
   CsdlEntityType getEdmItem() throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      lazyBuildEdmItem();
-    }
+    buildEdmTypeIfEmpty();
     return (CsdlEntityType) edmStructuralType;
   }
 
@@ -423,6 +425,12 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     final CsdlPropertyRef keyElement = new CsdlPropertyRef();
     keyElement.setName(idAttribute.getExternalName());
     return keyElement;
+  }
+
+  private void buildEdmTypeIfEmpty() throws ODataJPAModelException {
+    if (edmStructuralType == null) {
+      lazyBuildEdmItem();
+    }
   }
 
   private List<JPAAttribute> buildEmbeddedIdKey(final JPAAttribute attribute) throws ODataJPAModelException {
@@ -500,6 +508,10 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       etagPath = Optional.ofNullable(((IntermediateEntityType<?>) getBaseType()).getEtagPath());
   }
 
+  private <A extends Annotation> Optional<A> getAnnotation(final Class<?> annotated, final Class<A> type) {
+    return Optional.ofNullable(annotated.getAnnotation(type));
+  }
+
   private Optional<JPAAttribute> getKey(final String internalName) throws ODataJPAModelException {
     if (internalName == null)
       return Optional.empty();
@@ -518,6 +530,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return Optional.empty();
   }
 
+  @SuppressWarnings("unchecked")
   private List<CsdlProperty> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId)
       throws ODataJPAModelException {
     return ((IntermediateStructuredType<T>) embeddedId.getStructuredType()).getEdmItem().getProperties();

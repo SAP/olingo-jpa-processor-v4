@@ -47,11 +47,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 
-public final class Util {
+public final class Utility {
 
   private static final String FOUND_CAST_FROM = "Found cast from ";
   public static final String VALUE_RESOURCE = "$VALUE";
-  private static final Log LOGGER = LogFactory.getLog(Util.class);
+  private static final Log LOGGER = LogFactory.getLog(Utility.class);
 
   public static JPAAssociationPath determineAssociation(final JPAServiceDocument sd, final EdmType navigationStart,
       final StringBuilder associationName) throws ODataApplicationException {
@@ -169,10 +169,10 @@ public final class Util {
             }
           }
           if (item.getLevelsOption() != null)
-            pathList.put(new JPAExpandLevelWrapper(sd, expandOption, item), Util.determineAssociation(sd,
+            pathList.put(new JPAExpandLevelWrapper(sd, expandOption, item), Utility.determineAssociation(sd,
                 ((UriResourcePartTyped) startResourceItem).getType(), associationName));
           else
-            pathList.put(new JPAExpandItemWrapper(sd, item), Util.determineAssociation(sd,
+            pathList.put(new JPAExpandItemWrapper(sd, item), Utility.determineAssociation(sd,
                 ((UriResourcePartTyped) startResourceItem).getType(), associationName));
         }
       }
@@ -243,14 +243,17 @@ public final class Util {
   }
 
   public static EdmBindingTargetInfo determineModifyEntitySetAndKeys(@Nonnull final List<UriResource> resources) {
-    EdmEntitySet targetEdmEntitySet = null;
+    EdmBindingTarget targetEdmTopLevel = null;
     List<UriParameter> targetKeyPredicates = new ArrayList<>();
     StringBuilder navigationPropertyName = new StringBuilder();
 
     for (final UriResource resourceItem : resources) {
       if (resourceItem.getKind() == UriResourceKind.entitySet) {
-        targetEdmEntitySet = ((UriResourceEntitySet) resourceItem).getEntitySet();
+        targetEdmTopLevel = ((UriResourceEntitySet) resourceItem).getEntitySet();
         targetKeyPredicates = ((UriResourceEntitySet) resourceItem).getKeyPredicates();
+      }
+      if (resourceItem.getKind() == UriResourceKind.singleton) {
+        targetEdmTopLevel = ((UriResourceSingleton) resourceItem).getSingleton();
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         navigationPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
@@ -261,15 +264,15 @@ public final class Util {
         final List<UriParameter> keyPredicates = ((UriResourceNavigation) resourceItem).getKeyPredicates();
         if (!keyPredicates.isEmpty()) {
           targetKeyPredicates = keyPredicates;
-          final EdmBindingTarget edmBindingTarget = targetEdmEntitySet.getRelatedBindingTarget(navigationPropertyName
+          final EdmBindingTarget edmBindingTarget = targetEdmTopLevel.getRelatedBindingTarget(navigationPropertyName
               .toString());
           if (edmBindingTarget instanceof EdmEntitySet)
-            targetEdmEntitySet = (EdmEntitySet) edmBindingTarget;
+            targetEdmTopLevel = edmBindingTarget;
           navigationPropertyName = new StringBuilder();
         }
       }
     }
-    return new EdmBindingTargetResult(targetEdmEntitySet, targetKeyPredicates, navigationPropertyName.toString());
+    return new EdmBindingTargetResult(targetEdmTopLevel, targetKeyPredicates, navigationPropertyName.toString());
   }
 
   /**
@@ -339,7 +342,7 @@ public final class Util {
   }
 
   public static String determinePropertyNavigationPrefix(final List<UriResource> resources) {
-    return Util.determinePropertyNavigationPath(resources).split("/\\" + Util.VALUE_RESOURCE)[0];
+    return Utility.determinePropertyNavigationPath(resources).split("/\\" + Utility.VALUE_RESOURCE)[0];
   }
 
   /**
@@ -453,7 +456,7 @@ public final class Util {
     return bindingTarget.getEntityType().getNavigationProperty(path.getAlias());
   }
 
-  private Util() {
+  private Utility() {
     // suppress instance creation
   }
 }
