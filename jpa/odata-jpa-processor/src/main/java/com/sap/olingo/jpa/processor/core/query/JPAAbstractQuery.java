@@ -69,7 +69,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
@@ -195,7 +195,7 @@ public abstract class JPAAbstractQuery {
   protected List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables, // NOSONAR
       final From<?, ?> from, final Collection<JPAPath> selectionPathList) {
 
-    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "createGroupBy")) {
+    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createGroupBy")) {
       final List<javax.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
       for (final JPAPath jpaPath : selectionPathList) {
         groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, from, jpaPath.getPath()));
@@ -250,7 +250,7 @@ public abstract class JPAAbstractQuery {
       final Collection<JPAPath> requestedProperties, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow subclasses to throw an exception
 
-    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "createSelectClause")) {
+    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createSelectClause")) {
       final List<Selection<?>> selections = new ArrayList<>();
 
       // Build select clause

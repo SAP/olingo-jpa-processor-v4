@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 
 class JPAEmptyDebuggerTest {
 
@@ -18,7 +18,7 @@ class JPAEmptyDebuggerTest {
 
   @Test
   void testMeassumentCreated() throws Exception {
-    try (JPARuntimeMeasurment meassument = cut.newMeasurement(cut, "firstTest")) {
+    try (JPARuntimeMeasurement meassument = cut.newMeasurement(cut, "firstTest")) {
 
     }
     assertTrue(cut.getRuntimeInformation().isEmpty());

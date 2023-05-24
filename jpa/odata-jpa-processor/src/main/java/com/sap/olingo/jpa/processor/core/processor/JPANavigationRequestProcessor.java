@@ -38,7 +38,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
@@ -77,7 +77,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   public <K extends Comparable<K>> void retrieveData(final ODataRequest request, final ODataResponse response,
       final ContentType responseFormat) throws ODataException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "retrieveData")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "retrieveData")) {
 
       checkRequestSupported();
       // Create a JPQL Query and execute it
@@ -98,7 +98,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
           watchDog));
       // Convert tuple result into an OData Result
       EntityCollection entityCollection;
-      try (JPARuntimeMeasurment converterMeassument = debugger.newMeasurement(this, "convertResult")) {
+      try (JPARuntimeMeasurement converterMeassument = debugger.newMeasurement(this, "convertResult")) {
         entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
             serviceMetadata, requestContext)).get(ROOT_RESULT_KEY);
       } catch (final ODataApplicationException e) {
@@ -146,7 +146,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
       // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
       else if (entityCollection.getEntities() != null) {
-        try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "serialize")) {
+        try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "serialize")) {
           final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
           createSuccessResponse(response, responseFormat, serializerResult);
         }
@@ -275,7 +275,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final List<JPANavigationPropertyInfo> parentHops, final UriInfoResource uriResourceInfo,
       final Optional<JPAKeyBoundary> keyBoundary, final JPAExpandWatchDog watchDog) throws ODataException {
 
-    try (JPARuntimeMeasurment expandMeassument = debugger.newMeasurement(this, "readExpandEntities")) {
+    try (JPARuntimeMeasurement expandMeassument = debugger.newMeasurement(this, "readExpandEntities")) {
 
       final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, requestContext, cb);
       final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();

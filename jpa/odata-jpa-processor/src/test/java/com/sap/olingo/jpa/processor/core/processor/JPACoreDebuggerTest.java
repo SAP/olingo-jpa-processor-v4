@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 
 class JPACoreDebuggerTest {
 
@@ -68,20 +68,20 @@ class JPACoreDebuggerTest {
 
   @Test
   void testMeassumentCreated() throws Exception {
-    try (JPARuntimeMeasurment meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
+    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
   void testNoMeassumentDebugFalls() throws Exception {
     cutDebugOn = new JPACoreDebugger(false);
-    try (JPARuntimeMeasurment meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
+    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertTrue(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
   void testMeassumentCreateMeassument() throws Exception {
-    try (JPARuntimeMeasurment meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       TimeUnit.MILLISECONDS.sleep(100);
     }
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
@@ -95,7 +95,7 @@ class JPACoreDebuggerTest {
   @Test
   void testRuntimeMeasurementEmptyAfterStopWhenOff() throws InterruptedException {
     System.setErr(printOut);
-    try (JPARuntimeMeasurment meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       TimeUnit.MILLISECONDS.sleep(10);
     }
     final String act = output.toString();

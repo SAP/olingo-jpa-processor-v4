@@ -46,22 +46,22 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
     allUriResourceParts.addAll(member.getUriResourceParts());
 
     // 1. Determine all relevant associations
-    final List<JPANavigationPropertyInfo> naviPathList = determineAssociations(sd, allUriResourceParts);
+    final List<JPANavigationPropertyInfo> navigationPathList = determineAssociations(sd, allUriResourceParts);
     JPAAbstractQuery parent = root;
     final List<JPAAbstractSubQuery> queryList = new ArrayList<>();
 
     // 2. Create the queries and roots
-    for (int i = naviPathList.size() - 1; i >= 0; i--) {
-      final JPANavigationPropertyInfo naviInfo = naviPathList.get(i);
+    for (int i = navigationPathList.size() - 1; i >= 0; i--) {
+      final JPANavigationPropertyInfo navigationInfo = navigationPathList.get(i);
       if (i == 0) {
-        if (naviInfo.getUriResource() instanceof UriResourceProperty)
+        if (navigationInfo.getUriResource() instanceof UriResourceProperty)
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, member.getUriResourceParts(), expression,
               from, groups));
         else
-          queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResource(), parent, em, naviInfo
+          queryList.add(new JPANavigationFilterQuery(odata, sd, navigationInfo.getUriResource(), parent, em, navigationInfo
               .getAssociationPath(), expression, from, claimsProvider, groups));
       } else {
-        queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResource(), parent, em, naviInfo
+        queryList.add(new JPANavigationFilterQuery(odata, sd, navigationInfo.getUriResource(), parent, em, navigationInfo
             .getAssociationPath(), from, claimsProvider));
       }
       parent = queryList.get(queryList.size() - 1);

@@ -27,7 +27,7 @@ import org.apache.olingo.server.api.prefer.Preferences;
 import org.apache.olingo.server.api.processor.BatchProcessor;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 
@@ -63,7 +63,7 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   public final void processBatch(final BatchFacade facade, final ODataRequest request, final ODataResponse response)
       throws ODataApplicationException, ODataLibraryException {
 
-    try (JPARuntimeMeasurment meassument = requestContext.getDebugger().newMeasurement(this, "processBatch")) {
+    try (JPARuntimeMeasurement meassument = requestContext.getDebugger().newMeasurement(this, "processBatch")) {
       final String boundary = facade.extractBoundaryFromContentType(request.getHeader(HttpHeader.CONTENT_TYPE));
       final BatchOptions options = BatchOptions.with()
           .rawBaseUri(request.getRawBaseUri())
@@ -130,7 +130,7 @@ public class JPAODataBatchProcessor implements BatchProcessor {
      * to the other processor interfaces.
      */
     final List<ODataResponse> responses = new ArrayList<>();
-    try (JPARuntimeMeasurment meassument = requestContext.getDebugger().newMeasurement(this, "processChangeSet")) {
+    try (JPARuntimeMeasurement meassument = requestContext.getDebugger().newMeasurement(this, "processChangeSet")) {
       final JPAODataTransaction t = requestContext.getTransactionFactory().createTransaction();
       try {
         for (final ODataRequest request : requests) {

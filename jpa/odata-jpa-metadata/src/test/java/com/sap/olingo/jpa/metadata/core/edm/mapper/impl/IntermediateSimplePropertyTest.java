@@ -677,7 +677,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   @Test
   void checkGetPropertyHasProtectionTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
-        "username");
+        "userName");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     assertTrue(property.hasProtection());
@@ -686,7 +686,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   @Test
   void checkGetPropertyProtectionSupportsWildCardTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
-        "username");
+        "userName");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     assertTrue(property.protectionWithWildcard("UserId", String.class));
@@ -715,14 +715,14 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   @Test
   void checkGetPropertyProtectedAttributeClaimName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
-        "username");
+        "userName");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
     final List<String> actPath = property.getProtectionPath("UserId");
     assertEquals(1, actPath.size());
-    assertEquals("Username", actPath.get(0));
+    assertEquals("UserName", actPath.get(0));
   }
 
   @Test

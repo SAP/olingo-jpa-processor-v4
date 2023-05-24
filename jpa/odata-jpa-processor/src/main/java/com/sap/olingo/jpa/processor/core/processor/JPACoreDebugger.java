@@ -45,8 +45,8 @@ class JPACoreDebugger implements JPAServiceDebugger {
   }
 
   @Override
-  public JPARuntimeMeasurment newMeasurement(final Object instance, final String methodName) {
-    final Measurment m = new Measurment(instance, methodName, memoryReader);
+  public JPARuntimeMeasurement newMeasurement(final Object instance, final String methodName) {
+    final Measurement m = new Measurement(instance, methodName, memoryReader);
     if (isDebugMode)
       runtimeInformation.add(m);
     return m;
@@ -77,11 +77,11 @@ class JPACoreDebugger implements JPAServiceDebugger {
     return String.format(log.toString(), composeArguments(threadID, arguments));
   }
 
-  private static class Measurment extends RuntimeMeasurement implements JPARuntimeMeasurment {
+  private static class Measurement extends RuntimeMeasurement implements JPARuntimeMeasurement {
 
     private final MemoryReader memoryReader;
 
-    public Measurment(final Object instance, final String methodName, final MemoryReader memoryReader) {
+    public Measurement(final Object instance, final String methodName, final MemoryReader memoryReader) {
       this.setTimeStarted(System.nanoTime());
       this.setClassName(instance.getClass().getCanonicalName());
       this.setMethodName(methodName);
@@ -95,7 +95,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
       final long runtime = (this.getTimeStopped() - this.getTimeStarted()) / 1000;
       final Long memory = memoryReader.getCurrentThreadMemoryConsumption() / 1000;
       LogFactory.getLog(this.getClassName())
-          .trace(String.format("thread: %d, method: %s,  runtime [µs]: %d; memory [kb]: %d",
+          .info(String.format("thread: %d, method: %s,  runtime [µs]: %d; memory [kb]: %d",
               threadID,
               this.getMethodName(),
               runtime,
@@ -135,9 +135,9 @@ class JPACoreDebugger implements JPAServiceDebugger {
 
       try {
 
-        final Object memInfo = ((Method) memoryInfoReader[1]).invoke(memoryInfoReader[0], Thread.currentThread());
-        final Method getMemConsumption = memInfo.getClass().getMethod("getMemoryConsumption");
-        return (long) getMemConsumption.invoke(memInfo);
+        final Object memoryInfo = ((Method) memoryInfoReader[1]).invoke(memoryInfoReader[0], Thread.currentThread());
+        final Method getMemoryConsumption = memoryInfo.getClass().getMethod("getMemoryConsumption");
+        return (long) getMemoryConsumption.invoke(memoryInfo);
       } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
           | SecurityException e) {
         return 0;
@@ -149,9 +149,9 @@ class JPACoreDebugger implements JPAServiceDebugger {
 
       final Class<?> info = Class.forName("com.sap.jvm.monitor.vm.VmInfo");
       final Object vmInfo = info.getConstructor().newInstance();
-      final Method getMemInfo = info.getMethod("getThreadMemoryInfo", Thread.class);
+      final Method getMemoryInfo = info.getMethod("getThreadMemoryInfo", Thread.class);
 
-      return new Object[] { vmInfo, getMemInfo };
+      return new Object[] { vmInfo, getMemoryInfo };
     }
   }
 }

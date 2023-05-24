@@ -37,7 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
@@ -86,7 +86,7 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
   @Override
   public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery) throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createSubQuery")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
       this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
       this.navigationInfo.setFromClause(queryRoot);
@@ -123,7 +123,7 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
 
   private List<Selection<?>> createSelectForParent() {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createSelectClause")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createSelectClause")) {
       final List<Selection<?>> selections = new ArrayList<>();
       // Build select clause
       for (final JPAPath jpaPath : this.outerSelections) {

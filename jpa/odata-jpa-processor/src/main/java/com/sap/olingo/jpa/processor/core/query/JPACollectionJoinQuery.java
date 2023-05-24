@@ -37,7 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
@@ -57,11 +57,11 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   @Override
   public JPACollectionQueryResult execute() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "executeStandardQuery")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "executeStandardQuery")) {
       final SelectionPathInfo<JPAPath> requestedSelection = buildSelectionPathList(this.uriResource);
       final TypedQuery<Tuple> tupleQuery = createTupleQuery(requestedSelection);
       List<Tuple> intermediateResult;
-      try (JPARuntimeMeasurment resultMeassument = debugger.newMeasurement(this, "getResultList")) {
+      try (JPARuntimeMeasurement resultMeassument = debugger.newMeasurement(this, "getResultList")) {
         intermediateResult = tupleQuery.getResultList();
       }
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, association, 0, Long.MAX_VALUE);
@@ -131,7 +131,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       final Collection<JPAPath> jpaPathList, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow
     // subclasses to throw an exception
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createSelectClause")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createSelectClause")) {
       final List<Selection<?>> selections = new ArrayList<>();
       // Based on an error in Eclipse Link first the join columns have to be selected. Otherwise the alias is assigned
       // to
@@ -238,7 +238,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       throws ODataApplicationException,
       JPANoSelectionException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createTupleQuery")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createTupleQuery")) {
       final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<>(1),
           selectionPath.joinedPersistent(), cq, lastInfo);
       // TODO handle Join Column is ignored
@@ -258,7 +258,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createWhere")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
       javax.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);

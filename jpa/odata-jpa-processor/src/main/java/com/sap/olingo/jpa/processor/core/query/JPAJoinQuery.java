@@ -33,7 +33,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
@@ -95,7 +95,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
      * .../Organizations/$count
      * .../Organizations('3')/Roles/$count
      */
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "countResults")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "countResults")) {
       new JPACountWatchDog(entitySet.map(JPAAnnotatable.class::cast)).watch(this.uriResource);
       final CriteriaQuery<Number> countQuery = cb.createQuery(Number.class);
       createFromClause(Collections.emptyList(), Collections.emptyList(), countQuery, lastInfo);
@@ -113,7 +113,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   public JPAConvertibleResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "execute")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
       final List<JPAAssociationPath> orderByNavigationAttributes = extractOrderByNaviAttributes(uriResource
           .getOrderByOption());
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByNavigationAttributes,
@@ -136,7 +136,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
       final HashMap<String, List<Tuple>> result = new HashMap<>(1);
       List<Tuple> intermediateResult;
-      try (JPARuntimeMeasurment resultMeassument = debugger.newMeasurement(this, "getResultList")) {
+      try (JPARuntimeMeasurement resultMeassument = debugger.newMeasurement(this, "getResultList")) {
         intermediateResult = typedQuery.getResultList();
       }
       result.put(ROOT_RESULT_KEY, intermediateResult);

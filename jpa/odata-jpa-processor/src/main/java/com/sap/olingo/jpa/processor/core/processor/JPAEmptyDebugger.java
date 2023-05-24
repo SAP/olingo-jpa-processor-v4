@@ -15,11 +15,11 @@ public final class JPAEmptyDebugger implements JPAServiceDebugger {
   }
 
   @Override
-  public JPARuntimeMeasurment newMeasurement(final Object instance, final String methodName) {
+  public JPARuntimeMeasurement newMeasurement(final Object instance, final String methodName) {
     return new JPAEmptyMeasurment();
   }
 
-  public static class JPAEmptyMeasurment implements JPARuntimeMeasurment {
+  public static class JPAEmptyMeasurment implements JPARuntimeMeasurement {
 
     @Override
     public void close() {

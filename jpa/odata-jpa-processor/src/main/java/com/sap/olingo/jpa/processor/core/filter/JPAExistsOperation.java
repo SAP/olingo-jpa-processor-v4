@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Utility;
 
-abstract class JPAExistsOperation implements JPAOperator {
+abstract class JPAExistsOperation implements JPAOperator, JPAExpression {
 
   protected final JPAOperationConverter converter;
   protected final List<UriResource> uriResourceParts;

@@ -44,7 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.Utility;
 
@@ -89,7 +89,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitBinaryOperator")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitBinaryOperator")) {
       if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
         // Connecting operations have to be handled first, as JPANavigationOperation do not need special treatment
         return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
@@ -130,7 +130,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAEnumerationOperator visitEnum(final EdmEnumType type, final List<String> enumValues)
       throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitEnum")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitEnum")) {
       final JPAEnumerationAttribute jpaEnumerationAttribute = this.jpaComplier.getSd().getEnumType(type);
       try {
         if (jpaEnumerationAttribute == null)
@@ -163,7 +163,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   @Override
   public JPAOperator visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitLiteral")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitLiteral")) {
       return new JPALiteralOperator(this.jpaComplier.getOData(), literal);
     }
   }
@@ -171,7 +171,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   @Override
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitMember")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitMember")) {
       final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(), member,
           jpaComplier.getAssociation());
       checkTransient(attributePath);
@@ -201,7 +201,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitMethodCall(final MethodKind methodCall, final List<JPAOperator> parameters)
       throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitMethodCall")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitMethodCall")) {
       if (!parameters.isEmpty()) {
         if (parameters.get(0) instanceof JPANavigationOperation ||
             (parameters.size() == 2 && parameters.get(1) instanceof JPANavigationOperation))
@@ -227,7 +227,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitUnaryOperator(final UnaryOperatorKind operator, final JPAOperator operand)
       throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitUnaryOperator")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitUnaryOperator")) {
 
       if (operator == UnaryOperatorKind.NOT) {
         return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) operand);

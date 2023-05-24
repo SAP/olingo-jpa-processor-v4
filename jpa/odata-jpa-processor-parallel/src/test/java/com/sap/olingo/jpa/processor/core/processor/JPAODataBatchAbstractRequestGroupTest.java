@@ -22,7 +22,7 @@ import org.mockito.Answers;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 
 abstract class JPAODataBatchAbstractRequestGroupTest {
 
@@ -34,7 +34,7 @@ abstract class JPAODataBatchAbstractRequestGroupTest {
   private ServiceMetadata serviceMetadata;
   protected List<BatchRequestPart> groupElements;
   private JPAServiceDebugger debugger;
-  private JPARuntimeMeasurment measurment;
+  private JPARuntimeMeasurement measurment;
 
   @BeforeEach
   void setup() throws ODataApplicationException, ODataLibraryException {
@@ -45,7 +45,7 @@ abstract class JPAODataBatchAbstractRequestGroupTest {
     serviceContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
     odataHandler = mock(ODataHandler.class);
-    measurment = mock(JPARuntimeMeasurment.class);
+    measurment = mock(JPARuntimeMeasurement.class);
     processor = spy(new JPAODataParallelBatchProcessor(serviceContext, requestContext));
     groupElements = new ArrayList<>();
 

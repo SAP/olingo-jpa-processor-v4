@@ -576,7 +576,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final List<JPAProtectionInfo> act = et.getProtections();
     assertNotNull(act);
     assertEquals(1, act.size());
-    assertEquals("Username", act.get(0).getAttribute().getExternalName());
+    assertEquals("UserName", act.get(0).getAttribute().getExternalName());
     assertEquals("UserId", act.get(0).getClaimName());
   }
 
@@ -1088,10 +1088,10 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
   private void assertInherited(final List<JPAProtectionInfo> act) {
     for (final JPAProtectionInfo info : act) {
-      if (info.getAttribute().getExternalName().equals("Username")) {
+      if (info.getAttribute().getExternalName().equals("UserName")) {
         assertEquals("UserId", info.getClaimName());
         assertEquals(1, info.getPath().getPath().size());
-        assertEquals("Username", info.getPath().getAlias());
+        assertEquals("UserName", info.getPath().getAlias());
         return;
       }
     }

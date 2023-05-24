@@ -60,7 +60,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -318,7 +318,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected javax.persistence.criteria.Expression<Boolean> createWhere(final UriInfoResource uriInfo,
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "createWhere")) {
+    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createWhere")) {
       javax.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);

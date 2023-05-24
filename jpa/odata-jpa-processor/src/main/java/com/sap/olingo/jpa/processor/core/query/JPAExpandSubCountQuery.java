@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -59,7 +59,7 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
 
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "execute")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
       //
       return null;
     }
@@ -109,7 +109,7 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "count")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "count")) {
       if (countRequested(lastInfo)) {
         final ProcessorCriteriaQuery<Tuple> tq = (ProcessorCriteriaQuery<Tuple>) cb.createTupleQuery();
         final LinkedList<JPAAbstractQuery> hops = new LinkedList<>();
@@ -146,7 +146,7 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
   private Expression<Boolean> createWhere(final Subquery<?> sq, final JPANavigationPropertyInfo naviInfo)
       throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createWhere")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
       javax.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createWhereByKey(naviInfo.getFromClause(), naviInfo.getKeyPredicates(), naviInfo

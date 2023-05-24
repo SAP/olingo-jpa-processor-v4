@@ -37,11 +37,6 @@
             <artifactId>spring-jcl</artifactId>
             <version>5.2.4.RELEASE</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>javax.persistence</artifactId>
-            <version>${jpa.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

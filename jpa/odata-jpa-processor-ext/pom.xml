@@ -10,11 +10,6 @@
     <name>odata-jpa-processor-ext</name>
     <dependencies>
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-metadata</artifactId>
             <version>${project.version}</version>

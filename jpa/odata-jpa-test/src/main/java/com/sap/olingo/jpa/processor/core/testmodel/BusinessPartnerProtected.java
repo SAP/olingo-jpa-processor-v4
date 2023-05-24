@@ -48,7 +48,7 @@ public class BusinessPartnerProtected {
   @EdmProtectedBy(name = "UserId")
   @EdmIgnore
   @Column(name = "\"UserName\"", length = 60)
-  private String username;
+  private String userName;
 
   @Embedded
   private final AdministrativeInformation administrativeInformation = new AdministrativeInformation();
@@ -105,8 +105,8 @@ public class BusinessPartnerProtected {
     return country;
   }
 
-  public String getUsername() {
-    return username;
+  public String getUserName() {
+    return userName;
   }
 
   public void setID(final String iD) {

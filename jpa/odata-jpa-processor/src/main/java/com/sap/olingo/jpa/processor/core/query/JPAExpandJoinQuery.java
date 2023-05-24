@@ -31,7 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -89,10 +89,10 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "execute")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
       tupleQuery = createTupleQuery();
       List<Tuple> intermediateResult;
-      try (JPARuntimeMeasurment resultMeassument = debugger.newMeasurement(tupleQuery, "getResultList")) {
+      try (JPARuntimeMeasurement resultMeassument = debugger.newMeasurement(tupleQuery, "getResultList")) {
         intermediateResult = tupleQuery.getQuery().getResultList();
       }
       // Simplest solution for the top/skip problem. Read all and throw away, what is not requested
@@ -213,7 +213,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "count")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "count")) {
       final JPAExpandJoinCountQuery countQuery = new JPAExpandJoinCountQuery(odata, requestContext, jpaEntity,
           association, navigationInfo, keyBoundary);
       return countQuery.count();
@@ -224,7 +224,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
 
   private JPAQueryCreationResult createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createTupleQuery")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createTupleQuery")) {
       final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
       final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(),
@@ -253,7 +253,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createWhere")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
       javax.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);

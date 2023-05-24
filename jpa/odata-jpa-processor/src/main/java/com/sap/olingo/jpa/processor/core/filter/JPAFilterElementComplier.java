@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
@@ -62,7 +62,7 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = parent.getDebugger().newMeasurement(this, "compile")) {
+    try (JPARuntimeMeasurement meassument = parent.getDebugger().newMeasurement(this, "compile")) {
       final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
       return (Expression<Boolean>) expression.accept(visitor).get();
     }

@@ -14,9 +14,9 @@ public interface JPAServiceDebugger {
 
   public default void debug(final Object instance, final String log) {}
 
-  public JPARuntimeMeasurment newMeasurement(final Object instance, final String methodName);
+  public JPARuntimeMeasurement newMeasurement(final Object instance, final String methodName);
 
-  public static interface JPARuntimeMeasurment extends AutoCloseable {
+  public static interface JPARuntimeMeasurement extends AutoCloseable {
     @Override
     void close();
   }

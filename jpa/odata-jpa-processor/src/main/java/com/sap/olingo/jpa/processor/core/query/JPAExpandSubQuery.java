@@ -42,7 +42,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -63,7 +63,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "firstTest")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
       final JPAQueryCreationResult tupleQuery = createTupleQuery();
       final List<Tuple> intermediateResult = tupleQuery.getQuery().getResultList();
       final Map<String, List<Tuple>> result = convertResult(intermediateResult);
@@ -155,7 +155,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "count")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "count")) {
       final JPAExpandSubCountQuery countQuery = new JPAExpandSubCountQuery(odata, requestContext, jpaEntity,
           association, navigationInfo);
       return countQuery.count();
@@ -276,7 +276,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   private @Nonnull JPAQueryCreationResult createTupleQuery() throws JPANoSelectionException,
       ODataException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createTupleQuery")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createTupleQuery")) {
       final ProcessorCriteriaQuery<Tuple> tq = (ProcessorCriteriaQuery<Tuple>) cq;
       final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
       final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
@@ -314,7 +314,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   private Expression<Boolean> createWhere(final Subquery<?> sq, final JPANavigationPropertyInfo naviInfo)
       throws ODataApplicationException {
 
-    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createWhere")) {
+    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
       if (hasRowLimit(lastInfo)) {
         return createWhereByRowNumber(target, lastInfo);
       }
