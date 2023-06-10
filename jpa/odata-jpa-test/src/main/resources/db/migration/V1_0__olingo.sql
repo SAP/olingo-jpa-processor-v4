@@ -88,6 +88,23 @@ insert into "BusinessPartnerRole" values ('99',  'X', null);
 insert into "BusinessPartnerRole" values ('99',  'Z', null);
 insert into "BusinessPartnerRole" values ('97',  'Y', null);
 
+CREATE TABLE "JoinPartnerRoleRelation"(
+	"SourceID" VARCHAR(32) NOT NULL,
+	"TargetID" VARCHAR(10) NOT NULL, 
+     PRIMARY KEY ("SourceID","TargetID"));
+
+insert into "JoinPartnerRoleRelation" values ('1',  'A');
+insert into "JoinPartnerRoleRelation" values ('3',  'A');
+insert into "JoinPartnerRoleRelation" values ('3',  'B');
+insert into "JoinPartnerRoleRelation" values ('3',  'C');
+insert into "JoinPartnerRoleRelation" values ('2',  'A');
+insert into "JoinPartnerRoleRelation" values ('2',  'C');
+insert into "JoinPartnerRoleRelation" values ('7',  'C');
+insert into "JoinPartnerRoleRelation" values ('98',  'X');
+insert into "JoinPartnerRoleRelation" values ('99',  'X');
+insert into "JoinPartnerRoleRelation" values ('99',  'Z');
+insert into "JoinPartnerRoleRelation" values ('97',  'Y');
+
 CREATE TABLE "CountryDescription" ( 
 	"ISOCode" VARCHAR(4) NOT NULL ,
 	"LanguageISO" VARCHAR(4) NOT NULL ,
@@ -737,6 +754,7 @@ CREATE TABLE "CollectionsDeep" (
    PRIMARY KEY ("ID"));	
 insert into "CollectionsDeep" values( '501',1,-1 );
 insert into "CollectionsDeep" values( '502',1, 3 ); 
+insert into "CollectionsDeep" values( '506',1, 100 ); 
 
 --------------------------------------------	
 

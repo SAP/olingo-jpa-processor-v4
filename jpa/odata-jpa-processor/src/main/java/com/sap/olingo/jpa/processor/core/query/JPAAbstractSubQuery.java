@@ -94,34 +94,45 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
     if (association != null && association.hasJoinTable()) {
       if (association.getJoinTable().getEntityType() != null) {
         if (aggregationType != null) {
-          this.queryJoinTable = subQuery.from(from.getJavaType());
-          From<?, ?> p = queryJoinTable;
-          for (int i = 0; i < association.getPath().size() - 1; i++)
-            p = p.join(association.getPath().get(i).getInternalName());
-          this.queryRoot = p.join(association.getLeaf().getInternalName(), JoinType.LEFT);
+          createAggregationJoin(association);
         } else {
-          // At least for EclipseLink the order is of importance. First the join table has to be mentioned. It becomes
-          // the "leading" table. Otherwise EclipseLink replaces the join table within the WHERE clause.
-          this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType().getTypeClass());
-          this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+          createJoinTableRoot(association);
         }
       } else {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_IMPLEMENTED,
             HttpStatusCode.NOT_IMPLEMENTED, association.getAlias());
       }
     } else {
-      this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+      if (aggregationType != null)
+        createAggregationJoin(association);
+      else
+        this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
     }
+  }
+
+  void createJoinTableRoot(final JPAAssociationPath association) {
+    // At least for EclipseLink the order is of importance. First the join table has to be mentioned. It becomes
+    // the "leading" table. Otherwise EclipseLink replaces the join table within the WHERE clause.
+    this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType().getTypeClass());
+    this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+  }
+
+  void createAggregationJoin(final JPAAssociationPath association) {
+    this.queryJoinTable = subQuery.from(from.getJavaType());
+    From<?, ?> path = queryJoinTable;
+    for (int i = 0; i < association.getPath().size() - 1; i++)
+      path = path.join(association.getPath().get(i).getInternalName());
+    this.queryRoot = path.join(association.getLeaf().getInternalName(), JoinType.LEFT);
   }
 
   @SuppressWarnings("unchecked")
   protected <T> void createSelectClauseJoin(final Subquery<T> subQuery, final From<?, ?> from,
-      final List<JPAOnConditionItem> conditionItems) {
+      final List<JPAPath> conditionItems) {
 
-    Path<?> p = from;
-    for (final JPAElement jpaPathElement : conditionItems.get(0).getRightPath().getPath())
-      p = p.get(jpaPathElement.getInternalName());
-    subQuery.select((Expression<T>) p);
+    Path<?> path = from;
+    for (final JPAElement jpaPathElement : conditionItems.get(0).getPath())
+      path = path.get(jpaPathElement.getInternalName());
+    subQuery.select((Expression<T>) path);
   }
 
   protected Expression<Boolean> createWhereByAssociation(final From<?, ?> subRoot, final From<?, ?> parentFrom,
@@ -159,34 +170,6 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
     return whereCondition;
   }
 
-  protected void createSubQueryJoinTable() throws ODataApplicationException {
-    /*
-     * SELECT t0."TeamKey"
-     * FROM "OLINGO"."Team" t0
-     * WHERE (EXISTS (SELECT t2."TeamID"
-     * FROM "OLINGO"."BusinessPartner" t1, "OLINGO"."Membership" t2
-     * WHERE t2."TeamID" = t0."TeamKey"
-     * AND t1."ID" = t2."PersonID"
-     * AND t1."Type" = '1'
-     * AND t1."NameLine2" = 'Mustermann'))
-     */
-    try {
-      final List<JPAOnConditionItem> left = association
-          .getJoinTable()
-          .getJoinColumns(); // Team -->
-      final List<JPAOnConditionItem> right = association
-          .getJoinTable()
-          .getInverseJoinColumns(); // Person -->
-      createSelectClauseJoin(subQuery, queryJoinTable, left);
-      Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
-      whereCondition = cb.and(whereCondition, createWhereByAssociation(queryJoinTable, queryRoot, right));
-      subQuery.where(applyAdditionalFilter(whereCondition));
-    } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-
-  }
-
   /**
    * Self Join
    * @param subRoot
@@ -195,7 +178,7 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
    * @return
    * @throws ODataJPAModelException
    */
-  protected Expression<Boolean> createWhereByAssociation(final From<?, ?> subRoot, final From<?, ?> parentFrom,
+  protected Expression<Boolean> createWhereSelfJoin(final From<?, ?> subRoot, final From<?, ?> parentFrom,
       final JPAEntityType jpaEntity) throws ODataJPAModelException {
     Expression<Boolean> whereCondition = null;
 
@@ -215,25 +198,25 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
   @SuppressWarnings("unchecked")
   protected <T> void createSelectClauseAggregation(final Subquery<T> subQuery, final From<?, ?> from,
       final List<JPAOnConditionItem> conditionItems) {
-    Path<?> p = from;
+    Path<?> path = from;
 
     for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
-      p = p.get(jpaPathElement.getInternalName());
-    subQuery.select((Expression<T>) p);
+      path = path.get(jpaPathElement.getInternalName());
+    subQuery.select((Expression<T>) path);
   }
 
-  protected void handleAggregation(final Subquery<?> subQuery, final From<?, ?> subRoot,
-      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
+  protected void handleAggregation(final Subquery<?> subQuery, final From<?, ?> groupByRoot,
+      final List<JPAPath> groupByPath) throws ODataApplicationException {
 
-    final List<Expression<?>> groupByLIst = new ArrayList<>();
+    final List<Expression<?>> groupByList = new ArrayList<>();
     if (filterComplier != null && this.aggregationType != null) {
-      for (final JPAOnConditionItem onItem : conditionItems) {
-        Path<?> subPath = subRoot;
-        for (final JPAElement jpaPathElement : onItem.getRightPath().getPath())
+      for (final JPAPath onItem : groupByPath) {
+        Path<?> subPath = groupByRoot;
+        for (final JPAElement jpaPathElement : onItem.getPath())
           subPath = subPath.get(jpaPathElement.getInternalName());
-        groupByLIst.add(subPath);
+        groupByList.add(subPath);
       }
-      subQuery.groupBy(groupByLIst);
+      subQuery.groupBy(groupByList);
 
       try {
         subQuery.having(this.filterComplier.compile());
@@ -241,37 +224,7 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
-  }
 
-  protected void createSubQueryJoinTableAggregation() throws ODataApplicationException {
-    /*
-     * SELECT t0."ID"
-     * FROM "OLINGO"."BusinessPartner" t0
-     * WHERE (EXISTS (SELECT t1."ID"
-     * FROM "OLINGO"."BusinessPartner" t1
-     * LEFT OUTER JOIN ("OLINGO"."Membership" t3 JOIN "OLINGO"."Team" t2
-     * ON (t2."TeamKey" = t3."TeamID"))
-     * ON (t3."PersonID" = t1."ID")
-     * WHERE ((t1."ID" = t0."ID")
-     * AND (t1."Type" = '1'))
-     * GROUP BY t1."ID"
-     * HAVING (COUNT(t2."TeamKey") > 0))
-     * AND (t0."Type" = '1'))
-     */
-    try {
-      final List<JPAOnConditionItem> left = association
-          .getJoinTable()
-          .getJoinColumns(); // Person -->
-      final List<JPAOnConditionItem> right = association
-          .getJoinTable()
-          .getInverseJoinColumns(); // Team -->
-      createSelectClauseAggregation(subQuery, queryJoinTable, left);
-      final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, parentQuery.jpaEntity);
-      subQuery.where(applyAdditionalFilter(whereCondition));
-      handleAggregation(subQuery, queryJoinTable, right);
-    } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
   }
 
   protected UriResourceKind getAggregationType(final VisitableExpression expression) {
@@ -291,5 +244,41 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
       }
     }
     return null;
+  }
+
+  protected List<JPAPath> determineAggregationRightColumns() throws ODataJPAQueryException {
+
+    try {
+      final List<JPAPath> conditionItems = association.hasJoinTable()
+          ? association.getJoinTable().getRightColumnsList()
+          : association.getRightColumnsList();
+      if (conditionItems.isEmpty())
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_JOIN_NOT_DEFINED,
+            HttpStatusCode.INTERNAL_SERVER_ERROR, association.getTargetType().getExternalName(), association
+                .getSourceType().getExternalName());
+      return conditionItems;
+
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e, association.getAlias());
+    }
+  }
+
+  protected List<JPAPath> determineAggregationLeftColumns() throws ODataJPAQueryException {
+
+    try {
+      final List<JPAPath> conditionItems = association.hasJoinTable()
+          ? association.getJoinTable().getLeftColumnsList()
+          : association.getLeftColumnsList();
+      if (conditionItems.isEmpty())
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_JOIN_NOT_DEFINED,
+            HttpStatusCode.INTERNAL_SERVER_ERROR, association.getTargetType().getExternalName(), association
+                .getSourceType().getExternalName());
+      return conditionItems;
+
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e, association.getAlias());
+    }
   }
 }

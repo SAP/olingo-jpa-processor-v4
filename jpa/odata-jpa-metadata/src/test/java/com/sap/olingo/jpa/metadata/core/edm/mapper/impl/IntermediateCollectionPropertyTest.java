@@ -347,6 +347,40 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
     assertNull(property.getTargetAttribute());
   }
 
+  @Test
+  void checkGetJoinTableNotNull() throws ODataJPAModelException {
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+    assertNotNull(property.getJoinTable());
+    assertEquals("\"OLINGO\".\"InhouseAddress\"", property.getJoinTable().getTableName());
+  }
+
+  @Test
+  void checkGetJoinTableLeftColumns() throws ODataJPAModelException {
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+    final List<JPAPath> act = property.getJoinTable().getLeftColumnsList();
+    assertNotNull(act);
+    assertFalse(act.isEmpty());
+    assertEquals("\"ID\"", act.get(0).getDBFieldName());
+  }
+
+  @Test
+  void checkGetJoinTableRightColumns() throws ODataJPAModelException {
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+    final List<JPAPath> act = property.getJoinTable().getRightColumnsList();
+    assertNotNull(act);
+    assertFalse(act.isEmpty());
+    assertEquals("\"ParentID\"", act.get(0).getDBFieldName());
+  }
+
   private PluralAttribute<?, ?, ?> createTransientPluralAttribute() throws NoSuchFieldException {
     final PluralAttribute<?, ?, ?> jpaAttribute = new IntermediateStructuredType.TransientPluralAttribute<>(
         helper.getEmbeddableType(ComplexWithTransientComplexCollection.class),

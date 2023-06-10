@@ -152,7 +152,8 @@ class TestJPAQueryWhereClause extends TestBase {
             "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')", 1),
         // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
         // Example 43: return all Categories with less than 10 products
-        arguments("CountNavigationProperty", "Organizations?$select=ID&$filter=Roles/$count eq 2", 1),
+        arguments("CountNavigationPropertyTwo", "Organizations?$select=ID&$filter=Roles/$count eq 2", 1),
+        arguments("CountNavigationPropertyZero", "Organizations?$select=ID&$filter=Roles/$count eq 0", 6),
         arguments("CountNavigationPropertyMultipleHops",
             "Organizations?$select=ID&$filter=AdministrativeInformation/Created/User/Roles/$count ge 2", 8),
         arguments("NavigationPropertyToOneValue", "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1'", 11),
@@ -567,10 +568,14 @@ class TestJPAQueryWhereClause extends TestBase {
   static Stream<Arguments> getFilterCollectionQuery() {
     return Stream.of(
         arguments("SimpleCount", "Persons?$filter=InhouseAddress/$count eq 2", 1),
+        arguments("SimpleCountViaJoinTable",
+            "JoinSources?$filter=OneToMany/$count gt 1&$select=SourceID", 1),
         arguments("DeepSimpleCount",
             "CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2&$select=ID", 1),
         arguments("DeepComplexCount",
             "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/$count eq 2&$select=ID", 1),
+        arguments("DeepSimpleCountZero",
+            "CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 0&$select=ID", 1),
         arguments("Any", "Organizations?$select=ID&$filter=Comment/any(s:contains(s, 'just'))", 1),
         arguments("AsPartOfComplexAny",
             "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')", 1));

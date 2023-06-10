@@ -14,7 +14,7 @@ public enum TestDataConstants {
   NO_ENTITY_TYPES(34),
   NO_ENTITY_SETS(32),
   NO_SINGLETONS(3),
-  NO_COMPLEXT_TYPES(24);
+  NO_COMPLEXT_TYPES(25);
 
   public final int value;
 

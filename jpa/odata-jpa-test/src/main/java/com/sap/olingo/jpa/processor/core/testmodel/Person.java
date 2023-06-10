@@ -145,8 +145,8 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
     return inhouseAddress;
   }
 
-  public void setInhouseAddress(final List<InhouseAddress> inhouseAddress) {
-    this.inhouseAddress = inhouseAddress;
+  public void setInhouseAddress(final List<InhouseAddress> inHouseAddress) {
+    this.inhouseAddress = inHouseAddress;
   }
 
   public void addInhouseAddress(final InhouseAddress address) {

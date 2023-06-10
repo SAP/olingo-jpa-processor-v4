@@ -8,6 +8,7 @@ import static javax.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.JoinColumn;
@@ -323,6 +324,20 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
         }
       }
       return result;
+    }
+
+    @Override
+    public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
+      return getJoinColumns().stream()
+          .map(JPAOnConditionItem::getRightPath)
+          .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JPAPath> getLeftColumnsList() throws ODataJPAModelException {
+      return getJoinColumns().stream()
+          .map(JPAOnConditionItem::getLeftPath)
+          .collect(Collectors.toList());
     }
   }
 }

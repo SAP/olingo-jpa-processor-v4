@@ -58,6 +58,8 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinTarget</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelationKey</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.JoinPartnerRoleRelation</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.JoinPartnerRoleRelationKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Membership</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Organization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>

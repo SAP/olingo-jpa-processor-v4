@@ -89,13 +89,16 @@ public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
       throws ODataApplicationException {
 
     final Subquery<T> query = (Subquery<T>) this.subQuery;
-    if (this.queryJoinTable != null) {
+    if (this.association != null && this.association.getJoinTable() != null) {
       if (this.aggregationType != null)
         createSubQueryJoinTableAggregation();
       else
         createSubQueryJoinTable();
     } else {
-      createSubQueryAggregation(childQuery, query);
+      if (this.aggregationType != null)
+        createSubQueryAggregation(childQuery, query);
+      else
+        createSubQuery(childQuery, query);
     }
     return query;
   }
@@ -108,11 +111,29 @@ public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
   private <T> void createSubQueryAggregation(final Subquery<?> childQuery, final Subquery<T> query)
       throws ODataApplicationException {
 
-    final List<JPAOnConditionItem> conditionItems = determineJoinColumns();
-    createSelectClauseJoin(query, queryRoot, conditionItems);
+    try {
+      createSelectClauseJoin(query, queryJoinTable, determineAggregationLeftColumns());
+      Expression<Boolean> whereCondition = createWhereSelfJoin(from, queryJoinTable, parentQuery.getJpaEntity());
+      if (childQuery != null) {
+        whereCondition = cb.and(whereCondition, cb.exists(childQuery));
+      }
+      whereCondition = addWhereClause(whereCondition,
+          createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot));
+
+      query.where(applyAdditionalFilter(whereCondition));
+      handleAggregation(query, queryJoinTable, determineAggregationLeftColumns());
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private <T> void createSubQuery(final Subquery<?> childQuery, final Subquery<T> query)
+      throws ODataApplicationException {
+
+    createSelectClauseJoin(query, queryRoot, determineAggregationRightColumns());
     Expression<Boolean> whereCondition = null;
     whereCondition = addWhereClause(
-        createWhereByAssociation(from, queryRoot, conditionItems),
+        createWhereByAssociation(from, queryRoot, determineJoinColumns()),
         createWhereByKey(queryRoot, this.keyPredicates, jpaEntity));
     if (childQuery != null) {
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
@@ -121,7 +142,67 @@ public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
         createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot));
 
     query.where(applyAdditionalFilter(whereCondition));
-    handleAggregation(query, queryRoot, conditionItems);
+  }
+
+  private void createSubQueryJoinTable() throws ODataApplicationException {
+    /*
+     * SELECT t0."TeamKey"
+     * FROM "OLINGO"."Team" t0
+     * WHERE (EXISTS (SELECT t2."TeamID"
+     * FROM "OLINGO"."BusinessPartner" t1, "OLINGO"."Membership" t2
+     * WHERE t2."TeamID" = t0."TeamKey"
+     * AND t1."ID" = t2."PersonID"
+     * AND t1."Type" = '1'
+     * AND t1."NameLine2" = 'Mustermann'))
+     */
+    try {
+      final List<JPAOnConditionItem> left = association
+          .getJoinTable()
+          .getJoinColumns(); // Team -->
+      final List<JPAOnConditionItem> right = association
+          .getJoinTable()
+          .getInverseJoinColumns(); // Person -->
+      createSelectClauseJoin(subQuery, queryRoot, determineAggregationLeftColumns());
+      Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
+      whereCondition = cb.and(whereCondition, createWhereByAssociation(queryJoinTable, queryRoot, right));
+      whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
+          queryRoot));
+      subQuery.where(applyAdditionalFilter(whereCondition));
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private void createSubQueryJoinTableAggregation() throws ODataApplicationException {
+    /*
+     * SELECT t0."ID"
+     * FROM "OLINGO"."BusinessPartner" t0
+     * WHERE (EXISTS (SELECT t1."ID"
+     * -- Left Outer Join needed. Otherwise comparisons with 0 in the Having clause wont work
+     * FROM "OLINGO"."BusinessPartner" t1
+     * LEFT OUTER JOIN ("OLINGO"."Membership" t3 JOIN "OLINGO"."Team" t2
+     * ON (t2."TeamKey" = t3."TeamID"))
+     * ON (t3."PersonID" = t1."ID")
+     * WHERE ((t1."ID" = t0."ID")
+     * AND (t1."Type" = '1'))
+     * GROUP BY t1."ID"
+     * HAVING (COUNT(t2."TeamKey") > 0))
+     * AND (t0."Type" = '1'))
+     */
+    try {
+      final List<JPAOnConditionItem> left = association
+          .getJoinTable()
+          .getJoinColumns(); // Person -->
+
+      createSelectClauseAggregation(subQuery, queryJoinTable, left);
+      Expression<Boolean> whereCondition = createWhereSelfJoin(from, queryJoinTable, parentQuery.getJpaEntity());
+      whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
+          queryRoot));
+      subQuery.where(applyAdditionalFilter(whereCondition));
+      handleAggregation(subQuery, queryJoinTable, determineAggregationLeftColumns());
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
   }
 
   private Set<JPAPath> determineAllDescriptionPath() throws ODataApplicationException {

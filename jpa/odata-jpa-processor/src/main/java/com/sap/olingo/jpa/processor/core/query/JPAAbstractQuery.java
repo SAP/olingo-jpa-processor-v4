@@ -438,6 +438,10 @@ public abstract class JPAAbstractQuery {
     return whereCondition;
   }
 
+  protected JPAEntityType getJpaEntity() {
+    return jpaEntity;
+  }
+
   Set<JPAPath> determineAllDescriptionPath(final List<JPAPath> descriptionFields,
       final JPAFilterComplier filter) throws ODataApplicationException {
 

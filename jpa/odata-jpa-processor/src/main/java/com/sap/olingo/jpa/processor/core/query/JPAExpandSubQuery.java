@@ -325,7 +325,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
       whereCondition = addWhereClause(whereCondition, createWhereKeyIn(this.association, root, sq));
       whereCondition = addWhereClause(whereCondition, createExpandWhere(naviInfo));
       whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
-          root));
+          target));
       return whereCondition;
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ERROR,

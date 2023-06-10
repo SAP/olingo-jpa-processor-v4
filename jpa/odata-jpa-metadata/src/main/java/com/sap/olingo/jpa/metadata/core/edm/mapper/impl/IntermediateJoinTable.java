@@ -5,6 +5,7 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -16,6 +17,7 @@ import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 class IntermediateJoinTable implements JPAJoinTable {
@@ -87,7 +89,7 @@ class IntermediateJoinTable implements JPAJoinTable {
   public List<JPAOnConditionItem> getJoinColumns() throws ODataJPAModelException {
 
     final List<JPAOnConditionItem> result = new ArrayList<>();
-    for (final IntermediateJoinColumn column : joinColumns) {
+    for (final IntermediateJoinColumn column : buildJoinColumns()) {
       result.add(new JPAOnConditionItemImpl(
           sourceType.getPathByDBField(column.getName()),
           ((IntermediateEntityType<?>) jpaEntityType
@@ -95,6 +97,21 @@ class IntermediateJoinTable implements JPAJoinTable {
                   .getPathByDBField(column.getReferencedColumnName())));
     }
     return result;
+  }
+
+  @Override
+  public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
+    return getInverseJoinColumns().stream()
+        .map(JPAOnConditionItem::getRightPath)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<JPAPath> getLeftColumnsList() throws ODataJPAModelException {
+
+    return getJoinColumns().stream()
+        .map(JPAOnConditionItem::getLeftPath)
+        .collect(Collectors.toList());
   }
 
   @SuppressWarnings("unchecked")
