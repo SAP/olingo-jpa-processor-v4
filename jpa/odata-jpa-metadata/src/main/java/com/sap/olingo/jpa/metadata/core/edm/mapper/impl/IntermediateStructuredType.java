@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -87,7 +88,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   protected final Map<String, JPAAssociationPathImpl> resolvedAssociationPathMap;
   protected final ManagedType<T> jpaManagedType;
   protected final Class<T> jpaJavaType;
-  protected final Optional<MappedSuperclassType<? super T>> mappedSuperclass;
+  protected final List<MappedSuperclassType<? super T>> mappedSuperclass;
   protected final IntermediateSchema schema;
   protected List<JPAProtectionInfo> protectedAttributes;
   protected CsdlStructuralType edmStructuralType;
@@ -401,11 +402,13 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
    */
   void addTransientProperties() throws ODataJPAModelException {
 
-    addTransientOfManagedType(jpaManagedType.getJavaType().getDeclaredFields());
-    addTransientOfManagedType(mappedSuperclass
-        .map(ManagedType::getJavaType)
+    addTransientOfManagedType(Arrays.asList(jpaManagedType.getJavaType().getDeclaredFields()));
+    addTransientOfManagedType(mappedSuperclass.stream()
+        .map(MappedSuperclassType::getJavaType)
         .map(Class::getDeclaredFields)
-        .orElse(new Field[] {}));
+        .map(Arrays::asList)
+        .flatMap(List::stream)
+        .collect(Collectors.toList()));
   }
 
   void addVirtualProperties() throws ODataJPAModelException {
@@ -544,7 +547,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     return (buildState & step) != 0;
   }
 
-  private void addTransientOfManagedType(final Field[] fields) throws ODataJPAModelException {
+  private void addTransientOfManagedType(final List<Field> fields) throws ODataJPAModelException {
     for (final Field jpaAttribute : fields) {
       final EdmTransient edmTransient = jpaAttribute.getAnnotation(EdmTransient.class);
       if (edmTransient != null) {
@@ -564,9 +567,10 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   private Set<Attribute<? super T, ?>> buildAllAttributesSet() {
     final Set<Attribute<? super T, ?>> attributes = new HashSet<>();
     attributes.addAll(jpaManagedType.getDeclaredAttributes());
-    attributes.addAll(mappedSuperclass
+    attributes.addAll(mappedSuperclass.stream()
         .map(ManagedType::getDeclaredAttributes)
-        .orElse(Collections.emptySet()));
+        .flatMap(Set::stream)
+        .collect(Collectors.toSet()));
     return attributes;
   }
 
@@ -674,13 +678,19 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
 
   }
 
-  private Optional<MappedSuperclassType<? super T>> determineMappedSuperclass(final ManagedType<T> managedType) {
+  @SuppressWarnings("unchecked")
+  private List<MappedSuperclassType<? super T>> determineMappedSuperclass(final ManagedType<T> managedType) {
+
     if (managedType instanceof IdentifiableType<?>) {
-      final IdentifiableType<? super T> superType = ((IdentifiableType<T>) managedType).getSupertype();
-      if (superType instanceof MappedSuperclassType<?>)
-        return Optional.of((MappedSuperclassType<? super T>) superType);
+      final List<MappedSuperclassType<? super T>> result = new ArrayList<>();
+      IdentifiableType<?> type = (IdentifiableType<T>) managedType;
+      while (type.getSupertype() instanceof MappedSuperclassType<?>) {
+        type = type.getSupertype();
+        result.add((MappedSuperclassType<? super T>) type);
+      }
+      return result;
     }
-    return Optional.empty();
+    return Collections.emptyList();
   }
 
   private List<IntermediateSimpleProperty> determineStreamProperties() {

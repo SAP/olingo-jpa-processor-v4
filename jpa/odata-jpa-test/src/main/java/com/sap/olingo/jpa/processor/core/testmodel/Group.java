@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -13,14 +12,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @MappedSuperclass
-public class Group {
-
-  @Id
-  @Column(name = "\"TeamKey\"")
-  private String iD;
-
-  @Column(name = "\"Name\"")
-  private String name;
+public class Group extends AbstractGroup {
 
   @EdmIgnore
   @Column(name = "\"GroupLead\"")

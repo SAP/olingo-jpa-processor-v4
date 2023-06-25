@@ -339,6 +339,13 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
+  void checkGetKeyFromMappedSuperclass() throws ODataJPAModelException {
+    final IntermediateEntityType<SalesTeam> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(SalesTeam.class), schema);
+    assertEquals(1, et.getKey().size());
+  }
+
+  @Test
   void checkEmbeddedIdResolvedProperties() throws ODataJPAModelException {
     final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivisionDescription.class), schema);

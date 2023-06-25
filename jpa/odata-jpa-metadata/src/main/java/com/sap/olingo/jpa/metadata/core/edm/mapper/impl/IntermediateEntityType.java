@@ -7,6 +7,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -154,11 +155,13 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     }
     if (keyAttributes == null) {
       final List<JPAAttribute> intermediateKey = new ArrayList<>(); // Cycle break
-      addKeyAttribute(intermediateKey, this.getTypeClass().getDeclaredFields());
-      addKeyAttribute(intermediateKey, mappedSuperclass
+      addKeyAttribute(intermediateKey, Arrays.asList(this.getTypeClass().getDeclaredFields()));
+      addKeyAttribute(intermediateKey, mappedSuperclass.stream()
           .map(ManagedType::getJavaType)
           .map(Class::getDeclaredFields)
-          .orElse(new Field[] {}));
+          .flatMap(Arrays::stream)
+          .collect(Collectors.toList()));
+
       final IntermediateStructuredType<?> baseType = getBaseType();
       if (baseType != null) {
         intermediateKey.addAll(((IntermediateEntityType<?>) baseType).getKey());
@@ -402,14 +405,14 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return (CsdlEntityType) edmStructuralType;
   }
 
-  Optional<MappedSuperclassType<? super T>> getMappedSuperType() {
+  List<MappedSuperclassType<? super T>> getMappedSuperType() {
     return mappedSuperclass;
   }
 
-  private void addKeyAttribute(final List<JPAAttribute> intermediateKey, final Field[] keyFields)
+  private void addKeyAttribute(final List<JPAAttribute> intermediateKey, final List<Field> keyFields)
       throws ODataJPAModelException {
-    for (int i = 0; i < keyFields.length; i++) {
-      final JPAAttribute attribute = this.declaredPropertiesMap.get(keyFields[i].getName());
+    for (final Field candidate : keyFields) {
+      final JPAAttribute attribute = this.declaredPropertiesMap.get(candidate.getName());
       if (attribute != null && attribute.isKey()) {
         if (attribute.isComplex()) {
           intermediateKey.addAll(buildEmbeddedIdKey(attribute));
