@@ -24,7 +24,6 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -168,11 +167,6 @@ public final class JPATypeConverter {
           jpaType.getName(), currentAttribute.getName());
     else
       return null;
-  }
-
-  public static EdmPrimitiveTypeKind convertToEdmSimpleType(final JPAAttribute attribute)
-      throws ODataJPAModelException {
-    return convertToEdmSimpleType(attribute.getType(), null);
   }
 
   public static boolean isSimpleType(final Class<?> type, final Attribute<?, ?> currentAttribute) {

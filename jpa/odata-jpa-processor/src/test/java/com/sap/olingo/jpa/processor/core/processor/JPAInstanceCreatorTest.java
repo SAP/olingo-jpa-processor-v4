@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -53,10 +54,10 @@ class JPAInstanceCreatorTest {
     buildTypeWithCompoundKey(ClassWithIdClassConstructor.class);
     cut = new JPAInstanceCreator<>(odata, et);
 
-    final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
+    final Optional<Constructor<Object>> constructor = cut.determinePreferedConstructor();
 
-    assertTrue(c.isPresent());
-    assertEquals(1, c.get().getParameterCount());
+    assertTrue(constructor.isPresent());
+    assertEquals(1, constructor.get().getParameterCount());
   }
 
   @Test
@@ -65,10 +66,10 @@ class JPAInstanceCreatorTest {
     buildTypeWithCompoundKey(ClassWithMultipleKeysSetter.class);
     cut = new JPAInstanceCreator<>(odata, et);
 
-    final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
+    final Optional<Constructor<Object>> constructor = cut.determinePreferedConstructor();
 
-    assertTrue(c.isPresent());
-    assertEquals(0, c.get().getParameterCount());
+    assertTrue(constructor.isPresent());
+    assertEquals(0, constructor.get().getParameterCount());
   }
 
   @Test
@@ -77,9 +78,9 @@ class JPAInstanceCreatorTest {
     buildTypeWithCompoundKey(ClassWithMultipleKeysConstructor.class);
     cut = new JPAInstanceCreator<>(odata, et);
 
-    final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
+    final Optional<Constructor<Object>> constructor = cut.determinePreferedConstructor();
 
-    assertFalse(c.isPresent());
+    assertFalse(constructor.isPresent());
   }
 
   @Test
@@ -108,22 +109,22 @@ class JPAInstanceCreatorTest {
     });
     when(et.hasCompoundKey()).thenReturn(false);
     cut = new JPAInstanceCreator<>(odata, et);
-    final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
-    assertTrue(c.isPresent());
-    assertEquals(1, c.get().getParameterCount());
-    assertEquals(UUID.class, c.get().getParameterTypes()[0]);
+    final Optional<Constructor<Object>> constructor = cut.determinePreferedConstructor();
+    assertTrue(constructor.isPresent());
+    assertEquals(1, constructor.get().getParameterCount());
+    assertEquals(UUID.class, constructor.get().getParameterTypes()[0]);
   }
 
   @Test
   void testGetConstructorSingleKeyNoKey() throws ODataJPAModelException, ODataJPAProcessorException {
 
-    final List<JPAAttribute> keys = Arrays.asList(fillOneKey("key", UUID.class));
+    final List<JPAAttribute> keys = Arrays.asList(fillOneKey("key", UUID.class, EdmPrimitiveTypeKind.Guid));
     buildTypeWithSingleKey(keys);
     cut = new JPAInstanceCreator<>(odata, et);
-    final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
-    assertTrue(c.isPresent());
-    assertEquals(1, c.get().getParameterCount());
-    assertEquals(UUID.class, c.get().getParameterTypes()[0]);
+    final Optional<Constructor<Object>> constructor = cut.determinePreferedConstructor();
+    assertTrue(constructor.isPresent());
+    assertEquals(1, constructor.get().getParameterCount());
+    assertEquals(UUID.class, constructor.get().getParameterTypes()[0]);
   }
 
   @Test
@@ -143,8 +144,8 @@ class JPAInstanceCreatorTest {
     });
     when(et.hasCompoundKey()).thenReturn(true);
     cut = new JPAInstanceCreator<>(odata, et);
-    final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
-    assertFalse(c.isPresent());
+    final Optional<Constructor<Object>> constructor = cut.determinePreferedConstructor();
+    assertFalse(constructor.isPresent());
   }
 
   @Test
@@ -211,7 +212,7 @@ class JPAInstanceCreatorTest {
   @Test
   void testCreateInstanceWithSingleKey() throws ODataJPAProcessorException, ODataJPAModelException {
 
-    final List<JPAAttribute> keys = Arrays.asList(fillOneKey("key", UUID.class));
+    final List<JPAAttribute> keys = Arrays.asList(fillOneKey("key", UUID.class, EdmPrimitiveTypeKind.Guid));
     buildTypeWithSingleKey(keys);
     final UUID value = UUID.randomUUID();
     final UriParameter keyParam1 = fillUriParameter("key", value.toString());
@@ -249,14 +250,14 @@ class JPAInstanceCreatorTest {
     });
     when(et.hasCompoundKey()).thenReturn(true);
     cut = new JPAInstanceCreator<>(odata, et);
-    final Optional<Object> c = cut.createInstance(keyPredicates);
-    assertFalse(c.isPresent());
+    final Optional<Object> constructor = cut.createInstance(keyPredicates);
+    assertFalse(constructor.isPresent());
   }
 
   @Test
   void testCreateInstanceRethrowsException() throws ODataJPAProcessorException, ODataJPAModelException {
 
-    final List<JPAAttribute> keys = Arrays.asList(fillOneKey("key", UUID.class));
+    final List<JPAAttribute> keys = Arrays.asList(fillOneKey("key", UUID.class, EdmPrimitiveTypeKind.Guid));
     buildTypeWithSingleKey(keys);
     final UUID value = UUID.randomUUID();
     final UriParameter keyParam1 = fillUriParameter("key", value.toString());
@@ -312,15 +313,15 @@ class JPAInstanceCreatorTest {
   }
 
   private void fillCompoundKey() throws ODataJPAModelException {
-    final JPAAttribute id1 = fillOneKey("id1", String.class);
-    final JPAAttribute id2 = fillOneKey("id2", Integer.class);
-    final JPAAttribute id3 = fillOneKey("id3", String.class);
+    final JPAAttribute id1 = fillOneKey("id1", String.class, EdmPrimitiveTypeKind.String);
+    final JPAAttribute id2 = fillOneKey("id2", Integer.class, EdmPrimitiveTypeKind.Int32);
+    final JPAAttribute id3 = fillOneKey("id3", String.class, EdmPrimitiveTypeKind.String);
 
     final List<JPAAttribute> keys = Arrays.asList(id1, id2, id3);
     when(et.getKey()).thenReturn(keys);
   }
 
-  private JPAAttribute fillOneKey(final String name, final Class<?> type) throws ODataJPAModelException {
+  private JPAAttribute fillOneKey(final String name, final Class<?> type, final EdmPrimitiveTypeKind edmType) throws ODataJPAModelException {
     final JPAAttribute id1 = mock(JPAAttribute.class);
     final JPAPath id1Path = mock(JPAPath.class);
     final CsdlProperty id1Property = mock(CsdlProperty.class);
@@ -337,6 +338,7 @@ class JPAInstanceCreatorTest {
         return type;
       }
     });
+    when(id1.getEdmType()).thenReturn(edmType);
     when(et.getPath(name)).thenReturn(id1Path);
     when(et.getAttribute(name)).thenReturn(Optional.of(id1));
     when(id1Path.getLeaf()).thenReturn(id1);

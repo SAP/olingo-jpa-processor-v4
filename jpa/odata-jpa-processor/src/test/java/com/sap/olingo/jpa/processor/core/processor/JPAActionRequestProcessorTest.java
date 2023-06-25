@@ -456,6 +456,7 @@ class JPAActionRequestProcessorTest {
     });
 
     when(code.getProperty()).thenReturn(edmProperty);
+    when(code.getEdmType()).thenReturn(EdmPrimitiveTypeKind.String);
     when(odata.createPrimitiveTypeInstance(EdmPrimitiveTypeKind.String)).thenReturn(edmString);
     when(edmString.fromUriLiteral("LAU2")).thenReturn("LAU2");
     when(edmString.valueOfString("LAU2", false, 0, 0, 0, true, code.getType())).thenAnswer(

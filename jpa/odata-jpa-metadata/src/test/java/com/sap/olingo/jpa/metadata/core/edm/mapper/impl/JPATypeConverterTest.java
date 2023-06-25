@@ -40,7 +40,7 @@ import org.mockito.Mockito;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class TestJPATypeConvertor {
+class JPATypeConverterTest {
 
   static Stream<Arguments> mappingJavaLobToOData() {
 

@@ -28,7 +28,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameterFacet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -119,11 +118,10 @@ public final class ExpressionUtil {
 
     try {
       final CsdlProperty edmProperty = (CsdlProperty) attribute.getProperty();
-      final EdmPrimitiveTypeKind edmTypeKind = JPATypeConverter.convertToEdmSimpleType(attribute);
 
       // TODO literal does not convert decimals without scale properly
       String targetValue = null;
-      final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);
+      final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(attribute.getEdmType());
       if (Boolean.TRUE.equals(isUri)) {
         targetValue = edmType.fromUriLiteral(value);
       } else {

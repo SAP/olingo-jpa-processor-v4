@@ -139,7 +139,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @Override
   public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException {
-    return JPATypeConverter.convertToEdmSimpleType(entityType);
+    return JPATypeConverter.convertToEdmSimpleType(getType(), jpaAttribute);
   }
 
   @Override
