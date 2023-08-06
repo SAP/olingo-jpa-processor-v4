@@ -946,6 +946,7 @@ CREATE TABLE "AssociationOneToOneSource"(
 insert into "AssociationOneToOneSource" values ('SA', 'TA', 'TB');
 insert into "AssociationOneToOneSource" values ('SB', 'TB', 'TA');
 insert into "AssociationOneToOneSource" values ('SC', 'TA', 'TB');
+insert into "AssociationOneToOneSource" values ('SD', null, null);
 
 CREATE TABLE "AssociationOneToOneTarget"(
 	"ID" VARCHAR(32) NOT NULL,

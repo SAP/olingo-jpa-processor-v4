@@ -165,12 +165,12 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   }
 
   Subquery<Object> linkSubQueries(final LinkedList<JPAAbstractQuery> hops) throws ODataApplicationException {
-    Subquery<Object> sq = null;
+    Subquery<Object> subQuery = null;
     while (!hops.isEmpty() && hops.getFirst() instanceof JPAAbstractSubQuery) {
       final JPAAbstractSubQuery hop = (JPAAbstractSubQuery) hops.pop();
-      sq = hop.getSubQuery(sq);
+      subQuery = hop.getSubQuery(subQuery, null);
     }
-    return sq;
+    return subQuery;
   }
 
   private Map<String, List<Tuple>> convertResult(final List<Tuple> intermediateResult)

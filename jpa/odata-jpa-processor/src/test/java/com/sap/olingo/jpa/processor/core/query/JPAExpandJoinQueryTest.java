@@ -40,7 +40,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAKeyPairException;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-class TestJPAExpandJoinQuery extends TestBase {
+class JPAExpandJoinQueryTest extends TestBase {
   private JPAExpandJoinQuery cut;
   private EntityManager em;
   private JPAODataRequestContextAccess requestContext;

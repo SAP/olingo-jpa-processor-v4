@@ -605,8 +605,8 @@ class JPAODataRequestProcessorTest {
         return TestJavaActionNoParameter.class.getConstructor();
       }
     });
-    final Method m = TestJavaActionNoParameter.class.getMethod("unboundReturnPrimitiveNoParameter");
-    when(jpaAction.getMethod()).thenReturn(m);
+    final Method method = TestJavaActionNoParameter.class.getMethod("unboundReturnPrimitiveNoParameter");
+    when(jpaAction.getMethod()).thenReturn(method);
     final DeserializerResult deserializerValue = mock(DeserializerResult.class);
     when(deserializer.actionParameters(any(), any())).thenReturn(deserializerValue);
     when(deserializerValue.getActionParameters()).thenReturn(Collections.emptyMap());

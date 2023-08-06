@@ -156,6 +156,23 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("CountNavigationPropertyZero", "Organizations?$select=ID&$filter=Roles/$count eq 0", 6),
         arguments("CountNavigationPropertyMultipleHops",
             "Organizations?$select=ID&$filter=AdministrativeInformation/Created/User/Roles/$count ge 2", 8),
+        arguments("CountNavigationPropertyMultipleHopsNavigations not zero",
+            "AdministrativeDivisions?$filter=Parent/Children/$count eq 2", 2),
+        arguments("CountNavigationPropertyMultipleHopsNavigations zero",
+            "AdministrativeDivisions?$filter=Parent/Children/$count eq 0", 0),
+        arguments("CountNavigationPropertyJoinTable not zero", "JoinSources?$filter=OneToMany/$count eq 2", 1),
+        arguments("CountNavigationPropertyJoinTable zero", "JoinSources?$filter=OneToMany/$count eq 0", 1),
+        // To one association null
+        arguments("NavigationPropertyIsNull",
+            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),
+        arguments("NavigationPropertyIsNull",
+            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget ne null", 3),
+        arguments("NavigationPropertyIsNullOneHop",
+            "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 30),
+        arguments("NavigationPropertyMixCountAndNull",
+            "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 and Parent/Parent/Parent eq null", 2),
+        arguments("NavigationPropertyIsNullJoinTable", "JoinTargets?$filter=ManyToOne ne null", 2),
+
         arguments("NavigationPropertyToOneValue", "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1'", 11),
         arguments("NavigationPropertyToOneValueAndEquals",
             "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE34'", 1),
@@ -370,9 +387,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "Persons?$filter=InhouseAddress/all(d:startswith(d/TaskID, 'D'))");
 
     helper.assertStatus(200);
-    final ArrayNode pers = helper.getValues();
-    assertEquals(1, pers.size());
-    assertEquals("97", pers.get(0).get("ID").asText());
+    final ArrayNode person = helper.getValues();
+    assertEquals(1, person.size());
+    assertEquals("97", person.get(0).get("ID").asText());
   }
 
   @Test
@@ -550,8 +567,8 @@ class TestJPAQueryWhereClause extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'");
     helper.assertStatus(200);
 
-    final ObjectNode div = helper.getValue();
-    final ObjectNode result = (ObjectNode) div.get("value").get(0);
+    final ObjectNode division = helper.getValue();
+    final ObjectNode result = (ObjectNode) division.get("value").get(0);
     assertNotNull(result);
     assertEquals("BE21", result.get("DivisionCode").asText());
   }
@@ -612,9 +629,9 @@ class TestJPAQueryWhereClause extends TestBase {
         "Persons('99')/InhouseAddress?$filter=TaskID eq 'DEV'");
 
     helper.assertStatus(200);
-    final ArrayNode addr = helper.getValues();
-    assertNotNull(addr);
-    assertEquals(1, addr.size());
+    final ArrayNode address = helper.getValues();
+    assertNotNull(address);
+    assertEquals(1, address.size());
   }
 
   @Test
@@ -645,9 +662,9 @@ class TestJPAQueryWhereClause extends TestBase {
     for (int i = 0; i < act.size(); i++) {
       final ObjectNode bupa = (ObjectNode) act.get(i);
       if (bupa.get("ID").asText().equals("99")) {
-        final ArrayNode inhouse = (ArrayNode) bupa.get("InhouseAddress");
-        assertFalse(inhouse.isNull());
-        assertEquals(2, inhouse.size());
+        final ArrayNode inHouse = (ArrayNode) bupa.get("InhouseAddress");
+        assertFalse(inHouse.isNull());
+        assertEquals(2, inHouse.size());
       }
     }
   }
@@ -701,5 +718,15 @@ class TestJPAQueryWhereClause extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps?$filter=FirstLevel/TransientCollection/any(s:contains(s, 'just'))");
     helper.assertStatus(501);
+  }
+
+  @Test
+  void testNavigationPropertyToManyValueAnyViaJoinTable() throws IOException, ODataException {
+    final JPAODataClaimsProvider provided = new JPAODataClaimsProvider();
+    provided.add("UserId", new JPAClaimsPair<>("Marvin"));
+    provided.add("RoleCategory", new JPAClaimsPair<>("B"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=RolesJoinProtected/all(d:d/RoleCategory eq 'B')", provided);
+    helper.assertStatus(200);
   }
 }

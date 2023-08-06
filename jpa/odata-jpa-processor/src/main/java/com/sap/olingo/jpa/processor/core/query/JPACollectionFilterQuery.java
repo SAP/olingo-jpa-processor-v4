@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
@@ -89,7 +90,8 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Subquery<T> getSubQuery(final Subquery<?> childQuery) throws ODataApplicationException {
+  public <T> Subquery<T> getSubQuery(final Subquery<?> childQuery, @Nullable final VisitableExpression expression)
+      throws ODataApplicationException {
 
     if (this.queryJoinTable != null) {
       if (this.aggregationType != null) {

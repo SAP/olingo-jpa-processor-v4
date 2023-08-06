@@ -68,7 +68,8 @@ public class BusinessPartnerProtected {
       joinColumns = @JoinColumn(name = "\"SourceID\"", referencedColumnName = "\"ID\""),
       inverseJoinColumns = {
           @JoinColumn(name = "\"SourceID\"", referencedColumnName = "\"BusinessPartnerID\""),
-          @JoinColumn(name = "\"TargetID\"", referencedColumnName = "\"BusinessPartnerRole\"") })
+          @JoinColumn(name = "\"TargetID\"", referencedColumnName = "\"BusinessPartnerRole\"")
+      })
   private List<BusinessPartnerRoleProtected> rolesJoinProtected;
 
   @Override

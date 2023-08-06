@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Subquery;
 
@@ -34,9 +34,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
+import com.sap.olingo.jpa.processor.core.filter.JPAVisitableExpression;
 
 public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
 
@@ -70,8 +72,8 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
     this.association = association;
   }
 
-  public abstract <T extends Object> Subquery<T> getSubQuery(final Subquery<?> childQuery)
-      throws ODataApplicationException;
+  public abstract <T extends Object> Subquery<T> getSubQuery(final Subquery<?> childQuery,
+      @Nullable VisitableExpression expression) throws ODataApplicationException;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -93,20 +95,13 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
 
     if (association != null && association.hasJoinTable()) {
       if (association.getJoinTable().getEntityType() != null) {
-        if (aggregationType != null) {
-          createAggregationJoin(association);
-        } else {
-          createJoinTableRoot(association);
-        }
+        createJoinTableRoot(association);
       } else {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_IMPLEMENTED,
             HttpStatusCode.NOT_IMPLEMENTED, association.getAlias());
       }
     } else {
-      if (aggregationType != null)
-        createAggregationJoin(association);
-      else
-        this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+      this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
     }
   }
 
@@ -115,14 +110,6 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
     // the "leading" table. Otherwise EclipseLink replaces the join table within the WHERE clause.
     this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType().getTypeClass());
     this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
-  }
-
-  void createAggregationJoin(final JPAAssociationPath association) {
-    this.queryJoinTable = subQuery.from(from.getJavaType());
-    From<?, ?> path = queryJoinTable;
-    for (int i = 0; i < association.getPath().size() - 1; i++)
-      path = path.join(association.getPath().get(i).getInternalName());
-    this.queryRoot = path.join(association.getLeaf().getInternalName(), JoinType.LEFT);
   }
 
   @SuppressWarnings("unchecked")
@@ -200,7 +187,7 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
       final List<JPAOnConditionItem> conditionItems) {
     Path<?> path = from;
 
-    for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
+    for (final JPAElement jpaPathElement : conditionItems.get(0).getRightPath().getPath())
       path = path.get(jpaPathElement.getInternalName());
     subQuery.select((Expression<T>) path);
   }
@@ -234,8 +221,9 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
         member = ((JPAMemberOperator) ((Binary) expression).getLeftOperand()).getMember().getResourcePath();
       else if (((Binary) expression).getRightOperand() instanceof JPAMemberOperator)
         member = ((JPAMemberOperator) ((Binary) expression).getRightOperand()).getMember().getResourcePath();
-    } else if (expression instanceof JPAFilterExpression) {
-      member = ((JPAFilterExpression) expression).getMember();
+    } else if (expression instanceof JPAFilterExpression
+        || expression instanceof JPACountExpression) {
+      member = ((JPAVisitableExpression) expression).getMember();
     }
     if (member != null) {
       for (final UriResource r : member.getUriResourceParts()) {

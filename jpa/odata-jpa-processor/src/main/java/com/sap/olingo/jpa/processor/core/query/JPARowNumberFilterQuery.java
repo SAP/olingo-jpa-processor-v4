@@ -18,7 +18,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Selection;
@@ -29,6 +28,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
+import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -73,18 +73,14 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
     filter.compile();
   }
 
-  @Override
-  public From<?, ?> getRoot() {
-    return queryRoot;
-  }
-
   /**
    *
    */
   @SuppressWarnings("unchecked")
   @Nonnull
   @Override
-  public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery) throws ODataApplicationException {
+  public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery,
+      @Nullable final VisitableExpression expression) throws ODataApplicationException {
 
     try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;

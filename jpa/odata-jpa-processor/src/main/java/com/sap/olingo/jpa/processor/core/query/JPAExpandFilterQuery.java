@@ -30,6 +30,7 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
+import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -112,7 +113,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   @SuppressWarnings("unchecked")
   @Nonnull
   @Override
-  public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery) throws ODataApplicationException {
+  public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery,
+      final VisitableExpression expression) throws ODataApplicationException {
     // Last childQuery == null
     try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
@@ -227,7 +229,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
 
     if (hasRowLimit(childQuery))
       this.queryRoot = nextQuery.from((ProcessorSubquery<?>) ((JPARowNumberFilterQuery) queries.getInner()).getSubQuery(
-          childQuery));
+          childQuery, null));
     else
       this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
     navigationInfo.setFromClause(queryRoot);

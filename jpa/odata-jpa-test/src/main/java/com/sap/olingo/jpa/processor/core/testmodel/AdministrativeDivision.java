@@ -3,6 +3,8 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -75,7 +77,7 @@ public class AdministrativeDivision implements KeyAccess {
   @Id
   @Column(name = "\"DivisionCode\"", length = 10)
   private String divisionCode;
-
+  @Access(AccessType.FIELD)
   @Column(name = "\"CountryISOCode\"", length = 4)
   private String countryCode;
   @Column(name = "\"ParentCodeID\"", length = 10)

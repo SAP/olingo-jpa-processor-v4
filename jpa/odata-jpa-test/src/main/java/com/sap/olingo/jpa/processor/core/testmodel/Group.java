@@ -23,7 +23,17 @@ public class Group extends AbstractGroup {
       insertable = false, updatable = false)
   private Person lead;
 
-  @EdmTransient(requiredAttributes = { "iD", "name" }, calculator = GroupNameCalculator.class)
+  @EdmTransient(requiredAttributes = { "id", "name" }, calculator = GroupNameCalculator.class)
   @Transient
   private String fullName;
+
+  @Override
+  public boolean equals(final Object object) {
+    return super.equals(object);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
 }

@@ -643,7 +643,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertNotNull(et.getPropertyByDBField("\"Name\""));
     assertEquals(1, et.getKey().size());
     final JPAAttribute key = et.getKey().get(0);
-    assertEquals("iD", key.getInternalName());
+    assertEquals("id", key.getInternalName());
     assertEquals(1, et.getKeyPath().size());
     assertEquals(String.class, et.getKeyType());
   }

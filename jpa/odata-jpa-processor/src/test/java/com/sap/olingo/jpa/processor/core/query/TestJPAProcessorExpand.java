@@ -121,7 +121,7 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  void testExpandEntitySetViaNonKeyFieldNavi2Hops() throws IOException, ODataException {
+  void testExpandEntitySetViaNonKeyFieldNavigation2Hops() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/AdministrativeInformation/Created?$expand=User");
@@ -145,7 +145,7 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  void testExpandEntitySetViaNonKeyFieldNavi0Hops() throws IOException, ODataException {
+  void testExpandEntitySetViaNonKeyFieldNavigation0Hops() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')?$expand=AdministrativeInformation/Created/User");
@@ -159,7 +159,7 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  void testExpandEntitySetViaNonKeyFieldNavi1Hop() throws IOException, ODataException {
+  void testExpandEntitySetViaNonKeyFieldNavigation1Hop() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/AdministrativeInformation?$expand=Created/User");
@@ -976,7 +976,14 @@ class TestJPAProcessorExpand extends TestBase {
         "AssociationOneToOneSources?$expand=DefaultTarget");
     helper.assertStatus(200);
     final ArrayNode sources = helper.getValues();
-    assertEquals(3, sources.size());
+    assertEquals(4, sources.size());
+    for (final JsonNode source : sources) {
+      source.get("DefaultTarget");
+      if ("SD".equals(source.get("ID").asText()))
+        assertTrue(source.get("DefaultTarget").isNull());
+      else
+        assertFalse(source.get("DefaultTarget").isNull());
+    }
   }
 
   @Test
@@ -1049,5 +1056,17 @@ class TestJPAProcessorExpand extends TestBase {
     assertNotNull(updated);
     final ObjectNode user2 = (ObjectNode) updated.get("User");
     assertNotNull(user2);
+  }
+
+  @Test
+  void testExpandWithNavigationCountFilter() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 &$expand=Parent",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(200);
+    final ArrayNode divisions = helper.getValues();
+    assertEquals(2, divisions.size());
+    final ObjectNode parent = (ObjectNode) divisions.get(0).get("Parent");
+    assertNotNull(parent);
   }
 }

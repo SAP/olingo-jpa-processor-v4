@@ -1,7 +1,9 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,10 +35,15 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 public class DummyToBeIgnored {
 
   @Id
+  @Column(name = "\"ID\"")
   private String iD;
 
   @Convert(converter = ByteConverter.class)
   private byte uuid;
+
+  @Column(name = "\"GUID\"")
+  // @Convert(converter = UUIDToStringConverter.class)
+  private UUID guid;
 
   @EdmIgnore
   @OneToOne(optional = false, fetch = FetchType.LAZY)

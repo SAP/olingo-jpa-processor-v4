@@ -19,6 +19,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
+import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQueryBuilder;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 
 abstract class JPALambdaOperation extends JPAExistsOperation {
@@ -58,18 +59,29 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, member.getUriResourceParts(), expression,
               from, groups));
         else
-          queryList.add(new JPANavigationFilterQuery(odata, sd, navigationInfo.getUriResource(), parent, em, navigationInfo
-              .getAssociationPath(), expression, from, claimsProvider, groups));
+          queryList.add(new JPANavigationFilterQueryBuilder()
+              .setOdata(odata)
+              .setServiceDocument(sd)
+              .setUriResourceItem(navigationInfo.getUriResource())
+              .setParent(parent)
+              .setEntityManager(em)
+              .setAssociation(navigationInfo.getAssociationPath())
+              .setExpression(expression)
+              .setFrom(from)
+              .setParent(parent)
+              .setClaimsProvider(claimsProvider)
+              .setGroups(groups)
+              .build());
       } else {
-        queryList.add(new JPANavigationFilterQuery(odata, sd, navigationInfo.getUriResource(), parent, em, navigationInfo
-            .getAssociationPath(), from, claimsProvider));
+        queryList.add(new JPANavigationFilterQuery(odata, sd, navigationInfo.getUriResource(), parent, em,
+            navigationInfo.getAssociationPath(), from, claimsProvider));
       }
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements
     Subquery<?> childQuery = null;
     for (int i = queryList.size() - 1; i >= 0; i--) {
-      childQuery = queryList.get(i).getSubQuery(childQuery);
+      childQuery = queryList.get(i).getSubQuery(childQuery, null);
     }
     return (Subquery<S>) childQuery;
   }

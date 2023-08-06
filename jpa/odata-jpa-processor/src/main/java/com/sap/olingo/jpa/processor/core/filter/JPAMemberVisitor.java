@@ -2,11 +2,14 @@ package com.sap.olingo.jpa.processor.core.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
@@ -74,7 +77,13 @@ final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
 
   @Override
   public JPAPath visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
-    final UriResourceKind uriResourceKind = member.getResourcePath().getUriResourceParts().get(0).getKind();
+    final UriResourceKind uriResourceKind =
+        Optional.of(member.getResourcePath())
+            .map(UriInfoResource::getUriResourceParts)
+            .filter(l -> !l.isEmpty())
+            .map(l -> l.get(0))
+            .map(UriResource::getKind)
+            .orElse(null);
 
     if ((uriResourceKind == UriResourceKind.primitiveProperty || uriResourceKind == UriResourceKind.complexProperty)
         && !Utility.hasNavigation(member.getResourcePath().getUriResourceParts())) {

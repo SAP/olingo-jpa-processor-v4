@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -9,21 +11,21 @@ public abstract class AbstractGroup {
 
   @Id
   @Column(name = "\"TeamKey\"")
-  private String iD;
+  private String id;
 
   @Column(name = "\"Name\"")
   private String name;
 
-  public AbstractGroup() {
+  protected AbstractGroup() {
     super();
   }
 
-  public String getiD() {
-    return iD;
+  public String getId() {
+    return id;
   }
 
-  public void setiD(final String iD) {
-    this.iD = iD;
+  public void setId(final String id) {
+    this.id = id;
   }
 
   public String getName() {
@@ -32,6 +34,19 @@ public abstract class AbstractGroup {
 
   public void setName(final String name) {
     this.name = name;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
+  }
+
+  @Override
+  public boolean equals(final Object object) {
+    if (this == object) return true;
+    if (!(object instanceof AbstractGroup)) return false;
+    final AbstractGroup other = (AbstractGroup) object;
+    return Objects.equals(id, other.id);
   }
 
 }

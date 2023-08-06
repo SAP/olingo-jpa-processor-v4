@@ -123,15 +123,15 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
             hops.push(new JPAExpandFilterQuery(odata, requestContext, hop, parent, childAssociation));
           }
         }
-        Subquery<Object> sq = null;
+        Subquery<Object> subQuery = null;
         while (!hops.isEmpty() && hops.getFirst() instanceof JPAAbstractSubQuery) {
           final JPAAbstractSubQuery hop = (JPAAbstractSubQuery) hops.pop();
-          sq = hop.getSubQuery(sq);
+          subQuery = hop.getSubQuery(subQuery, null);
         }
         createFromClause(emptyList(), emptyList(), tq, lastInfo);
         final List<Selection<?>> selectionPath = buildExpandJoinPath(root);
         tq.multiselect(addCount(selectionPath));
-        tq.where(createWhere(sq, lastInfo));
+        tq.where(createWhere(subQuery, lastInfo));
         tq.groupBy(buildExpandCountGroupBy(root));
         final TypedQuery<Tuple> query = em.createQuery(tq);
         final List<Tuple> intermediateResult = query.getResultList();
