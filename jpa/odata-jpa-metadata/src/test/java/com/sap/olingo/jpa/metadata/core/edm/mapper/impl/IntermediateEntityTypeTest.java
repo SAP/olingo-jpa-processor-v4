@@ -43,6 +43,7 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigati
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -225,6 +226,18 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
       }
     }
     assertEquals(3, actCount, "Not all join columns found");
+  }
+
+  @Test
+  void checkGetAssociationOfMappedByWithVirtualProperty() throws ODataJPAModelException {
+
+    final IntermediateStructuredType<AssociationOneToOneSource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AssociationOneToOneSource.class), schema);
+    final JPAAssociationPath act = et.getAssociationPath("DefaultTarget");
+    assertEquals(1, act.getJoinColumnsList().size());
+    final JPAOnConditionItem actColumn = act.getJoinColumnsList().get(0);
+    assertEquals("ID", actColumn.getRightPath().getAlias());
+    assertEquals("Defaulttarget_id", actColumn.getLeftPath().getAlias());
   }
 
   @Test

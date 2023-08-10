@@ -273,8 +273,9 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
 
   @SuppressWarnings("unchecked")
   <T extends JPAJoinColumn> List<T> getJoinColumns() throws ODataJPAModelException {
-    if (edmNaviProperty == null) {
+    if (joinColumns.isEmpty()) {
       lazyBuildEdmItem();
+      buildJoinConditionInfo();
     }
     return (List<T>) joinColumns;
   }
@@ -345,19 +346,24 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
   private void buildJoinColumns(final boolean isSourceOne, final AnnotatedElement annotatedElement)
       throws ODataJPAModelException {
 
+    joinColumns.clear();
+    final List<IntermediateJoinColumn> columns;
     if (mappedBy.isPresent()) {
-      // Get
       joinTable = ((IntermediateJoinTable) ((IntermediateNavigationProperty<?>) targetType.getAssociation(
           mappedBy.get())).getJoinTable());
-      //
-      joinColumns.addAll(joinTable == null ? buildJoinColumnsMapped(mappedBy.get()) : joinTable
-          .buildInverseJoinColumns());
-      //
+      if (joinTable == null)
+        columns = buildJoinColumnsMapped(mappedBy.get());
+      else
+        columns = joinTable.buildInverseJoinColumns();
       joinTable = joinTable == null ? null : joinTable.asMapped(this);
     } else {
-      joinColumns.addAll(joinTable == null ? buildJoinColumnsFromAnnotations(isSourceOne, annotatedElement) : joinTable
-          .buildJoinColumns());
+      if (joinTable == null)
+        columns = buildJoinColumnsFromAnnotations(isSourceOne, annotatedElement);
+      else
+        columns = joinTable.buildJoinColumns();
     }
+    joinColumns.clear();
+    joinColumns.addAll(columns);
   }
 
   private List<IntermediateJoinColumn> buildJoinColumnsFromAnnotations(final boolean isSourceOne,
@@ -402,7 +408,8 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
 
   private void buildJoinConditionInfo() throws ODataJPAModelException {
 
-    if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+    if (jpaAttribute.getJavaMember() instanceof AnnotatedElement
+        && joinColumns.isEmpty()) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
 //    Determine referential constraint
       final boolean isOwner = !mappedBy.isPresent();
@@ -414,6 +421,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
   private void buildNaviProperty() throws ODataJPAModelException {
 
     this.setExternalName(nameBuilder.buildNaviPropertyName(jpaAttribute));
+
     evaluateAnnotation();
 
     targetType = schema.getEntityType(determineTargetClass());
@@ -598,6 +606,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
       return;
 
     final List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
+    constraints.clear();
     boolean ignore = false;
     for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
       try {

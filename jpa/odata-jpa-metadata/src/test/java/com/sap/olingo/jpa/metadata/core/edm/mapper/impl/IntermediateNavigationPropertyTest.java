@@ -45,6 +45,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
@@ -461,6 +462,22 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
             PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertNotNull(property.getJoinTable());
+  }
+
+  @Test
+  void checkGetJoinTableMappedBy() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Organization.class),
+        "supportEngineers");
+    final IntermediateNavigationProperty<?> property = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+    property.getEdmItem();
+    assertNotNull(property.getJoinTable());
+    final JPAJoinTable act = property.getJoinTable();
+
+    assertEquals(1, act.getJoinColumns().size());
+    assertEquals("ID", act.getJoinColumns().get(0).getLeftPath().getAlias());
+    assertEquals("OrganizationID", act.getJoinColumns().get(0).getRightPath().getAlias());
   }
 
   @Test
