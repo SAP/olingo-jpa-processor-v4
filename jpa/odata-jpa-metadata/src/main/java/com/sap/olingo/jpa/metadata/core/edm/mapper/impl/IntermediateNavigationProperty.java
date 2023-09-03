@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.MISSING_ONE_TO_ONE_ANNOTATION;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND;
 
 import java.lang.reflect.AnnotatedElement;
@@ -439,7 +440,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
       LOGGER.trace(toString());
   }
 
-  private void evaluateAnnotation() {
+  private void evaluateAnnotation() throws ODataJPAModelException {
 
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
@@ -460,8 +461,11 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
                 annotatedElement.getAnnotation(OneToMany.class).mappedBy()));
             break;
           case ONE_TO_ONE:
-            mappedBy = Optional.ofNullable(returnNullIfEmpty(
-                annotatedElement.getAnnotation(OneToOne.class).mappedBy()));
+            // Association '%1$s' of '%2$s' requires a cardinality annotation.
+            final OneToOne annotation = Optional.ofNullable(annotatedElement.getAnnotation(OneToOne.class))
+                .orElseThrow(() -> new ODataJPAModelException(MISSING_ONE_TO_ONE_ANNOTATION, internalName, sourceType
+                    .getInternalName()));
+            mappedBy = Optional.ofNullable(returnNullIfEmpty(annotation.mappedBy()));
             break;
           case MANY_TO_MANY:
             mappedBy = Optional.ofNullable(returnNullIfEmpty(

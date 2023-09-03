@@ -56,6 +56,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
  */
 class JPAEdmProviderTest {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
+  private static final String ERROR_PUNIT = "error";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   private static EntityManagerFactory emf;
   private static DataSource ds;
@@ -325,6 +326,17 @@ class JPAEdmProviderTest {
     cut = new JPAEdmProvider(PUNIT_NAME, emf, null, operationPackages);
     final CsdlActionImport act = cut.getActionImport(fqn, "WithImport");
     assertNotNull(act);
+  }
+
+  @Test
+  void checkConstructorThrowsExceptionOnMetadataError() throws ODataException {
+    final EntityManagerFactory error_emf = JPAEntityManagerFactory.getEntityManagerFactory(ERROR_PUNIT, ds);
+    final JPAEdmProvider edmProvider = new JPAEdmProvider(ERROR_PUNIT, error_emf, null, enumPackages);
+
+    assertThrows(ODataException.class,
+        () -> edmProvider.getEntityType(new FullQualifiedName(ERROR_PUNIT, "MissingCardinalityAnnotation")));
+    assertThrows(ODataException.class,
+        () -> edmProvider.getEntityType(new FullQualifiedName(ERROR_PUNIT, "MissingCardinalityAnnotation")));
   }
 
   private FullQualifiedName buildContainerFQN() {

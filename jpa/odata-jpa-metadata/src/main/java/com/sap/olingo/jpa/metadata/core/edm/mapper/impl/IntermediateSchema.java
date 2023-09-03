@@ -88,21 +88,26 @@ final class IntermediateSchema extends IntermediateModelElement {
   @SuppressWarnings("unchecked")
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
-    edmSchema = new CsdlSchema();
-    edmSchema.setNamespace(nameBuilder.getNamespace());
-    edmSchema.setEnumTypes(extractEdmModelElements(enumTypeListInternalKey));
-    edmSchema.setComplexTypes(extractEdmModelElements(complexTypeListInternalKey));
-    edmSchema.setEntityTypes(extractEdmModelElements(entityTypeListInternalKey));
-    edmSchema.setFunctions(extractEdmModelElements(functionListInternalKey));
-    edmSchema.setActions(extractEdmModelElements(actionListByKey));
-//  edm:Annotations
-//  edm:Annotation
-//  edm:Term
-//  edm:TypeDefinition
-    // MUST be the last thing that is done !!!!
-    if (container != null)
-      edmSchema.setEntityContainer(container.getEdmItem());
-
+    try {
+      edmSchema = new CsdlSchema();
+      edmSchema.setNamespace(nameBuilder.getNamespace());
+      edmSchema.setEnumTypes(extractEdmModelElements(enumTypeListInternalKey));
+      edmSchema.setComplexTypes(extractEdmModelElements(complexTypeListInternalKey));
+      edmSchema.setEntityTypes(extractEdmModelElements(entityTypeListInternalKey));
+      edmSchema.setFunctions(extractEdmModelElements(functionListInternalKey));
+      edmSchema.setActions(extractEdmModelElements(actionListByKey));
+      // edm:Annotations
+      // edm:Annotation
+      // edm:Term
+      // edm:TypeDefinition
+      // MUST be the last thing that is done !!!!
+      if (container != null)
+        edmSchema.setEntityContainer(container.getEdmItem());
+    } catch (final ODataJPAModelException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw new ODataJPAModelException(e);
+    }
   }
 
   @CheckForNull

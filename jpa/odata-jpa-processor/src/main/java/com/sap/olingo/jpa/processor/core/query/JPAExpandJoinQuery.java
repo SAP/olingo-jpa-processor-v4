@@ -231,8 +231,6 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
           cq, lastInfo);
       // TODO handle Join Column is ignored
       cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
-      if (orderByAttributes.isEmpty())
-        cq.distinct(true);
       final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         cq.where(whereClause);
