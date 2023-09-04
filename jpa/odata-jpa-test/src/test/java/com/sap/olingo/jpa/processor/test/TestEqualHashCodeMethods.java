@@ -197,7 +197,7 @@ abstract class TestEqualHashCodeMethods {
 
   @ParameterizedTest
   @MethodSource("equalInstances")
-  void tesHashCodeReturnsValue(final Entry<Object, List<Object>> instance) {
+  void testHashCodeReturnsValue(final Entry<Object, List<Object>> instance) {
 
     assertNotEquals(0, instance.getKey().hashCode());
   }

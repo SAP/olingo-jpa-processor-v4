@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -26,6 +27,7 @@ import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Immutable;
 @ExpandRestrictions(maxLevels = 2, nonExpandableProperties = { "children" })
 @CountRestrictions(nonCountableNavigationProperties = { "children" })
 //@EdmEntityType(extensionProvider = LauFilter.class)
+@IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "AnnotationsParent")
 @Table(schema = "\"OLINGO\"", name = "\"AdministrativeDivision\"")
 public class AnnotationsParent {

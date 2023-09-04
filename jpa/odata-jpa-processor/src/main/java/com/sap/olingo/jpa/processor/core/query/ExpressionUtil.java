@@ -73,7 +73,6 @@ public final class ExpressionUtil {
     return (Path<T>) p;
   }
 
-  @SuppressWarnings("unchecked")
   public static Path<?> convertToCriteriaPath(final From<?, ?> root, final List<JPAElement> jpaPath) {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : jpaPath)

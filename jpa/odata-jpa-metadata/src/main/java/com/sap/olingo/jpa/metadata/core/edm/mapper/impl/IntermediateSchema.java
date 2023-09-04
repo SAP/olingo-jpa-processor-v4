@@ -85,7 +85,6 @@ final class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     try {

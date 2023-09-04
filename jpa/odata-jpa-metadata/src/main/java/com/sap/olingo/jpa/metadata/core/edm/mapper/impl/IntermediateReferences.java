@@ -165,7 +165,6 @@ class IntermediateReferences implements IntermediateReferenceList, JPAReferences
     return edmxReferences;
   }
 
-  @SuppressWarnings("unlikely-arg-type")
   Optional<CsdlSchema> getSchema(final String namespace) {
     return Optional.ofNullable(Optional.ofNullable(schemas.get(namespace))
         .orElseGet(() -> schemas.get(convertAlias(namespace))));

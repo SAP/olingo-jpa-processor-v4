@@ -1,12 +1,15 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class TemporalWithValidityPeriodKey {
+public class TemporalWithValidityPeriodKey implements Serializable {
+
+  private static final long serialVersionUID = -8160291982692522248L;
 
   @Id
   @Column(name = "\"ID\"", length = 32)
