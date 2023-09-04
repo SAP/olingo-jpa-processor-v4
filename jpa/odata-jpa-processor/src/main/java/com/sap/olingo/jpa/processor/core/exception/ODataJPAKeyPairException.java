@@ -18,4 +18,3 @@ public class ODataJPAKeyPairException extends ODataJPAProcessException {
   }
 
 }
-

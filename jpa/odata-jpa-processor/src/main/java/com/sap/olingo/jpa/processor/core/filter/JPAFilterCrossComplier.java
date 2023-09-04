@@ -21,11 +21,13 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
+import com.sap.olingo.jpa.processor.core.query.JPAAbstractJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
  * Cross compiles Olingo generated AST of an OData filter into JPA criteria builder where condition.
- * 
+ *
  * Details can be found:
  * <ul>
  * <li><a href=
@@ -55,10 +57,11 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final Optional<JPAODataClaimProvider> claimsProvider;
   final List<String> groups;
   private From<?, ?> root;
+  private Optional<JPAFilterRestrictionsWatchDog> watchDog;
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath association,
+      final JPAAbstractQuery parent, final From<?, ?> from, final JPAAssociationPath association,
       final JPAODataRequestContextAccess requestContext) {
 
     this(odata, sd, jpaEntityType, converter, parent, association, requestContext);
@@ -79,27 +82,41 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     this.parent = parent;
     this.claimsProvider = requestContext.getClaimsProvider();
     this.groups = groupsProvider.isPresent() ? groupsProvider.get().getGroups() : Collections.emptyList();
+    this.watchDog = Optional.empty();
+  }
+
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
+      final JPAOperationConverter converter, final JPAAbstractJoinQuery parent, final JPAAssociationPath association,
+      final JPAODataRequestContextAccess requestContext, final JPAFilterRestrictionsWatchDog watchDog) {
+    this(odata, sd, jpaEntityType, converter, parent, association, requestContext);
+    this.watchDog = Optional.ofNullable(watchDog);
+  }
+
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
+      final JPAOperationConverter converter, final JPAAbstractQuery parent, final From<?, ?> from,
+      final JPAAssociationPath association, final JPAODataRequestContextAccess requestContext,
+      final JPAFilterRestrictionsWatchDog watchDog) {
+    this(odata, sd, jpaEntityType, converter, parent, association, requestContext);
+    this.root = from;
+    this.watchDog = Optional.ofNullable(watchDog);
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier#compile()
    */
   @Override
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
-    final int handle = parent.getDebugger().startRuntimeMeasurement("JPAFilterCrossComplier", "compile");
 
-    if (expression == null) {
-      parent.getDebugger().stopRuntimeMeasurement(handle);
-      return null;
+    try (JPARuntimeMeasurement meassument = parent.getDebugger().newMeasurement(this, "compile")) {
+      if (expression == null) {
+        return null;
+      }
+      final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
+      return (Expression<Boolean>) expression.accept(visitor).get();
     }
-    final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
-    final Expression<Boolean> finalExpression = (Expression<Boolean>) expression.accept(visitor).get();
-
-    parent.getDebugger().stopRuntimeMeasurement(handle);
-    return finalExpression;
   }
 
   @Override
@@ -128,7 +145,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public OData getOdata() {
+  public OData getOData() {
     return odata;
   }
 
@@ -137,11 +154,12 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     return parent;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public From<?, ?> getRoot() {
+  public <S, T> From<S, T> getRoot() {
     if (root == null)
-      return parent.getRoot();
-    return root;
+      return (From<S, T>) parent.getRoot();
+    return (From<S, T>) root;
   }
 
   @Override
@@ -159,4 +177,8 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     return groups;
   }
 
+  @Override
+  public Optional<JPAFilterRestrictionsWatchDog> getWatchDog() {
+    return watchDog;
+  }
 }

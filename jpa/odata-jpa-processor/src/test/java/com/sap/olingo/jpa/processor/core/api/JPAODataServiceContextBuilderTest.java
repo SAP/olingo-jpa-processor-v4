@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
@@ -301,6 +302,36 @@ class JPAODataServiceContextBuilderTest {
         .build();
 
     assertFalse(cut.useAbsoluteContextURL());
+  }
+
+  @Test
+  void checkReturnsEmptyAnnotationProviderList() throws ODataException {
+
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setUseAbsoluteContextURL(false)
+        .build();
+
+    assertTrue(cut.getAnnotationProvider().isEmpty());
+  }
+
+  @Test
+  void checkReturnAnnotationProviderList() throws ODataException {
+
+    final AnnotationProvider provider1 = mock(AnnotationProvider.class);
+    final AnnotationProvider provider2 = mock(AnnotationProvider.class);
+
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setUseAbsoluteContextURL(false)
+        .setAnnotationProvider(provider1, provider2)
+        .build();
+
+    assertEquals(2, cut.getAnnotationProvider().size());
+    assertTrue(cut.getAnnotationProvider().contains(provider1));
+    assertTrue(cut.getAnnotationProvider().contains(provider2));
   }
 
   private class TestEdmPostProcessor extends JPAEdmMetadataPostProcessor {

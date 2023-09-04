@@ -43,7 +43,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
- * Converts the query result based on Tuples from JPA format into Olingo format.<p>
+ * Converts the query result based on Tuples from JPA format into Olingo format.
+ * <p>
  * To reduce the memory footprint each converted row is set to null. This is done as currently the query result is
  * stored in an ArrayList and deleting a row, which is not the last row, leads to an array copy, which can consume a lot
  * of time. For the same reason no trimToSize() is called. As an alternative to an ArrayList also a simple linked list
@@ -53,6 +54,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 public class JPATupleChildConverter extends JPATupleResultConverter {
   private static final Log LOGGER = LogFactory.getLog(JPATupleChildConverter.class);
+
   public JPATupleChildConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
 

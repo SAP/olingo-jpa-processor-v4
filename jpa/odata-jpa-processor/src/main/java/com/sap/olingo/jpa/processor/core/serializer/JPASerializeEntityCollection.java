@@ -21,7 +21,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.Utility;
 
 final class JPASerializeEntityCollection implements JPAOperationSerializer {
   private final ServiceMetadata serviceMetadata;
@@ -46,7 +46,7 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException, ODataJPASerializerException {
 
-    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
+    final EdmBindingTarget targetEdmBindingTarget = Utility.determineBindingTarget(uriInfo.getUriResourceParts());
 
     final String selectList = uriHelper.buildContextURLSelectList(targetEdmBindingTarget.getEntityType(),
         uriInfo.getExpandOption(), uriInfo.getSelectOption());

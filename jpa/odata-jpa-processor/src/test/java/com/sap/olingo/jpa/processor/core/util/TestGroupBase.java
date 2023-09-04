@@ -55,7 +55,7 @@ public class TestGroupBase extends TestBase {
     jpaEntityType = helper.getJPAEntityType("BusinessPartnerWithGroupss");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
-        null);
+        null, null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     requestContext = new JPAODataInternalRequestContext(externalContext, context);
@@ -68,12 +68,12 @@ public class TestGroupBase extends TestBase {
   }
 
   protected UriInfo buildUriInfo(final String esName, final String etName) {
-    final UriInfo ui = mock(UriInfo.class);
+    final UriInfo uriInfo = mock(UriInfo.class);
     final EdmEntitySet odataEs = mock(EdmEntitySet.class);
     final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
-    when(ui.getUriResourceParts()).thenReturn(resources);
+    when(uriInfo.getUriResourceParts()).thenReturn(resources);
     when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
     when(esResource.getEntitySet()).thenReturn(odataEs);
     when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
@@ -83,7 +83,7 @@ public class TestGroupBase extends TestBase {
     when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);
-    return ui;
+    return uriInfo;
   }
 
   protected void fillJoinTable(final Root<?> joinRoot) {

@@ -53,7 +53,7 @@ public interface JPAODataRequestContextAccess {
 
   public JPAODataDatabaseProcessor getDatabaseProcessor();
 
-  public JPAEdmProvider getEdmProvider() throws ODataJPAProcessorException;
+  public @Nonnull JPAEdmProvider getEdmProvider() throws ODataJPAProcessorException;
 
   public JPAODataDatabaseOperations getOperationConverter();
 

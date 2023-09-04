@@ -20,7 +20,7 @@ public abstract class ODataJPAException extends ODataException {
   }
 
   protected final String id;
-  protected final ODataJPAMessageTextBuffer messageBuffer;
+  protected final transient ODataJPAMessageTextBuffer messageBuffer;
   protected final String[] parameter;
 
   protected ODataJPAException(final String id) {

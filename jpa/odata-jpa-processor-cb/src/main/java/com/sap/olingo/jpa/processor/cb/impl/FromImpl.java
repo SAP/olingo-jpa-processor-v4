@@ -46,7 +46,8 @@ import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
  * Represents a bound type, usually an entity that appears in
  * the from clause, but may also be an embeddable belonging to
  * an entity in the from clause.
- * <p> Serves as a factory for Joins of associations, embeddables, and
+ * <p>
+ * Serves as a factory for Joins of associations, embeddables, and
  * collections belonging to the type, and for Paths of attributes
  * belonging to the type.
  *
@@ -388,7 +389,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
         join = new SimpleJoin<>(path.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(attributeName))),
             joinType, determineParent(), aliasBuilder, cb);
       } else if (joinAttribute instanceof JPACollectionAttribute) {
-        join = new CollectionJoinImpl<>(joinPath, determineParent(), aliasBuilder, cb);
+        join = new CollectionJoinImpl<>(joinPath, determineParent(), aliasBuilder, cb, jt);
       } else if (joinAttribute.isComplex()) {
         join = new PathJoin<>((FromImpl<X, Y>) determineParent(), joinPath, aliasBuilder, cb);
       } else {

@@ -41,10 +41,11 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   private List<JPAParameter> parameterList;
 
   IntermediateJavaAction(final JPAEdmNameBuilder nameBuilder, final EdmAction jpaAction, final Method javaAction,
-      final IntermediateSchema schema) throws ODataJPAModelException {
+      final IntermediateSchema schema)
+      throws ODataJPAModelException {
 
-    super(nameBuilder, IntNameBuilder.buildActionName(jpaAction).isEmpty() ? javaAction.getName() : IntNameBuilder
-        .buildActionName(jpaAction));
+    super(nameBuilder, InternalNameBuilder.buildActionName(jpaAction).isEmpty() ? javaAction.getName()
+        : InternalNameBuilder.buildActionName(jpaAction), schema.getAnnotationInformation());
 
     this.schema = schema;
     this.jpaAction = jpaAction;
@@ -53,9 +54,10 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     this.javaConstructor = IntermediateOperationHelper.determineConstructor(javaAction);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Constructor<?> getConstructor() {
-    return javaConstructor;
+  public <T> Constructor<T> getConstructor() {
+    return (Constructor<T>) javaConstructor;
   }
 
   @Override
@@ -76,12 +78,18 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
           throw new ODataJPAModelException(ACTION_PARAM_ANNOTATION_MISSING,
               declaredParameter.getName(), javaAction.getName(), javaAction
                   .getDeclaringClass().getName());
+        if (definedParameter.name().isEmpty())
+          // Fallback not possible. Reflection does not contain parameter name, just returns e.g. arg1
+          // Name of parameter required. Name missing at function '%1$s' in class '%2$s'.
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_NAME_REQUIRED,
+              javaAction.getName(), javaAction.getDeclaringClass().getName());
         final JPAParameter parameter = new IntermediateOperationParameter(
             nameBuilder,
             definedParameter,
             nameBuilder.buildPropertyName(definedParameter.name()),
             declaredParameter.getName(),
-            types[i]);
+            types[i],
+            getAnnotationInformation());
         parameterList.add(parameter);
       }
     }
@@ -128,7 +136,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
           .setMappedJavaClass(jpaParameter.getType()));
       parameters.add(parameter);
     }
-    if (jpaAction.isBound() && bindingPosition.getPos() != 1)
+    if (jpaAction.isBound() && bindingPosition.getPosition() != 1)
       // Binding parameter not found within in interface of method %1$s of class %2$s. Binding parameter must be the
       // first parameter.
       throw new ODataJPAModelException(ACTION_PARAM_BINDING_NOT_FOUND,
@@ -148,8 +156,8 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     } else {
       final IntermediateStructuredType<?> structuredType = schema.getEntityType(jpaParameter.getType());
       if (structuredType != null) {
-        if (bindingPosition.getPos() == 0)
-          bindingPosition.setPos(i + 1);
+        if (bindingPosition.getPosition() == 0)
+          bindingPosition.setPosition(i + 1);
         return structuredType.getExternalFQN();
       } else {
         // The type of %1$s of action of method %2$s of class %1$s could not be converted
@@ -239,14 +247,14 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   }
 
   private static class BindingPosition {
-    private Integer pos = 0;
+    private Integer position = 0;
 
-    Integer getPos() {
-      return pos;
+    Integer getPosition() {
+      return position;
     }
 
-    void setPos(final Integer pos) {
-      this.pos = pos;
+    void setPosition(final Integer position) {
+      this.position = position;
     }
 
   }

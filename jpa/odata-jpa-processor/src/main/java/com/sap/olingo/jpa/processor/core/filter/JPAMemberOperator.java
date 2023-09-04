@@ -63,24 +63,24 @@ public class JPAMemberOperator implements JPAOperator {
   }
 
   private Path<?> determineCriteriaPath(final JPAPath selectItemPath) throws ODataJPAFilterException {
-    Path<?> p = root;
+    Path<?> path = root;
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
-        p = determineDescriptionCriteriaPath(selectItemPath, p, jpaPathElement);
+        path = determineDescriptionCriteriaPath(selectItemPath, path, jpaPathElement);
       } else if (jpaPathElement instanceof JPACollectionAttribute) {
         if (!((JPACollectionAttribute) jpaPathElement).isComplex()) try {
-          p = p.get(((JPACollectionAttribute) jpaPathElement).getTargetAttribute().getInternalName());
+          path = path.get(((JPACollectionAttribute) jpaPathElement).getTargetAttribute().getInternalName());
         } catch (final ODataJPAModelException e) {
           throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       } else {
-        p = p.get(jpaPathElement.getInternalName());
+        path = path.get(jpaPathElement.getInternalName());
       }
     }
-    return p;
+    return path;
   }
 
-  private Path<?> determineDescriptionCriteriaPath(final JPAPath selectItemPath, Path<?> p,
+  private Path<?> determineDescriptionCriteriaPath(final JPAPath selectItemPath, Path<?> path,
       final JPAElement jpaPathElement) {
 
     final Set<?> allJoins = root.getJoins();
@@ -97,16 +97,16 @@ public class JPAMemberOperator implements JPAOperator {
             join = (Join<?, ?>) sub;
           }
         }
-        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+        path = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
         break;
       }
     }
-    return p;
+    return path;
   }
 
   private void checkGroup(final List<String> groups) throws ODataJPAFilterException {
     JPAPath orgPath = attributePath;
-    if (association != null && association.getPath() != null && attributePath != null) {
+    if (association != null && association.getPathAsString() != null && attributePath != null) {
       final JPAAttribute st = ((JPAAttribute) this.association.getPath().get(0));
       if (st.isComplex()) {
         try {

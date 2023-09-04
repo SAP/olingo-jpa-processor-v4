@@ -118,10 +118,11 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     return orders;
   }
 
-  protected From<?, ?> determineParentFrom() throws ODataJPAQueryException {
+  @SuppressWarnings("unchecked")
+  protected <S, T> From<S, T> determineParentFrom() throws ODataJPAQueryException {
     for (final JPANavigationPropertyInfo item : this.navigationInfo) {
       if (item.getAssociationPath() == association)
-        return item.getFromClause();
+        return (From<S, T>) item.getFromClause();
     }
     throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
         HttpStatusCode.BAD_REQUEST);

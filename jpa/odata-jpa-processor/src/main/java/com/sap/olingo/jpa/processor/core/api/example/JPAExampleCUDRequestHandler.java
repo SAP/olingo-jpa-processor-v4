@@ -47,7 +47,8 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestLink;
 
 /**
- * Example implementation at a CUD handler. The main purpose is rapid prototyping.<p/>
+ * Example implementation at a CUD handler. The main purpose is rapid prototyping.
+ * <p/>
  * The implementation requires Getter and Setter. This includes getter for collection properties and collection
  * navigation properties that return at least empty collections.<br/>
  * To link entities constructor injection is used. So each dependent entity needs a constructor that takes a entity type
@@ -177,14 +178,14 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   }
 
   private void checkAuthorities(final Object instance, final JPAStructuredType entityType,
-      final Optional<JPAODataClaimProvider> claims, final JPAModifyUtil modifyUtil) throws JPAExampleModifyException {
+      final Optional<JPAODataClaimProvider> claims, final JPAModifyUtil modifyUtility) throws JPAExampleModifyException {
     try {
       final List<JPAProtectionInfo> protections = entityType.getProtections();
       if (!protections.isEmpty()) {
         final JPAODataClaimProvider claimsProvider = claims.orElseThrow(
             () -> new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN));
         for (final JPAProtectionInfo protectionInfo : protections) {
-          final Object value = determineValue(instance, modifyUtil, protectionInfo);
+          final Object value = determineValue(instance, modifyUtility, protectionInfo);
           final List<JPAClaimsPair<?>> pairs = claimsProvider.get(protectionInfo.getClaimName());
           if (pairs.isEmpty())
             throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
@@ -226,13 +227,13 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     return minPrefix[0];
   }
 
-  private Object determineValue(final Object instance, final JPAModifyUtil modifyUtil,
+  private Object determineValue(final Object instance, final JPAModifyUtil modifyUtility,
       final JPAProtectionInfo protectionInfo) throws NoSuchMethodException, IllegalAccessException,
       InvocationTargetException {
     Object value = instance;
     for (final JPAElement element : protectionInfo.getPath().getPath()) {
       final JPAAttribute attribute = (JPAAttribute) element;
-      final String getterName = "get" + modifyUtil.buildMethodNameSuffix(attribute);
+      final String getterName = "get" + modifyUtility.buildMethodNameSuffix(attribute);
       final Method getter = value.getClass().getMethod(getterName);
       value = getter.invoke(value);
     }
@@ -261,22 +262,47 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     }
   }
 
+  /**
+   * The method is able to create OneTonOne relations as well as OneToMany relations. ManyToOne relations cloud only be
+   * handled in case a corresponding OneToMany relation exists.
+   * @param relationLinks
+   * @param instance
+   * @param utility
+   * @param em
+   * @throws ODataJPAProcessException
+   */
   private void processBindingLinks(final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks,
-      final Object instance, final JPAModifyUtil util, final EntityManager em) throws ODataJPAProcessException {
+      final Object instance, final JPAModifyUtil utility, final EntityManager em) throws ODataJPAProcessException {
 
     for (final Entry<JPAAssociationPath, List<JPARequestLink>> entity : relationLinks.entrySet()) {
       final JPAAssociationPath pathInfo = entity.getKey();
       for (final JPARequestLink requestLink : entity.getValue()) {
-        final Object targetKey = util.createPrimaryKey((JPAEntityType) pathInfo.getTargetType(), requestLink
+        final Object targetKey = utility.createPrimaryKey((JPAEntityType) pathInfo.getTargetType(), requestLink
             .getRelatedKeys(), pathInfo.getSourceType());
         final Object target = em.find(pathInfo.getTargetType().getTypeClass(), targetKey);
-        util.linkEntities(instance, target, pathInfo);
+        if (target == null)
+          throw new JPAExampleModifyException(ENTITY_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+
+        try {
+          final JPAAssociationAttribute partner = pathInfo.getPartner();
+          if (pathInfo.isCollection() && partner != null) {
+            utility.linkEntities(target, instance, partner.getPath());
+            // The following line would set the link also on the source side. Unfortunately can this lead to a deep
+            // expand e.g. in case of hierarchies, as JPA load association lazy.
+            // util.linkEntities(instance, target, pathInfo); //NOSONAR
+
+          } else
+            utility.linkEntities(instance, target, pathInfo);
+        } catch (final ODataJPAModelException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
       }
+
     }
   }
 
   private void processRelatedEntities(final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities,
-      final Object parentInstance, final JPAModifyUtil util, final EntityManager em)
+      final Object parentInstance, final JPAModifyUtil utility, final EntityManager em)
       throws ODataJPAProcessException {
 
     for (final Map.Entry<JPAAssociationPath, List<JPARequestEntity>> entity : relatedEntities.entrySet()) {
@@ -284,16 +310,16 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       for (final JPARequestEntity requestEntity : entity.getValue()) {
 
         final Object newInstance = createOneEntity(requestEntity, parentInstance);
-        util.linkEntities(parentInstance, newInstance, pathInfo);
+        utility.linkEntities(parentInstance, newInstance, pathInfo);
         try {
           final JPAAssociationAttribute attribute = pathInfo.getPartner();
           if (attribute != null) {
-            util.linkEntities(newInstance, parentInstance, attribute.getPath());
+            utility.linkEntities(newInstance, parentInstance, attribute.getPath());
           }
         } catch (final ODataJPAModelException e) {
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
-        processRelatedEntities(requestEntity.getRelatedEntities(), newInstance, util, em);
+        processRelatedEntities(requestEntity.getRelatedEntities(), newInstance, utility, em);
       }
     }
   }
@@ -330,7 +356,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     return em.getMetamodel()
         .getEntities()
         .stream()
-        .filter(e -> e.getName().equals(et.getExternalName()))
+        .filter(type -> type.getName().equals(et.getExternalName()))
         .findFirst()
         .map(jpaEt -> hasGeneratedKeyInt(et, jpaEt))
         .orElse(false);

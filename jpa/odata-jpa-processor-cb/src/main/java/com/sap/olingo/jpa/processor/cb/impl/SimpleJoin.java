@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import java.util.Objects;
+
 import javax.annotation.Nonnull;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
@@ -52,4 +54,22 @@ class SimpleJoin<Z, X> extends AbstractJoinImp<Z, X> {
   public JoinType getJoinType() {
     return joinType;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Objects.hash(association, joinType);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) return true;
+    if (!super.equals(obj)) return false;
+    if (!(obj instanceof SimpleJoin)) return false; // NOSONAR
+    final SimpleJoin<?, ?> other = (SimpleJoin<?, ?>) obj;
+    return Objects.equals(association, other.association) && joinType == other.joinType;
+  }
+
 }

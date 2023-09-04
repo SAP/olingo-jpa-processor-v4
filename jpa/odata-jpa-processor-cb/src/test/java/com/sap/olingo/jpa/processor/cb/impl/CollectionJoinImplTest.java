@@ -51,7 +51,7 @@ class CollectionJoinImplTest {
     when(joinTable.getEntityType()).thenReturn(targetType);
     when(targetType.getTypeClass()).thenAnswer(new ClassAnswer(Person.class));
     when(targetType.getInternalName()).thenReturn("Dummy");
-    cut = new CollectionJoinImpl<>(path, parent, ab, cb);
+    cut = new CollectionJoinImpl<>(path, parent, ab, cb, null);
   }
 
   @Test

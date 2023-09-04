@@ -58,6 +58,8 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinTarget</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelationKey</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.JoinPartnerRoleRelation</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.JoinPartnerRoleRelationKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Membership</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Organization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>
@@ -74,9 +76,21 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Singleton</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly</class>
 		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>
+		<class>com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.LocalDateTimeConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefIgnore</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriod</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeTest</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CurrentUser</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneTarget</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManySource</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManyTarget</class>	
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsSingleton</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.DetailSettings</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.validation.mode" value="NONE" />
@@ -123,6 +137,7 @@
         <class>com.sap.olingo.jpa.processor.core.errormodel.CompoundKey</class>
         <class>com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientEmbeddableKey</class>
         <class>com.sap.olingo.jpa.processor.core.errormodel.SingletonAsEntitySet</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.LocalDateTimeConverter</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="eclipselink.logging.parameters" value="true" />

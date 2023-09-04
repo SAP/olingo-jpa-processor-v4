@@ -2,8 +2,10 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -47,8 +49,7 @@ public interface JPAServiceDocument extends CustomETagSupport {
   /**
    *
    * Returns the internal representation of an entity type by given entity set or singleton name. Entity types that are
-   * annotated
-   * with EdmIgnore are ignored.
+   * annotated with EdmIgnore are ignored.
    * @param edmTargetName
    * @return null if not found
    * @throws ODataJPAModelException
@@ -70,11 +71,36 @@ public interface JPAServiceDocument extends CustomETagSupport {
   @CheckForNull
   JPAFunction getFunction(final EdmFunction function);
 
+  /**
+   * Find an Action. As the selection for overloaded actions, as described in
+   * <a href="https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html#_Toc31359015">
+   * Action Overload Resolution (part1 protocol 11.5.5.2)</a> is done by Olingo, a resolution is not performed.
+   *
+   * @param action
+   * @return null if action not found
+   */
   @CheckForNull
   JPAAction getAction(final EdmAction action);
 
   @CheckForNull
   JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException;
+
+  /**
+   * Find an entity set based on the external name. Entity sets marked as with EdmIgnore are ignored
+   * @param edmTargetName
+   * @return
+   * @throws ODataJPAModelException
+   */
+  Optional<JPAEntitySet> getEntitySet(@Nonnull final String edmTargetName) throws ODataJPAModelException;
+
+  /**
+   * Find an entity set or singleton based on the external name. Entity sets or singletons marked as with EdmIgnore are
+   * ignored
+   * @param edmTargetName
+   * @return
+   * @throws ODataJPAModelException
+   */
+  Optional<JPATopLevelEntity> getTopLevelEntity(@Nonnull final String edmTargetName) throws ODataJPAModelException;
 
   List<EdmxReference> getReferences();
 
@@ -82,6 +108,9 @@ public interface JPAServiceDocument extends CustomETagSupport {
 
   @CheckForNull
   JPAStructuredType getComplexType(final EdmComplexType edmComplexType);
+
+  @CheckForNull
+  JPAStructuredType getComplexType(Class<?> typeClass);
 
   @CheckForNull
   JPAEnumerationAttribute getEnumType(final EdmEnumType type);

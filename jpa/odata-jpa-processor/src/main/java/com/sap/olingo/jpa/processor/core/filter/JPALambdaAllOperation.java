@@ -32,6 +32,12 @@ final class JPALambdaAllOperation extends JPALambdaOperation {
     return "ALL";
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public Enum<?> getOperator() {
+    return null;
+  }
+
   private class NotExpression implements Unary {
     private final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression;
 

@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -93,31 +92,6 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   @Override
   public Class<? extends Boolean> getJavaType() {
     throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Collection<?> values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Expression<?>... values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Expression<Collection<?>> values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Object... values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public boolean isCompoundSelection() {
-    return false;
   }
 
   /**

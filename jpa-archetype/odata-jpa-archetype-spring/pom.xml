@@ -4,10 +4,11 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa-archetype</artifactId>
-		<version>1.0.9</version>
+        <version>1.1.1</version>
 	</parent>
 	<artifactId>odata-jpa-archetype-spring</artifactId>
 	<name>Archetype - odata-jpa-archetype-spring</name>
+
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 	<packaging>maven-archetype</packaging>
 

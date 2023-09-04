@@ -6,10 +6,6 @@ import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
 public interface JPAServiceDebugger {
 
-  public int startRuntimeMeasurement(final Object instance, final String methodName);
-
-  public void stopRuntimeMeasurement(final int handle);
-
   public List<RuntimeMeasurement> getRuntimeInformation();
 
   public default void debug(final Object instance, final String pattern, final Object... arguments) {}
@@ -17,4 +13,11 @@ public interface JPAServiceDebugger {
   public default void trace(final Object instance, final String pattern, final Object... arguments) {}
 
   public default void debug(final Object instance, final String log) {}
+
+  public JPARuntimeMeasurement newMeasurement(final Object instance, final String methodName);
+
+  public static interface JPARuntimeMeasurement extends AutoCloseable {
+    @Override
+    void close();
+  }
 }

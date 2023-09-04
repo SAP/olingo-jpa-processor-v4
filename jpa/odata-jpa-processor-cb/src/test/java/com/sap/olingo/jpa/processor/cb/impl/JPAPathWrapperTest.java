@@ -95,4 +95,10 @@ class JPAPathWrapperTest {
     when(path.getAlias()).thenReturn("Alpha");
     assertTrue(cut.compareTo(path) > 0);
   }
+
+  @Test
+  void testGetPathAsString() {
+    assertEquals(ALIAS, cut.getPathAsString());
+  }
+
 }

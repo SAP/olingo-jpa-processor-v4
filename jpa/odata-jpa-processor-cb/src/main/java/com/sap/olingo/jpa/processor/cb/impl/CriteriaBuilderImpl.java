@@ -770,7 +770,6 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @param pattern string expression
    * @return like predicate
    */
-  @SuppressWarnings("unchecked")
   @Override
   public Predicate like(@Nonnull final Expression<String> x, @Nonnull final Expression<String> pattern) {
     return new PredicateImpl.LikePredicate(Objects.requireNonNull(x),
@@ -799,7 +798,6 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @param escapeChar escape character expression
    * @return like predicate
    */
-  @SuppressWarnings("unchecked")
   @Override
   public Predicate like(@Nonnull final Expression<String> x, @Nonnull final Expression<String> pattern,
       final Expression<Character> escapeChar) {

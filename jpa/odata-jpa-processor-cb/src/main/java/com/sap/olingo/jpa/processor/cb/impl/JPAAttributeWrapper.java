@@ -11,6 +11,7 @@ import javax.persistence.criteria.Selection;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -137,5 +138,15 @@ class JPAAttributeWrapper implements JPAAttribute {
   @Override
   public List<String> getRequiredProperties() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public Class<?> getJavaType() {
+    return null;
+  }
+
+  @Override
+  public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    return null;
   }
 }
