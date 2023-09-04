@@ -45,6 +45,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
@@ -52,6 +53,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.errormodel.MissingCardinalityAnnotation;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManyTarget;
@@ -74,6 +76,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 class IntermediateNavigationPropertyTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private TestHelper helper;
+  private TestHelper errorHelper;
+  private IntermediateSchema errorSchema;
   private JPAEdmMetadataPostProcessor processor;
   private IntermediateAnnotationInformation annotationInfo;
 
@@ -84,9 +88,10 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
 
-    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
-        annotationInfo);
+    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), reflections, annotationInfo);
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+    errorHelper = new TestHelper(errorEmf.getMetamodel(), ERROR_PUNIT);
+    errorSchema = new IntermediateSchema(errorNameBuilder, errorEmf.getMetamodel(), reflections, annotationInfo);
     processor = mock(JPAEdmMetadataPostProcessor.class);
   }
 
@@ -461,6 +466,22 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
             PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertNotNull(property.getJoinTable());
+  }
+
+  @Test
+  void checkGetJoinTableMappedBy() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Organization.class),
+        "supportEngineers");
+    final IntermediateNavigationProperty<?> property = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+    property.getEdmItem();
+    assertNotNull(property.getJoinTable());
+    final JPAJoinTable act = property.getJoinTable();
+
+    assertEquals(1, act.getJoinColumns().size());
+    assertEquals("ID", act.getJoinColumns().get(0).getLeftPath().getAlias());
+    assertEquals("OrganizationID", act.getJoinColumns().get(0).getRightPath().getAlias());
   }
 
   @Test
@@ -882,9 +903,19 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
 
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
     final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(
-        new JPADefaultEdmNameBuilder(
-            PUNIT_NAME), schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+        nameBuilder, schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
     assertNull(cut.getAnnotation("Capabilities", "Filter"));
+  }
+
+  @Test
+  void checkMissingCardinalityAnnotationThrowsError() throws ODataJPAModelException {
+    final EntityType<MissingCardinalityAnnotation> et = errorHelper.getEntityType(MissingCardinalityAnnotation.class);
+    final Attribute<?, ?> jpaAttribute = errorHelper.getDeclaredAttribute(et, "oneTeam");
+//    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(errorNameBuilder,
+//        errorSchema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+
+    assertThrows(ODataJPAModelException.class, () -> new IntermediateNavigationProperty<>(
+        errorNameBuilder, errorSchema.getEntityType(et.getJavaType()), jpaAttribute, schema));
   }
 
   private Attribute<?, ?> createDummyAttribute() {

@@ -3,12 +3,19 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -18,6 +25,7 @@ import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.errormodel.MissingCardinalityAnnotation;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.util.TestDataConstants;
@@ -116,5 +124,37 @@ class IntermediateSchemaTest extends TestMappingRoot {
         .getMetamodel(), reflections, annotationInfo);
     when(type.getFullQualifiedName()).thenReturn(fqn);
     assertNull(schema.getEnumerationType(type));
+  }
+
+  @Test
+  void checkSchemaWrapsException() throws ODataJPAModelException {
+    final Metamodel jpaModel = mock(Metamodel.class);
+    final EntityType<?> jpaEt = mock(EntityType.class);
+    when(jpaModel.getEmbeddables()).thenReturn(Collections.emptySet());
+    when(jpaModel.getEntities()).thenReturn(Collections.singleton(jpaEt));
+    doReturn(MissingCardinalityAnnotation.class).when(jpaEt).getJavaType();
+    when(jpaEt.getDeclaredAttributes()).thenThrow(NullPointerException.class);
+
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaModel,
+        reflections, annotationInfo);
+
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> schema.lazyBuildEdmItem());
+    assertTrue(act.getCause() instanceof NullPointerException);
+  }
+
+  @Test
+  void checkSchemaODataJPAModelExceptionNotWrapped() throws ODataJPAModelException {
+    final Metamodel jpaModel = mock(Metamodel.class);
+    final EntityType<?> jpaEt = mock(EntityType.class);
+    when(jpaModel.getEmbeddables()).thenReturn(Collections.emptySet());
+    when(jpaModel.getEntities()).thenReturn(Collections.singleton(errorEmf.getMetamodel().entity(
+        MissingCardinalityAnnotation.class)));
+    doReturn(MissingCardinalityAnnotation.class).when(jpaEt).getJavaType();
+
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaModel,
+        reflections, annotationInfo);
+
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> schema.lazyBuildEdmItem());
+    assertNull(act.getCause());
   }
 }
