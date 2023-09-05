@@ -727,6 +727,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     return targetClass;
   }
 
+  @Nonnull
   private Class<?> determineTargetDBType(final IntermediateNavigationProperty<?> intermediateNavigationProperty,
       final JPAJoinColumn joinColumn) throws ODataJPAModelException {
 
@@ -734,8 +735,12 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
         .getTargetEntity());
     final IntermediateProperty property = ((IntermediateProperty) st.getPropertyByDBField(joinColumn
         .getReferencedColumnName()));
-    if (property != null)
-      return property.getDbType();
+    if (property != null) {
+      final Class<?> dbType = property.getDbType();
+      if (dbType != null) {
+        return dbType;
+      }
+    }
     // Type of column could not be determined for association '%1$s' of '%2$s'.
     throw new ODataJPAModelException(DB_TYPE_NOT_DETERMINED, intermediateNavigationProperty.getInternalName(),
         getInternalName());

@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmOperation;
@@ -334,7 +335,13 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public boolean hasETag(final EdmBindingTarget entitySetOrSingleton) {
     try {
-      return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
+      final Optional<JPAEntityType> et = Optional.ofNullable(entitySetOrSingleton.getEntityType())
+          .map(EdmEntityType::getFullQualifiedName)
+          .map(this::getEntity);
+      if (et.isPresent())
+        return et.get().hasEtag();
+      else
+        return false;
     } catch (final ODataJPAModelException e) {
       LOGGER.debug("Error during binding target determination", e);
       return false;
