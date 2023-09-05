@@ -457,15 +457,18 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
       if (cardinality != null) {
         switch (cardinality) {
           case ONE_TO_MANY:
-            mappedBy = Optional.ofNullable(returnNullIfEmpty(
-                annotatedElement.getAnnotation(OneToMany.class).mappedBy()));
+            // Association '%1$s' of '%2$s' requires a cardinality annotation.
+            final OneToMany oneTOMany = Optional.ofNullable(annotatedElement.getAnnotation(OneToMany.class))
+                .orElseThrow(() -> new ODataJPAModelException(MISSING_ONE_TO_ONE_ANNOTATION, internalName, sourceType
+                    .getInternalName()));
+            mappedBy = Optional.ofNullable(returnNullIfEmpty(oneTOMany.mappedBy()));
             break;
           case ONE_TO_ONE:
             // Association '%1$s' of '%2$s' requires a cardinality annotation.
-            final OneToOne annotation = Optional.ofNullable(annotatedElement.getAnnotation(OneToOne.class))
+            final OneToOne oneToOne = Optional.ofNullable(annotatedElement.getAnnotation(OneToOne.class))
                 .orElseThrow(() -> new ODataJPAModelException(MISSING_ONE_TO_ONE_ANNOTATION, internalName, sourceType
                     .getInternalName()));
-            mappedBy = Optional.ofNullable(returnNullIfEmpty(annotation.mappedBy()));
+            mappedBy = Optional.ofNullable(returnNullIfEmpty(oneToOne.mappedBy()));
             break;
           case MANY_TO_MANY:
             mappedBy = Optional.ofNullable(returnNullIfEmpty(
