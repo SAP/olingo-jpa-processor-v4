@@ -10,7 +10,7 @@
 
     <artifactId>odata-jpa-spring-support</artifactId>
     <properties>
-        <cf-logging-version>3.0.7</cf-logging-version>
+        <cf-logging-version>3.7.1</cf-logging-version>
     </properties>
     <dependencies>
         <dependency>

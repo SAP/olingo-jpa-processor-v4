@@ -14,11 +14,12 @@
 		<project.build.target>1.8</project.build.target>
 		<maven.complier.version>3.8.0</maven.complier.version>
 		<odata.version>4.9.0</odata.version>
-		<jackson.version>2.14.1</jackson.version>
+		<jackson.version>2.14.0</jackson.version>
 		<powermock.version>1.7.1</powermock.version>
 		<coveralls.version>4.3.0</coveralls.version>
 		<jpa.version>2.2.1</jpa.version>
 		<processor.version>1.1.1</processor.version>
+		<spring-jcl.version>5.3.10</spring-jcl.version>
 		<jacoco.version>0.8.7</jacoco.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,

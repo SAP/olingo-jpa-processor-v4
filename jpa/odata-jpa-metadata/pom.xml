@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-codec-http</artifactId>
-			<version>4.1.87.Final</version>
+			<version>4.1.97.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.olingo</groupId>
@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jcl</artifactId>
-			<version>5.3.10</version>
+			<version>${spring-jcl.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
