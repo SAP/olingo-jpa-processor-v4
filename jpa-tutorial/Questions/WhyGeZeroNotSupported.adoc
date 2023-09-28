@@ -60,7 +60,7 @@ SELECT
 			GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
 			HAVING (COUNT(t1."DivisionCode") = 0)))
 ----
-the query would not restrict at all. The restriction has to be converted. Instead of using EXIST is is necessary to use NOT EXIST (4) together with a comparison to not equal zero (5):
+the query would not find anything, as the sub-query does not return a result. The restriction has to be converted. Instead of using EXIST is is necessary to use NOT EXIST (4) together with a comparison to not equal zero (5):
 [source,sql]
 ----
 SELECT
