@@ -23,21 +23,21 @@ SELECT
 	t0."ParentDivisionCode",
 	t0."CodeID"
 	FROM "OLINGO"."AdministrativeDivision" t0
-	WHERE (EXISTS ( 
-		SELECT t1."CodePublisher"
+	WHERE (EXISTS (  --<1>
+		SELECT t1."CodePublisher" --<2>
 			FROM "OLINGO"."AdministrativeDivision" t1
 			WHERE (((t1."CodePublisher" = t0."CodePublisher")
 			AND (t1."ParentCodeID" = t0."CodeID"))
 			AND (t1."ParentDivisionCode" = t0."DivisionCode"))
 			GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
-			HAVING (COUNT(t1."DivisionCode") = 2)))
+			HAVING (COUNT(t1."DivisionCode") = 2))) --<3>
 ----
-To restrict the rows returned to those having 2 children a sub-query. The restriction is done by a HAVING clause. Unfortunately this construct is not able to compare with 0. E.g. to find all leaves, lowest level of divisions, the following GET request can be used:
+The rows having 2 children are those where a sub-query (2) result EXISTS (1). The restriction of the sub-query is done by a HAVING clause (3). Unfortunately this construct is not able to compare with 0. E.g. to find all leaves of the division hierarchy, lowest level of divisions, the following GET request can be used:
 [source,url]
 ----
 .../AdministrativeDivisions?$filter=Children/$count eq 0
 ----
-in case this would result in the following SQL 
+In case the request would be converted into the following SQL:
 [source,sql]
 ----
 SELECT
@@ -60,7 +60,7 @@ SELECT
 			GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
 			HAVING (COUNT(t1."DivisionCode") = 0)))
 ----
-The query would not restrict at all. Instead of this  NOT EXIST comparing not equal zero is used:
+the query would not restrict at all. The restriction has to be converted. Instead of using EXIST is is necessary to use NOT EXIST (4) together with a comparison to not equal zero (5):
 [source,sql]
 ----
 SELECT
@@ -74,13 +74,13 @@ SELECT
 	t0."ParentDivisionCode",
 	t0."CodeID"
 	FROM "OLINGO"."AdministrativeDivision" t0
-	WHERE NOT (EXISTS ( 
+	WHERE NOT (EXISTS ( --<4>
 		SELECT t1."CodePublisher"
 			FROM "OLINGO"."AdministrativeDivision" t1
 			WHERE (((t1."CodePublisher" = t0."CodePublisher")
 			AND (t1."ParentCodeID" = t0."CodeID"))
 			AND (t1."ParentDivisionCode" = t0."DivisionCode"))
 			GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
-			HAVING (COUNT(t1."DivisionCode") <> 0)))
+			HAVING (COUNT(t1."DivisionCode") <> 0))) --<5>
 ----
 In case a client requests $count greater or equal 0, it would mean to create a sub-query with NOT EXISTS and a sub-query with EXISTS. This does not make sense, as in fact such a request does not restrict the result at all.
