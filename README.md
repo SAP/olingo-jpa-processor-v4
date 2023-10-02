@@ -35,7 +35,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
-    <version>1.0.9</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
@@ -45,7 +45,7 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
-    <version>1.0.9</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
@@ -70,7 +70,6 @@ The flowing extensions/changes are planned:
 * ETag on $metadata
 * Support asynchronous requests
 * Parallel processing for $expand
-* Overload Operations
 
 New versions will follow [Semantic Versioning](https://semver.org).
 
