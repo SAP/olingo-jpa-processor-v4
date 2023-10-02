@@ -44,7 +44,8 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   private EdmMediaStream streamInfo;
 
   IntermediateSimpleProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
-      final IntermediateSchema schema) throws ODataJPAModelException {
+      final IntermediateSchema schema)
+      throws ODataJPAModelException {
 
     super(nameBuilder, jpaAttribute, schema);
   }

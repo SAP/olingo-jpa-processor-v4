@@ -51,7 +51,7 @@ public final class JPAExpandItemInfoFactory {
     // uriResourceInfo.getExpandOption().getExpandItems().get(0).getResourcePath().getUriResourceParts().get(0)).getTypeFilterOnEntry()
     if (startResourceList != null && expandOption != null) {
       final List<JPANavigationPropertyInfo> parentHops = grandParentHops;
-      final Map<JPAExpandItem, JPAAssociationPath> expandPath = Util.determineAssociations(sd, startResourceList,
+      final Map<JPAExpandItem, JPAAssociationPath> expandPath = Utility.determineAssociations(sd, startResourceList,
           expandOption);
       for (final Entry<JPAExpandItem, JPAAssociationPath> item : expandPath.entrySet()) {
         itemList.add(new JPAExpandItemInfo(sd, item.getKey(), item.getValue(), parentHops));

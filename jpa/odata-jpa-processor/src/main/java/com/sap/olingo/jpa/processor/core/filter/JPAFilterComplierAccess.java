@@ -24,7 +24,7 @@ interface JPAFilterComplierAccess {
 
   JPAServiceDocument getSd();
 
-  OData getOdata();
+  OData getOData();
 
   EntityManager getEntityManager();
 
@@ -32,7 +32,7 @@ interface JPAFilterComplierAccess {
 
   JPAOperationConverter getConverter();
 
-  From<?, ?> getRoot();
+  <S, T> From<S, T> getRoot();
 
   JPAServiceDebugger getDebugger();
 
@@ -41,5 +41,7 @@ interface JPAFilterComplierAccess {
   Optional<JPAODataClaimProvider> getClaimsProvider();
 
   List<String> getGroups();
+
+  Optional<JPAFilterRestrictionsWatchDog> getWatchDog();
 
 }

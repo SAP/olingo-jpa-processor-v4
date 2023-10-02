@@ -21,4 +21,16 @@ public class Team {
 
   @ManyToMany(mappedBy = "teams")
   private List<Person> member;
+
+  public Team(final String iD) {
+    super();
+    this.iD = iD;
+  }
+
+  public Team() {}
+
+  @Override
+  public String toString() {
+    return "Team [iD=" + iD + ", name=" + name + ", member=" + member + "]";
+  }
 }

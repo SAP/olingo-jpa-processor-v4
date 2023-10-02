@@ -17,7 +17,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public interface JPAConvertibleResult {
   /**
-   * 
+   *
    * @param converter
    * @return
    * @throws ODataApplicationException
@@ -40,11 +40,13 @@ public interface JPAConvertibleResult {
    * @param <T>
    * @param requestContext
    * @param hops
+   * @param page
    * @return
    * @throws ODataJPAQueryException
    */
   default Optional<JPAKeyBoundary> getKeyBoundary(final JPAODataRequestContextAccess requestContext,
       final List<JPANavigationPropertyInfo> hops, final JPAODataPage page) throws ODataJPAProcessException {
+
     return Optional.empty();
   }
 }

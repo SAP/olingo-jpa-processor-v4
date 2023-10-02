@@ -1,4 +1,5 @@
 package com.sap.olingo.jpa.processor.core.query;
+
 import java.util.List;
 import java.util.Map;
 
@@ -82,8 +83,8 @@ public class JPAKeyPair {
       try {
         final AttributeConverter<Object, Object> converter = keyElement.getRawConverter();
         if (dbType != null
-            && (keyElement.getDbType() == Byte[].class 
-            || keyElement.getDbType() == byte[].class)) {
+            && (keyElement.getDbType() == Byte[].class
+                || keyElement.getDbType() == byte[].class)) {
           return new ComparableByteArray(
               ComparableByteArray.unboxedArray(converter.convertToDatabaseColumn(value))).compareTo(
                   ComparableByteArray.unboxedArray(converter.convertToDatabaseColumn(minValue)));

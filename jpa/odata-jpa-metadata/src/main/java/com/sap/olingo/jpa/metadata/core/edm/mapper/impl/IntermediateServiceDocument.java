@@ -15,8 +15,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
+import org.apache.olingo.commons.api.edm.EdmOperation;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
@@ -30,6 +32,8 @@ import org.reflections8.util.ConfigurationBuilder;
 import org.reflections8.util.FilterBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabularyReadException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
@@ -39,12 +43,14 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
  * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/schemas/edmx.xsd
  * A Service Document can contain multiple schemas, but only
- * one Entity Container. This container is assigned to one of the schemas.<p>
+ * one Entity Container. This container is assigned to one of the schemas.
+ * <p>
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
 class IntermediateServiceDocument implements JPAServiceDocument {
@@ -54,15 +60,16 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final JPAEdmNameBuilder nameBuilder;
   private final IntermediateEntityContainer container;
   private final Map<String, IntermediateSchema> schemaListInternalKey;
-  private final IntermediateReferences references;
   private final JPAEdmMetadataPostProcessor pP;
   private final Reflections reflections;
   private Map<String, JPAProtectionInfo> claims;
+  private final IntermediateAnnotationInformation annotationInfo;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
-      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataJPAModelException {
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
 
-    this(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, postProcessor, packageName);
+    this(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, postProcessor, packageName, annotationProvider);
   }
 
   /**
@@ -70,23 +77,39 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * @param metamodel
    * @param postProcessor
    * @param packageName
+   * @param annotationProvider
    * @throws ODataJPAModelException
    */
   IntermediateServiceDocument(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel,
-      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataJPAModelException {
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
 
     this.pP = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
     IntermediateModelElement.setPostProcessor(pP);
 
     this.reflections = createReflections(packageName);
-    this.references = new IntermediateReferences();
-    pP.provideReferences(this.references);
+    this.annotationInfo = new IntermediateAnnotationInformation(annotationProvider);
+    pP.provideReferences(annotationInfo.asReferenceList());
+    addReferencesFromAnnotationProvider(annotationProvider);
     this.nameBuilder = nameBuilder;
     this.jpaMetamodel = jpaMetamodel;
     this.schemaListInternalKey = new HashMap<>();
+
     buildIntermediateSchemas();
-    this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey);
+    this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey, annotationInfo);
     setContainer();
+  }
+
+  private void addReferencesFromAnnotationProvider(final List<AnnotationProvider> annotationProvider)
+      throws ODataJPAModelException {
+
+    try {
+      for (final AnnotationProvider provider : annotationProvider) {
+        provider.addReferences(this.annotationInfo.asReferenceList());
+      }
+    } catch (final ODataVocabularyReadException e) {
+      throw new ODataJPAModelException(e);
+    }
   }
 
   /*
@@ -97,7 +120,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public List<CsdlSchema> getAllSchemas() throws ODataJPAModelException {
     final List<CsdlSchema> allSchemas = getEdmSchemas();
-    allSchemas.addAll(references.getSchemas());
+    allSchemas.addAll(annotationInfo.getSchemas());
     return allSchemas;
   }
 
@@ -171,6 +194,22 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * (non-Javadoc)
    *
    * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument#getComplexType(java.lang.Class)
+   */
+  @Override
+  public JPAStructuredType getComplexType(final Class<?> typeClass) {
+    for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+      final IntermediateStructuredType<?> result = schema.getComplexType(typeClass);
+      if (result != null)
+        return result;
+    }
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(org.apache.olingo.commons.api.edm.
    * FullQualifiedName)
    */
@@ -215,6 +254,31 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * (non-Javadoc)
    *
    * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntitySet(com.sap.olingo.jpa.metadata.core.
+   * edm.mapper.api.JPAEntityType)
+   */
+  @Override
+  public Optional<JPAEntitySet> getEntitySet(final String edmTargetName) throws ODataJPAModelException {
+    return Optional.ofNullable(container.getEntitySet(edmTargetName));
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getTopLevelEntity(java.lang.String)
+   */
+  @Override
+  public Optional<JPATopLevelEntity> getTopLevelEntity(final String edmTargetName) throws ODataJPAModelException {
+    return Optional.ofNullable(container.getEntitySet(edmTargetName) != null
+        ? container.getEntitySet(edmTargetName)
+        : container.getSingleton(edmTargetName));
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getFunction(org.apache.olingo.commons.api.edm.
    * EdmFunction)
    */
@@ -231,13 +295,13 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAction(org.apache.olingo.commons.api.edm.
-   * EdmFunction)
+   * EdmAction)
    */
   @Override
   public JPAAction getAction(final EdmAction action) {
     final IntermediateSchema schema = schemaListInternalKey.get(action.getNamespace());
     if (schema != null)
-      return schema.getAction(action.getName());
+      return schema.getAction(action.getName(), determineBindingParameter(action));
     return null;
   }
 
@@ -248,7 +312,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    */
   @Override
   public List<EdmxReference> getReferences() {
-    return references.getEdmReferences();
+    return annotationInfo.getEdmReferences();
   }
 
   /*
@@ -259,7 +323,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    */
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) {
-    return this.references.getTerm(termName);
+    return annotationInfo.getReferences().getTerm(termName).orElse(null);
   }
 
   /*
@@ -271,7 +335,13 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public boolean hasETag(final EdmBindingTarget entitySetOrSingleton) {
     try {
-      return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
+      final Optional<JPAEntityType> et = Optional.ofNullable(entitySetOrSingleton.getEntityType())
+          .map(EdmEntityType::getFullQualifiedName)
+          .map(this::getEntity);
+      if (et.isPresent())
+        return et.get().hasEtag();
+      else
+        return false;
     } catch (final ODataJPAModelException e) {
       LOGGER.debug("Error during binding target determination", e);
       return false;
@@ -293,7 +363,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   private void buildIntermediateSchemas() throws ODataJPAModelException {
-    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections);
+    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections, annotationInfo);
     schemaListInternalKey.put(schema.internalName, schema);
   }
 
@@ -364,5 +434,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
       }
     }
     return claims;
+  }
+
+  @CheckForNull
+  private FullQualifiedName determineBindingParameter(final EdmOperation operation) {
+    return operation.isBound() ? operation.getBindingParameterTypeFqn() : null;
   }
 }

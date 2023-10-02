@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,31 +16,13 @@ public class HttpRequestHeaderDouble {
   public HttpRequestHeaderDouble() {
     super();
     headers = new HashMap<>();
-    List<String> headerValue;
-    headerValue = new ArrayList<>();
-    headerValue.add("localhost:8090");
-    headers.put("host", headerValue);
 
-    headerValue = new ArrayList<>();
-    headerValue.add("keep-alive");
-    headers.put("connection", headerValue);
-
-    headerValue = new ArrayList<>();
-    headerValue.add("max-age=0");
-    headers.put("cache-control", headerValue);
-
-    headerValue = new ArrayList<>();
-    headerValue.add("text/html,application/json,application/xml;q=0.9,image/webp,*/*;q=0.8");
-    headers.put("accept", headerValue);
-
-    headerValue = new ArrayList<>();
-    headerValue.add("gzip, deflate, sdch");
-    headers.put("accept-encoding", headerValue);
-
-    headerValue = new ArrayList<>();
-    headerValue.add("de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4");
-    headers.put("accept-language", headerValue);
-
+    headers.put("host", Arrays.asList("localhost:8090"));
+    headers.put("connection", Arrays.asList("keep-alive"));
+    headers.put("cache-control", Arrays.asList("max-age=0"));
+    headers.put("accept", Arrays.asList("text/html,application/json,application/xml;q=0.9,image/webp,*/*;q=0.8"));
+    headers.put("accept-encoding", Arrays.asList("gzip, deflate, sdch"));
+    headers.put("accept-language", Arrays.asList("de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4"));
   }
 
   public Enumeration<String> get(final String headerName) {

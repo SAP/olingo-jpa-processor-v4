@@ -12,7 +12,6 @@ import javax.persistence.Converter;
  * @author Oliver Grande
  */
 @Converter(autoApply = false)
-
 public class UUIDToBinaryConverter implements AttributeConverter<UUID, byte[]> {
 
   @Override

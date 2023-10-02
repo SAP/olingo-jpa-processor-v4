@@ -510,7 +510,7 @@ class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testDoesRollbackIfUpdateRaisesArbitraryError() throws ODataException {
+  void testDoesRollbackIfUpdateRaisesAbitaryError() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 

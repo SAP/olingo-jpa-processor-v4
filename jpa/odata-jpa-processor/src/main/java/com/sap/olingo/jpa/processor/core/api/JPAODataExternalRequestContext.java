@@ -168,7 +168,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
 
     /**
      * Sets the locales relevant for the current request. The first locale is used e.g. for description properties. If
-     * no locale is set as a fallback the accept-language header is used.
+     * no locale is set, as a fallback the accept-language header is used.
      * @param locales
      * @return
      */
@@ -179,7 +179,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
 
     /**
      * Sets the locale relevant for the current request. The locale is used e.g. for description properties. If no
-     * locale is set as a fallback the accept-language header is used.
+     * locale is set, as a fallback the accept-language header is used.
      * @param locale
      * @return
      */

@@ -27,10 +27,9 @@ public class JPAODataClaimsProvider implements JPAODataClaimProvider {
   }
 
   public void add(final String attributeName, final JPAClaimsPair<?> claimsPair) {
-    if (!claims.containsKey(attributeName))
-      claims.put(attributeName, new ArrayList<>());
-    claims.get(attributeName).add(claimsPair);
 
+    claims.computeIfAbsent(attributeName, k -> new ArrayList<>());
+    claims.get(attributeName).add(claimsPair);
   }
 
   @Override

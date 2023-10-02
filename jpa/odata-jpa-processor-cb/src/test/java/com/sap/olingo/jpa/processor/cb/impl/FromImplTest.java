@@ -203,6 +203,34 @@ class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
+  void testCreateJoinByCollectionAttributeName() {
+    final String exp =
+        "\"OLINGO\".\"BusinessPartner\" E0 "
+            + "INNER JOIN \"OLINGO\".\"Comment\" E1 "
+            + "ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
+    final StringBuilder statement = new StringBuilder();
+    final Join<?, ?> act = cut.join("comment");
+    assertNotNull(act);
+    assertEquals(1, cut.getJoins().size());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
+  }
+
+  @Test
+  void testCreateLeftJoinByCollectionAttributeName() {
+    final String exp =
+        "\"OLINGO\".\"BusinessPartner\" E0 "
+            + "LEFT OUTER JOIN \"OLINGO\".\"Comment\" E1 "
+            + "ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
+    final StringBuilder statement = new StringBuilder();
+    final Join<?, ?> act = cut.join("comment", JoinType.LEFT);
+    assertNotNull(act);
+    assertEquals(1, cut.getJoins().size());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
+  }
+
+  @Test
   void testGetJavaType() {
     assertEquals(Organization.class, cut.getJavaType());
   }

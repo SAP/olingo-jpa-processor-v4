@@ -49,6 +49,5 @@ public class User {
 
   public void setUsername(final String username) {
     setId(username);
-
   }
 }

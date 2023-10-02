@@ -39,6 +39,7 @@ import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -65,6 +66,7 @@ final class JPAOrderByBuilder {
   private final From<?, ?> target;
   private final CriteriaBuilder cb;
   private final List<String> groups;
+  private final JPAOrderByBuilderWatchDog watchDog;
 
   JPAOrderByBuilder(final JPAEntityType jpaEntity, final From<?, ?> target, final CriteriaBuilder cb,
       final List<String> groups) {
@@ -73,22 +75,38 @@ final class JPAOrderByBuilder {
     this.target = target;
     this.cb = cb;
     this.groups = groups;
+    this.watchDog = new JPAOrderByBuilderWatchDog();
+  }
+
+  JPAOrderByBuilder(final JPAAnnotatable annotatable, final JPAEntityType jpaEntity, final From<?, ?> target,
+      final CriteriaBuilder cb, final List<String> groups) throws ODataJPAQueryException {
+    super();
+    this.jpaEntity = jpaEntity;
+    this.target = target;
+    this.cb = cb;
+    this.groups = groups;
+    this.watchDog = new JPAOrderByBuilderWatchDog(annotatable);
   }
 
   /**
    * Create a list of order by for the root (non $expand) query part. Beside the $orderby query option, it also take
-   * $top, $skip and an optional server driven paging into account, so that for the later once a stable sorting is guaranteed.<p>
+   * $top, $skip and an optional server driven paging into account, so that for the later once a stable sorting is
+   * guaranteed.
+   * <p>
    * If asc or desc is not specified, the service MUST order by the specified property in ascending order.
    * See: <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398305"
-   * >OData Version 4.0 Part 1 - 11.2.5.2 System Query Option $orderby</a> <p>
+   * >OData Version 4.0 Part 1 - 11.2.5.2 System Query Option $orderby</a>
+   * <p>
    *
    * Some OData example requests:<br>
    * .../Organizations?$orderby=Address/Country --> one item, two resourcePaths
    * [...ComplexProperty,...PrimitiveProperty]<br>
    * .../Organizations?$orderby=Roles/$count --> one item, two resourcePaths [...NavigationProperty,...Count]<br>
-   * .../Organizations?$orderby=Roles/$count desc,Address/Country asc -->two items <p>
-   * SQL example to order by number of entities<p>
+   * .../Organizations?$orderby=Roles/$count desc,Address/Country asc -->two items
+   * <p>
+   * SQL example to order by number of entities
+   * <p>
    * <code>
    * SELECT t0."BusinessPartnerID" ,COUNT(t1."BusinessPartnerID")<br>
    * <pre>FROM "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t0 <br>
@@ -106,7 +124,7 @@ final class JPAOrderByBuilder {
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
-      @Nonnull final UriInfoResource uriResource, @Nullable JPAODataPage page) throws ODataApplicationException {
+      @Nonnull final UriInfoResource uriResource, @Nullable final JPAODataPage page) throws ODataApplicationException {
 
     final List<Order> result = new ArrayList<>();
     final Set<Path<?>> orderBys = new HashSet<>();
@@ -114,8 +132,9 @@ final class JPAOrderByBuilder {
       if (uriResource.getOrderByOption() != null) {
         LOGGER.trace(LOG_ORDER_BY);
         addOrderByFromUriResource(joinTables, result, orderBys, uriResource.getOrderByOption());
+        watchDog.watch(result);
       }
-      if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null 
+      if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null
           || (page != null && page.getTop() != Integer.MAX_VALUE)) {
         LOGGER.trace("Determined $top/$skip or page: add primary key to Order By");
         addOrderByPrimaryKey(result, orderBys);
@@ -133,7 +152,8 @@ final class JPAOrderByBuilder {
 
   /**
    * Create a list of order by for $expand query part. It does not take top and skip into account, but the
-   * association.<p>
+   * association.
+   * <p>
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
@@ -273,16 +293,16 @@ final class JPAOrderByBuilder {
       if (expression instanceof Member) {
         final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
         JPAStructuredType type = jpaEntity;
-        Path<?> p = target;
+        Path<?> path = target;
         final StringBuilder externalPath = new StringBuilder();
         for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
           if (isPrimitiveSimpleProperty(uriResourceItem)) {
-            p = convertPropertyPath(type, uriResourceItem, p);
-            addOrderByExpression(orders, orderByItem, orderByPaths, p);
+            path = convertPropertyPath(type, uriResourceItem, path);
+            addOrderByExpression(orders, orderByItem, orderByPaths, path);
           } else if (isComplexSimpleProperty(uriResourceItem)) {
             final JPAAttribute attribute = getAttribute(type, uriResourceItem);
             addPathByAttribute(externalPath, attribute);
-            p = p.get(attribute.getInternalName());
+            path = path.get(attribute.getInternalName());
             type = attribute.getStructuredType();
           } else if (uriResourceItem instanceof UriResourceNavigation
               || (uriResourceItem instanceof UriResourceProperty

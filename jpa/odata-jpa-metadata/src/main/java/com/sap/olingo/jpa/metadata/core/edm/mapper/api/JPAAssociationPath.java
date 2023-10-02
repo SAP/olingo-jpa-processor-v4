@@ -4,9 +4,10 @@ import java.util.List;
 
 import javax.annotation.CheckForNull;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAAssociationPath {
+public interface JPAAssociationPath extends ODataNavigationPath {
 
   String getAlias();
 

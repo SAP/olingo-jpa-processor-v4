@@ -56,7 +56,7 @@ public class TestQueryBase extends TestBase {
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
-        null);
+        null, null);
     externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     requestContext = new JPAODataInternalRequestContext(externalContext, context);

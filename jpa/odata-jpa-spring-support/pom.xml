@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.sap.olingo</groupId>
         <artifactId>odata-jpa</artifactId>
-        <version>1.0.9</version>
+        <version>1.1.1</version>
     </parent>
 
     <artifactId>odata-jpa-spring-support</artifactId>
     <properties>
-        <cf-logging-version>3.0.7</cf-logging-version>
+        <cf-logging-version>3.7.1</cf-logging-version>
     </properties>
     <dependencies>
         <dependency>

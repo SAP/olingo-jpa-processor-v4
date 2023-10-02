@@ -298,7 +298,7 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
   }
 
   private void copyParameter(final Map<Integer, ParameterExpression<?, ?>> map) {
-    map.entrySet().stream().forEach(e -> this.q.setParameter(e.getKey(), e.getValue().getValue()));
+    map.entrySet().stream().forEach(e -> this.q.setParameter(e.getValue().getPosition(), e.getValue().getValue()));
   }
 
   private List<Entry<String, JPAAttribute>> toAttributeList(final List<Entry<String, JPAPath>> selPath) {

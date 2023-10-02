@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCapabilitiesAnnotationsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -44,9 +45,20 @@ class TestJPAQueryNavigationCount extends TestBase {
   void testEntitySetCountWithFilterOnDescription() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons/$count?$filter=LocationName eq 'Deutschland'");
+        "Persons/$count?$filter=LocationName eq 'Deutschland'",
+        new JavaBasedCapabilitiesAnnotationsProvider());
 
     assertEquals(200, helper.getStatus());
     assertEquals("2", helper.getRawResult());
+  }
+
+  @Test
+  void testCountNotSupported() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AnnotationsParents(CodePublisher='Eurostat',CodeID='NUTS2',DivisionCode='BE24')/Children/$count",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+
+    assertEquals(400, helper.getStatus());
   }
 }

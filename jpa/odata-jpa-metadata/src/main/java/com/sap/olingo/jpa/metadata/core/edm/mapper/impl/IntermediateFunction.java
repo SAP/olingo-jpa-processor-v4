@@ -6,7 +6,6 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
@@ -16,15 +15,15 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
- * Mapper, that is able to convert different metadata resources into a edm function metadata. It is important to know
+ * Mapper that is able to convert different metadata resources into a edm function metadata. It is important to know
  * that:
  * <cite>Functions MUST NOT have observable side effects and MUST return a single instance or a collection of instances
  * of any type.</cite>
- * <p>For details about Function metadata see:
+ * <p>
+ * For details about Function metadata see:
  * <a href=
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398010"
  * >OData Version 4.0 Part 3 - 12.2 Element edm:Function</a>
@@ -40,7 +39,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
       final IntermediateSchema schema, final String internalName) {
 
-    super(nameBuilder, internalName);
+    super(nameBuilder, internalName, schema.getAnnotationInformation());
     this.jpaFunction = jpaFunction;
     this.schema = schema;
   }
@@ -113,66 +112,26 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   protected abstract FullQualifiedName determineParameterType(final Class<?> type,
       final EdmParameter definedParameter) throws ODataJPAModelException;
 
-  protected class IntermediateFunctionParameter implements JPAParameter {
+  protected class IntermediateFunctionParameter extends IntermediateOperationParameter {
     private final EdmParameter jpaParameter;
-    private final String internalName;
-    private final String externalName;
-    private final Class<?> type;
 
-    IntermediateFunctionParameter(final EdmParameter jpaParameter) {
+    IntermediateFunctionParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter,
+        final IntermediateAnnotationInformation annotationInfo) {
+      super(nameBuilder, jpaParameter, jpaParameter.name(), jpaParameter.parameterName(), jpaParameter.type(),
+          annotationInfo);
       this.jpaParameter = jpaParameter;
-      this.internalName = jpaParameter.parameterName();
-      this.externalName = jpaParameter.name();
-      this.type = jpaParameter.type();
     }
 
-    IntermediateFunctionParameter(final EdmParameter jpaParameter, final String externalName,
-        final String internalName, final Class<?> type) {
+    IntermediateFunctionParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter,
+        final String externalName, final String internalName, final Class<?> type,
+        final IntermediateAnnotationInformation annotationInfo) {
+      super(nameBuilder, jpaParameter, externalName, internalName, type, annotationInfo);
       this.jpaParameter = jpaParameter;
-      this.internalName = internalName;
-      this.externalName = externalName;
-      this.type = type;
-    }
-
-    @Override
-    public String getInternalName() {
-      return internalName;
-    }
-
-    @Override
-    public String getName() {
-      return externalName;
-    }
-
-    @Override
-    public Class<?> getType() {
-      return type.isPrimitive() ? boxPrimitive(type) : type;
-    }
-
-    @Override
-    public Integer getMaxLength() {
-      return jpaParameter.maxLength();
-    }
-
-    @Override
-    public Integer getPrecision() {
-      return jpaParameter.precision();
-    }
-
-    @Override
-    public Integer getScale() {
-      return jpaParameter.scale();
     }
 
     @Override
     public FullQualifiedName getTypeFQN() throws ODataJPAModelException {
-      return determineParameterType(type, jpaParameter);
-    }
-
-    @Override
-    public SRID getSrid() {
-      // TODO Auto-generated method stub
-      return null;
+      return determineParameterType(getType(), jpaParameter);
     }
   }
 }
