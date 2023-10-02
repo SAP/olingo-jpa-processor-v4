@@ -6,6 +6,7 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/olingo-jpa-processor-v4)](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4)
 ![GitHub last commit (develop)](https://img.shields.io/github/last-commit/SAP/OLINGO-JPA-PROCESSOR-V4/main.svg)
 [![GitHub release](https://img.shields.io/github/release-pre/sap/olingo-jpa-processor-v4.svg?color=orange&label=release)](https://github.com/SAP/olingo-jpa-processor-v4/releases/)
+[![Project Map](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/sapolingojpaprocessorv4/)
 
 The JPA Processor shall fill the gap between [Olingo V4](https://olingo.apache.org/doc/odata4/index.html) and the database if [JPA](https://en.wikipedia.org/wiki/Java_Persistence_API) is used for object-relational mapping.
 
