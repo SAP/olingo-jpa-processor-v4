@@ -1,9 +1,13 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ComplexValue;
@@ -24,6 +28,7 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriHelper;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaOperation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -132,6 +137,16 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
     } else {
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
     }
+  }
+
+  protected Object createInstance(final EntityManager em, final JPAJavaOperation jpaOperation)
+      throws InstantiationException, IllegalAccessException, InvocationTargetException {
+
+    final Constructor<?> c = jpaOperation.getConstructor();
+    if (c.getParameterCount() == 1)
+      return c.newInstance(em);
+    else
+      return c.newInstance();
   }
 
 }

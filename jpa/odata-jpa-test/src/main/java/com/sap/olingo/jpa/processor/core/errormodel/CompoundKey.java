@@ -46,7 +46,7 @@ public class CompoundKey implements Serializable {
     this.name = name;
   }
 
-  public static long getsSerialVersionUID() {
+  public static long getSerialVersionUID() {
     return serialVersionUID;
   }
 

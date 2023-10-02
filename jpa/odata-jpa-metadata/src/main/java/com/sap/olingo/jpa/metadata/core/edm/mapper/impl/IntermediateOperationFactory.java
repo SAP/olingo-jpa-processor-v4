@@ -26,39 +26,40 @@ public abstract class IntermediateOperationFactory<O extends IntermediateOperati
   }
 
   abstract O createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
-      final Method m, final Object functionDescription) throws ODataJPAModelException;
+      final Method method, final Object functionDescription)
+      throws ODataJPAModelException;
 
-  Map<String, O> createOperationMap(final JPAEdmNameBuilder nameBuilder,
-      final Reflections reflections, final IntermediateSchema schema, final Class<? extends ODataOperation> clazz,
+  @SuppressWarnings("unchecked")
+  Map<String, O> createOperationMap(final JPAEdmNameBuilder nameBuilder, final Reflections reflections,
+      final IntermediateSchema schema, final Class<? extends ODataOperation> clazz,
       final Class<? extends Annotation> annotation)
       throws ODataJPAModelException {
 
-    final Map<String, O> funcList = new HashMap<>();
+    final Map<String, O> operations = new HashMap<>();
     if (reflections != null) {
-      @SuppressWarnings("unchecked")
-      final Set<Class<? extends ODataOperation>> operationClasses =
-          (Set<Class<? extends ODataOperation>>) findJavaOperations(reflections, clazz);
-
-      for (final Class<? extends ODataOperation> operationClass : operationClasses) {
-        processOneClass(nameBuilder, schema, annotation, funcList, operationClass);
+      final Set<?> operationClasses = findJavaOperations(reflections, clazz);
+      for (final Object operationClass : operationClasses) {
+        processOneClass(nameBuilder, schema, annotation, operations, (Class<? extends ODataOperation>) operationClass);
       }
     }
-    return funcList;
+    return operations;
   }
 
-  private Set<?> findJavaOperations(final Reflections reflections, final Class<? extends ODataOperation> clazz) {
+  <T extends ODataOperation> Set<Class<? extends T>> findJavaOperations(final Reflections reflections,
+      final Class<T> clazz) {
     return reflections.getSubTypesOf(clazz);
   }
 
   private void processOneClass(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
-      final Class<? extends Annotation> annotation, final Map<String, O> funcList,
-      final Class<? extends ODataOperation> operationClass) throws ODataJPAModelException {
+      final Class<? extends Annotation> annotation, final Map<String, O> operations,
+      final Class<? extends ODataOperation> operationClass)
+      throws ODataJPAModelException {
 
     for (final Method m : Arrays.asList(operationClass.getMethods())) {
       final Object operationDescription = m.getAnnotation(annotation);
       if (operationDescription != null) {
-        final IntermediateOperation func = createOperation(nameBuilder, schema, m, operationDescription);
-        funcList.put(func.getInternalName(), createOperation(nameBuilder, schema, m, operationDescription));
+        final O operation = createOperation(nameBuilder, schema, m, operationDescription);
+        operations.put(operation.getInternalName(), operation);
       }
     }
   }

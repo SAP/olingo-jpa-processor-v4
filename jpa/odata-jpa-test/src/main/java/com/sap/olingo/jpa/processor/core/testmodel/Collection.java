@@ -1,10 +1,12 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -31,8 +33,13 @@ public class Collection {
       joinColumns = @JoinColumn(name = "\"ID\""))
   private List<CollectionNestedComplex> nested; // Must not be assigned to an ArrayList
 
+// @Convert(converter = OffsetDateTimeConverter.class)
   @Column(name = "\"Timestamp\"")
-  private OffsetDateTime dateTime;
+  private Timestamp dateTime;
+
+  @Convert(converter = LocalDateTimeConverter.class)
+  @Column(name = "\"Timestamp\"", insertable = false, updatable = false)
+  private LocalDateTime localDateTime;
 
   public String getID() {
     return iD;

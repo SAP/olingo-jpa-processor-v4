@@ -6,7 +6,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
 
 public class ODataJPAFilterException extends ODataJPAProcessException {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
@@ -17,7 +17,11 @@ public class ODataJPAFilterException extends ODataJPAProcessException {
     NOT_SUPPORTED_FUNCTION_COLLECTION,
     NOT_SUPPORTED_FUNCTION_NOT_SCALAR,
     NOT_SUPPORTED_TRANSIENT,
-    NOT_ALLOWED_MEMBER;
+    NOT_ALLOWED_MEMBER,
+
+    FILTERING_REQUIRED,
+    FILTERING_NOT_SUPPORTED,
+    FILTERING_MISSING_PROPERTIES;
 
     @Override
     public String getKey() {
@@ -28,8 +32,8 @@ public class ODataJPAFilterException extends ODataJPAProcessException {
 
   private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
-  public ODataJPAFilterException(final Throwable e, final HttpStatusCode statusCode) {
-    super(e, statusCode);
+  public ODataJPAFilterException(final Throwable cause, final HttpStatusCode statusCode) {
+    super(cause, statusCode);
   }
 
   public ODataJPAFilterException(final MessageKeys messageKey, final HttpStatusCode statusCode,

@@ -17,6 +17,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -24,6 +25,7 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
@@ -69,8 +71,13 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
   @Column(name = "\"AccessRights\"")
   private AccessRights[] accessRights;
 
+  @EdmIgnore
+  @Column(name = "\"Image_ID\"")
+  private String imageId;
+
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-  @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
+  @JoinColumn(name = "\"Image_ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,
+      nullable = true)
   private PersonImage image;
 
   @EdmAnnotation(term = "Core.Description", qualifier = "Address",
@@ -78,7 +85,7 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
           value = "Address for inhouse Mail"))
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
-      joinColumns = @JoinColumn(name = "\"ID\""))
+      joinColumns = @JoinColumn(name = "\"ParentID\""))
   private List<InhouseAddress> inhouseAddress = new ArrayList<>();
 
   @ManyToMany
@@ -92,6 +99,11 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
       joinColumns = @JoinColumn(name = "\"PersonID\"", referencedColumnName = "\"ID\""),
       inverseJoinColumns = @JoinColumn(name = "\"TeamID\"", referencedColumnName = "\"TeamKey\""))
   private List<Team> teams;
+
+  @OneToMany
+  @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,
+      nullable = true)
+  private List<TemporalWithValidityPeriod> jobs;
 
   public Person() {
     type = "1";
@@ -133,8 +145,8 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
     return inhouseAddress;
   }
 
-  public void setInhouseAddress(final List<InhouseAddress> inhouseAddress) {
-    this.inhouseAddress = inhouseAddress;
+  public void setInhouseAddress(final List<InhouseAddress> inHouseAddress) {
+    this.inhouseAddress = inHouseAddress;
   }
 
   public void addInhouseAddress(final InhouseAddress address) {

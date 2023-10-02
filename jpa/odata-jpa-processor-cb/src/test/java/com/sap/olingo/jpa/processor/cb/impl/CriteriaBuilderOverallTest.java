@@ -293,7 +293,7 @@ abstract class CriteriaBuilderOverallTest {
     final CriteriaQuery<Long> qc = cb.createQuery(Long.class);
     final Root<?> org = qc.from(BusinessPartnerProtected.class);
     qc.multiselect(cb.countDistinct(org));
-    qc.where(cb.equal(org.get("username"), "Willi"));
+    qc.where(cb.equal(org.get("userName"), "Willi"));
     final TypedQuery<Long> tq = em.createQuery(qc);
     final Long act = tq.getSingleResult();
     assertEquals(3L, act);

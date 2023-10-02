@@ -7,12 +7,13 @@ import java.util.Optional;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 
 final class JPARequestEntityImpl implements JPARequestEntity {
-  private static final JPAModifyUtil util = new JPAModifyUtil();
+  private static final JPAModifyUtil utility = new JPAModifyUtil();
 
   private final JPAEntityType et;
   private final Map<String, Object> jpaAttributes;
@@ -22,13 +23,18 @@ final class JPARequestEntityImpl implements JPARequestEntity {
   private final Map<String, List<String>> odataHeaders;
   private Optional<Object> beforeImage;
   private final JPAODataRequestContextAccess requestContext;
+  private final Optional<JPATopLevelEntity> topLevel;
 
-  JPARequestEntityImpl(final JPAEntityType et, final Map<String, Object> jpaAttributes,
+  JPARequestEntityImpl(
+      final Optional<JPATopLevelEntity> topLevel,
+      final JPAEntityType et,
+      final Map<String, Object> jpaAttributes,
       final Map<JPAAssociationPath, List<JPARequestEntity>> jpaDeepEntities,
       final Map<JPAAssociationPath, List<JPARequestLink>> jpaLinks, final Map<String, Object> keys,
       final Map<String, List<String>> headers, final JPAODataRequestContextAccess requestContext) {
 
     super();
+    this.topLevel = topLevel;
     this.et = et;
     this.jpaAttributes = jpaAttributes;
     this.jpaDeepEntities = jpaDeepEntities;
@@ -70,7 +76,7 @@ final class JPARequestEntityImpl implements JPARequestEntity {
 
   @Override
   public JPAModifyUtil getModifyUtil() {
-    return util;
+    return utility;
   }
 
   @Override
@@ -91,5 +97,10 @@ final class JPARequestEntityImpl implements JPARequestEntity {
   public List<String> getGroups() {
     final Optional<JPAODataGroupProvider> provider = requestContext.getGroupsProvider();
     return provider.isPresent() ? provider.get().getGroups() : Collections.emptyList();
+  }
+
+  @Override
+  public Optional<JPATopLevelEntity> getTopLevelEntity() {
+    return topLevel;
   }
 }

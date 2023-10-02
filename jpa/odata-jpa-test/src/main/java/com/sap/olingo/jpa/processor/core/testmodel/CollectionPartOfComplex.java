@@ -19,7 +19,7 @@ public class CollectionPartOfComplex {
 
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
-      joinColumns = @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\""))
+      joinColumns = @JoinColumn(name = "\"ParentID\"", referencedColumnName = "\"ID\""))
   private List<InhouseAddress> address = new ArrayList<>();
 
   @ElementCollection(fetch = FetchType.LAZY)
@@ -33,7 +33,7 @@ public class CollectionPartOfComplex {
     return number;
   }
 
-  public void setNumber(Long number) {
+  public void setNumber(final Long number) {
     this.number = number;
   }
 
@@ -41,7 +41,7 @@ public class CollectionPartOfComplex {
     return address;
   }
 
-  public void setAddress(List<InhouseAddress> address) {
+  public void setAddress(final List<InhouseAddress> address) {
     this.address = address;
   }
 
@@ -49,7 +49,7 @@ public class CollectionPartOfComplex {
     return comment;
   }
 
-  public void setComment(List<String> comment) {
+  public void setComment(final List<String> comment) {
     this.comment = comment;
   }
 }

@@ -328,5 +328,10 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     public boolean hasJoinTable() {
       return false;
     }
+
+    @Override
+    public String getPathAsString() {
+      return getAlias();
+    }
   }
 }

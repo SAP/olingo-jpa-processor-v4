@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 
 /**
@@ -21,7 +22,8 @@ public interface JPARequestEntity {
   public Map<String, List<String>> getAllHeader();
 
   /**
-   * For the creation of a dependent entity an instance of the requested entity (root entity) is provided. <br> The
+   * For the creation of a dependent entity an instance of the requested entity (root entity) is provided. <br>
+   * The
    * instance must not be merged
    * @return
    */
@@ -35,7 +37,8 @@ public interface JPARequestEntity {
 
   /**
    * List of attributes with pojo attributes name converted into JAVA types. In case the entity contains embedded
-   * attributes these are given as maps themselves.<p>
+   * attributes these are given as maps themselves.
+   * <p>
    * @return
    */
   public Map<String, Object> getData();
@@ -45,6 +48,12 @@ public interface JPARequestEntity {
    * @return
    */
   public JPAEntityType getEntityType();
+
+  /**
+   * Provides an instance to access the Singleton or Entity Set metadata
+   * @return
+   */
+  public Optional<JPATopLevelEntity> getTopLevelEntity();
 
   /**
    * Returns a list of given filed groups

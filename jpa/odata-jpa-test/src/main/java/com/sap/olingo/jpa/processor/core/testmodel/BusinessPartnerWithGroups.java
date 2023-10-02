@@ -79,7 +79,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
       joinColumns = @JoinColumn(name = "\"BusinessPartnerID\""))
   @Column(name = "\"Text\"")
-  private List<String> comment = new ArrayList<>();
+  private final List<String> comment = new ArrayList<>();
 
   @EdmAnnotation(term = "Core.IsLanguageDependent", constantExpression = @EdmAnnotation.ConstantExpression(
       type = ConstantExpressionType.Bool, value = "true"))
@@ -105,7 +105,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
               @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
               @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
   })
-  private PostalAddressDataWithGroup address = new PostalAddressDataWithGroup();
+  private final PostalAddressDataWithGroup address = new PostalAddressDataWithGroup();
 
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
@@ -115,18 +115,18 @@ public class BusinessPartnerWithGroups implements KeyAccess {
 
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
-      joinColumns = @JoinColumn(name = "\"ID\""))
-  private List<InhouseAddressWithGroup> inhouseAddress = new ArrayList<>();
+      joinColumns = @JoinColumn(name = "\"ParentID\""))
+  private final List<InhouseAddressWithGroup> inhouseAddress = new ArrayList<>();
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    BusinessPartnerWithGroups other = (BusinessPartnerWithGroups) obj;
+    final BusinessPartnerWithGroups other = (BusinessPartnerWithGroups) obj;
     if (iD == null) {
       if (other.iD != null)
         return false;
@@ -250,7 +250,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   @PrePersist
   public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
-    ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
+    final ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }

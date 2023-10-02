@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
@@ -22,12 +23,15 @@ import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
 
   private final JPACollectionAttribute attribute;
+  private final JoinType joinType;
 
   CollectionJoinImpl(@Nonnull final JPAPath path, @Nonnull final FromImpl<?, Z> parent,
-      @Nonnull final AliasBuilder aliasBuilder, @Nonnull final CriteriaBuilder cb) throws ODataJPAModelException {
+      @Nonnull final AliasBuilder aliasBuilder, @Nonnull final CriteriaBuilder cb,
+      @Nullable final JoinType joinType) throws ODataJPAModelException {
 
     super(determineEt(path, parent), parent, determinePath(path), aliasBuilder, cb);
     this.attribute = (JPACollectionAttribute) path.getLeaf();
+    this.joinType = joinType;
 
     createOn(attribute.asAssociation()
         .getJoinTable()
@@ -122,7 +126,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
 
   @Override
   public JoinType getJoinType() {
-    return JoinType.INNER;
+    return joinType == null ? JoinType.INNER : joinType;
   }
 
   @Override

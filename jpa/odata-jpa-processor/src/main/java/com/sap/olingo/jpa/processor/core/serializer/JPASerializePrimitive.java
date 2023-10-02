@@ -22,7 +22,7 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.Utility;
 
 final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
   private final ODataSerializer serializer;
@@ -64,7 +64,7 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException, ODataJPASerializerException {
 
-    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
+    final EdmBindingTarget targetEdmBindingTarget = Utility.determineBindingTarget(uriInfo.getUriResourceParts());
     final UriResourceProperty uriProperty = (UriResourceProperty) uriInfo.getUriResourceParts().get(uriInfo
         .getUriResourceParts().size() - 1);
 

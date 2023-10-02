@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.errormodel;
 
@@ -27,7 +27,7 @@ public class TransientPropertyCalculatorWrongConstructor implements EdmTransient
     return em;
   }
 
-  String getDummy() {
+  public String getDummy() {
     return dummy;
   }
 }

@@ -48,10 +48,11 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
 import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.Utility;
 
 /**
- * Helper method for modifying requests.<p>
+ * Helper method for modifying requests.
+ * <p>
  * Mainly created to increase testability
  * @author Oliver Grande
  *
@@ -79,7 +80,8 @@ public class JPAConversionHelper {
   }
 
   /**
-   * Creates a map of attribute name and the return value of there getter method. <p>
+   * Creates a map of attribute name and the return value of there getter method.
+   * <p>
    * It is assumed that the method name is composed from <i>get</> and the
    * name of the attribute and that the attribute name starts with a lower case
    * letter.
@@ -121,7 +123,7 @@ public class JPAConversionHelper {
       final List<UriResource> uriResourceParts) throws ODataJPAProcessorException {
 
     final InputStream requestInputStream = request.getBody();
-    final EdmBindingTargetInfo targetEntityInfo = Util.determineModifyEntitySetAndKeys(uriResourceParts);
+    final EdmBindingTargetInfo targetEntityInfo = Utility.determineModifyEntitySetAndKeys(uriResourceParts);
     try {
       final ODataDeserializer deserializer = createDeserializer(odata, requestFormat,
           request.getHeaders(HttpHeader.ODATA_VERSION));

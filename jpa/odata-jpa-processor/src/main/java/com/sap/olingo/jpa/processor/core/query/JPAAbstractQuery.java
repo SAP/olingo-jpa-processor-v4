@@ -69,6 +69,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
@@ -102,20 +103,6 @@ public abstract class JPAAbstractQuery {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     this.debugger = new JPAEmptyDebugger();
-    this.odata = odata;
-    this.claimsProvider = claimsProvider;
-    this.groups = Collections.emptyList();
-  }
-
-  JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
-      final EntityManager em, final JPAServiceDebugger debugger, final Optional<JPAODataClaimProvider> claimsProvider) {
-
-    super();
-    this.em = em;
-    this.cb = em.getCriteriaBuilder();
-    this.sd = sd;
-    this.jpaEntity = jpaEntityType;
-    this.debugger = debugger;
     this.odata = odata;
     this.claimsProvider = claimsProvider;
     this.groups = Collections.emptyList();
@@ -160,7 +147,7 @@ public abstract class JPAAbstractQuery {
    */
   public abstract <T> AbstractQuery<T> getQuery();
 
-  public abstract From<?, ?> getRoot();
+  public abstract <S, T> From<S, T> getRoot();
 
   protected javax.persistence.criteria.Expression<Boolean> addWhereClause(
       javax.persistence.criteria.Expression<Boolean> whereCondition,
@@ -205,17 +192,16 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  protected List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
+  protected List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables, // NOSONAR
       final From<?, ?> from, final Collection<JPAPath> selectionPathList) {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createGroupBy");
-    final List<javax.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
-    for (final JPAPath jpaPath : selectionPathList) {
-      groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, from, jpaPath.getPath()));
+    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createGroupBy")) {
+      final List<javax.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
+      for (final JPAPath jpaPath : selectionPathList) {
+        groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, from, jpaPath.getPath()));
+      }
+      return groupBy;
     }
-
-    debugger.stopRuntimeMeasurement(handle);
-    return groupBy;
   }
 
   protected <T, S> Join<T, S> createJoinFromPath(final String alias, final List<JPAElement> pathList,
@@ -246,7 +232,8 @@ public abstract class JPAAbstractQuery {
    * <a
    * href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398297"
-   * >OData Version 4.0 Part 1 - 11.2.4.1 System Query Option $select</a> <p>
+   * >OData Version 4.0 Part 1 - 11.2.4.1 System Query Option $select</a>
+   * <p>
    * See also:
    * <a
    * href=
@@ -263,19 +250,19 @@ public abstract class JPAAbstractQuery {
       final Collection<JPAPath> requestedProperties, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow subclasses to throw an exception
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
-    final List<Selection<?>> selections = new ArrayList<>();
+    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createSelectClause")) {
+      final List<Selection<?>> selections = new ArrayList<>();
 
-    // Build select clause
-    for (final JPAPath jpaPath : requestedProperties) {
-      if (jpaPath.isPartOfGroups(groups)) {
-        final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
-        p.alias(jpaPath.getAlias());
-        selections.add(p);
+      // Build select clause
+      for (final JPAPath jpaPath : requestedProperties) {
+        if (jpaPath.isPartOfGroups(groups)) {
+          final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+          p.alias(jpaPath.getAlias());
+          selections.add(p);
+        }
       }
+      return selections;
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return selections;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createProtectionWhereForEntityType(
@@ -449,6 +436,10 @@ public abstract class JPAAbstractQuery {
         whereCondition = cb.or(whereCondition, additionalExpression);
     }
     return whereCondition;
+  }
+
+  protected JPAEntityType getJpaEntity() {
+    return jpaEntity;
   }
 
   Set<JPAPath> determineAllDescriptionPath(final List<JPAPath> descriptionFields,

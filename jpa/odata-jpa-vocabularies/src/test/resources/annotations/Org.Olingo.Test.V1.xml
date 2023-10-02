@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0"
+		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		   xsi:schemaLocation="http://http://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/cs01/schemas/edm.xsd">
+  <edmx:Reference Uri="http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Measures.V1" Alias="Measures">
+      <Annotation Term="Core.Description">
+        <String>Terms describing monetary amounts and measured quantities</String>
+      </Annotation>
+
+      <Term Name="ISOCurrency" Type="Edm.String" AppliesTo="Property">
+        <Annotation Term="Core.Description" String="The currency for this monetary amount as an ISO 4217 currency code" />
+      </Term>
+
+      <Term Name="Scale" Type="Edm.Byte" AppliesTo="Property">
+        <Annotation Term="Core.Description"
+          String="The number of significant decimal places in the scale part (less than or equal to the number declared in the Scale facet)" />
+        <Annotation Term="Core.RequiresType" String="Edm.Decimal" />
+      </Term>
+
+      <Term Name="Unit" Type="Edm.String" AppliesTo="Property">
+        <Annotation Term="Core.Description" String="The unit of measure for this measured quantity, e.g. cm for centimeters or % for percentages" />
+      </Term>
+      <Term Name="MultipleOf" Type="Edm.Decimal" Scale="10" Precision="5" Nullable="false" AppliesTo="Property Parameter Term">
+        <Annotation Term="Core.Description" String="The value of the annotated property, parameter, or term must be an integer multiple of this positive value. For temporal types, the value is measured in seconds." />
+      </Term>
+      <Term Name="Unit2" BaseTerm="Unit" MaxLength="2" AppliesTo="Property Parameter Term">
+        <Annotation Term="Core.Description" String="Test BaseType andMaxLength" />
+      </Term>
+      <Term Name="Geo" SRID="1234" AppliesTo="Property Parameter Term">
+        <Annotation Term="Core.Description" String="Test SRID" />
+      </Term>      
+    </Schema>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Capabilities.V1" Alias="Capabilities">
+      <Annotation Term="Core.Description">
+        <String>
+          The Capabilities vocabulary aims to provide a way for service authors to describe
+          certain capabilities of an OData Service.
+        </String>
+      </Annotation>
+      <Term Name="UpdateRestrictions" Type="Capabilities.UpdateRestrictionsType" AppliesTo="EntitySet">
+        <Annotation Term="Core.Description" String="Restrictions on update operations" />
+      </Term>
+      <ComplexType Name="UpdateRestrictionsType">
+        <Property Name="Updatable" Type="Edm.Boolean" DefaultValue="true">
+          <Annotation Term="Core.Description" String="Entities can be updated" />
+        </Property>
+        <Property Name="NonUpdatableNavigationProperties" Type="Collection(Edm.NavigationPropertyPath)">
+          <Annotation Term="Core.Description" String="These navigation properties do not allow rebinding" />
+        </Property>
+      </ComplexType>
+
+      <Term Name="DeleteRestrictions" Type="Capabilities.DeleteRestrictionsType" AppliesTo="EntitySet">
+        <Annotation Term="Core.Description" String="Restrictions on delete operations" />
+      </Term>
+      <ComplexType Name="DeleteRestrictionsType">
+        <Property Name="Deletable" Type="Edm.Boolean" DefaultValue="true">
+          <Annotation Term="Core.Description" String="Entities can be deleted" />
+        </Property>
+        <Property Name="NonDeletableNavigationProperties" Type="Collection(Edm.NavigationPropertyPath)">
+          <Annotation Term="Core.Description" String="These navigation properties do not allow DeleteLink requests" />
+        </Property>
+      </ComplexType>
+      <ComplexType Name="TestType" Abstract="true" OpenType="true" BaseType="Core.Unknown">
+        <Annotation Term="Core.Description" String="This type is only for test purposes" />
+        <Property Name="Deletable" Type="Edm.Boolean" DefaultValue="true">
+          <Annotation Term="Core.Description" String="Entities can be deleted" />
+        </Property>    
+        <Property Name="NonDeletableNavigationProperties" Type="Collection(Edm.NavigationPropertyPath)">
+          <Annotation Term="Core.Description" String="These navigation properties do not allow DeleteLink requests" />
+        </Property>
+        <Property Name="TestDecimals" Type="Edm.Decimal" Precision="10" Scale="5" >
+          <Annotation Term="Core.Description" String="For test only" />
+        </Property>
+        <Property Name="TestString" Type="Edm.String" Unicode="false" MaxLength="256" >
+          <Annotation Term="Core.Description" String="For test only" />
+        </Property>
+        <Property Name="TestGeo" Type="Edm.GeometryPoint" SRID="3857" >
+          <Annotation Term="Core.Description" String="For test only" />
+        </Property>               
+      </ComplexType>
+      
+      <Function Name="TestTheRest1" IsBound="false" EntitySetPath="timeslices">
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+        <Parameter Name="Dec" Type="Edm.Decimal" Precision="10" Scale="5"  />
+        <Parameter Name="Geo"  Type="Edm.GeometryPoint" SRID="3857" Nullable="true" />
+        <Parameter Name="Text"  Type="Collection(Edm.String)"  MaxLength="512"/>
+        <ReturnType Type="Collection(Edm.Decimal)" Precision="10" Scale="5" MaxLength="20" Nullable="true"  SRID="3857"/>
+      </Function> 
+      
+      <Action Name="UpsertTimeExample" IsBound="true" EntitySetPath="timeslices">
+        <Parameter Name="timeslices" Type="Collection(Edm.EntityType)" Nullable="false"/>
+        <Parameter Name="To" Type="Edm.PrimitiveType" Nullable="false"/>
+        <Parameter Name="Values" Type="Edm.EntityType" Nullable="true"/>
+        <ReturnType Type="Collection(Edm.EntityType)" Nullable="false"/>
+      </Action>      
+      <Action Name="TestTheRest2">
+      </Action>
+      
+      <TypeDefinition Name="TestTypeDecimal" UnderlyingType="Edm.Decimal"  Precision="10" Scale="5" >
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+      </TypeDefinition>
+      <TypeDefinition Name="TestTypeGeo" UnderlyingType="Edm.GeographyPolygon" SRID="variable"  >
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+      </TypeDefinition>  
+      <TypeDefinition Name="TestTypeString" UnderlyingType="Edm.String" MaxLength="256"  Unicode="false" >
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+      </TypeDefinition>
+    </Schema>	  
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -55,7 +55,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
           .getPath());
       final String prefix = determinePrefix(jpaResult.getAssociation().getAlias());
 
-      for (Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
+      for (final Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
         if (isTransient) {
           result.put(tuple.getKey(), convertTransientCollection(attribute, tuple));
         } else {
@@ -63,7 +63,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
               convertPersistentCollection(jpaResult, attribute, st, prefix, tuple, requestedSelection));
         }
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     } finally {
@@ -74,7 +74,8 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
 
   private List<Object> convertPersistentCollection(final JPACollectionResult jpaResult,
       final JPAAssociationAttribute attribute, final JPAStructuredType st, final String prefix,
-      Entry<String, List<Tuple>> tuple, final Collection<JPAPath> requestedSelection) throws ODataJPAModelException,
+      final Entry<String, List<Tuple>> tuple, final Collection<JPAPath> requestedSelection)
+      throws ODataJPAModelException,
       ODataApplicationException {
 
     final List<Object> collection = new ArrayList<>();
@@ -115,7 +116,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
 
   @SuppressWarnings("unchecked")
   private List<Object> convertTransientCollection(final JPAAssociationAttribute attribute,
-      Entry<String, List<Tuple>> tuple) throws ODataJPAProcessorException {
+      final Entry<String, List<Tuple>> tuple) throws ODataJPAProcessorException {
 
     final Optional<EdmTransientPropertyCalculator<?>> calculator = requestContext.getCalculator(attribute);
     if (calculator.isPresent()) {

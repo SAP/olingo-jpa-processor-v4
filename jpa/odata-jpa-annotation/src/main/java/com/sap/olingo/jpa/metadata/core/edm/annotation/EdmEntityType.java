@@ -29,9 +29,10 @@ public @interface EdmEntityType {
   /**
    * Query Extension Provider provides a set to methods to extend or influence the generated query. This may be from
    * interest in case a subset of records shall be represented by an Entity Set or Singleton and it is not possible to
-   * use a database view. <p>
+   * use a database view.
+   * <p>
    *
-   * A Query Extension Provider are inherited. One that is given at a sub type overrides one that is given at the super
+   * Query Extension Provider are inherited. One that is given at a sub type overrides one that is given at the super
    * type or base type.
    */
   Class<? extends EdmQueryExtensionProvider> extensionProvider() default EdmQueryExtensionProvider.class;

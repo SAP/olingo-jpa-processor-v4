@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 
+import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -22,13 +23,13 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   private final List<JPAElement> pathElements;
   private final IntermediateStructuredType<?> sourceType;
   private final IntermediateStructuredType<?> targetType;
-  private final List<IntermediateJoinColumn> joinColumns;
+  private final List<? extends JPAJoinColumn> joinColumns;
   private final PersistentAttributeType cardinality;
   private final boolean isCollection;
   private final JPAAssociationAttribute partner;
   private final JPAJoinTable joinTable;
 
-  JPAAssociationPathImpl(final IntermediateNavigationProperty association,
+  JPAAssociationPathImpl(final IntermediateNavigationProperty<?> association,
       final IntermediateStructuredType<?> source) throws ODataJPAModelException {
 
     final List<JPAElement> pathElementsBuffer = new ArrayList<>();
@@ -46,7 +47,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   }
 
   JPAAssociationPathImpl(final JPAAssociationPath associationPath, final IntermediateStructuredType<?> source,
-      final List<IntermediateJoinColumn> joinColumns, final JPAAttribute attribute) throws ODataJPAModelException {
+      final List<? extends JPAJoinColumn> joinColumns, final JPAAttribute attribute) throws ODataJPAModelException {
 
     final List<JPAElement> pathElementsBuffer = new ArrayList<>();
     pathElementsBuffer.add(attribute);
@@ -77,8 +78,8 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    * @param joinColumns
    * @throws ODataJPAModelException
    */
-  public JPAAssociationPathImpl(final IntermediateCollectionProperty collectionProperty,
-      final IntermediateStructuredType<?> source, final JPAPath path, final List<IntermediateJoinColumn> joinColumns)
+  public JPAAssociationPathImpl(final IntermediateCollectionProperty<?> collectionProperty,
+      final IntermediateStructuredType<?> source, final JPAPath path, final List<? extends JPAJoinColumn> joinColumns)
       throws ODataJPAModelException {
 
     alias = path.getAlias();
@@ -115,17 +116,10 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
     final List<JPAOnConditionItem> result = new ArrayList<>();
-    for (final IntermediateJoinColumn column : this.joinColumns) {
-      // ManyToOne
-      if (cardinality == PersistentAttributeType.MANY_TO_ONE
-          || cardinality == PersistentAttributeType.MANY_TO_MANY)
-        result.add(new JPAOnConditionItemImpl(
-            sourceType.getPathByDBField(column.getName()),
-            targetType.getPathByDBField(column.getReferencedColumnName())));
-      else
-        result.add(new JPAOnConditionItemImpl(
-            sourceType.getPathByDBField(column.getReferencedColumnName()),
-            targetType.getPathByDBField(column.getName())));
+    for (final JPAJoinColumn column : this.joinColumns) {
+      result.add(new JPAOnConditionItemImpl(
+          sourceType.getPathByDBField(column.getName()),
+          targetType.getPathByDBField(column.getReferencedColumnName())));
     }
     return result;
   }
@@ -148,12 +142,8 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public List<JPAPath> getLeftColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
-    for (final IntermediateJoinColumn column : this.joinColumns) {
-      JPAPath columnPath = null;
-      if (joinTable != null || (cardinality == PersistentAttributeType.MANY_TO_ONE))
-        columnPath = sourceType.getPathByDBField(column.getName());
-      else
-        columnPath = sourceType.getPathByDBField(column.getReferencedColumnName());
+    for (final JPAJoinColumn column : this.joinColumns) {
+      final JPAPath columnPath = sourceType.getPathByDBField(column.getName());
       if (columnPath != null)
         result.add(columnPath);
     }
@@ -176,14 +166,15 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   }
 
   @Override
+  public String getPathAsString() {
+    return getAlias();
+  }
+
+  @Override
   public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
-    for (final IntermediateJoinColumn column : this.joinColumns) {
-      JPAPath columnPath = null;
-      if (joinTable != null || (cardinality == PersistentAttributeType.MANY_TO_ONE))
-        columnPath = targetType.getPathByDBField(column.getReferencedColumnName());
-      else
-        columnPath = targetType.getPathByDBField(column.getName());
+    for (final JPAJoinColumn column : this.joinColumns) {
+      final JPAPath columnPath = targetType.getPathByDBField(column.getReferencedColumnName());
       if (columnPath != null)
         result.add(columnPath);
     }
@@ -231,7 +222,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     return cardinality;
   }
 
-  private List<IntermediateJoinColumn> getJoinColumns() {
+  private List<? extends JPAJoinColumn> getJoinColumns() {
     return joinColumns;
   }
 
@@ -246,7 +237,8 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    * the path attribute MUST contain a forward-slash separated list of complex
    * property names and qualified type names that describe the path leading
    * to the navigation property. See <a
-   * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035">
+   * href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035">
    * Navigation Property Binding</a>.
    * @param associationPath
    * @param parent

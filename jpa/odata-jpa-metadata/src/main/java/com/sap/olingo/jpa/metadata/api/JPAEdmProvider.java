@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.api;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +30,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
@@ -43,22 +45,30 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
   public JPAEdmProvider(@Nonnull final String namespace, @Nonnull final EntityManagerFactory emf,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataException {
-    this(namespace, Objects.requireNonNull(emf.getMetamodel()), postProcessor, packageName);
+    this(namespace, Objects.requireNonNull(emf.getMetamodel()), postProcessor, packageName, Collections.emptyList());
+  }
+
+  public JPAEdmProvider(@Nonnull final String namespace, final EntityManagerFactory emf,
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) throws ODataException {
+    this(namespace, Objects.requireNonNull(emf.getMetamodel()), postProcessor, packageName, annotationProvider);
   }
 
   public JPAEdmProvider(@Nonnull final String namespace, final Metamodel jpaMetamodel,
-      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataException {
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) throws ODataException {
 
-    this(jpaMetamodel, postProcessor, packageName, new JPADefaultEdmNameBuilder(namespace));
+    this(jpaMetamodel, postProcessor, packageName, new JPADefaultEdmNameBuilder(namespace), annotationProvider);
   }
 
   public JPAEdmProvider(final Metamodel jpaMetamodel, final JPAEdmMetadataPostProcessor postProcessor,
-      final String[] packageName, final JPAEdmNameBuilder nameBuilder) throws ODataException {
+      final String[] packageName, final JPAEdmNameBuilder nameBuilder,
+      final List<AnnotationProvider> annotationProvider) throws ODataException {
     super();
     this.nameBuilder = nameBuilder;
     // After this call either a schema exists or an exception has been thrown
-    this.serviceDocument = new JPAServiceDocumentFactory(nameBuilder, jpaMetamodel, postProcessor, packageName)
-        .getServiceDocument();
+    this.serviceDocument = new JPAServiceDocumentFactory(nameBuilder, jpaMetamodel, postProcessor, packageName,
+        annotationProvider).getServiceDocument();
   }
 
   /**
@@ -300,7 +310,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     return serviceDocument.getEdmSchemas();
   }
 
-  public JPAServiceDocument getServiceDocument() {
+  public @Nonnull JPAServiceDocument getServiceDocument() {
     return serviceDocument;
   }
 

@@ -1,8 +1,11 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.util.List;
+
 import javax.persistence.metamodel.Metamodel;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -13,14 +16,17 @@ public final class JPAServiceDocumentFactory {
   private final Metamodel jpaMetamodel;
   private final JPAEdmMetadataPostProcessor postProcessor;
   private final String[] packageName;
+  private final List<AnnotationProvider> annotationProvider;
 
   public JPAServiceDocumentFactory(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel,
-      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) {
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) {
     super();
     this.nameBuilder = nameBuilder;
     this.jpaMetamodel = jpaMetamodel;
     this.postProcessor = postProcessor;
     this.packageName = packageName;
+    this.annotationProvider = annotationProvider;
   }
 
   /**
@@ -29,6 +35,6 @@ public final class JPAServiceDocumentFactory {
    * @throws ODataJPAModelException
    */
   public JPAServiceDocument getServiceDocument() throws ODataJPAModelException {
-    return new IntermediateServiceDocument(nameBuilder, jpaMetamodel, postProcessor, packageName);
+    return new IntermediateServiceDocument(nameBuilder, jpaMetamodel, postProcessor, packageName, annotationProvider);
   }
 }

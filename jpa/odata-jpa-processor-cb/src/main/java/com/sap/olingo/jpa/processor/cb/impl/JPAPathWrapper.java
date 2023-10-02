@@ -56,4 +56,9 @@ class JPAPathWrapper implements JPAPath {
   public boolean isTransient() {
     return false;
   }
+
+  @Override
+  public String getPathAsString() {
+    return selection.getAlias();
+  }
 }

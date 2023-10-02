@@ -2,12 +2,14 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
+
 /**
  * A path within an JPA entity to an attribute.
  * @author Oliver Grande
  *
  */
-public interface JPAPath extends Comparable<JPAPath> {
+public interface JPAPath extends ODataPropertyPath, Comparable<JPAPath> {
 
   final String PATH_SEPARATOR = "/";
 
@@ -48,8 +50,8 @@ public interface JPAPath extends Comparable<JPAPath> {
   public boolean isPartOfGroups(final List<String> groups);
 
   /**
-   * 
-   * @return True in case at least on of the elements of the path is a transient property
+   *
+   * @return True in case at least one of the elements of the path is a transient property
    */
   public boolean isTransient();
 

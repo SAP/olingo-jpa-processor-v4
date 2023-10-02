@@ -26,12 +26,14 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
 class JPAJoinQueryTest extends TestQueryBase {
   private CriteriaBuilder cb;
+  @SuppressWarnings("rawtypes")
   private CriteriaQuery cq;
   private EntityManager em;
   private JPAODataRequestContextAccess localContext;
@@ -51,7 +53,7 @@ class JPAJoinQueryTest extends TestQueryBase {
     buildUriInfo("BusinessPartners", "BusinessPartner");
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
-    jpaEntityType = helper.getJPAEntityType("BusinessPartners");
+    jpaEntityType = helper.getJPAEntityType(BusinessPartner.class);
     createHeaders();
 
     when(localContext.getUriInfo()).thenReturn(uriInfo);
@@ -73,6 +75,7 @@ class JPAJoinQueryTest extends TestQueryBase {
     final Expression<Long> countExpression = mock(Expression.class);
     when(cb.createQuery(any())).thenReturn(cq);
     doReturn(countExpression).when(cb).countDistinct(any());
+    doReturn(countExpression).when(cb).count(any());
     when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
     when(typedQuery.getSingleResult()).thenReturn(5);
     final Long act = ((JPAJoinQuery) cut).countResults();
@@ -86,6 +89,7 @@ class JPAJoinQueryTest extends TestQueryBase {
     final Expression<Long> countExpression = mock(Expression.class);
     when(cb.createQuery(any())).thenReturn(cq);
     doReturn(countExpression).when(cb).countDistinct(any());
+    doReturn(countExpression).when(cb).count(any());
     when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
     when(typedQuery.getSingleResult()).thenReturn(5L);
     final Long act = ((JPAJoinQuery) cut).countResults();

@@ -14,12 +14,12 @@ import javax.persistence.Converter;
 public class UUIDToStringConverter implements AttributeConverter<UUID, String> {
 
   @Override
-  public String convertToDatabaseColumn(UUID uuid) {
+  public String convertToDatabaseColumn(final UUID uuid) {
     return uuid == null ? null : uuid.toString();
   }
 
   @Override
-  public UUID convertToEntityAttribute(String dbData) {
+  public UUID convertToEntityAttribute(final String dbData) {
     return dbData == null ? null : UUID.fromString(dbData);
   }
 }

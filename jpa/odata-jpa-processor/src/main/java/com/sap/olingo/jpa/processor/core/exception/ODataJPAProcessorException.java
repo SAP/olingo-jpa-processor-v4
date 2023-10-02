@@ -39,12 +39,19 @@ public class ODataJPAProcessorException extends ODataJPAProcessException { // NO
     ODATA_MAXPAGESIZE_NOT_A_NUMBER,
     SETTER_NOT_FOUND,
     GETTER_NOT_FOUND,
+    NO_COLLECTION_RETURNED_BY_GETTER,
     BEFORE_IMAGE_MERGED,
     ENTITY_TYPE_UNKNOWN,
     FUNCTION_UNKNOWN,
     ACTION_UNKNOWN,
     ENUMERATION_UNKNOWN,
-    NO_METADATA_PROVIDER;
+    NO_METADATA_PROVIDER,
+
+    EXPAND_NON_SUPPORTED_EXPAND,
+    EXPAND_NON_SUPPORTED_AT_ALL,
+    EXPAND_EXCEEDS_MAX_LEVEL,
+
+    COUNT_NON_SUPPORTED_COUNT;
 
     @Override
     public String getKey() {
@@ -55,8 +62,8 @@ public class ODataJPAProcessorException extends ODataJPAProcessException { // NO
 
   private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
-  public ODataJPAProcessorException(final Throwable e, final HttpStatusCode statusCode) {
-    super(e, statusCode);
+  public ODataJPAProcessorException(final Throwable exception, final HttpStatusCode statusCode) {
+    super(exception, statusCode);
   }
 
   public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode,
@@ -78,8 +85,8 @@ public class ODataJPAProcessorException extends ODataJPAProcessException { // NO
     super(messageKey.getKey(), statusCode, params);
   }
 
-  public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode, final Throwable e) {
-    super(messageKey.getKey(), statusCode, e);
+  public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode, final Throwable exception) {
+    super(messageKey.getKey(), statusCode, exception);
   }
 
   @Override

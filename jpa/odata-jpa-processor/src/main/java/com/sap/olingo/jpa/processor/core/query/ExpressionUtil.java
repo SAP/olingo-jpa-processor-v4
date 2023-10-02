@@ -28,7 +28,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameterFacet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -58,7 +57,8 @@ public final class ExpressionUtil {
    * @param jpaPath
    * @return
    */
-  public static Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
+  @SuppressWarnings("unchecked")
+  public static <T> Path<T> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
       final List<JPAElement> jpaPath) {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : jpaPath)
@@ -70,7 +70,7 @@ public final class ExpressionUtil {
       } else {
         p = p.get(jpaPathElement.getInternalName());
       }
-    return p;
+    return (Path<T>) p;
   }
 
   public static Path<?> convertToCriteriaPath(final From<?, ?> root, final List<JPAElement> jpaPath) {
@@ -81,14 +81,13 @@ public final class ExpressionUtil {
   }
 
   /**
-   * Converts a OData attribute into an JPA path. Sets the alias to the alias of the OData path of the attribute.
+   * Converts an OData attribute into an JPA path. Sets the alias to the alias of the OData path of the attribute.
    * @param root From the path be derived from
    * @param et OData Entity Type
    * @param jpaAttributes Attribute to be converted into an JPA path
    * @return
    * @throws ODataJPAQueryException
    */
-  @SuppressWarnings("unchecked")
   public static List<Path<Object>> convertToCriteriaPathList(final From<?, ?> root, final JPAEntityType et,
       final List<JPAAttribute> jpaAttributes) throws ODataJPAQueryException {
 
@@ -96,6 +95,7 @@ public final class ExpressionUtil {
       final List<Path<Object>> result = new ArrayList<>(jpaAttributes.size());
       for (final JPAAttribute attribute : jpaAttributes) {
         final JPAPath path = et.getPath(attribute.getExternalName());
+        @SuppressWarnings("unchecked")
         final Path<Object> p = (Path<Object>) convertToCriteriaPath(root, path.getPath());
         p.alias(path.getAlias());
         result.add(p);
@@ -117,11 +117,10 @@ public final class ExpressionUtil {
 
     try {
       final CsdlProperty edmProperty = (CsdlProperty) attribute.getProperty();
-      final EdmPrimitiveTypeKind edmTypeKind = JPATypeConverter.convertToEdmSimpleType(attribute);
 
       // TODO literal does not convert decimals without scale properly
       String targetValue = null;
-      final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);
+      final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(attribute.getEdmType());
       if (Boolean.TRUE.equals(isUri)) {
         targetValue = edmType.fromUriLiteral(value);
       } else {

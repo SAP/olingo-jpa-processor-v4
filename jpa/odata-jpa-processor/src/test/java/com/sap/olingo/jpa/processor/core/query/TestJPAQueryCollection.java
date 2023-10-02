@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -27,10 +28,10 @@ class TestJPAQueryCollection extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$select=ID,Comment&orderby=ID");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    assertNotNull(org.get("ID"));
-    final ArrayNode comment = (ArrayNode) org.get("Comment");
+    final ArrayNode organizations = helper.getValues();
+    final ObjectNode organization = (ObjectNode) organizations.get(0);
+    assertNotNull(organization.get("ID"));
+    final ArrayNode comment = (ArrayNode) organization.get("Comment");
     assertEquals(2, comment.size());
   }
 
@@ -265,13 +266,6 @@ class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  void testCollectionCount() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/InhouseAddress/$count");
-    assertEquals(501, helper.getStatus());
-  }
-
-  @Test
   void testPathWithTransientCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "CollectionDeeps('501')/FirstLevel");
@@ -340,7 +334,6 @@ class TestJPAQueryCollection extends TestBase {
     final ArrayNode collection = (ArrayNode) result.get("value");
     assertEquals(2, collection.size());
     assertFalse(collection.get(0).get("Log") instanceof NullNode);
-
   }
 
   @Test
@@ -360,5 +353,35 @@ class TestJPAQueryCollection extends TestBase {
     final ObjectNode collection = helper.getValue();
     final ArrayNode complex = (ArrayNode) collection.get("value");
     assertEquals(1, complex.size());
+  }
+
+  @Test
+  void testSelectCollectionCountSimpleProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('1')/Comment/$count");
+    helper.assertStatus(200);
+    final ValueNode count = helper.getSingleValue();
+    assertEquals(2, count.asInt());
+  }
+
+  @Test
+  void testSelectCollectionCountComplexProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons('99')/InhouseAddress/$count");
+    helper.assertStatus(200);
+    final ValueNode count = helper.getSingleValue();
+    assertEquals(2, count.asInt());
+  }
+
+  @Test
+  void testSelectCollectionCountComplexPropertySingleton() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CurrentUser/InhouseAddress/$count");
+    helper.assertStatus(200);
+    final ValueNode count = helper.getSingleValue();
+    assertEquals(1, count.asInt());
   }
 }

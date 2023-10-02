@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.testmodel;
 
@@ -26,7 +26,7 @@ public class TransientRefComplex {
 
   @EdmTransient(requiredAttributes = { "addr/building" }, calculator = FullNameCalculator.class)
   @Transient
-  private String concatenatedAddr;
+  private String concatenatedName;
 
   @Embedded
   private InhouseAddressWithGroup addr;

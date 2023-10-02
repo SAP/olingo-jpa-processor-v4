@@ -6,9 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,14 +22,52 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 
 class TestJPAQueryNavigation extends TestBase {
 
-  @Test
-  void testNavigationOneHop() throws IOException, ODataException {
+  private static Stream<Arguments> provideNavigationNoResults() {
+    return Stream.of(
+        Arguments.of("Organizations('3')/Roles", 3, "NavigationOneHop"),
+        Arguments.of("Persons('97')/SupportedOrganizations", 2, "NavigationJoinTableDefined"),
+        Arguments.of("Organizations('1')/SupportEngineers", 2, "NavigationJoinTableMappedBy"),
+        Arguments.of(
+            "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person/SupportedOrganizations",
+            1, "NavigationJoinTableDefinedSecondHop"));
+  }
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/Roles");
+  @ParameterizedTest
+  @MethodSource("provideNavigationNoResults")
+  void testNavigationByNumberOfResults(final String url, final Integer exp, final String message) throws IOException,
+      ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, url);
     helper.assertStatus(200);
 
     final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
+    assertEquals(exp, orgs.size(), message);
+  }
+
+  private static Stream<Arguments> provideNavigation() {
+    return Stream.of(
+        Arguments.of("Organizations('3')/AdministrativeInformation/Created", "99", "By", "NavigationToComplexValue"),
+        Arguments.of("BusinessPartnerRoles(BusinessPartnerID='2',RoleCategory='A')/BusinessPartner", "2", "ID",
+            "NavigationOneHopReverse"),
+        Arguments.of("Organizations('3')/AdministrativeInformation/Created/User", "99", "ID",
+            "NavigationViaComplexType"),
+        Arguments.of("Organizations('3')/AdministrativeInformation/Created/User/Address/AdministrativeDivision",
+            "3166-1", "ParentCodeID", "NavigationViaComplexTypeTwoHops"),
+        Arguments.of(
+            "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person",
+            "Doe", "LastName", "NavigationWithCast"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideNavigation")
+  void testNavigationToComplexValue(final String url, final String exp, final String propertyName, final String message)
+      throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, url);
+    helper.assertStatus(200);
+
+    final ObjectNode created = helper.getValue();
+    assertEquals(exp, created.get(propertyName).asText(), message);
   }
 
   @Test
@@ -57,17 +99,6 @@ class TestJPAQueryNavigation extends TestBase {
   }
 
   @Test
-  void testNavigationToComplexValue() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations('3')/AdministrativeInformation/Created");
-    helper.assertStatus(200);
-
-    final ObjectNode created = helper.getValue();
-    assertEquals("99", created.get("By").asText());
-  }
-
-  @Test
   void testNavigationOneHopAndOrderBy() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -78,17 +109,6 @@ class TestJPAQueryNavigation extends TestBase {
     assertEquals(3, orgs.size());
     assertEquals("C", orgs.get(0).get("RoleCategory").asText());
     assertEquals("A", orgs.get(2).get("RoleCategory").asText());
-  }
-
-  @Test
-  void testNavigationOneHopReverse() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerRoles(BusinessPartnerID='2',RoleCategory='A')/BusinessPartner");
-    helper.assertStatus(200);
-
-    final ObjectNode org = helper.getValue();
-    assertEquals("2", org.get("ID").asText());
   }
 
   @Test
@@ -113,28 +133,6 @@ class TestJPAQueryNavigation extends TestBase {
     final ObjectNode admin = helper.getValue();
     final TextNode at = (TextNode) admin.get("value");
     assertNotNull(at);
-  }
-  
-  @Test
-  void testNavigationViaComplexType() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations('3')/AdministrativeInformation/Created/User");
-    helper.assertStatus(200);
-
-    final ObjectNode org = helper.getValue();
-    assertEquals("99", org.get("ID").asText());
-  }
-
-  @Test
-  void testNavigationViaComplexTypeTwoHops() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations('3')/AdministrativeInformation/Created/User/Address/AdministrativeDivision");
-    helper.assertStatus(200);
-
-    final ObjectNode org = helper.getValue();
-    assertEquals("3166-1", org.get("ParentCodeID").asText());
   }
 
   @Test
@@ -201,48 +199,6 @@ class TestJPAQueryNavigation extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address/AdministrativeDivision/Children");
     helper.assertStatus(200);
-  }
-
-  @Test
-  void testNavigationJoinTableDefined() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('97')/SupportedOrganizations");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
-  }
-
-  @Test
-  void testNavigationJoinTableDefinedSecondHop() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person/SupportedOrganizations");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
-  void testNavigationWithCast() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person");
-    helper.assertStatus(200);
-
-    final ObjectNode org = helper.getValue();
-    assertEquals("Doe", org.get("LastName").asText());
-  }
-
-  @Test
-  void testNavigationJoinTableMappedBy() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/SupportEngineers");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
   }
 
   @Test

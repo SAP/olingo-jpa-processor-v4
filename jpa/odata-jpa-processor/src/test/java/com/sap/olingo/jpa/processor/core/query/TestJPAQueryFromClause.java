@@ -75,7 +75,7 @@ class TestJPAQueryFromClause extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
     sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        ds, null);
+        ds, null, null);
     createHeaders();
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
@@ -159,7 +159,7 @@ class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  void checkFromListDescriptionAssociationAllFields2() throws ODataApplicationException, ODataJPAModelException,
+  void checkFromListDescriptionAssozationAllFields2() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final List<JPAPath> descriptionPathList = new ArrayList<>();

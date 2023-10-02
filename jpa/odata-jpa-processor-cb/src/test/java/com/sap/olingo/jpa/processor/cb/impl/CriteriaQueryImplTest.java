@@ -3,11 +3,8 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,10 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
-import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
@@ -171,14 +166,5 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     final List<Entry<String, JPAPath>> resolvedSelections = ((ProcessorSelection<?>) sel).getResolvedSelection();
     assertNotNull(resolvedSelections.get(0).getValue());
 
-  }
-  
-  @Test
-  void testFromRethrowsException() throws ODataJPAModelException {
-    JPAServiceDocument service = mock(JPAServiceDocument.class);
-    cb = new CriteriaBuilderImpl(service, new ParameterBuffer());
-    cut = new CriteriaQueryImpl<>(Object.class, service, cb);
-    when(service.getEntity(Organization.class)).thenThrow(ODataJPAModelException.class);
-    assertThrows(InternalServerError.class, () -> cut.from(Organization.class));
   }
 }

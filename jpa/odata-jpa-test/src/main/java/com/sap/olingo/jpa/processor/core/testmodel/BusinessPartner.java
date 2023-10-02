@@ -64,7 +64,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
         parameter = { @EdmParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })
-
 public abstract class BusinessPartner implements KeyAccess {
   @Id
   @Column(name = "\"ID\"")

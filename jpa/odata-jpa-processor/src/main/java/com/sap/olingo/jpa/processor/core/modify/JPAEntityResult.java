@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
  * Provides an entity as tuple result. This is primarily done to reuse the existing tuple converter.
- * 
+ *
  * @author Oliver Grande
  *
  */
@@ -54,7 +54,7 @@ final class JPAEntityResult extends JPAEntityBasedResult {
     }
     for (final JPAPath path : et.getCollectionAttributesPath()) {
       Map<String, Object> embeddedGetterMap = valuePairedResult;
-      for (JPAElement e : path.getPath()) {
+      for (final JPAElement e : path.getPath()) {
         final Object value = embeddedGetterMap.get(e.getInternalName());
         if (e instanceof JPAAttribute && ((JPAAttribute) e).isComplex() && !(((JPAAttribute) e).isCollection())
             && value != null) {
