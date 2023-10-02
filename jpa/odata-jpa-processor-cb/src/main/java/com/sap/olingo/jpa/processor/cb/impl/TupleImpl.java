@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TupleElement;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 
@@ -41,7 +41,8 @@ class TupleImpl implements Tuple {
 
   /**
    * Get the value of the element at the specified
-   * position in the result tuple. The first position is 0.<p>
+   * position in the result tuple. The first position is 0.
+   * <p>
    * <b>Please note:</b> As of now <b>no</b> conversions are made.
    * @param i position in result tuple
    * @return value of the tuple element
@@ -57,7 +58,8 @@ class TupleImpl implements Tuple {
 
   /**
    * Get the value of the element at the specified
-   * position in the result tuple. The first position is 0.<p>
+   * position in the result tuple. The first position is 0.
+   * <p>
    * <b>Please note:</b> As of now <b>no</b> conversions are made.
    * @param i position in result tuple
    * @param type type of the tuple element
@@ -154,8 +156,8 @@ class TupleImpl implements Tuple {
     tupleElements = Optional.of(
         selectionIndex.entrySet()
             .stream()
-            .map(e -> new TupleElementImpl<>(e.getValue()))
-            .collect(Collectors.toList()));
+            .map(element -> new TupleElementImpl<>(element.getValue()))
+            .collect(Collectors.toList())); // NOSONAR
     return tupleElements.orElseThrow(IllegalStateException::new);
   }
 

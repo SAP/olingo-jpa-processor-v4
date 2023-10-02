@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.testaction;
 
 import java.math.BigDecimal;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
@@ -16,15 +16,15 @@ public class Actions implements ODataAction {
 
   @EdmAction(name = "BoundNoImport", isBound = true)
   public void boundNoImport(
-      @EdmParameter(name = "Person") Person person,
-      @EdmParameter(name = "A", precision = 34, scale = 10) BigDecimal a) {
+      @EdmParameter(name = "Person") final Person person,
+      @EdmParameter(name = "A", precision = 34, scale = 10) final BigDecimal a) {
     // Do nothing
   }
 
   @EdmAction(name = "WithImport", isBound = false)
   public void withImport(
-      @EdmParameter(name = "Person") Person person,
-      @EdmParameter(name = "A", precision = 34, scale = 10) BigDecimal a) {
+      @EdmParameter(name = "Person") final Person person,
+      @EdmParameter(name = "A", precision = 34, scale = 10) final BigDecimal a) {
     // Do nothing
   }
 }

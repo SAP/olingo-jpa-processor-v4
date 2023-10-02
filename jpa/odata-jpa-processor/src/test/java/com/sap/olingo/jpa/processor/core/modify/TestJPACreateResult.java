@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TupleElement;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.server.api.OData;

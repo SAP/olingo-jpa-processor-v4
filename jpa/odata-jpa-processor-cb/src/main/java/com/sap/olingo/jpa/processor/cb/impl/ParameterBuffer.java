@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.Expression;
+
+import jakarta.persistence.criteria.Expression;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,9 +28,9 @@ class ParameterBuffer {
   }
 
   @SuppressWarnings("unchecked")
-  <T, S> ParameterExpression<T, S> addValue(@Nonnull final S value, final Expression<?> x) {
+  <T, S> ParameterExpression<T, S> addValue(@Nonnull final S value, final Expression<?> expression) {
 
-    ParameterExpression<T, S> param = new ParameterExpression<>(index, Objects.requireNonNull(value), x);
+    ParameterExpression<T, S> param = new ParameterExpression<>(index, Objects.requireNonNull(value), expression);
     if (!parameterByHash.containsKey(param.hashCode())) {
       parameterByHash.put(param.hashCode(), param);
       index++;

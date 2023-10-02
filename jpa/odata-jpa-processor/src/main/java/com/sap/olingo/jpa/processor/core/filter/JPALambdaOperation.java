@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.core.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;

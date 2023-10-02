@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.core.api;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;

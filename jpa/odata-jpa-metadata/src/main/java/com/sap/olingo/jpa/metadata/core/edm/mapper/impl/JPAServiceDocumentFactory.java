@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.util.List;
 
-import javax.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.Metamodel;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;

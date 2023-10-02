@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,6 @@ import com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey
  */
 class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
-  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
 
   @BeforeAll
   public static void setupClass() {

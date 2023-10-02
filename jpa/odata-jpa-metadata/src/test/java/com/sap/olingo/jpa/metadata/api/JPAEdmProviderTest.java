@@ -13,8 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;

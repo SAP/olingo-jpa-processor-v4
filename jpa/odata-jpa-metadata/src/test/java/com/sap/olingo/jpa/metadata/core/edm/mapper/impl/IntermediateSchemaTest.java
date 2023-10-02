@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;

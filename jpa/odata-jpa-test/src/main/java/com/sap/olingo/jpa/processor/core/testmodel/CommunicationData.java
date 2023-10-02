@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class CommunicationData {
@@ -31,19 +31,19 @@ public class CommunicationData {
     return mobilePhoneNumber;
   }
 
-  public void setLandlinePhoneNumber(String landlinePhoneNumber) {
+  public void setLandlinePhoneNumber(final String landlinePhoneNumber) {
     this.landlinePhoneNumber = landlinePhoneNumber;
   }
 
-  public void setMobilePhoneNumber(String mobilePhoneNumber) {
+  public void setMobilePhoneNumber(final String mobilePhoneNumber) {
     this.mobilePhoneNumber = mobilePhoneNumber;
   }
 
-  public void setFax(String fax) {
+  public void setFax(final String fax) {
     this.fax = fax;
   }
 
-  public void setEmail(String email) {
+  public void setEmail(final String email) {
     this.email = email;
   }
 }

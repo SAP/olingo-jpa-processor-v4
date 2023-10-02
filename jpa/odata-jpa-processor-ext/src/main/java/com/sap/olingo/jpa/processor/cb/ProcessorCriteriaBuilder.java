@@ -2,12 +2,12 @@ package com.sap.olingo.jpa.processor.cb;
 
 import java.util.List;
 
-import javax.persistence.Tuple;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Subquery;
 
 public interface ProcessorCriteriaBuilder extends CriteriaBuilder {
 
@@ -39,13 +39,14 @@ public interface ProcessorCriteriaBuilder extends CriteriaBuilder {
     WindowFunction<T> orderBy(final Order... order);
 
     WindowFunction<T> orderBy(final List<Order> order);
+
     /**
      * Takes an array of simple path expressions.
      * @param path
      * @return
      */
     WindowFunction<T> partitionBy(final Path<?>... path);
-    
+
     WindowFunction<T> partitionBy(final List<Path<?>> path);
 
     Path<T> asPath(final String tableAlias);

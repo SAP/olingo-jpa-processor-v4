@@ -1,16 +1,16 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 
 class RootImpl<X> extends FromImpl<X, X> implements Root<X> {
 
-  RootImpl(final JPAEntityType type, final AliasBuilder ab, final CriteriaBuilder cb) {
-    super(type, ab, cb);
+  RootImpl(final JPAEntityType type, final AliasBuilder aliasBuilder, final CriteriaBuilder cb) {
+    super(type, aliasBuilder, cb);
   }
 
   @Override

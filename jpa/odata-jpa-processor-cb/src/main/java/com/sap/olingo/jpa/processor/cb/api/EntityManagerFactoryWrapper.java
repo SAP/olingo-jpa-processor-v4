@@ -2,15 +2,15 @@ package com.sap.olingo.jpa.processor.cb.api;
 
 import java.util.Map;
 
-import javax.persistence.Cache;
-import javax.persistence.EntityGraph;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnitUtil;
-import javax.persistence.Query;
-import javax.persistence.SynchronizationType;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.metamodel.Metamodel;
+import jakarta.persistence.Cache;
+import jakarta.persistence.EntityGraph;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceUnitUtil;
+import jakarta.persistence.Query;
+import jakarta.persistence.SynchronizationType;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.metamodel.Metamodel;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.impl.EntityManagerWrapper;
@@ -48,7 +48,9 @@ public final class EntityManagerFactoryWrapper implements EntityManagerFactory {
 
   @Override
   public CriteriaBuilder getCriteriaBuilder() {
-    return new EntityManagerWrapper(emf.createEntityManager(), sd).getCriteriaBuilder();
+    try (EntityManager em = new EntityManagerWrapper(emf.createEntityManager(), sd)) {
+      return em.getCriteriaBuilder();
+    }
   }
 
   @Override
@@ -87,8 +89,8 @@ public final class EntityManagerFactoryWrapper implements EntityManagerFactory {
   }
 
   @Override
-  public <T> T unwrap(final Class<T> cls) {
-    return emf.unwrap(cls);
+  public <T> T unwrap(final Class<T> clazz) {
+    return emf.unwrap(clazz);
   }
 
   @Override

@@ -6,8 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;

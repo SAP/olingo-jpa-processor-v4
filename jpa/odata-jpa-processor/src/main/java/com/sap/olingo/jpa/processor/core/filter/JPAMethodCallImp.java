@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Expression;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
@@ -24,7 +24,7 @@ class JPAMethodCallImp implements JPAMethodCall {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#get()
    */
   @Override
@@ -34,24 +34,24 @@ class JPAMethodCallImp implements JPAMethodCall {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#get(String prefix, String suffix)
    */
   @Override
   public Object get(final String prefix, final String suffix) throws ODataApplicationException {
     final List<JPAOperator> paramCopy = new ArrayList<>(parameters);
-    if (!parameters.isEmpty() && parameters.get(0) instanceof JPALiteralOperator) {
-      parameters.add(((JPALiteralOperator) parameters.get(0)).clone(prefix, suffix));
+    if (!parameters.isEmpty() && parameters.get(0) instanceof final JPALiteralOperator literalOperator) {
+      parameters.add(literalOperator.clone(prefix, suffix));
       parameters.remove(0);
     }
-    Expression<?> result = converter.convert(this);
+    final Expression<?> result = converter.convert(this);
     Collections.copy(parameters, paramCopy);
     return result;
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#getFunction()
    */
   @Override
@@ -61,7 +61,7 @@ class JPAMethodCallImp implements JPAMethodCall {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#getParameter(int)
    */
   @Override
@@ -71,7 +71,7 @@ class JPAMethodCallImp implements JPAMethodCall {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#noParameters()
    */
   @Override

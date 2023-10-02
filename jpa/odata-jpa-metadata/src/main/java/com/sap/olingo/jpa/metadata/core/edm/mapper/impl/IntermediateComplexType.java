@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import javax.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EmbeddableType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

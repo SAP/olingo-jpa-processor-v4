@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -117,7 +117,7 @@ class JPAVisitorTest {
     when(uriFunction.getFunction()).thenReturn(edmFunction);
     when(compiler.getSd()).thenReturn(sd);
     when(sd.getFunction(edmFunction)).thenReturn(jpaFunction);
-    when(uriFunction.getParameters()).thenReturn(new ArrayList<UriParameter>());
+    when(uriFunction.getParameters()).thenReturn(new ArrayList<>());
 
     assertTrue(cut.visitMember(member) instanceof JPADBFunctionOperator);
   }

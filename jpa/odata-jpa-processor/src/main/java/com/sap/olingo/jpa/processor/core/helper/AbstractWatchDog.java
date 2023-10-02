@@ -43,7 +43,7 @@ public class AbstractWatchDog {
         .map(CsdlExpression::asDynamic)
         .map(CsdlDynamicExpression::asPropertyPath)
         .map(CsdlPropertyPath::getValue)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   protected List<String> getNavigationPathItems(final Map<String, CsdlExpression> properties, final String property) {
@@ -52,7 +52,7 @@ public class AbstractWatchDog {
         .map(CsdlExpression::asDynamic)
         .map(CsdlDynamicExpression::asNavigationPropertyPath)
         .map(CsdlNavigationPropertyPath::getValue)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   protected Map<String, CsdlExpression> getAnnotationProperties(final Optional<CsdlAnnotation> annotation) {

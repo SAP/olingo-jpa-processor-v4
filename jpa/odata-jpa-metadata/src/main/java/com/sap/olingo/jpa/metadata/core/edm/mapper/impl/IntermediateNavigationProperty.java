@@ -14,18 +14,19 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
-import javax.persistence.AssociationOverride;
-import javax.persistence.AttributeConverter;
-import javax.persistence.CascadeType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.PluralAttribute;
+
+import jakarta.persistence.AssociationOverride;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.PluralAttribute;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -448,8 +449,8 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
       if (jpaIgnore != null) {
         this.setIgnore(true);
       }
-      final javax.persistence.JoinTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
-          .getAnnotation(javax.persistence.JoinTable.class);
+      final jakarta.persistence.JoinTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+          .getAnnotation(jakarta.persistence.JoinTable.class);
       joinTable = jpaJoinTable != null ? new IntermediateJoinTable(this, jpaJoinTable, schema) : null;
 
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();

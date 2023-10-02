@@ -3,18 +3,17 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_COLLECTION;
-import static javax.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
+import static jakarta.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.JoinColumn;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.Type;
-import javax.persistence.metamodel.Type.PersistenceType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.Type;
+import jakarta.persistence.metamodel.Type.PersistenceType;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
@@ -212,8 +211,8 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
 
   JPAJoinTable getJoinTable() throws ODataJPAModelException {
     if (joinTable == null) {
-      final javax.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
-          .getAnnotation(javax.persistence.CollectionTable.class);
+      final jakarta.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+          .getAnnotation(jakarta.persistence.CollectionTable.class);
       joinTable = jpaJoinTable != null ? new IntermediateCollectionTable(jpaJoinTable, schema) : null;
     }
     return joinTable;
@@ -330,14 +329,14 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
     public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
       return getJoinColumns().stream()
           .map(JPAOnConditionItem::getRightPath)
-          .collect(Collectors.toList());
+          .toList();
     }
 
     @Override
     public List<JPAPath> getLeftColumnsList() throws ODataJPAModelException {
       return getJoinColumns().stream()
           .map(JPAOnConditionItem::getLeftPath)
-          .collect(Collectors.toList());
+          .toList();
     }
   }
 }

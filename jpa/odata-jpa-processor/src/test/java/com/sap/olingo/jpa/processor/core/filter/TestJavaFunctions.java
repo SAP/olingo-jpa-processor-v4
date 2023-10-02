@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;

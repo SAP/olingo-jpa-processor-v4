@@ -4,21 +4,25 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa</artifactId>
-	<version>1.1.1</version>
+	<version>2.0.0</version>
 	<packaging>pom</packaging>
 	<name>odata-jpa</name>
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.source>1.8</project.build.source>
-		<project.build.target>1.8</project.build.target>
+		<project.build.source>17</project.build.source>
+		<project.build.target>17</project.build.target>
 		<maven.complier.version>3.8.0</maven.complier.version>
 		<odata.version>4.9.0</odata.version>
 		<jackson.version>2.14.1</jackson.version>
 		<powermock.version>1.7.1</powermock.version>
 		<coveralls.version>4.3.0</coveralls.version>
-		<jpa.version>2.2.1</jpa.version>
-		<processor.version>1.1.1</processor.version>
+		<jpa.version>3.1.0</jpa.version>
+		<processor.version>2.0.0</processor.version>
+		<spring-jcl.version>6.0.11</spring-jcl.version>
+		<junit.version>5.9.1</junit.version>
+		<junit-platform.version>1.9.1</junit-platform.version>
+		<mockito.version>5.5.0</mockito.version>
 		<jacoco.version>0.8.7</jacoco.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
@@ -93,7 +97,7 @@
 				<plugin>
 					<groupId>org.basepom.maven</groupId>
 					<artifactId>duplicate-finder-maven-plugin</artifactId>
-					<version>1.5.1</version>
+					<version>2.0.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

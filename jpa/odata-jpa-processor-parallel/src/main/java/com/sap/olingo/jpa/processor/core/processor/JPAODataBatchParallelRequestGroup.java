@@ -2,7 +2,6 @@ package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -35,13 +34,13 @@ class JPAODataBatchParallelRequestGroup implements JPAODataBatchRequestGroup {
 
       final List<CompletableFuture<ODataResponsePart>> requests = requestParts.stream()
           .map(part -> startBatchPart(buildFacade(), part))
-          .collect(Collectors.toList());
+          .toList();
 
       return CompletableFuture.allOf(requests.toArray(new CompletableFuture[requests.size()]))
           .thenApply(dummy -> requests.stream()
               .map(CompletableFuture::join)
-              .collect(Collectors.toList())).join();
-    } catch (RuntimeException e) {
+              .toList()).join();
+    } catch (final RuntimeException e) {
       // startBatchPart throws an runtime exception that wraps the original exception. This runtime exception gets is
       // wrapped into an CompletionException. The original exception has to be re-wrapped, so the caller can handle it.
       throw new ODataJPABatchRuntimeException((ODataException) e.getCause().getCause());

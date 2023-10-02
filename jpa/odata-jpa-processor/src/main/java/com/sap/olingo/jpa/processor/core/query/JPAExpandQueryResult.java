@@ -11,7 +11,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
+
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -199,7 +200,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
               || collectionPropertyRequested(requestContext))
           && ((requestContext.getUriInfo().getTopOption() != null
               || requestContext.getUriInfo().getSkipOption() != null)
-              || (page != null && (page.getSkip() != 0 || page.getTop() != Integer.MAX_VALUE)))) {
+              || (page != null && (page.skip() != 0 || page.top() != Integer.MAX_VALUE)))) {
         final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey());
         for (final Tuple tuple : jpaResult.get(ROOT_RESULT_KEY)) {
           @SuppressWarnings("rawtypes")

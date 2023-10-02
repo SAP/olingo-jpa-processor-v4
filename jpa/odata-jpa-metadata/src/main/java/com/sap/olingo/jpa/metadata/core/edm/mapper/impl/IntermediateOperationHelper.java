@@ -14,7 +14,7 @@ import java.sql.Clob;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;

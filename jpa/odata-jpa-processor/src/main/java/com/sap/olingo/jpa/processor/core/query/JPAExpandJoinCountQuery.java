@@ -9,16 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Selection;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -57,13 +57,13 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
   private static List<JPANavigationPropertyInfo> copyHops(final List<JPANavigationPropertyInfo> hops) {
     return hops.stream()
         .map(JPANavigationPropertyInfo::new)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "execute")) {
       return null;
     }
   }
@@ -101,13 +101,13 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "count")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "count")) {
       if (countRequested(lastInfo)) {
         final CriteriaQuery<Tuple> countQuery = cb.createTupleQuery();
         createCountFrom(countQuery);
         final List<Selection<?>> selectionPath = buildExpandJoinPath(target);
         countQuery.multiselect(addCount(selectionPath));
-        final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+        final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
         if (whereClause != null)
           countQuery.where(whereClause);
         countQuery.groupBy(buildExpandCountGroupBy(target));
@@ -125,9 +125,10 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
     createFromClauseRoot(countQuery, joinTables);
     target = root;
     for (int i = 0; i < this.navigationInfo.size() - 1; i++) {
-      final JPANavigationPropertyInfo naviInfo = this.navigationInfo.get(i);
-      naviInfo.setFromClause(target);
-      target = createJoinFromPath(naviInfo.getAssociationPath().getAlias(), naviInfo.getAssociationPath().getPath(),
+      final JPANavigationPropertyInfo navigationInfo = this.navigationInfo.get(i);
+      navigationInfo.setFromClause(target);
+      target = createJoinFromPath(navigationInfo.getAssociationPath().getAlias(), navigationInfo.getAssociationPath()
+          .getPath(),
           target, JoinType.INNER);
     }
     lastInfo.setFromClause(target);
@@ -135,8 +136,8 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
-      javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createWhere")) {
+      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
       whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
@@ -146,9 +147,9 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
     }
   }
 
-  private javax.persistence.criteria.Expression<Boolean> createExpandWhere() throws ODataApplicationException {
+  private jakarta.persistence.criteria.Expression<Boolean> createExpandWhere() throws ODataApplicationException {
 
-    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
     for (final JPANavigationPropertyInfo info : this.navigationInfo) {
       if (info.getFilterCompiler() != null) {
         try {

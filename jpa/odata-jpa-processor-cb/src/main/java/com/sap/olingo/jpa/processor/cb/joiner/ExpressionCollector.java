@@ -9,9 +9,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate.BooleanOperator;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate.BooleanOperator;
 
 public class ExpressionCollector implements Collector<Expression<Boolean>, ExpressionJoiner, Expression<Boolean>> {
 

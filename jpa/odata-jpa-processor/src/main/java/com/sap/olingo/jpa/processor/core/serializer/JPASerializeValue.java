@@ -53,10 +53,10 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
     if (isStream()) {
       final Entity et = result.getEntities().get(0);
       final EdmEntityType edmEt = serviceMetadata.getEdm().getEntityType(new FullQualifiedName(et.getType()));
-      final List<EdmKeyPropertyRef> p = edmEt.getKeyPropertyRefs();
+      final List<EdmKeyPropertyRef> keyProperties = edmEt.getKeyPropertyRefs();
       Property property = null;
       for (final Property item : result.getEntities().get(0).getProperties()) {
-        if (!isKey(p, item)) {
+        if (!isKey(keyProperties, item)) {
           property = item;
           break;
         }
@@ -74,8 +74,8 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
 
       final JPAPrimitivePropertyInfo info = determinePrimitiveProperty(result, uriInfo.getUriResourceParts());
       final PrimitiveValueSerializerOptions options = PrimitiveValueSerializerOptions.with().build();
-      if (!info.getProperty().isNull())
-        serializerResult = serializer.primitiveValue(edmPropertyType, info.getProperty().getValue(), options);
+      if (!info.property().isNull())
+        serializerResult = serializer.primitiveValue(edmPropertyType, info.property().getValue(), options);
     }
     return new JPAValueSerializerResult(serializerResult);
   }
@@ -94,7 +94,7 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
     final UriResource successor = uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 2);
 
     return (successor instanceof UriResourceEntitySet
-        || successor instanceof UriResourceNavigation && ((UriResourceNavigation) successor)
+        || successor instanceof final UriResourceNavigation resourceNavigation && resourceNavigation
             .getType() instanceof EdmEntityType);
   }
 

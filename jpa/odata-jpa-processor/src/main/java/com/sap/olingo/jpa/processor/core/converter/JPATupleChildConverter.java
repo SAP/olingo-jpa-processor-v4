@@ -11,7 +11,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
+
+import jakarta.persistence.Tuple;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -96,7 +97,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       }
       result.put(tuple.getKey(), entityCollection);
     }
-    childResult.replaceAll((k, v) -> null);
+    childResult.replaceAll((key, value) -> null);
     return result;
   }
 
@@ -191,17 +192,16 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       }
     }
     if (!found
-        && pathElement instanceof JPAAttribute
-        && ((JPAAttribute) pathElement).isComplex()
-        && !((JPAAttribute) pathElement).isCollection()) {
-      final JPAAttribute a = (JPAAttribute) pathElement;
-      final Property p = new Property(
-          a.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
-          a.getExternalName(),
+        && pathElement instanceof final JPAAttribute attribute
+        && attribute.isComplex()
+        && !attribute.isCollection()) {
+      final Property path = new Property(
+          attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
+          attribute.getExternalName(),
           ValueType.COMPLEX,
           new ComplexValue());
-      result.add(p);
-      result = ((ComplexValue) p.getValue()).getValue();
+      result.add(path);
+      result = ((ComplexValue) path.getValue()).getValue();
     }
     return result;
   }

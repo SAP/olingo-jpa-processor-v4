@@ -1,15 +1,14 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import java.util.Objects;
-
 import javax.annotation.Nonnull;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
+
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
-public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
+public final record JPADefaultEdmNameBuilder(@Nonnull String namespace) implements JPAEdmNameBuilder {
   private static final int DISTANCE_NEXT_TO_LAST_CHAR = 2;
   private static final int DISTANCE_LAST_CHAR = 1;
   // V2 NameBuilder: package org.apache.olingo.odata2.jpa.processor.core.access.model
@@ -24,15 +23,9 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
     return Character.toUpperCase(jpaAttributeName.charAt(0)) + jpaAttributeName.substring(1);
   }
 
-  private final String namespace;
-
-  public JPADefaultEdmNameBuilder(@Nonnull final String namespace) {
-    super();
-    this.namespace = Objects.requireNonNull(namespace);
-  }
-
   /**
-   * EDM Complex Type Name - RULE: <p>
+   * EDM Complex Type Name - RULE:
+   * <p>
    * Use JPA Embeddable Type Simple Name as Complex Type Name
    */
   @Override
@@ -41,7 +34,8 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   }
 
   /**
-   * EDM EntityContainer Name - RULE: <p>
+   * EDM EntityContainer Name - RULE:
+   * <p>
    * The Entity Container Name is build of EDM Namespace + Literal "Container". Container names are simple identifiers,
    * so contain only letter, digits and underscores. However namespaces
    * can contain also dots => eliminate dots and convert to camel case.
@@ -58,7 +52,8 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   }
 
   /**
-   * EDM EntitySet Name - RULE:<p>
+   * EDM EntitySet Name - RULE:
+   * <p>
    * Use plural of entity type name. The naming bases on the assumption that English nouns are used.<br>
    * Entity Set Name = JPA Entity Type Name + Literal "s"
    */
@@ -76,7 +71,8 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   }
 
   /**
-   * EDM EntityType Name - RULE:<p>
+   * EDM EntityType Name - RULE:
+   * <p>
    * Use JPA Entity Name as EDM Entity Type Name
    */
   @Override
@@ -90,7 +86,8 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   }
 
   /**
-   * EDM Navigation Property Name - RULE:<p>
+   * EDM Navigation Property Name - RULE:
+   * <p>
    * OData requires: "The name of the navigation property MUST be unique
    * within the set of structural and navigation properties of the containing
    * structured type and any of its base types."
@@ -104,7 +101,8 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   }
 
   /**
-   * EDM Property Name - RULE:<p>
+   * EDM Property Name - RULE:
+   * <p>
    * OData Property Names are represented in Camel Case. The first character
    * of JPA Attribute Name is converted to an UpperCase Character.
    * @param jpaAttributeName

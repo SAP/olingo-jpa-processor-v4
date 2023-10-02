@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.PluralAttribute;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

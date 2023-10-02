@@ -146,9 +146,10 @@ final class JPAPathImpl implements JPAPath {
   private List<String> determineFieldGroups() throws ODataJPAModelException {
     List<String> groups = null;
     for (final JPAElement pathElement : pathElements) {
-      if (pathElement instanceof IntermediateProperty && ((IntermediateProperty) pathElement).isPartOfGroup()) {
+      if (pathElement instanceof final IntermediateProperty intermediateProperty
+          && intermediateProperty.isPartOfGroup()) {
         if (groups == null)
-          groups = ((IntermediateProperty) pathElement).getGroups();
+          groups = intermediateProperty.getGroups();
         else {
           final List<String> newGroups = ((IntermediateProperty) pathElement).getGroups();
           if (groups.size() != newGroups.size() || !groups.stream().allMatch(newGroups::contains))

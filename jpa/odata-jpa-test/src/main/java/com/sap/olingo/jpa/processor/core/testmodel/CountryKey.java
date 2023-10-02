@@ -2,13 +2,13 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class CountryKey implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 229175464207091262L;
 
@@ -22,7 +22,7 @@ public class CountryKey implements Serializable {
     return code;
   }
 
-  public void setCode(String code) {
+  public void setCode(final String code) {
     this.code = code;
   }
 
@@ -30,16 +30,16 @@ public class CountryKey implements Serializable {
     return language;
   }
 
-  public void setLanguage(String language) {
+  public void setLanguage(final String language) {
     this.language = language;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    CountryKey other = (CountryKey) obj;
+    final CountryKey other = (CountryKey) obj;
     if (code == null) {
       if (other.code != null) return false;
     } else if (!code.equals(other.code)) return false;

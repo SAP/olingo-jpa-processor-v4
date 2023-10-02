@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 
@@ -48,7 +48,7 @@ public class BusinessPartnerRoleProtected {
     return roleCategory;
   }
 
-  public void setBusinessPartnerID(String businessPartnerID) {
+  public void setBusinessPartnerID(final String businessPartnerID) {
     this.businessPartnerID = businessPartnerID;
   }
 
@@ -66,11 +66,11 @@ public class BusinessPartnerRoleProtected {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    BusinessPartnerRoleProtected other = (BusinessPartnerRoleProtected) obj;
+    final BusinessPartnerRoleProtected other = (BusinessPartnerRoleProtected) obj;
     if (businessPartnerID == null) {
       if (other.businessPartnerID != null) return false;
     } else if (!businessPartnerID.equals(other.businessPartnerID)) return false;

@@ -106,10 +106,10 @@ class JPACountWatchDog extends AbstractWatchDog {
     final List<String> pathItems = new ArrayList<>(uriResource.getUriResourceParts().size());
     for (int i = 1; i < uriResource.getUriResourceParts().size() - 1; i++) {
       final UriResource resourcePart = uriResource.getUriResourceParts().get(i);
-      if (resourcePart instanceof UriResourceNavigation)
-        pathItems.add(((UriResourceNavigation) resourcePart).getProperty().getName());
-      if (resourcePart instanceof UriResourceProperty && ((UriResourceProperty) resourcePart).isCollection())
-        pathItems.add(((UriResourceProperty) resourcePart).getProperty().getName());
+      if (resourcePart instanceof final UriResourceNavigation navigation)
+        pathItems.add(navigation.getProperty().getName());
+      if (resourcePart instanceof final UriResourceProperty property && property.isCollection())
+        pathItems.add(property.getProperty().getName());
     }
     return pathItems.stream().collect(Collectors.joining("/"));
   }

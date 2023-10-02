@@ -5,10 +5,9 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -103,7 +102,7 @@ class IntermediateJoinTable implements JPAJoinTable {
   public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
     return getInverseJoinColumns().stream()
         .map(JPAOnConditionItem::getRightPath)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
@@ -111,7 +110,7 @@ class IntermediateJoinTable implements JPAJoinTable {
 
     return getJoinColumns().stream()
         .map(JPAOnConditionItem::getLeftPath)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @SuppressWarnings("unchecked")

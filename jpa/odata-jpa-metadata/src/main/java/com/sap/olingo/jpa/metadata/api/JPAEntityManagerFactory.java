@@ -3,12 +3,13 @@ package com.sap.olingo.jpa.metadata.api;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+
 public class JPAEntityManagerFactory {
-  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
+  private static final String ENTITY_MANAGER_DATA_SOURCE = "jakarta.persistence.nonJtaDataSource";
   private static Map<String, Map<Integer, EntityManagerFactory>> emfMap;
 
   private JPAEntityManagerFactory() {
@@ -22,7 +23,7 @@ public class JPAEntityManagerFactory {
     if (emfMap == null) {
       emfMap = new HashMap<>();
     }
-    Integer dsKey = ds.hashCode();
+    final Integer dsKey = ds.hashCode();
     if (emfMap.containsKey(pUnit)) {
       final Map<Integer, EntityManagerFactory> dsMap = emfMap.get(pUnit);
       EntityManagerFactory emf = dsMap.get(dsKey);

@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;

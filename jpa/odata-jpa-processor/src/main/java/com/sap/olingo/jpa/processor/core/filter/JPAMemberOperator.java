@@ -6,9 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Path;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,9 +67,9 @@ public class JPAMemberOperator implements JPAOperator {
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
         path = determineDescriptionCriteriaPath(selectItemPath, path, jpaPathElement);
-      } else if (jpaPathElement instanceof JPACollectionAttribute) {
-        if (!((JPACollectionAttribute) jpaPathElement).isComplex()) try {
-          path = path.get(((JPACollectionAttribute) jpaPathElement).getTargetAttribute().getInternalName());
+      } else if (jpaPathElement instanceof final JPACollectionAttribute collectionAttribute) {
+        if (!collectionAttribute.isComplex()) try {
+          path = path.get(collectionAttribute.getTargetAttribute().getInternalName());
         } catch (final ODataJPAModelException e) {
           throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }

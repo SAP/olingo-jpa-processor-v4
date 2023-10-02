@@ -1,7 +1,5 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +7,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.CompoundSelection;
-import javax.persistence.criteria.Selection;
+
+import jakarta.persistence.criteria.CompoundSelection;
+import jakarta.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
@@ -50,7 +49,7 @@ final class CompoundSelectionImpl<X> implements CompoundSelection<X>, SqlSelecti
   public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
 
     statement.append(getCompoundSelectionItems().stream()
-        .map(s -> (Selection<?>) s) // NOSONAR
+        .map(selection -> (Selection<?>) selection) // NOSONAR
         .collect(new StringBuilderCollector.SelectionCollector(statement, ", ")));
     return statement;
   }
@@ -78,19 +77,19 @@ final class CompoundSelectionImpl<X> implements CompoundSelection<X>, SqlSelecti
   }
 
   private List<Selection<?>> asSelectionLate() {
-    final List<Selection<?>> selItems = new ArrayList<>();
+    final List<Selection<?>> selectionItems = new ArrayList<>();
     for (final Selection<?> sel : rawSelections) {
       if (sel instanceof PathImpl<?>) {
-        selItems.addAll(((PathImpl<?>) sel)
+        selectionItems.addAll(((PathImpl<?>) sel)
             .resolvePathElements()
             .stream()
             .map(element -> new SelectionImpl<>(element, element.getJavaType(), aliasBuilder))
-            .collect(toList()));
+            .toList());
       } else {
-        selItems.add(new SelectionImpl<>(sel, sel.getJavaType(), aliasBuilder));
+        selectionItems.add(new SelectionImpl<>(sel, sel.getJavaType(), aliasBuilder));
       }
     }
-    selections = Optional.of(selItems);
+    selections = Optional.of(selectionItems);
     return selections.get();
   }
 
@@ -115,46 +114,46 @@ final class CompoundSelectionImpl<X> implements CompoundSelection<X>, SqlSelecti
   }
 
   List<Map.Entry<String, JPAPath>> resolveSelectionLate() {
-    final AliasBuilder ab = new AliasBuilder("S");
+    final AliasBuilder selectionAliasBuilder = new AliasBuilder("S");
     final List<Map.Entry<String, JPAPath>> resolved = new ArrayList<>();
     for (final Selection<?> sel : rawSelections) {
-      resolveSelectionItem(ab, resolved, sel);
+      resolveSelectionItem(selectionAliasBuilder, resolved, sel);
     }
     resolvedSelection = Optional.of(resolved);
     return resolvedSelection.get();
   }
 
-  private void addSelectionList(final AliasBuilder ab, final List<Map.Entry<String, JPAPath>> resolved,
-      final Selection<?> sel) {
-    for (final JPAPath p : ((PathImpl<?>) sel).getPathList()) {
-      resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
-          ? ab.getNext() : (sel.getAlias() + "." + p.getAlias()), p));
+  private void addSelectionList(final AliasBuilder aliasBuilder, final List<Map.Entry<String, JPAPath>> resolved,
+      final Selection<?> selection) {
+    for (final JPAPath p : ((PathImpl<?>) selection).getPathList()) {
+      resolved.add(new ProcessorSelection.SelectionItem(selection.getAlias().isEmpty()
+          ? aliasBuilder.getNext() : (selection.getAlias() + "." + p.getAlias()), p));
     }
   }
 
-  private void addSingleSelectionItem(final AliasBuilder ab, final List<Map.Entry<String, JPAPath>> resolved,
-      final Selection<?> sel, final List<JPAPath> selItems) {
-    resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
-        ? ab.getNext() : sel.getAlias(), selItems.get(0)));
+  private void addSingleSelectionItem(final AliasBuilder aliasBuilder, final List<Map.Entry<String, JPAPath>> resolved,
+      final Selection<?> selection, final List<JPAPath> selectionItems) {
+    resolved.add(new ProcessorSelection.SelectionItem(selection.getAlias().isEmpty()
+        ? aliasBuilder.getNext() : selection.getAlias(), selectionItems.get(0)));
   }
 
-  private void resolveSelectionItem(final AliasBuilder ab, final List<Map.Entry<String, JPAPath>> resolved,
-      final Selection<?> sel) {
+  private void resolveSelectionItem(final AliasBuilder aliasBuilder, final List<Map.Entry<String, JPAPath>> resolved,
+      final Selection<?> selection) {
 
-    if (sel instanceof PathImpl<?> || sel instanceof SelectionPath<?>) {
-      final List<JPAPath> selItems;
-      if (sel instanceof PathImpl<?>)
-        selItems = ((PathImpl<?>) sel).getPathList();
+    if (selection instanceof PathImpl<?> || selection instanceof SelectionPath<?>) {
+      final List<JPAPath> selectionItems;
+      if (selection instanceof PathImpl<?>)
+        selectionItems = ((PathImpl<?>) selection).getPathList();
       else
-        selItems = ((PathImpl<?>) ((SelectionPath<?>) sel).selection.getSelection()).getPathList();
-      if (selItems.size() == 1) {
-        addSingleSelectionItem(ab, resolved, sel, selItems);
+        selectionItems = ((PathImpl<?>) ((SelectionPath<?>) selection).selection.getSelection()).getPathList();
+      if (selectionItems.size() == 1) {
+        addSingleSelectionItem(aliasBuilder, resolved, selection, selectionItems);
       } else {
-        addSelectionList(ab, resolved, sel);
+        addSelectionList(aliasBuilder, resolved, selection);
       }
     } else {
-      resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
-          ? ab.getNext() : sel.getAlias(), new JPAPathWrapper(sel)));
+      resolved.add(new ProcessorSelection.SelectionItem(selection.getAlias().isEmpty()
+          ? aliasBuilder.getNext() : selection.getAlias(), new JPAPathWrapper(selection)));
     }
   }
 

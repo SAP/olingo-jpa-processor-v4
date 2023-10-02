@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -57,11 +57,11 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   @Override
   public JPACollectionQueryResult execute() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "executeStandardQuery")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "executeStandardQuery")) {
       final SelectionPathInfo<JPAPath> requestedSelection = buildSelectionPathList(this.uriResource);
       final TypedQuery<Tuple> tupleQuery = createTupleQuery(requestedSelection);
       List<Tuple> intermediateResult;
-      try (JPARuntimeMeasurement resultMeassument = debugger.newMeasurement(this, "getResultList")) {
+      try (JPARuntimeMeasurement resultMeasurement = debugger.newMeasurement(this, "getResultList")) {
         intermediateResult = tupleQuery.getResultList();
       }
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, association, 0, Long.MAX_VALUE);
@@ -113,10 +113,11 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     return jpaPathList;
   }
 
-  private JPAPath selectItemAsPath(final String pathPrefix, final SelectItem sItem) throws ODataJPAModelException,
+  private JPAPath selectItemAsPath(final String pathPrefix, final SelectItem selectionItem)
+      throws ODataJPAModelException,
       ODataJPAQueryException {
 
-    String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
+    String pathItem = selectionItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
         .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPARATOR));
     pathItem = pathPrefix == null || pathPrefix.isEmpty() ? pathItem : pathPrefix + JPAPath.PATH_SEPARATOR
         + pathItem;
@@ -131,7 +132,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       final Collection<JPAPath> jpaPathList, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow
     // subclasses to throw an exception
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createSelectClause")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSelectClause")) {
       final List<Selection<?>> selections = new ArrayList<>();
       // Based on an error in Eclipse Link first the join columns have to be selected. Otherwise the alias is assigned
       // to
@@ -144,9 +145,9 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       // Build select clause
       for (final JPAPath jpaPath : jpaPathList) {
         if (jpaPath.isPartOfGroups(groups)) {
-          final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
-          p.alias(jpaPath.getAlias());
-          selections.add(p);
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+          path.alias(jpaPath.getAlias());
+          selections.add(path);
         }
       }
       return selections;
@@ -201,12 +202,12 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     if (!associationPath.hasJoinTable()) {
       final List<JPAPath> joinColumns = associationPath.getRightColumnsList();
       return joinColumns.stream()
-          .map(c -> (row.get(c.getAlias())).toString())
+          .map(column -> (row.get(column.getAlias())).toString())
           .collect(joining(JPAPath.PATH_SEPARATOR));
     } else {
       final List<JPAPath> joinColumns = associationPath.getLeftColumnsList();
       return joinColumns.stream()
-          .map(c -> (row.get(association.getAlias() + ALIAS_SEPARATOR + c.getAlias())).toString())
+          .map(column -> (row.get(association.getAlias() + ALIAS_SEPARATOR + column.getAlias())).toString())
           .collect(joining(JPAPath.PATH_SEPARATOR));
     }
   }
@@ -238,13 +239,13 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       throws ODataApplicationException,
       JPANoSelectionException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createTupleQuery")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createTupleQuery")) {
       final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<>(1),
           selectionPath.joinedPersistent(), cq, lastInfo);
       // TODO handle Join Column is ignored
       cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
       cq.distinct(true);
-      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         cq.where(whereClause);
 
@@ -258,8 +259,8 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
-      javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createWhere")) {
+      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
       whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
@@ -288,7 +289,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     final From<?, ?> parent = determineParentFrom(); // e.g. JoinSource
     try {
       for (final JPAPath p : association.getLeftColumnsList()) {
-        final Path<?> selection = ExpressionUtil.convertToCriteriaPath(parent, p.getPath());
+        final Path<?> selection = ExpressionUtility.convertToCriteriaPath(parent, p.getPath());
         // If source and target of an association use the same name for their key we get conflicts with the alias.
         // Therefore it is necessary to unify them.
         selection.alias(association.getAlias() + ALIAS_SEPARATOR + p.getAlias());
@@ -301,7 +302,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
   private boolean pathContainsCollection(final JPAPath p) {
     for (final JPAElement pathElement : p.getPath()) {
-      if (pathElement instanceof JPAAttribute && ((JPAAttribute) pathElement).isCollection()) {
+      if (pathElement instanceof final JPAAttribute attribute && attribute.isCollection()) {
         return true;
       }
     }

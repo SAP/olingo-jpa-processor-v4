@@ -50,9 +50,8 @@ public class JPAJavaFunctionProcessor {
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (final InvocationTargetException e) {
-      final Throwable cause = e.getCause();
-      if (cause instanceof ODataApplicationException) {
-        throw (ODataApplicationException) cause;
+      if (e.getCause() instanceof final ODataApplicationException cause) {
+        throw cause;
       } else {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }

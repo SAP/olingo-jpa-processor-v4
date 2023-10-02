@@ -9,8 +9,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,9 +41,9 @@ abstract class BuilderBaseTest {
     sd.getEdmEntityContainer();
   }
 
-  protected void testNotImplemented(final Method m, final Object cut) throws IllegalAccessException {
+  protected void testNotImplemented(final Method method, final Object cut) throws IllegalAccessException {
     try {
-      invokeMethod(m, cut);
+      invokeMethod(method, cut);
     } catch (final InvocationTargetException e) {
       assertTrue(e.getCause() instanceof NotImplementedException);
       return;
@@ -50,30 +51,30 @@ abstract class BuilderBaseTest {
     fail();
   }
 
-  protected Object invokeMethod(final Method m, final Object cut) throws IllegalAccessException,
+  protected Object invokeMethod(final Method method, final Object cut) throws IllegalAccessException,
       InvocationTargetException {
-    if (m.getParameterCount() >= 1) {
-      final Class<?>[] params = m.getParameterTypes();
-      final List<Object> paramValues = new ArrayList<>(m.getParameterCount());
-      for (int i = 0; i < m.getParameterCount(); i++) {
+    if (method.getParameterCount() >= 1) {
+      final Class<?>[] params = method.getParameterTypes();
+      final List<Object> paramValues = new ArrayList<>(method.getParameterCount());
+      for (int i = 0; i < method.getParameterCount(); i++) {
         if (params[i] == char.class)
           paramValues.add(' ');
         else
           paramValues.add(null);
       }
-      return m.invoke(cut, paramValues.toArray());
+      return method.invoke(cut, paramValues.toArray());
     } else {
-      return m.invoke(cut);
+      return method.invoke(cut);
     }
   }
 
-  protected Object invokeMethod(final Method m, final Object cut, final Object... paramValues)
+  protected Object invokeMethod(final Method method, final Object cut, final Object... paramValues)
       throws IllegalAccessException,
       InvocationTargetException {
-    if (m.getParameterCount() >= 1) {
-      return m.invoke(cut, paramValues);
+    if (method.getParameterCount() >= 1) {
+      return method.invoke(cut, paramValues);
     } else {
-      return m.invoke(cut);
+      return method.invoke(cut);
     }
   }
 }

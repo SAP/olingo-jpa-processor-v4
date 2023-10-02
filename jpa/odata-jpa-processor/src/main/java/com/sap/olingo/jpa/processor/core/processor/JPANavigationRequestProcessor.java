@@ -77,7 +77,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   public <K extends Comparable<K>> void retrieveData(final ODataRequest request, final ODataResponse response,
       final ContentType responseFormat) throws ODataException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "retrieveData")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "retrieveData")) {
 
       checkRequestSupported();
       // Create a JPQL Query and execute it
@@ -98,7 +98,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
           watchDog));
       // Convert tuple result into an OData Result
       EntityCollection entityCollection;
-      try (JPARuntimeMeasurement converterMeassument = debugger.newMeasurement(this, "convertResult")) {
+      try (JPARuntimeMeasurement converterMeasurement = debugger.newMeasurement(this, "convertResult")) {
         entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
             serviceMetadata, requestContext)).get(ROOT_RESULT_KEY);
       } catch (final ODataApplicationException e) {
@@ -146,7 +146,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
       // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
       else if (entityCollection.getEntities() != null) {
-        try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "serialize")) {
+        try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "serialize")) {
           final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
           createSuccessResponse(response, responseFormat, serializerResult);
         }
@@ -164,14 +164,14 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   }
 
   private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {
-    if (page != null && page.getSkipToken() != null) {
+    if (page != null && page.skipToken() != null) {
       try {
-        if (page.getSkipToken() instanceof String)
+        if (page.skipToken() instanceof String)
           return new URI(Utility.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
-              + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.getSkipToken() + "'");
+              + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.skipToken() + "'");
         else
           return new URI(Utility.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
-              + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + page.getSkipToken().toString());
+              + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + page.skipToken().toString());
       } catch (final URISyntaxException e) {
         throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
@@ -275,7 +275,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final List<JPANavigationPropertyInfo> parentHops, final UriInfoResource uriResourceInfo,
       final Optional<JPAKeyBoundary> keyBoundary, final JPAExpandWatchDog watchDog) throws ODataException {
 
-    try (JPARuntimeMeasurement expandMeassument = debugger.newMeasurement(this, "readExpandEntities")) {
+    try (JPARuntimeMeasurement expandMeasurement = debugger.newMeasurement(this, "readExpandEntities")) {
 
       final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, requestContext, cb);
       final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();

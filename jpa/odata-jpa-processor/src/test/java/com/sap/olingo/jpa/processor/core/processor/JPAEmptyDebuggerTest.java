@@ -17,8 +17,8 @@ class JPAEmptyDebuggerTest {
   }
 
   @Test
-  void testMeassumentCreated() throws Exception {
-    try (JPARuntimeMeasurement meassument = cut.newMeasurement(cut, "firstTest")) {
+  void testMeasurementCreated() throws Exception {
+    try (JPARuntimeMeasurement measurement = cut.newMeasurement(cut, "firstTest")) {
 
     }
     assertTrue(cut.getRuntimeInformation().isEmpty());

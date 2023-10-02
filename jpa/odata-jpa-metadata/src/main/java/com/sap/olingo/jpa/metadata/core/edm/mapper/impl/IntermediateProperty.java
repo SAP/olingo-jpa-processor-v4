@@ -21,17 +21,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.EntityManager;
-import javax.persistence.Lob;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.Type.PersistenceType;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Lob;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.Type.PersistenceType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -81,7 +80,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   private static final int UPPER_LIMIT_PRECISION_TEMP = 12;
   private static final int LOWER_LIMIT_PRECISION_TEMP = 0;
   private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
-  protected final Attribute<?, ?> jpaAttribute;
+  protected final jakarta.persistence.metamodel.Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
   protected JPAStructuredType type;
@@ -581,7 +580,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(EdmVisibleFor.class);
     if (jpaFieldGroups != null)
-      fieldGroups = Arrays.stream(jpaFieldGroups.value()).collect(Collectors.toList());
+      fieldGroups = Arrays.stream(jpaFieldGroups.value()).toList();
     else
       fieldGroups = new ArrayList<>(0);
   }

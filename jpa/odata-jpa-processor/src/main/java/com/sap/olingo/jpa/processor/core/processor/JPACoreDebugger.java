@@ -95,7 +95,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
       final long runtime = (this.getTimeStopped() - this.getTimeStarted()) / 1000;
       final Long memory = memoryReader.getCurrentThreadMemoryConsumption() / 1000;
       LogFactory.getLog(this.getClassName())
-          .info(String.format("thread: %d, method: %s,  runtime [µs]: %d; memory [kb]: %d",
+          .debug(String.format("thread: %d, method: %s,  runtime [µs]: %d; memory [kb]: %d",
               threadID,
               this.getMethodName(),
               runtime,

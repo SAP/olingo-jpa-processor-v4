@@ -4,13 +4,13 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.DB_TYPE_NOT_DETERMINED;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.INVALID_NAVIGATION_PROPERTY;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_REQUIRED_UNKNOWN;
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.BASIC;
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.ELEMENT_COLLECTION;
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.EMBEDDED;
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.MANY_TO_MANY;
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.MANY_TO_ONE;
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.ONE_TO_MANY;
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.ONE_TO_ONE;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.BASIC;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.ELEMENT_COLLECTION;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.EMBEDDED;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.MANY_TO_MANY;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.MANY_TO_ONE;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.ONE_TO_MANY;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.ONE_TO_ONE;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -32,23 +32,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.persistence.AssociationOverride;
-import javax.persistence.AssociationOverrides;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Version;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.IdentifiableType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.MappedSuperclassType;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
-import javax.persistence.metamodel.Type;
+
+import jakarta.persistence.AssociationOverride;
+import jakarta.persistence.AssociationOverrides;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Version;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.IdentifiableType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.MappedSuperclassType;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -408,7 +409,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
         .map(Class::getDeclaredFields)
         .map(Arrays::asList)
         .flatMap(List::stream)
-        .collect(Collectors.toList()));
+        .toList());
   }
 
   void addVirtualProperties() throws ODataJPAModelException {
@@ -603,8 +604,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     final PersistentAttributeType attributeType = jpaAttribute.getPersistentAttributeType();
 
     switch (attributeType) {
-      case BASIC:
-      case EMBEDDED:
+      case BASIC, EMBEDDED:
         if (jpaAttribute instanceof SingularAttribute<?, ?>
             && ((SingularAttribute<?, ?>) jpaAttribute).isId()
             && attributeType == PersistentAttributeType.EMBEDDED) {
@@ -681,9 +681,8 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   @SuppressWarnings("unchecked")
   private List<MappedSuperclassType<? super T>> determineMappedSuperclass(final ManagedType<T> managedType) {
 
-    if (managedType instanceof IdentifiableType<?>) {
+    if (managedType instanceof IdentifiableType<?> type) {
       final List<MappedSuperclassType<? super T>> result = new ArrayList<>();
-      IdentifiableType<?> type = (IdentifiableType<T>) managedType;
       while (type.getSupertype() instanceof MappedSuperclassType<?>) {
         type = type.getSupertype();
         result.add((MappedSuperclassType<? super T>) type);
@@ -1125,9 +1124,8 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
      * @param attribute
      */
     public TransientRowType(final Field attribute, final IntermediateSchema schema) {
-      if (attribute.getGenericType() instanceof ParameterizedType) {
-        final java.lang.reflect.Type[] attributes = ((ParameterizedType) attribute.getGenericType())
-            .getActualTypeArguments();
+      if (attribute.getGenericType() instanceof final ParameterizedType type) {
+        final java.lang.reflect.Type[] attributes = type.getActualTypeArguments();
         this.rowType = (Class<?>) attributes[attributes.length - 1];
       } else {
         this.rowType = attribute.getType();

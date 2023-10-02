@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class ComplexSubType extends ComplexBaseType {

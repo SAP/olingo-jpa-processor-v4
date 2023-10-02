@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;

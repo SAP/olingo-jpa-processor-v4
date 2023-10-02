@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
-import javax.persistence.AttributeConverter;
+
+import jakarta.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;

@@ -7,8 +7,9 @@ import java.util.Locale;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.Metamodel;
+
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;

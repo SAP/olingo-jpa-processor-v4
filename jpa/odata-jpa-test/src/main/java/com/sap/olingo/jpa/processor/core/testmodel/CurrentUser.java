@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation;

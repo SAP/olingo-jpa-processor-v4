@@ -11,7 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
+import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 
 public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
   private final Literal literal;
@@ -39,8 +39,8 @@ public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
 
     try {
       final Object value = edmType.valueOfString(literalText, true, null, null, null, true, edmType.getDefaultType());
-      if (value instanceof String)
-        return ((String) value).replace("'", "");
+      if (value instanceof final String asString)
+        return asString.replace("'", "");
       return value;
     } catch (final EdmPrimitiveTypeException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -51,16 +51,16 @@ public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
    * Converts a literal value into system type of attribute
    */
   public Object get(final JPAAttribute attribute) throws ODataApplicationException {
-    return ExpressionUtil.convertValueOnAttribute(odata, attribute, literalText);
+    return ExpressionUtility.convertValueOnAttribute(odata, attribute, literalText);
   }
 
   public Object get(final JPAOperationResultParameter returnType) throws ODataApplicationException {
-    return ExpressionUtil.convertValueOnFacet(odata, returnType, literalText);
+    return ExpressionUtility.convertValueOnFacet(odata, returnType, literalText);
   }
 
   public Object get(final JPAParameter jpaParameter) throws ODataApplicationException {
 
-    return ExpressionUtil.convertValueOnFacet(odata, jpaParameter, literalText);
+    return ExpressionUtility.convertValueOnFacet(odata, jpaParameter, literalText);
   }
 
   @Override

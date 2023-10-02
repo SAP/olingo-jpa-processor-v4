@@ -4,7 +4,7 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 
 import java.lang.reflect.AnnotatedElement;
 
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;

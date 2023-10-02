@@ -31,18 +31,18 @@ class TypeConverter {
       if (target == String.class) {
         return source.toString();
       }
-      if (boxed(target) == Boolean.class && source instanceof String)
-        return Boolean.valueOf((String) source);
-      if (boxed(target) == Boolean.class && source instanceof Number)
-        return ((Number) source).intValue() == 0 ? Boolean.FALSE : Boolean.TRUE;
-      if (source instanceof Number && Number.class.isAssignableFrom(boxed(target))) {
-        return convertNumber((Number) source, target);
+      if (boxed(target) == Boolean.class && source instanceof final String asString)
+        return Boolean.valueOf(asString);
+      if (boxed(target) == Boolean.class && source instanceof final Number asNumber)
+        return asNumber.intValue() == 0 ? Boolean.FALSE : Boolean.TRUE;
+      if (source instanceof final Number asNumber && Number.class.isAssignableFrom(boxed(target))) {
+        return convertNumber(asNumber, target);
       }
       if (Temporal.class.isAssignableFrom(target)) {
         return convertTemporal(source, target);
       }
-      if (boxed(target) == Character.class && source instanceof String) {
-        return convertToCharacter((String) source);
+      if (boxed(target) == Character.class && source instanceof final String asString) {
+        return convertToCharacter(asString);
       }
       if (target == Duration.class) {
         return convertDuration(source);
