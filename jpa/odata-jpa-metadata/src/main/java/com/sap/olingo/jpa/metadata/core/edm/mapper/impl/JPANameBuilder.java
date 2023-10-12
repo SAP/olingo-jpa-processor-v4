@@ -4,8 +4,6 @@ import jakarta.persistence.metamodel.Attribute;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
