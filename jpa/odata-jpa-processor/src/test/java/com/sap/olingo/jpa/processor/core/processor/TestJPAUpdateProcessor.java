@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -61,7 +61,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
   @Test
-  void testHockIsCalled() throws ODataJPAModelException, ODataException {
+  void testHookIsCalled() throws ODataJPAModelException, ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 
@@ -510,7 +510,7 @@ class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testDoesRollbackIfUpdateRaisesAbitaryError() throws ODataException {
+  void testDoesRollbackIfUpdateRaisesArbitraryError() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 

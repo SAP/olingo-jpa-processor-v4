@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Order;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
 
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
@@ -323,8 +323,7 @@ class TestJPAOrderByBuilder extends TestBase {
 
   @Test
   void testPagePresentOnlyTopValue() throws IOException, ODataException {
-    page = mock(JPAODataPage.class);
-    when(page.getTop()).thenReturn(10);
+    page = new JPAODataPage(null, 0, 10, skip);
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
@@ -337,8 +336,7 @@ class TestJPAOrderByBuilder extends TestBase {
 
   @Test
   void testPagePresentMaxTopValueNoOrdering() throws IOException, ODataException {
-    page = mock(JPAODataPage.class);
-    when(page.getTop()).thenReturn(Integer.MAX_VALUE);
+    page = new JPAODataPage(null, 0, Integer.MAX_VALUE, skip);
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
@@ -347,8 +345,7 @@ class TestJPAOrderByBuilder extends TestBase {
 
   @Test
   void testPagePresentOnlySkipValue() throws IOException, ODataException {
-    page = mock(JPAODataPage.class);
-    when(page.getSkip()).thenReturn(10);
+    page = new JPAODataPage(null, 10, 0, null);
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
@@ -361,8 +358,7 @@ class TestJPAOrderByBuilder extends TestBase {
 
   @Test
   void testPageAndTopPresent() throws IOException, ODataException {
-    page = mock(JPAODataPage.class);
-    when(page.getSkip()).thenReturn(10);
+    page = new JPAODataPage(null, 10, 0, null);
     when(top.getValue()).thenReturn(5);
     when(uriResource.getTopOption()).thenReturn(top);
 
@@ -377,8 +373,7 @@ class TestJPAOrderByBuilder extends TestBase {
 
   @Test
   void testPageMaxTopValueAndTopPresent() throws IOException, ODataException {
-    page = mock(JPAODataPage.class);
-    when(page.getSkip()).thenReturn(Integer.MAX_VALUE);
+    page = new JPAODataPage(null, Integer.MAX_VALUE, 0, null);
     when(top.getValue()).thenReturn(5);
     when(uriResource.getTopOption()).thenReturn(top);
 
@@ -394,8 +389,7 @@ class TestJPAOrderByBuilder extends TestBase {
   @Test
   void testOrderByPropertyAndPage() throws IOException, ODataException {
     createOrderByItem("DivisionCode");
-    page = mock(JPAODataPage.class);
-    when(page.getSkip()).thenReturn(10);
+    page = new JPAODataPage(null, 10, 0, null);
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);

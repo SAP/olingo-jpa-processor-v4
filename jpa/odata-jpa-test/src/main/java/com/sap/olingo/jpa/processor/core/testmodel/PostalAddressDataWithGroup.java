@@ -2,12 +2,12 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.Collection;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.OneToMany;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.OneToMany;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
@@ -78,27 +78,27 @@ public class PostalAddressDataWithGroup {
     return region;
   }
 
-  public void setStreetName(String streetName) {
+  public void setStreetName(final String streetName) {
     this.streetName = streetName;
   }
 
-  public void setHouseNumber(String houseNumber) {
+  public void setHouseNumber(final String houseNumber) {
     this.houseNumber = houseNumber;
   }
 
-  public void setPOBox(String pOBox) {
+  public void setPOBox(final String pOBox) {
     this.pOBox = pOBox;
   }
 
-  public void setCityName(String cityName) {
+  public void setCityName(final String cityName) {
     this.cityName = cityName;
   }
 
-  public void setPostalCode(String postalCode) {
+  public void setPostalCode(final String postalCode) {
     this.postalCode = postalCode;
   }
 
-  public void setRegion(String region) {
+  public void setRegion(final String region) {
     this.region = region;
   }
 
@@ -110,5 +110,21 @@ public class PostalAddressDataWithGroup {
   public String toString() {
     return "PostalAddressData [streetName=" + streetName + ", houseNumber=" + houseNumber + ", pOBox=" + pOBox
         + ", postalCode=" + postalCode + ", cityName=" + cityName + ", country=" + country + ", region=" + region + "]";
+  }
+
+  public String getRegionCodePublisher() {
+    return regionCodePublisher;
+  }
+
+  public void setRegionCodePublisher(final String regionCodePublisher) {
+    this.regionCodePublisher = regionCodePublisher;
+  }
+
+  public String getRegionCodeID() {
+    return regionCodeID;
+  }
+
+  public void setRegionCodeID(final String regionCodeID) {
+    this.regionCodeID = regionCodeID;
   }
 }

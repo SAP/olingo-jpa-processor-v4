@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -44,11 +44,5 @@ public abstract class JPAMapBaseResult extends JPACreateResult {
     } else {
       return determineLocale((Map<String, Object>) value, localeAttribute, index + 1);
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException {
-    return (Map<String, Object>) entry;
   }
 }

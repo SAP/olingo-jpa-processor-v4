@@ -1,12 +1,12 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static javax.persistence.metamodel.Attribute.PersistentAttributeType.BASIC;
+import static jakarta.persistence.metamodel.Attribute.PersistentAttributeType.BASIC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
-import javax.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.ManagedType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

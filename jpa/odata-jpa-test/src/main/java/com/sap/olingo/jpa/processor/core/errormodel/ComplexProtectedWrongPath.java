@@ -1,11 +1,11 @@
 package com.sap.olingo.jpa.processor.core.errormodel;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 
@@ -23,7 +23,7 @@ public class ComplexProtectedWrongPath {
 
   @Embedded
   @EdmProtectedBy(name = "UserId", path = "created/wrong")
-  private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
+  private final AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   @Override
   public int hashCode() {
@@ -34,11 +34,11 @@ public class ComplexProtectedWrongPath {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    ComplexProtectedWrongPath other = (ComplexProtectedWrongPath) obj;
+    final ComplexProtectedWrongPath other = (ComplexProtectedWrongPath) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;
@@ -49,7 +49,7 @@ public class ComplexProtectedWrongPath {
     return iD;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
@@ -57,7 +57,7 @@ public class ComplexProtectedWrongPath {
     return eTag;
   }
 
-  public void setETag(long eTag) {
+  public void setETag(final long eTag) {
     this.eTag = eTag;
   }
 }

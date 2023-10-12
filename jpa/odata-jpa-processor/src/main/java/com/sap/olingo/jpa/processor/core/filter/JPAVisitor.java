@@ -11,9 +11,10 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Predicate;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Predicate;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -89,7 +90,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitBinaryOperator")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitBinaryOperator")) {
       if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
         // Connecting operations have to be handled first, as JPANavigationOperation do not need special treatment
         return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
@@ -130,7 +131,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAEnumerationOperator visitEnum(final EdmEnumType type, final List<String> enumValues)
       throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitEnum")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitEnum")) {
       final JPAEnumerationAttribute jpaEnumerationAttribute = this.jpaComplier.getSd().getEnumType(type);
       try {
         if (jpaEnumerationAttribute == null)
@@ -163,7 +164,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   @Override
   public JPAOperator visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitLiteral")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitLiteral")) {
       return new JPALiteralOperator(this.jpaComplier.getOData(), literal);
     }
   }
@@ -171,7 +172,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   @Override
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitMember")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitMember")) {
       final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(), member,
           jpaComplier.getAssociation());
       checkTransient(attributePath);
@@ -185,9 +186,9 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
         final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
         final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(
             ((UriResourceFunction) resource).getFunction());
-        if (jpaFunction instanceof JPADataBaseFunction) {
+        if (jpaFunction instanceof final JPADataBaseFunction dbFunction) {
           final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
-          return new JPADBFunctionOperator(this, odataParams, (JPADataBaseFunction) jpaFunction);
+          return new JPADBFunctionOperator(this, odataParams, dbFunction);
         } else
           return new JPAJavaFunctionOperator(this, (UriResourceFunction) resource, (JPAJavaFunction) jpaFunction);
       }
@@ -201,7 +202,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitMethodCall(final MethodKind methodCall, final List<JPAOperator> parameters)
       throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitMethodCall")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitMethodCall")) {
       if (!parameters.isEmpty()) {
         if (parameters.get(0) instanceof JPANavigationOperation ||
             (parameters.size() == 2 && parameters.get(1) instanceof JPANavigationOperation))
@@ -227,7 +228,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitUnaryOperator(final UnaryOperatorKind operator, final JPAOperator operand)
       throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "visitUnaryOperator")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitUnaryOperator")) {
 
       if (operator == UnaryOperatorKind.NOT) {
         return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) operand);
@@ -255,13 +256,13 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   }
 
   boolean hasNavigation(final JPAOperator operand) {
-    if (operand instanceof JPAMemberOperator) {
-      final List<UriResource> uriResourceParts = ((JPAMemberOperator) operand).getMember().getResourcePath()
+    if (operand instanceof final JPAMemberOperator memberOperator) {
+      final List<UriResource> uriResourceParts = memberOperator.getMember().getResourcePath()
           .getUriResourceParts();
       for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
         if (uriResourceParts.get(i) instanceof UriResourceNavigation
-            || (uriResourceParts.get(i) instanceof UriResourceProperty
-                && ((UriResourceProperty) uriResourceParts.get(i)).isCollection()))
+            || (uriResourceParts.get(i) instanceof final UriResourceProperty resourceProperty
+                && resourceProperty.isCollection()))
           return true;
       }
     }
@@ -274,9 +275,8 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
       throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
           "Binary operations comparing two navigation");
 
-    if (left instanceof JPANavigationOperation) {
-      return new JPANavigationOperation(operator, (JPANavigationOperation) left, (JPALiteralOperator) right,
-          jpaComplier);
+    if (left instanceof final JPANavigationOperation navigationOperation) {
+      return new JPANavigationOperation(operator, navigationOperation, (JPALiteralOperator) right, jpaComplier);
     }
     return new JPANavigationOperation(operator, (JPANavigationOperation) right, (JPALiteralOperator) left, jpaComplier);
   }

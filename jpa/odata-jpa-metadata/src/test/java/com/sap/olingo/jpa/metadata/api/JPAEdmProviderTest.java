@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -48,6 +47,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferen
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.CustomJPANameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
+
+import jakarta.persistence.EntityManagerFactory;
 
 /**
  * @author Oliver Grande

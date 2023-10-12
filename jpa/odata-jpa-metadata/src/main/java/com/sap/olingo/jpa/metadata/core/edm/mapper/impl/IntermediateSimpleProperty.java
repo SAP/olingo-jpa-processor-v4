@@ -9,12 +9,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
-import javax.persistence.Column;
-import javax.persistence.Version;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.SingularAttribute;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -22,6 +16,12 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Version;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 /**
  * A Property is described on the one hand by its Name and Type and on the other

@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -8,7 +8,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 
 /**
- * 
+ *
  * @author Oliver Grande
  *
  */

@@ -11,10 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.metamodel.Attribute;
-
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation.valueAssignment;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -29,6 +25,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
+
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.metamodel.Attribute;
 
 final class IntermediateDescriptionProperty extends IntermediateSimpleProperty implements JPADescriptionAttribute,
     JPAAssociationAttribute {
@@ -87,9 +87,8 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
     if (this.edmProperty == null) {
       super.lazyBuildEdmItem();
-      if (jpaMember instanceof AnnotatedElement) {
-        final EdmDescriptionAssociation association = ((AnnotatedElement) jpaMember).getAnnotation(
-            EdmDescriptionAssociation.class);
+      if (jpaMember instanceof final AnnotatedElement annotatedElement) {
+        final EdmDescriptionAssociation association = annotatedElement.getAnnotation(EdmDescriptionAssociation.class);
         if (association != null) {
           // determine generic type of a collection in case of an OneToMany association
           determineTargetEntityType(jpaMember);
@@ -129,8 +128,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   }
 
   private void determineTargetEntityType(final Member jpaMember) {
-    if (jpaMember instanceof Field) {
-      final Field jpaField = (Field) jpaMember;
+    if (jpaMember instanceof final Field jpaField) {
       final ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
       if (jpaTargetEntityType != null)
         targetEntity = schema.getEntityType((Class<?>) jpaTargetEntityType.getActualTypeArguments()[0]);
@@ -158,9 +156,9 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
       }
       return new JPAPathImpl(nextHop.getExternalName(), nextHop.getDBFieldName(), targetPath);
     } else {
-      final IntermediateSimpleProperty p = (IntermediateSimpleProperty) targetEntity.getAttribute(attribute)
+      final IntermediateSimpleProperty property = (IntermediateSimpleProperty) targetEntity.getAttribute(attribute)
           .orElseThrow(() -> new ODataJPAModelException(MessageKeys.PATH_ELEMENT_NOT_FOUND, pathItems[0], attribute));
-      return new JPAPathImpl(p.getExternalName(), p.getDBFieldName(), p);
+      return new JPAPathImpl(property.getExternalName(), property.getDBFieldName(), property);
     }
   }
 
@@ -278,9 +276,9 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
       if (columns != null) {
         for (final JoinColumn column : columns) {
           final IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
-          final String refColumnName = intermediateColumn.getReferencedColumnName();
+          final String referencedColumnName = intermediateColumn.getReferencedColumnName();
           final String name = intermediateColumn.getName();
-          if (refColumnName == null || refColumnName.isEmpty() || name == null || name.isEmpty()) {
+          if (referencedColumnName == null || referencedColumnName.isEmpty() || name == null || name.isEmpty()) {
             implicitColumns += 1;
             if (implicitColumns > 1)
               throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
@@ -303,10 +301,10 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     private void fillMissingName(final boolean isSourceOne, final IntermediateJoinColumn intermediateColumn)
         throws ODataJPAModelException {
 
-      final String refColumnName = intermediateColumn.getReferencedColumnName();
+      final String referencedColumnName = intermediateColumn.getReferencedColumnName();
       final String name = intermediateColumn.getName();
 
-      if (isSourceOne && (emptyString(refColumnName)))
+      if (isSourceOne && (emptyString(referencedColumnName)))
         intermediateColumn.setReferencedColumnName(
             ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
                 .getKey().get(0)).getDBFieldName());
@@ -314,7 +312,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
         intermediateColumn.setReferencedColumnName(
             ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetEntity)
                 .getKey().get(0)).getDBFieldName());
-      else if (!isSourceOne && (emptyString(refColumnName)))
+      else if (!isSourceOne && (emptyString(referencedColumnName)))
         intermediateColumn.setReferencedColumnName(
             ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetEntity)
                 .getKey().get(0)).getDBFieldName());

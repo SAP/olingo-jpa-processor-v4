@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.From;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.server.api.OData;
@@ -132,11 +132,11 @@ public class JPANavigationFilterQueryBuilder {
 
   private UriResourceKind getAggregationType(final VisitableExpression expression) {
     UriInfoResource member = null;
-    if (expression instanceof Binary) {
-      if (((Binary) expression).getLeftOperand() instanceof JPAMemberOperator)
-        member = ((JPAMemberOperator) ((Binary) expression).getLeftOperand()).getMember().getResourcePath();
-      else if (((Binary) expression).getRightOperand() instanceof JPAMemberOperator)
-        member = ((JPAMemberOperator) ((Binary) expression).getRightOperand()).getMember().getResourcePath();
+    if (expression instanceof final Binary binary) {
+      if (binary.getLeftOperand() instanceof final JPAMemberOperator leftMember)
+        member = leftMember.getMember().getResourcePath();
+      else if (binary.getRightOperand() instanceof final JPAMemberOperator rightMember)
+        member = rightMember.getMember().getResourcePath();
     } else if (expression instanceof JPAFilterExpression
         || expression instanceof JPACountExpression) {
       member = ((JPAVisitableExpression) expression).getMember();
@@ -152,8 +152,8 @@ public class JPANavigationFilterQueryBuilder {
 
   private boolean isNullExpression(final VisitableExpression expression) {
 
-    return expression instanceof JPANullExpression
-        && NULL.equals(((JPANullExpression) expression).getLiteral().getText());
+    return expression instanceof final JPANullExpression nullExpression
+        && NULL.equals(nullExpression.getLiteral().getText());
   }
 
 }

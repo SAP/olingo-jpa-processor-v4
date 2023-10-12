@@ -15,10 +15,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataOperation;
 
-class IntermediateActionFactory extends IntermediateOperationFactory<IntermediateJavaAction> {
+class IntermediateActionFactory implements IntermediateOperationFactory<IntermediateJavaAction> {
 //Description
   @Override
-  IntermediateJavaAction createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
+  public IntermediateJavaAction createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
       final Method method, final Object functionDescription)
       throws ODataJPAModelException {
     return new IntermediateJavaAction(nameBuilder, (EdmAction) functionDescription, method, schema);

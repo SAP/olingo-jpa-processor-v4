@@ -6,12 +6,13 @@ import java.util.Locale;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.AbstractQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Subquery;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -216,11 +217,11 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
 
   protected UriResourceKind getAggregationType(final VisitableExpression expression) {
     UriInfoResource member = null;
-    if (expression instanceof Binary) {
-      if (((Binary) expression).getLeftOperand() instanceof JPAMemberOperator)
-        member = ((JPAMemberOperator) ((Binary) expression).getLeftOperand()).getMember().getResourcePath();
-      else if (((Binary) expression).getRightOperand() instanceof JPAMemberOperator)
-        member = ((JPAMemberOperator) ((Binary) expression).getRightOperand()).getMember().getResourcePath();
+    if (expression instanceof final Binary binary) {
+      if (binary.getLeftOperand() instanceof final JPAMemberOperator leftMemberOperator)
+        member = leftMemberOperator.getMember().getResourcePath();
+      else if (binary.getRightOperand() instanceof final JPAMemberOperator rightMemberOperator)
+        member = rightMemberOperator.getMember().getResourcePath();
     } else if (expression instanceof JPAFilterExpression
         || expression instanceof JPACountExpression) {
       member = ((JPAVisitableExpression) expression).getMember();

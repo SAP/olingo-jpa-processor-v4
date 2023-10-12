@@ -3,9 +3,9 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.math.BigInteger;
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
 
 import com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter;
 

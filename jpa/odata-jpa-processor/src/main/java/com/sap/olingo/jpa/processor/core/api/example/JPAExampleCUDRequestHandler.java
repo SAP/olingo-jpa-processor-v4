@@ -19,10 +19,10 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import javax.persistence.EntityManager;
-import javax.persistence.GeneratedValue;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -178,7 +178,8 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   }
 
   private void checkAuthorities(final Object instance, final JPAStructuredType entityType,
-      final Optional<JPAODataClaimProvider> claims, final JPAModifyUtil modifyUtility) throws JPAExampleModifyException {
+      final Optional<JPAODataClaimProvider> claims, final JPAModifyUtil modifyUtility)
+      throws JPAExampleModifyException {
     try {
       final List<JPAProtectionInfo> protections = entityType.getProtections();
       if (!protections.isEmpty()) {
@@ -327,14 +328,13 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   private void setAuditInformation(final Object instance, final Optional<JPAODataClaimProvider> claims,
       final boolean created) {
 
-    if (instance instanceof JPAExampleAuditable) {
-      final JPAExampleAuditable auditable = (JPAExampleAuditable) instance;
+    if (instance instanceof final JPAExampleAuditable auditable) {
       if (created) {
         auditable.setCreatedAt(now);
-        claims.ifPresent(c -> auditable.setCreatedBy(c.user().orElse("")));
+        claims.ifPresent(claim -> auditable.setCreatedBy(claim.user().orElse("")));
       }
       auditable.setUpdatedAt(now);
-      claims.ifPresent(c -> auditable.setUpdatedBy(c.user().orElse("")));
+      claims.ifPresent(claim -> auditable.setUpdatedBy(claim.user().orElse("")));
     }
   }
 
@@ -358,11 +358,11 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
         .stream()
         .filter(type -> type.getName().equals(et.getExternalName()))
         .findFirst()
-        .map(jpaEt -> hasGeneratedKeyInt(et, jpaEt))
+        .map(jpaEt -> hasGeneratedKeyInternal(et, jpaEt))
         .orElse(false);
   }
 
-  private boolean hasGeneratedKeyInt(final JPAEntityType et, final EntityType<?> jpaEt) {
+  private boolean hasGeneratedKeyInternal(final JPAEntityType et, final EntityType<?> jpaEt) {
     try {
       if (jpaEt.hasSingleIdAttribute()) {
         final JPAAttribute key = et.getKey().get(0);

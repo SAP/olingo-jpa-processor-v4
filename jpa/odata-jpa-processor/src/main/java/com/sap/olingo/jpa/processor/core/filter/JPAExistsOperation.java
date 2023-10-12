@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -75,9 +75,9 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
           associationName.insert(0, ((UriResourceNavigation) navigation).getProperty().getName());
         }
         if (navigation != null) {
-          if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
+          if (resourceParts.get(i) instanceof final UriResourceComplexProperty complexProperty) {
             associationName.insert(0, JPAPath.PATH_SEPARATOR);
-            associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
+            associationName.insert(0, complexProperty.getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)
             pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociationPath(sd,
@@ -92,9 +92,9 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
           associationName = new StringBuilder();
           associationName.insert(0, ((UriResourceProperty) navigation).getProperty().getName());
         } else if (navigation != null) {
-          if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
+          if (resourceParts.get(i) instanceof final UriResourceComplexProperty complexProperty) {
             associationName.insert(0, JPAPath.PATH_SEPARATOR);
-            associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
+            associationName.insert(0, complexProperty.getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)
             pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociationPath(sd,
@@ -117,6 +117,6 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
 
   public boolean isCollection(final UriResource resourcePart) {
 
-    return (resourcePart instanceof UriResourceProperty && ((UriResourceProperty) resourcePart).isCollection());
+    return (resourcePart instanceof final UriResourceProperty resourceProperty && resourceProperty.isCollection());
   }
 }

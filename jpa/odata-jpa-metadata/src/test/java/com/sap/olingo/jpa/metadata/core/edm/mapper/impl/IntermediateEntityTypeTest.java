@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.Table;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.Table;
+import jakarta.persistence.metamodel.EntityType;
 
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
@@ -43,6 +43,7 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigati
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -54,7 +55,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
-import com.sap.olingo.jpa.processor.core.errormodel.SingletonAsEntitySet;
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -225,6 +225,18 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
       }
     }
     assertEquals(3, actCount, "Not all join columns found");
+  }
+
+  @Test
+  void checkGetAssociationOfMappedByWithVirtualProperty() throws ODataJPAModelException {
+
+    final IntermediateStructuredType<AssociationOneToOneSource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AssociationOneToOneSource.class), schema);
+    final JPAAssociationPath act = et.getAssociationPath("DefaultTarget");
+    assertEquals(1, act.getJoinColumnsList().size());
+    final JPAOnConditionItem actColumn = act.getJoinColumnsList().get(0);
+    assertEquals("ID", actColumn.getRightPath().getAlias());
+    assertEquals("Defaulttarget_id", actColumn.getLeftPath().getAlias());
   }
 
   @Test
@@ -703,14 +715,6 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateEntityType<EntityTypeOnly> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(EntityTypeOnly.class), schema);
     assertFalse(et.asSingleton());
-  }
-
-  @Test
-  void checkAsSingletonErrorOnAsEntitySet() throws ODataJPAModelException {
-    final EntityType<SingletonAsEntitySet> jpaEt = errorEmf.getMetamodel().entity(SingletonAsEntitySet.class);
-    final IntermediateEntityType<SingletonAsEntitySet> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
-        ERROR_PUNIT), jpaEt, errorSchema);
-    assertThrows(ODataJPAModelException.class, () -> et.getEdmItem());
   }
 
   @Test

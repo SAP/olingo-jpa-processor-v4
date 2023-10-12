@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import javax.persistence.OptimisticLockException;
-import javax.persistence.RollbackException;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.RollbackException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -117,8 +117,8 @@ public final class JPAODataRequestProcessor
           .getAllHeaders());
       processor.deleteEntity(request, response);
     } catch (ODataApplicationException | ODataLibraryException e) {
-      if (e.getCause() instanceof RollbackException)
-        handleRollbackException((RollbackException) e.getCause());
+      if (e.getCause() instanceof final RollbackException rollback)
+        handleRollbackException(rollback);
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -324,8 +324,8 @@ public final class JPAODataRequestProcessor
           request.getAllHeaders());
       processor.updateEntity(request, response, requestFormat, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
-      if (e.getCause() instanceof RollbackException)
-        handleRollbackException((RollbackException) e.getCause());
+      if (e.getCause() instanceof final RollbackException rollback)
+        handleRollbackException(rollback);
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -435,12 +435,12 @@ public final class JPAODataRequestProcessor
   }
 
   private void performCountRequest(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
-      throws ODataApplicationException, ODataLibraryException {
+      throws ODataApplicationException {
     try {
       final JPARequestProcessor processor = factory.createProcessor(uriInfo, ContentType.TEXT_PLAIN, request
           .getAllHeaders(), requestContext);
       processor.retrieveData(request, response, ContentType.TEXT_PLAIN);
-    } catch (ODataApplicationException | ODataLibraryException e) {
+    } catch (final ODataApplicationException e) {
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -457,8 +457,8 @@ public final class JPAODataRequestProcessor
           .getAllHeaders());
       processor.clearFields(request, response);
     } catch (ODataApplicationException | ODataLibraryException e) {
-      if (e.getCause() instanceof RollbackException)
-        handleRollbackException((RollbackException) e.getCause());
+      if (e.getCause() instanceof final RollbackException rollback)
+        handleRollbackException(rollback);
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),

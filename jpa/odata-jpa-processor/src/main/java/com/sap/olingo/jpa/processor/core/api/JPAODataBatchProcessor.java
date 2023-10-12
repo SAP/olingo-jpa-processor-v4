@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.persistence.OptimisticLockException;
-import javax.persistence.RollbackException;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.RollbackException;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.format.PreferenceName;
@@ -63,7 +63,7 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   public final void processBatch(final BatchFacade facade, final ODataRequest request, final ODataResponse response)
       throws ODataApplicationException, ODataLibraryException {
 
-    try (JPARuntimeMeasurement meassument = requestContext.getDebugger().newMeasurement(this, "processBatch")) {
+    try (JPARuntimeMeasurement measurement = requestContext.getDebugger().newMeasurement(this, "processBatch")) {
       final String boundary = facade.extractBoundaryFromContentType(request.getHeader(HttpHeader.CONTENT_TYPE));
       final BatchOptions options = BatchOptions.with()
           .rawBaseUri(request.getRawBaseUri())
@@ -130,7 +130,7 @@ public class JPAODataBatchProcessor implements BatchProcessor {
      * to the other processor interfaces.
      */
     final List<ODataResponse> responses = new ArrayList<>();
-    try (JPARuntimeMeasurement meassument = requestContext.getDebugger().newMeasurement(this, "processChangeSet")) {
+    try (JPARuntimeMeasurement measurement = requestContext.getDebugger().newMeasurement(this, "processChangeSet")) {
       final JPAODataTransaction t = requestContext.getTransactionFactory().createTransaction();
       try {
         for (final ODataRequest request : requests) {

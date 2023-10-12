@@ -1,12 +1,13 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import javax.annotation.Nonnull;
-import javax.persistence.metamodel.Attribute;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+
+import jakarta.persistence.metamodel.Attribute;
 
 class IntermediateVirtualProperty extends IntermediateProperty {
 

@@ -3,9 +3,10 @@ package com.sap.olingo.jpa.processor.cb.joiner;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate.BooleanOperator;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate.BooleanOperator;
 
 final class ExpressionJoiner {
 

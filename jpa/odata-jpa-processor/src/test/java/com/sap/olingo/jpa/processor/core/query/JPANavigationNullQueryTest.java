@@ -11,14 +11,14 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
@@ -46,7 +46,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
-import com.sap.olingo.jpa.processor.core.testmodel.JoinPartnerRoleRelation;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
@@ -59,9 +58,7 @@ class JPANavigationNullQueryTest extends TestBase {
   private JPAAbstractQuery parent;
   private JPAAssociationPath association;
   private From<?, ?> from;
-  private Root<JoinPartnerRoleRelation> queryJoinTable;
   private Root<BusinessPartnerProtected> queryRoot;
-  private Root<BusinessPartnerProtected> parentRoot;
   private JPAODataClaimProvider claimsProvider;
   private EdmEntityType edmEntityType;
   @SuppressWarnings("rawtypes")
@@ -84,9 +81,7 @@ class JPANavigationNullQueryTest extends TestBase {
     cq = mock(CriteriaQuery.class);
     cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
     subQuery = mock(Subquery.class);
-    queryJoinTable = mock(Root.class);
     queryRoot = mock(Root.class);
-    parentRoot = mock(Root.class);
     from = mock(From.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
 

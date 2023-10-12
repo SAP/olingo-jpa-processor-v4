@@ -2,12 +2,12 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.io.Serializable;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 
 public class BusinessPartnerRoleKey implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -2350388598203342905L;
 
@@ -27,11 +27,11 @@ public class BusinessPartnerRoleKey implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    BusinessPartnerRoleKey other = (BusinessPartnerRoleKey) obj;
+    final BusinessPartnerRoleKey other = (BusinessPartnerRoleKey) obj;
     if (businessPartnerID == null) {
       if (other.businessPartnerID != null) return false;
     } else if (!businessPartnerID.equals(other.businessPartnerID)) return false;
@@ -54,7 +54,7 @@ public class BusinessPartnerRoleKey implements Serializable {
     return businessPartnerID;
   }
 
-  public void setBusinessPartnerID(String businessPartnerID) {
+  public void setBusinessPartnerID(final String businessPartnerID) {
     this.businessPartnerID = businessPartnerID;
   }
 
@@ -62,7 +62,7 @@ public class BusinessPartnerRoleKey implements Serializable {
     return roleCategory;
   }
 
-  public void setRoleCategory(String roleCategory) {
+  public void setRoleCategory(final String roleCategory) {
     this.roleCategory = roleCategory;
   }
 }

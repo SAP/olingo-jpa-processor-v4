@@ -4,11 +4,12 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import javax.annotation.Nonnull;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
 
 /**
  * A name builder creates, based on information from the JPA entity model names, the names of the corresponding element
@@ -29,7 +30,12 @@ public interface JPAEdmNameBuilder {
 
   /**
    * Container names are <a
+<<<<<<< HEAD
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_SimpleIdentifier">
+=======
+   * href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_SimpleIdentifier">
+>>>>>>> odata-v4-jpa-processor/master
    * Simple Identifier</a>,
    * so can contain only letters, digits and underscores.
    * @return non empty unique name of an Entity Set
@@ -39,7 +45,12 @@ public interface JPAEdmNameBuilder {
 
   /**
    * Create a name of an <a
+<<<<<<< HEAD
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_12.2_The_edm:EntitySet">
+=======
+   * href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_12.2_The_edm:EntitySet">
+>>>>>>> odata-v4-jpa-processor/master
    * Entity Set</a> derived from the name of the corresponding entity type.
    * @param entityTypeName
    * @return non empty unique name of an Entity Set
@@ -53,7 +64,12 @@ public interface JPAEdmNameBuilder {
 
   /**
    * Create a name of an <a
+<<<<<<< HEAD
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398032">
+=======
+   * href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398032">
+>>>>>>> odata-v4-jpa-processor/master
    * Singleton</a> derived from the name of the corresponding entity type.
    * @param entityTypeName
    * @return non empty unique name of a Singleton
@@ -69,7 +85,12 @@ public interface JPAEdmNameBuilder {
 
   /**
    * Creates the name of an <a
+<<<<<<< HEAD
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397976">Entity
+=======
+   * href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397976">Entity
+>>>>>>> odata-v4-jpa-processor/master
    * Type</a> derived from JPA Entity Type.
    * @param jpaEntityType
    * @return non empty unique name of an Entity Type
@@ -79,7 +100,12 @@ public interface JPAEdmNameBuilder {
 
   /**
    * Converts the internal java class name of an enumeration into the external entity data model <a
+<<<<<<< HEAD
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397991">
+=======
+   * href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397991">
+>>>>>>> odata-v4-jpa-processor/master
    * Enumeration Type</a> name.
    * @param javaEnum
    * @return non empty unique name of an Enumeration

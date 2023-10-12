@@ -11,8 +11,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import javax.persistence.Tuple;
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.JoinType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

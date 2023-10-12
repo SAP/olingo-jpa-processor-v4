@@ -4,9 +4,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -110,7 +110,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = parent.getDebugger().newMeasurement(this, "compile")) {
+    try (JPARuntimeMeasurement measurement = parent.getDebugger().newMeasurement(this, "compile")) {
       if (expression == null) {
         return null;
       }

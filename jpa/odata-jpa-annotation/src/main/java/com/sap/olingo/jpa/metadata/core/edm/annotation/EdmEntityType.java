@@ -28,11 +28,19 @@ public @interface EdmEntityType {
 
   /**
    * Query Extension Provider provides a set to methods to extend or influence the generated query. This may be from
+<<<<<<< HEAD
    * interest in case a subset of records shall be represented by an Entity Set or Singleton and it is not possible to
    * use a database view.
    * <p>
    *
    * Query Extension Provider are inherited. One that is given at a sub type overrides one that is given at the super
+=======
+   * interest in case a subset of records shall be represented by an Entity Set or Singleton and it is not possible to
+   * use a database view.
+   * <p>
+   *
+   * Query Extension Provider are inherited. One that is given at a sub type overrides one that is given at the super
+>>>>>>> odata-v4-jpa-processor/master
    * type or base type.
    */
   Class<? extends EdmQueryExtensionProvider> extensionProvider() default EdmQueryExtensionProvider.class;

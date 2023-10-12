@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -17,6 +16,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
 
 final class JPAAssociationPathImpl implements JPAAssociationPath {
   private final String alias;
@@ -53,7 +54,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     pathElementsBuffer.add(attribute);
     pathElementsBuffer.addAll(associationPath.getPath());
 
-    alias = buildNaviPropertyBindingName(associationPath, attribute);
+    alias = buildNavigationPropertyBindingName(associationPath, attribute);
     this.sourceType = source;
     this.targetType = (IntermediateStructuredType<?>) associationPath.getTargetType();
     if (joinColumns.isEmpty())
@@ -101,8 +102,8 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public List<JPAPath> getInverseLeftJoinColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
-    if (joinTable instanceof IntermediateJoinTable)
-      for (final IntermediateJoinColumn column : ((IntermediateJoinTable) joinTable).buildInverseJoinColumns()) {
+    if (joinTable instanceof final IntermediateJoinTable intermediateJoinTable)
+      for (final IntermediateJoinColumn column : intermediateJoinTable.buildInverseJoinColumns()) {
         result.add(targetType.getPathByDBField(column.getName()));
       }
     return result;
@@ -246,7 +247,8 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    */
   // TODO respect subtype name
   @Nonnull
-  private String buildNaviPropertyBindingName(final JPAAssociationPath associationPath, final JPAAttribute parent) {
+  private String buildNavigationPropertyBindingName(final JPAAssociationPath associationPath,
+      final JPAAttribute parent) {
     final StringBuilder name = new StringBuilder();
 
     name.append(parent.getExternalName());

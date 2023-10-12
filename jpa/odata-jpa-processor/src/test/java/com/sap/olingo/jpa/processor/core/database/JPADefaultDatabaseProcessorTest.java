@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
@@ -29,7 +29,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
 
   @BeforeEach
-  void  setup() {
+  void setup() {
     initEach();
     oneParameterResult = "SELECT * FROM Example(?1)";
     twoParameterResult = "SELECT * FROM Example(?1,?2)";
@@ -38,42 +38,42 @@ class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
   }
 
   @Test
-  void  testNotSupportedConvertBooleanOperator() throws ODataApplicationException {
+  void testNotSupportedConvertBooleanOperator() throws ODataApplicationException {
     final JPABooleanOperator operator = mock(JPABooleanOperator.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void  testNotSupportedConvertAggregationOperator() throws ODataApplicationException {
+  void testNotSupportedConvertAggregationOperator() throws ODataApplicationException {
     final JPAAggregationOperation operator = mock(JPAAggregationOperation.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void  testNotSupportedConvertArithmeticOperator() throws ODataApplicationException {
+  void testNotSupportedConvertArithmeticOperator() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void  testNotSupportedConvertMethodCall() throws ODataApplicationException {
+  void testNotSupportedConvertMethodCall() throws ODataApplicationException {
     final JPAMethodCall operator = mock(JPAMethodCall.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void  testNotSupportedConvertUnaryBooleanOperator() throws ODataApplicationException {
+  void testNotSupportedConvertUnaryBooleanOperator() throws ODataApplicationException {
     final JPAUnaryBooleanOperator operator = mock(JPAUnaryBooleanOperator.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void  testNotSupportedConvertComparisonOperatorOthersThenHAS() throws ODataApplicationException {
+  void testNotSupportedConvertComparisonOperatorOthersThenHAS() throws ODataApplicationException {
     @SuppressWarnings("unchecked")
     final JPAComparisonOperator<String> operator = mock(JPAComparisonOperator.class);
     when(operator.getOperator()).then(new Answer<BinaryOperatorKind>() {
       @Override
-      public BinaryOperatorKind answer(InvocationOnMock invocation) throws Throwable {
+      public BinaryOperatorKind answer(final InvocationOnMock invocation) throws Throwable {
         return BinaryOperatorKind.SUB;
       }
     });
@@ -82,17 +82,17 @@ class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void  testSupportedConvertComparisonOperatorOperatorHAS() throws ODataApplicationException {
+  void testSupportedConvertComparisonOperatorOperatorHAS() throws ODataApplicationException {
     final CriteriaBuilder cb = mock(CriteriaBuilder.class);
-    Expression<Integer> cbResult = mock(Expression.class);
-    Predicate cbPredicate = mock(Predicate.class);
+    final Expression<Integer> cbResult = mock(Expression.class);
+    final Predicate cbPredicate = mock(Predicate.class);
     final JPAComparisonOperator<Long> operator = mock(JPAComparisonOperator.class);
     final Expression<Long> left = mock(Expression.class);
     final JPAEnumerationBasedOperator right = mock(JPAEnumerationBasedOperator.class);
 
     when(operator.getOperator()).then(new Answer<BinaryOperatorKind>() {
       @Override
-      public BinaryOperatorKind answer(InvocationOnMock invocation) throws Throwable {
+      public BinaryOperatorKind answer(final InvocationOnMock invocation) throws Throwable {
         return BinaryOperatorKind.HAS;
       }
     });
@@ -102,7 +102,7 @@ class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
 
     when(cb.quot(left, 5L)).thenAnswer(new Answer<Expression<Integer>>() {
       @Override
-      public Expression<Integer> answer(InvocationOnMock invocation) throws Throwable {
+      public Expression<Integer> answer(final InvocationOnMock invocation) throws Throwable {
         return cbResult;
       }
     });
@@ -114,7 +114,7 @@ class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
   }
 
   @Test
-  void  testNotSupportedSearch() throws ODataApplicationException {
+  void testNotSupportedSearch() throws ODataApplicationException {
     assertThrows(ODataJPADBAdaptorException.class, () -> {
       cut.createSearchWhereClause(null, null, null, null, null);
     });

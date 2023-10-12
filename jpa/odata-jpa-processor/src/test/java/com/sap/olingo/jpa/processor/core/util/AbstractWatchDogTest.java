@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
@@ -54,6 +53,6 @@ public abstract class AbstractWatchDogTest {
         .stream()
         .map(string -> createAnnotationNavigationPath(string))
         .map(path -> (CsdlExpression) path)
-        .collect(Collectors.toList());
+        .toList();
   }
 }

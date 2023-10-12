@@ -5,16 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TupleElement;
 
 public final class JPATuple implements Tuple {
 
-  private List<TupleElement<?>> elements = new ArrayList<>();
-  private Map<String, Object> values = new HashMap<>();
+  private final List<TupleElement<?>> elements = new ArrayList<>();
+  private final Map<String, Object> values = new HashMap<>();
 
-  public void addElement(final String alias, Class<?> javaType, final Object value) {
-    elements.add(new JPATupleElement<Object>(alias, javaType));
+  public void addElement(final String alias, final Class<?> javaType, final Object value) {
+    elements.add(new JPATupleElement<>(alias, javaType));
     values.put(alias, value);
 
   }
@@ -66,15 +66,7 @@ public final class JPATuple implements Tuple {
     return new Object[] {};
   }
 
-  private static class JPATupleElement<X> implements TupleElement<X> {
-
-    private final String alias;
-    private final Class<? extends X> javaType;
-
-    public JPATupleElement(final String alias, final Class<? extends X> javaType) {
-      this.alias = alias;
-      this.javaType = javaType;
-    }
+  private static record JPATupleElement<X>(String alias, Class<? extends X> javaType) implements TupleElement<X> {
 
     @Override
     public String getAlias() {

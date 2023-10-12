@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -110,29 +110,29 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
 
   @Test
   void testWithBaseClass() {
-    final StringBuilder stmt = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.multiselect(act.get("iD"));
     assertEquals("SELECT E0.\"ID\" S0 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE (E0.\"Type\" = ?1)",
-        cut.asSQL(stmt).toString());
+        cut.asSQL(statement).toString());
   }
 
   @Test
   void testGroupBy() {
-    final StringBuilder stmt = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.groupBy(act.get("aBCClass"), act.get("name2"));
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
     assertEquals(
         "SELECT E0.\"ABCClass\" S0, E0.\"NameLine2\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 "
             + "WHERE (E0.\"Type\" = ?1) GROUP BY E0.\"ABCClass\", E0.\"NameLine2\"",
-        cut.asSQL(stmt).toString());
+        cut.asSQL(statement).toString());
   }
 
   @Test
   void testReplaceGroupByEmpty() {
     final Expression<?>[] nullArray = null;
-    final StringBuilder stmt = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.groupBy(act.get("aBCClass"), act.get("name2"));
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
@@ -140,12 +140,12 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     assertEquals(
         "SELECT E0.\"ABCClass\" S0, E0.\"NameLine2\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 "
             + "WHERE (E0.\"Type\" = ?1)",
-        cut.asSQL(stmt).toString());
+        cut.asSQL(statement).toString());
   }
 
   @Test
   void testHaving() {
-    final StringBuilder stmt = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.having(cb.gt(cb.count(act.get("iD")), 1));
     cut.groupBy(act.get("name2"));
@@ -155,15 +155,15 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
             + "WHERE (E0.\"Type\" = ?2) "
             + "GROUP BY E0.\"NameLine2\" "
             + "HAVING (COUNT(E0.\"ID\") > ?1)",
-        cut.asSQL(stmt).toString());
+        cut.asSQL(statement).toString());
   }
 
   @Test
   void testDefaultImplementationOnPathWrapper() {
     final Root<?> act = cut.from(Organization.class);
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
-    final Selection<Object> sel = cut.getSelection();
-    final List<Entry<String, JPAPath>> resolvedSelections = ((ProcessorSelection<?>) sel).getResolvedSelection();
+    final Selection<Object> selection = cut.getSelection();
+    final List<Entry<String, JPAPath>> resolvedSelections = ((ProcessorSelection<?>) selection).getResolvedSelection();
     assertNotNull(resolvedSelections.get(0).getValue());
 
   }

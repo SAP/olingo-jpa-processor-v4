@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.util.Set;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.metamodel.EntityType;
 
 import org.junit.jupiter.api.BeforeAll;
 

@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects;
 
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 
 public class ConverterWithConstructorError implements AttributeConverter<Enum<?>[], Integer> {
 

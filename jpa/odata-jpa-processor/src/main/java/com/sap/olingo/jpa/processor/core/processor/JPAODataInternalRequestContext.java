@@ -13,7 +13,8 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.EntityManager;
+
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -42,7 +43,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
+import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
 public final class JPAODataInternalRequestContext implements JPAODataRequestContextAccess,
@@ -204,7 +205,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   @Override
   public Locale getLocale() {
     if (locales == null || locales.isEmpty())
-      return ExpressionUtil.determineFallbackLocale(header);
+      return ExpressionUtility.determineFallbackLocale(header);
     return locales.get(0);
   }
 
@@ -221,7 +222,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   public void setJPAODataPage(@Nonnull final JPAODataPage page) throws ODataJPAIllegalAccessException {
     if (this.uriInfo != null)
       throw new ODataJPAIllegalAccessException();
-    this.setUriInfo(page.getUriInfo());
+    this.setUriInfo(page.uriInfo());
     this.page = Objects.requireNonNull(page);
   }
 
@@ -261,8 +262,8 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     this.cudRequestHandler = context.getCUDRequestHandler();
     this.transactionFactory = context.getTransactionFactory();
     this.locales = context.getProvidedLocale();
-    this.debugSupport = context instanceof JPAODataInternalRequestContext ? ((JPAODataInternalRequestContext) context)
-        .getDebugSupport() : null;
+    this.debugSupport = context instanceof final JPAODataInternalRequestContext internalContext
+        ? internalContext.getDebugSupport() : null;
     this.dbProcessor = context.getDatabaseProcessor();
     this.edmProvider = Optional.ofNullable(context.getEdmProvider());
     this.operationConverter = context.getOperationConverter();
@@ -290,8 +291,8 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
       final EntityManager em) {
     try {
       return sessionContext.getEdmProvider() == null
-          && sessionContext instanceof JPAODataServiceContext
-              ? Optional.ofNullable(((JPAODataServiceContext) sessionContext).getEdmProvider(em))
+          && sessionContext instanceof final JPAODataServiceContext serviceContext
+              ? Optional.ofNullable(serviceContext.getEdmProvider(em))
               : Optional.ofNullable(sessionContext.getEdmProvider());
     } catch (final ODataException e) {
       debugger.debug(this, Arrays.toString(e.getStackTrace()));

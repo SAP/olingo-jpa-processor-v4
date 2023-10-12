@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.processor.core.testobjects;
 
 import java.time.LocalDate;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;

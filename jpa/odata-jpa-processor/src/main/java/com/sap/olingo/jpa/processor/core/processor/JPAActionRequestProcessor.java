@@ -85,9 +85,8 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
       throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
     } catch (InvocationTargetException | ODataException e) {
-      final Throwable cause = e.getCause();
-      if (cause instanceof ODataApplicationException) {
-        throw (ODataApplicationException) cause;
+      if (e.getCause() instanceof final ODataApplicationException cause) {
+        throw cause;
       } else {
         throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
       }

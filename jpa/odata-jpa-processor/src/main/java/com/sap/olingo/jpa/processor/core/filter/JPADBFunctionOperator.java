@@ -4,8 +4,8 @@ import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterExceptio
 
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
 
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -105,14 +105,7 @@ final class JPADBFunctionOperator implements JPAOperator {
     return jpaFunction.getDBName();
   }
 
-  private class ParameterLiteral implements Literal {
-
-    public ParameterLiteral(final String text) {
-      super();
-      this.text = text;
-    }
-
-    private final String text;
+  private record ParameterLiteral(String text) implements Literal {
 
     @Override
     public <T> T accept(final ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {

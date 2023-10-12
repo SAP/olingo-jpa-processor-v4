@@ -10,19 +10,20 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Parameter;
-import javax.persistence.criteria.CriteriaBuilder.Coalesce;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
-import javax.persistence.metamodel.Bindable;
-import javax.persistence.metamodel.MapAttribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Parameter;
+import jakarta.persistence.criteria.CriteriaBuilder.Coalesce;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.metamodel.Bindable;
+import jakarta.persistence.metamodel.MapAttribute;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -133,9 +134,9 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     private final SqlAggregation function;
     private final SqlConvertible expression;
 
-    AggregationExpression(@Nonnull final SqlAggregation function, @Nonnull final Expression<?> x) {
+    AggregationExpression(@Nonnull final SqlAggregation function, @Nonnull final Expression<?> expression) {
       this.function = Objects.requireNonNull(function);
-      this.expression = Objects.requireNonNull((SqlConvertible) x);
+      this.expression = Objects.requireNonNull((SqlConvertible) expression);
     }
 
     @Override
@@ -147,8 +148,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     }
 
     private StringBuilder expression(final StringBuilder statement) {
-      if (expression instanceof FromImpl<?, ?>) {
-        final FromImpl<?, ?> from = (FromImpl<?, ?>) expression;
+      if (expression instanceof final FromImpl<?, ?> from) {
         final String tableAlias = from.tableAlias.orElseThrow(IllegalStateException::new);
         try {
           final List<JPAAttribute> keys = from.st.getKey();

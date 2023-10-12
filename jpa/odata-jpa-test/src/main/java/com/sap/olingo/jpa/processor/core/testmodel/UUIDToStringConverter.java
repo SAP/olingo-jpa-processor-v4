@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.UUID;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  * Default converter to convert from {@link java.util.UUID} to a byte array.

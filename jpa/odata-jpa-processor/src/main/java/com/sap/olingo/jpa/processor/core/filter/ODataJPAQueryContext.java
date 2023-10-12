@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.From;
 
 import com.sap.olingo.jpa.metadata.api.JPAODataQueryContext;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;

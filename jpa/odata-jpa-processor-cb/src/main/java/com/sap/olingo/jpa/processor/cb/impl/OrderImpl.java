@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import java.util.Optional;
 
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;

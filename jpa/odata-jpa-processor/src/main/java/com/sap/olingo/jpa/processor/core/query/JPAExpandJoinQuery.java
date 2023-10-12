@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -89,16 +89,16 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "execute")) {
       tupleQuery = createTupleQuery();
       List<Tuple> intermediateResult;
-      try (JPARuntimeMeasurement resultMeassument = debugger.newMeasurement(tupleQuery, "getResultList")) {
-        intermediateResult = tupleQuery.getQuery().getResultList();
+      try (JPARuntimeMeasurement resultMeasurement = debugger.newMeasurement(tupleQuery, "getResultList")) {
+        intermediateResult = tupleQuery.query().getResultList();
       }
       // Simplest solution for the top/skip problem. Read all and throw away, what is not requested
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, association, determineSkip(),
           determineTop());
-      return new JPAExpandQueryResult(result, count(), jpaEntity, tupleQuery.getSelection().joinedRequested());
+      return new JPAExpandQueryResult(result, count(), jpaEntity, tupleQuery.selection().joinedRequested());
     } catch (final JPANoSelectionException e) {
       return new JPAExpandQueryResult(emptyMap(), emptyMap(), this.jpaEntity, emptyList());
     }
@@ -123,12 +123,12 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
    * @throws ODataJPAQueryException
    */
   String getSQLString() throws ODataJPAQueryException {
-    if (tupleQuery != null && tupleQuery.getQuery().getClass().getCanonicalName().equals(
+    if (tupleQuery != null && tupleQuery.query().getClass().getCanonicalName().equals(
         "org.eclipse.persistence.internal.jpa.EJBQueryImpl")) {
 
       try {
-        final Object dbQuery = tupleQuery.getQuery().getClass().getMethod("getDatabaseQuery")
-            .invoke(tupleQuery.getQuery());
+        final Object dbQuery = tupleQuery.query().getClass().getMethod("getDatabaseQuery")
+            .invoke(tupleQuery.query());
         return (String) dbQuery.getClass().getMethod("getSQLString").invoke(dbQuery);
       } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
           | InvocationTargetException e) {
@@ -157,7 +157,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
     final From<?, ?> parent = determineParentFrom(); // e.g. JoinSource
     try {
       for (final JPAPath p : association.getLeftColumnsList()) {
-        final Path<?> selection = ExpressionUtil.convertToCriteriaPath(parent, p.getPath());
+        final Path<?> selection = ExpressionUtility.convertToCriteriaPath(parent, p.getPath());
         // If source and target of an association use the same name for their key we get conflicts with the alias.
         // Therefore it is necessary to unify them.
         selection.alias(association.getAlias() + ALIAS_SEPARATOR + p.getAlias());
@@ -213,7 +213,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "count")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "count")) {
       final JPAExpandJoinCountQuery countQuery = new JPAExpandJoinCountQuery(odata, requestContext, jpaEntity,
           association, navigationInfo, keyBoundary);
       return countQuery.count();
@@ -224,14 +224,14 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
 
   private JPAQueryCreationResult createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createTupleQuery")) {
-      final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createTupleQuery")) {
+      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(uriResource.getOrderByOption());
       final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(),
           cq, lastInfo);
       // TODO handle Join Column is ignored
       cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
-      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         cq.where(whereClause);
 
@@ -251,8 +251,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
-      javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createWhere")) {
+      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
       whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
@@ -262,9 +262,9 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
     }
   }
 
-  private javax.persistence.criteria.Expression<Boolean> createExpandWhere() throws ODataApplicationException {
+  private jakarta.persistence.criteria.Expression<Boolean> createExpandWhere() throws ODataApplicationException {
 
-    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
     for (final JPANavigationPropertyInfo info : this.navigationInfo) {
       if (info.getFilterCompiler() != null) {
         try {

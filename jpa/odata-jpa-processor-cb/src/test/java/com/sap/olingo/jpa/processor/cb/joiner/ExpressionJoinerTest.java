@@ -5,10 +5,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Predicate.BooleanOperator;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Predicate.BooleanOperator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class ExpressionJoinerTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testAddTwoViwAnd() {
+  void testAddTwoWithAnd() {
     final Expression<Boolean> second = mock(Expression.class);
     cut.add(first);
     assertEquals(cut, cut.add(second));
@@ -54,7 +54,7 @@ class ExpressionJoinerTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testAddTwoViwOr() {
+  void testAddTwoWithOr() {
     final Expression<Boolean> second = mock(Expression.class);
     cut = new ExpressionJoiner(cb, BooleanOperator.OR);
     cut.add(first);

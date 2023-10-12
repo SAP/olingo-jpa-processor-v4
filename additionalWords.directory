@@ -1,6 +1,5 @@
 Sortable
 Annotatable
-Meassument
 Metadata
 serializer
 es
@@ -49,3 +48,13 @@ apis
 SQL
 Visitable
 Rethrow
+Unboxed
+UUID
+JSON
+Impl
+Servlet
+Jakarta
+CUD
+JPAO
+subquery
+

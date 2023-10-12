@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 
@@ -43,7 +43,7 @@ final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JP
       final JPATuple tuple = new JPATuple();
       if (attribute.isComplex()) {
         final Map<String, Object> embeddedGetterMap = helper.buildGetterMap(value);
-        for (JPAPath p : attribute.getStructuredType().getPathList())
+        for (final JPAPath p : attribute.getStructuredType().getPathList())
           convertPathToTuple(tuple, embeddedGetterMap, et.getPath(this.path.getAlias()
               + JPAPath.PATH_SEPARATOR + p.getAlias()), 1);
       } else {
@@ -60,7 +60,7 @@ final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JP
   }
 
   @Override
-  public List<Object> getPropertyCollection(String key) {
+  public List<Object> getPropertyCollection(final String key) {
     return converted.get(ROOT_RESULT_KEY);
   }
 

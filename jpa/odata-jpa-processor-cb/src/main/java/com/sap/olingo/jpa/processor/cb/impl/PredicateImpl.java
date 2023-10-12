@@ -8,12 +8,13 @@ import java.util.Optional;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
@@ -358,12 +359,12 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public javax.persistence.criteria.CriteriaBuilder.In<X> value(final X value) {
+    public jakarta.persistence.criteria.CriteriaBuilder.In<X> value(final X value) {
       throw new NotImplementedException();
     }
 
     @Override
-    public javax.persistence.criteria.CriteriaBuilder.In<X> value(final Expression<? extends X> value) {
+    public jakarta.persistence.criteria.CriteriaBuilder.In<X> value(final Expression<? extends X> value) {
       throw new NotImplementedException();
     }
 

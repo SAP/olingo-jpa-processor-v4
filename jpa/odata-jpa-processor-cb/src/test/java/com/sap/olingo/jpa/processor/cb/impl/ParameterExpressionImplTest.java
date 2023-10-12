@@ -11,8 +11,8 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.criteria.Expression;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.criteria.Expression;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DynamicTest;

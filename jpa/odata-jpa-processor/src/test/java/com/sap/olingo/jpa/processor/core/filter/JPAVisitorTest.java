@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
@@ -38,7 +37,6 @@ class JPAVisitorTest {
 
   private JPAEntityType et;
   private From<?, ?> from;
-  private CriteriaBuilder cb;
   private JPAFilterComplierAccess compiler;
   private JPAAbstractQuery query;
   private JPAExpressionVisitor cut;
@@ -53,7 +51,6 @@ class JPAVisitorTest {
     query = mock(JPAAbstractQuery.class);
     from = mock(From.class);
     et = mock(JPAEntityType.class);
-    cb = mock(CriteriaBuilder.class);
 
     doReturn(from).when(compiler).getRoot();
     when(compiler.getJpaEntityType()).thenReturn(et);
@@ -117,7 +114,7 @@ class JPAVisitorTest {
     when(uriFunction.getFunction()).thenReturn(edmFunction);
     when(compiler.getSd()).thenReturn(sd);
     when(sd.getFunction(edmFunction)).thenReturn(jpaFunction);
-    when(uriFunction.getParameters()).thenReturn(new ArrayList<UriParameter>());
+    when(uriFunction.getParameters()).thenReturn(new ArrayList<>());
 
     assertTrue(cut.visitMember(member) instanceof JPADBFunctionOperator);
   }
