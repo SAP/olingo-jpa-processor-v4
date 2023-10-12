@@ -106,7 +106,6 @@ class JPAODataInternalRequestContextTest {
     when(contextAccess.getGroupsProvider()).thenReturn(groups);
     when(contextAccess.getProvidedLocale()).thenReturn(locales);
     when(contextAccess.getDebugger()).thenReturn(debugger);
-    when(page.uriInfo()).thenReturn(uriInfo);
 
     when(requestContext.getClaimsProvider()).thenReturn(claims);
     when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
