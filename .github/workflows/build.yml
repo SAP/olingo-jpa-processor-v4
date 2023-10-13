@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 17, 19 ]
+        java-version: [ 17, 21 ]
     name: Build with Java ${{ matrix.java-version }}
     steps:
       - uses: actions/checkout@v3
