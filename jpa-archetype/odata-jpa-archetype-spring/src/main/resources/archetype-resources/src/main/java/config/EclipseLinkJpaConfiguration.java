@@ -59,15 +59,22 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
     return jpaProperties;
   }
   
-  @Bean
-  public LocalContainerEntityManagerFactoryBean customerEntityManagerFactory(
-      final EntityManagerFactoryBuilder builder, @Autowired final DataSource ds) {
-
-    return builder
-        .dataSource(ds)
-        .packages(EntityTemplate.class)
-        .properties(getVendorProperties())
+  @Override
+  public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder factoryBuilder,
+      PersistenceManagedTypes persistenceManagedTypes) {
+    Map<String, Object> vendorProperties = getVendorProperties();
+    customizeVendorProperties(vendorProperties);
+    return factoryBuilder
+        .dataSource(this.getDataSource())
+        .properties(vendorProperties)
+        .mappingResources(getMapping())
+        .packages(BusinessPartner.class, TimeInstantLongConverter.class)
         .jta(false)
         .build();
+  }
+
+  private String[] getMapping() {
+    List<String> mappingResources = this.getProperties().getMappingResources();
+    return (!ObjectUtils.isEmpty(mappingResources) ? StringUtils.toStringArray(mappingResources) : null);
   }
 }
