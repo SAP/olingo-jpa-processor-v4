@@ -8,6 +8,7 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.TRANSACTI
 import static org.eclipse.persistence.config.PersistenceUnitProperties.WEAVING;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -15,17 +16,18 @@ import javax.sql.DataSource;
 import org.eclipse.persistence.logging.SessionLog;
 import ${package}.model.EntityTemplate;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes;
 import org.springframework.orm.jpa.vendor.AbstractJpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 import org.springframework.transaction.jta.JtaTransactionManager;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 @Configuration
 public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
