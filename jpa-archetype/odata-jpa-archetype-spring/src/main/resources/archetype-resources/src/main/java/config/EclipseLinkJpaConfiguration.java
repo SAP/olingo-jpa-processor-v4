@@ -70,7 +70,7 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
         .dataSource(this.getDataSource())
         .properties(vendorProperties)
         .mappingResources(getMapping())
-        .packages(BusinessPartner.class, TimeInstantLongConverter.class)
+        .packages(EntityTemplate.class)
         .jta(false)
         .build();
   }
