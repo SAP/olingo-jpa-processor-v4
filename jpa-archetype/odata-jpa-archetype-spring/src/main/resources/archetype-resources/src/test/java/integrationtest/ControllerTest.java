@@ -38,8 +38,6 @@ class ControllerTest {
 
   @Autowired
   private WebApplicationContext context;
-  @LocalServerPort
-  private int port;
 
   @BeforeEach
   void setup() {

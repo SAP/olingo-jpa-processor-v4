@@ -26,6 +26,9 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-archetype-plugin</artifactId>
 					<version>3.2.1</version>
+					<configuration>
+						<debug>true</debug>
+					</configuration>					
 				</plugin>
 			</plugins>
 		</pluginManagement>
