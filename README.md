@@ -34,7 +34,7 @@ There is no father development for this major version.
 
 ### 2.x.x
 
-The current version is based on [Jakarta 10](https://projects.eclipse.org/releases/jakarta-10), so [JPA 3.1.0](https://projects.eclipse.org/projects/ee4j.jpa/releases/3.1) or [Jakarta Persistence Specification](https://github.com/jakartaee/persistence), receptively and [Jakarta Servlet 6.0](https://projects.eclipse.org/projects/ee4j.servlet/releases/6.0). Test are performed using [Eclipselink 4.0.2](https://projects.eclipse.org/projects/ee4j.eclipselink/releases/4.0.2), but there is no real dependency to a JPA implementation. The versions require Java [17](https://sap.github.io/SapMachine/#download).
+The current version is based on [Jakarta 10](https://projects.eclipse.org/releases/jakarta-10), so [JPA 3.1.0](https://projects.eclipse.org/projects/ee4j.jpa/releases/3.1) or [Jakarta Persistence Specification](https://github.com/jakartaee/persistence), receptively and [Jakarta Servlet 6.0](https://projects.eclipse.org/projects/ee4j.servlet/releases/6.0). Test are performed using [Eclipselink 4.0.2](https://projects.eclipse.org/projects/ee4j.eclipselink/releases/4.0.2), but there is no real dependency to a JPA implementation. This versions require Java [17](https://sap.github.io/SapMachine/#download).
 
 The current version comes with [Olingo 4.9.0](https://github.com/apache/olingo-odata4), which does not support Jakarta. Till Olingo supports Jakarta, requests get mapped by the JPA Processor.
 
