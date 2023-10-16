@@ -335,7 +335,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
     assertNull(ct.getBaseType());
   }
 
-  private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
+  private class PostProcessorSetIgnore implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {

@@ -15,6 +15,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import jakarta.persistence.EntityManagerFactory;
+
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
@@ -47,8 +49,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferen
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.CustomJPANameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
-
-import jakarta.persistence.EntityManagerFactory;
 
 /**
  * @author Oliver Grande
@@ -346,7 +346,7 @@ class JPAEdmProviderTest {
     return fqn;
   }
 
-  private class PostProcessor extends JPAEdmMetadataPostProcessor {
+  private class PostProcessor implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {}
