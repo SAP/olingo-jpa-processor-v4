@@ -75,6 +75,7 @@ We'd love all and any contributions.
 
 The flowing extensions/changes are planned:
 
+* Support of method call at $orderby
 * Tenant depended metadata
 * Enable hooks for retrieving data
 * Support of $ref
