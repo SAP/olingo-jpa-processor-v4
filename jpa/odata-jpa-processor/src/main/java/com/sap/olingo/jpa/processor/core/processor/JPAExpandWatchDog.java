@@ -110,7 +110,7 @@ class JPAExpandWatchDog extends AbstractWatchDog {
     remainingLevels--;
     return itemInfoList.stream()
         .filter(info -> !nonExpandableProperties.contains(info.getExpandAssociation().getAlias()))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private void watchExpandLevel(@Nonnull final ExpandOption expandOption) throws ODataJPAProcessorException {

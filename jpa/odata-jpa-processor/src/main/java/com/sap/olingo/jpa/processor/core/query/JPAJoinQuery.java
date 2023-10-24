@@ -12,12 +12,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.AbstractQuery;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -95,11 +96,11 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
      * .../Organizations/$count
      * .../Organizations('3')/Roles/$count
      */
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "countResults")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "countResults")) {
       new JPACountWatchDog(entitySet.map(JPAAnnotatable.class::cast)).watch(this.uriResource);
       final CriteriaQuery<Number> countQuery = cb.createQuery(Number.class);
       createFromClause(Collections.emptyList(), Collections.emptyList(), countQuery, lastInfo);
-      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         countQuery.where(whereClause);
       countQuery.select(cb.count(target));
@@ -113,8 +114,8 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   public JPAConvertibleResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
-      final List<JPAAssociationPath> orderByNavigationAttributes = extractOrderByNaviAttributes(uriResource
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "execute")) {
+      final List<JPAAssociationPath> orderByNavigationAttributes = extractOrderByNavigationAttributes(uriResource
           .getOrderByOption());
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByNavigationAttributes,
           selectionPath.joinedPersistent(), cq, lastInfo);
@@ -122,7 +123,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups))
           .distinct(determineDistinct());
 
-      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         cq.where(whereClause);
 
@@ -136,7 +137,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
       final HashMap<String, List<Tuple>> result = new HashMap<>(1);
       List<Tuple> intermediateResult;
-      try (JPARuntimeMeasurement resultMeassument = debugger.newMeasurement(this, "getResultList")) {
+      try (JPARuntimeMeasurement resultMeasurement = debugger.newMeasurement(this, "getResultList")) {
         intermediateResult = typedQuery.getResultList();
       }
       result.put(ROOT_RESULT_KEY, intermediateResult);
@@ -162,7 +163,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return cq;
   }
 
-  private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
+  private jakarta.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
 
     final Expression<Boolean> filter = super.createWhere(uriResource, navigationInfo);
     return addWhereClause(filter, createProtectionWhere(claimsProvider));

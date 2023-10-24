@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.criteria.From;
+import jakarta.persistence.criteria.From;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -97,29 +97,29 @@ public final class JPANavigationPropertyInfo {
 
     final UriResourcePartTyped resource = getUriResource();
     String castFrom = null;
-    if (getUriResource() instanceof UriResourceEntitySet) {
-      et = sd.getEntity(((UriResourceEntitySet) resource).getEntitySet().getName());
-      if (((UriResourceEntitySet) resource).getTypeFilterOnCollection() != null) {
-        et = sd.getEntity(((UriResourceEntitySet) resource).getTypeFilterOnCollection());
+    if (resource instanceof final UriResourceEntitySet entitySet) {
+      et = sd.getEntity(entitySet.getEntitySet().getName());
+      if (entitySet.getTypeFilterOnCollection() != null) {
+        et = sd.getEntity(entitySet.getTypeFilterOnCollection());
         castFrom = ((UriResourceEntitySet) resource).getEntitySet().getName();
-      } else if (((UriResourceEntitySet) resource).getTypeFilterOnEntry() != null) {
-        et = sd.getEntity(((UriResourceEntitySet) resource).getTypeFilterOnEntry());
-        castFrom = ((UriResourceEntitySet) resource).getEntitySet().getName();
+      } else if (entitySet.getTypeFilterOnEntry() != null) {
+        et = sd.getEntity(entitySet.getTypeFilterOnEntry());
+        castFrom = entitySet.getEntitySet().getName();
       }
-    } else if (resource instanceof UriResourceSingleton) {
-      et = sd.getEntity(((UriResourceSingleton) resource).getSingleton().getName());
-      if (((UriResourceSingleton) resource).getEntityTypeFilter() != null) {
-        et = sd.getEntity(((UriResourceSingleton) resource).getEntityTypeFilter());
-        castFrom = ((UriResourceSingleton) resource).getSingleton().getName();
+    } else if (resource instanceof final UriResourceSingleton singleton) {
+      et = sd.getEntity(singleton.getSingleton().getName());
+      if (singleton.getEntityTypeFilter() != null) {
+        et = sd.getEntity(singleton.getEntityTypeFilter());
+        castFrom = singleton.getSingleton().getName();
       }
-    } else if (resource instanceof UriResourceNavigation) {
+    } else if (resource instanceof final UriResourceNavigation navigation) {
       et = sd.getEntity(resource.getType());
-      if (((UriResourceNavigation) resource).getTypeFilterOnEntry() != null) {
-        et = sd.getEntity(((UriResourceNavigation) resource).getTypeFilterOnEntry());
-        castFrom = ((UriResourceNavigation) resource).getProperty().getName();
-      } else if (((UriResourceNavigation) resource).getTypeFilterOnCollection() != null) {
-        et = sd.getEntity(((UriResourceNavigation) resource).getTypeFilterOnCollection());
-        castFrom = ((UriResourceNavigation) resource).getProperty().getName();
+      if (navigation.getTypeFilterOnEntry() != null) {
+        et = sd.getEntity(navigation.getTypeFilterOnEntry());
+        castFrom = navigation.getProperty().getName();
+      } else if (navigation.getTypeFilterOnCollection() != null) {
+        et = sd.getEntity(navigation.getTypeFilterOnCollection());
+        castFrom = navigation.getProperty().getName();
       }
     } else {
       et = sd.getEntity(resource.getType());

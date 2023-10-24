@@ -75,14 +75,14 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
       final ContextURL contextUrl = ContextURL.with()
           .serviceRoot(buildServiceRoot(request, serviceContext))
           .entitySetOrSingletonOrType(targetEdmBindingTarget.getName())
-          .navOrPropertyPath(property.getPath())
+          .navOrPropertyPath(property.path())
           .build();
 
       final PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with().contextURL(contextUrl).build();
       if (uriProperty.getProperty().isCollection())
-        return serializer.primitiveCollection(serviceMetadata, edmPropertyType, property.getProperty(), options);
+        return serializer.primitiveCollection(serviceMetadata, edmPropertyType, property.property(), options);
       else
-        return serializer.primitive(serviceMetadata, edmPropertyType, property.getProperty(), options);
+        return serializer.primitive(serviceMetadata, edmPropertyType, property.property(), options);
     } catch (final URISyntaxException e) {
       throw new ODataJPASerializerException(e, HttpStatusCode.BAD_REQUEST);
     }

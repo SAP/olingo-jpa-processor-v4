@@ -17,7 +17,7 @@ In order to follow this tutorial, you should have
 
 In order to perform the tutorial you need:
 
-* A Java JDK 1.8 or higher
+* A Java JDK 17 or higher
 * A Eclipse IDE for Java EE, or another one that provides the same functionality
 * Optional: Maven separately installed, to perform  Maven commands in case the JPA Processor projects should not be imported into your IDE
 * Optional: Git separately installed.
@@ -46,7 +46,7 @@ This should contain the information about archetype:
     <archetype>
         <groupId>com.sap.olingo</groupId>
         <artifactId>odata-jpa-archetype-spring</artifactId>
-        <version>1.0.9</version>
+        <version>2.0.0</version>
     </archetype>
   </archetypes>
 </archetype-catalog>
@@ -144,7 +144,7 @@ The other JPA Processor dependencies are **optional**:
 === Configuration
 
 JPA Processor need to be customized to work properly. Package `com.example.trippin.config` contains two classes that provide this information. The first is `EclipseLinkJpaConfiguration`, 
-which is needed to make use of http://www.eclipse.org/eclipselink/[Eclipselink]. For our service the most important part is in method `customerEntityManagerFactory`. Here we provide with `.packages(EntityTemplate.class)` a reference to a package that contains the JPA entities and so defines our persistence-unit.
+which is needed to make use of http://www.eclipse.org/eclipselink/[Eclipselink]. For our service the most important part is in method `entityManagerFactory`. Here we provide with `.packages(EntityTemplate.class)` a reference to a package that contains the JPA entities and so defines our persistence-unit.
 
 The second one is `ProcessorConfiguration`. It has two methods. The first one creates a service context, which should be valid for the live time of the service:
 

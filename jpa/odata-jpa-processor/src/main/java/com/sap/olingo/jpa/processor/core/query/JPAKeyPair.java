@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAKeyPairException;

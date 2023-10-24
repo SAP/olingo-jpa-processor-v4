@@ -10,15 +10,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -54,12 +53,12 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
   private static List<JPANavigationPropertyInfo> copyHops(final List<JPANavigationPropertyInfo> hops) {
     return hops.stream()
         .map(JPANavigationPropertyInfo::new)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "execute")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "execute")) {
       //
       return null;
     }
@@ -83,11 +82,11 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
     return item.hops.get(item.hops.size() - 2).getAssociationPath();
   }
 
-  private Expression<Boolean> createExpandWhere(final JPANavigationPropertyInfo naviInfo)
+  private Expression<Boolean> createExpandWhere(final JPANavigationPropertyInfo navigationInfo)
       throws ODataApplicationException {
 
     try {
-      return naviInfo.getFilterCompiler().compile();
+      return navigationInfo.getFilterCompiler().compile();
     } catch (final ExpressionVisitException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
           HttpStatusCode.BAD_REQUEST, e);
@@ -109,9 +108,9 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "count")) {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "count")) {
       if (countRequested(lastInfo)) {
-        final ProcessorCriteriaQuery<Tuple> tq = (ProcessorCriteriaQuery<Tuple>) cb.createTupleQuery();
+        final ProcessorCriteriaQuery<Tuple> tupleQuery = (ProcessorCriteriaQuery<Tuple>) cb.createTupleQuery();
         final LinkedList<JPAAbstractQuery> hops = new LinkedList<>();
         addFilterCompiler(lastInfo);
         hops.push(this);
@@ -128,12 +127,12 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
           final JPAAbstractSubQuery hop = (JPAAbstractSubQuery) hops.pop();
           subQuery = hop.getSubQuery(subQuery, null);
         }
-        createFromClause(emptyList(), emptyList(), tq, lastInfo);
+        createFromClause(emptyList(), emptyList(), tupleQuery, lastInfo);
         final List<Selection<?>> selectionPath = buildExpandJoinPath(root);
-        tq.multiselect(addCount(selectionPath));
-        tq.where(createWhere(subQuery, lastInfo));
-        tq.groupBy(buildExpandCountGroupBy(root));
-        final TypedQuery<Tuple> query = em.createQuery(tq);
+        tupleQuery.multiselect(addCount(selectionPath));
+        tupleQuery.where(createWhere(subQuery, lastInfo));
+        tupleQuery.groupBy(buildExpandCountGroupBy(root));
+        final TypedQuery<Tuple> query = em.createQuery(tupleQuery);
         final List<Tuple> intermediateResult = query.getResultList();
         return convertCountResult(intermediateResult);
       }
@@ -143,16 +142,16 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
     }
   }
 
-  private Expression<Boolean> createWhere(final Subquery<?> sq, final JPANavigationPropertyInfo naviInfo)
+  private Expression<Boolean> createWhere(final Subquery<?> subQuery, final JPANavigationPropertyInfo navigationInfo)
       throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement meassument = debugger.newMeasurement(this, "createWhere")) {
-      javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createWhere")) {
+      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
-      whereCondition = createWhereByKey(naviInfo.getFromClause(), naviInfo.getKeyPredicates(), naviInfo
-          .getEntityType());
-      whereCondition = addWhereClause(whereCondition, createWhereKeyIn(this.association, target, sq));
-      whereCondition = addWhereClause(whereCondition, createExpandWhere(naviInfo));
+      whereCondition = createWhereByKey(navigationInfo.getFromClause(), navigationInfo.getKeyPredicates(),
+          navigationInfo.getEntityType());
+      whereCondition = addWhereClause(whereCondition, createWhereKeyIn(this.association, target, subQuery));
+      whereCondition = addWhereClause(whereCondition, createExpandWhere(navigationInfo));
       whereCondition = addWhereClause(whereCondition, createProtectionWhere(claimsProvider));
       return whereCondition;
     } catch (final ODataJPAModelException e) {

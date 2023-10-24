@@ -49,8 +49,8 @@ public abstract class JPASerializePrimitiveAbstract implements JPAOperationSeria
 
   private boolean partOfPath(final Property item, final List<UriResource> uriResources) {
     for (final UriResource resource : uriResources)
-      if (resource instanceof UriResourceProperty
-          && ((UriResourceProperty) resource).getProperty().getName().equals(item.getName()))
+      if (resource instanceof final UriResourceProperty resourceProperty
+          && resourceProperty.getProperty().getName().equals(item.getName()))
         return true;
     return false;
   }

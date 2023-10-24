@@ -53,7 +53,7 @@ class JPADebugSupportWrapperTest {
     final RuntimeMeasurement first = newRuntimeMeasurement();
     final RuntimeMeasurement second = newRuntimeMeasurement();
     final RuntimeMeasurement third = newRuntimeMeasurement();
-    final List<RuntimeMeasurement> debugInfoList = new ArrayList(
+    final List<RuntimeMeasurement> debugInfoList = new ArrayList<>(
         Arrays.asList(first, third));
     final List<RuntimeMeasurement> debuggerList = Arrays.asList(second);
 

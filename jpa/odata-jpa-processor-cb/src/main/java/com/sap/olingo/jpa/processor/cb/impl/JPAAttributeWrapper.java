@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -21,8 +21,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 class JPAAttributeWrapper implements JPAAttribute {
   private final Selection<?> selection;
 
-  public JPAAttributeWrapper(final Selection<?> sel) {
-    this.selection = sel;
+  public JPAAttributeWrapper(final Selection<?> selection) {
+    this.selection = selection;
   }
 
   @Override

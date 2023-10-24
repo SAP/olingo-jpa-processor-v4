@@ -14,17 +14,18 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.ParameterExpression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Predicate.BooleanOperator;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.metamodel.EntityType;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.ParameterExpression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Predicate.BooleanOperator;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -288,10 +289,12 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    * The type of the result of the query execution depends on
    * the specification of the type of the criteria query object
    * created as well as the arguments to the multiselect method.
-   * <p> An argument to the multiselect method must not be a tuple-
+   * <p>
+   * An argument to the multiselect method must not be a tuple-
    * or array-valued compound selection item.
    *
-   * <p>The semantics of this method are as follows:
+   * <p>
+   * The semantics of this method are as follows:
    * <ul>
    * <li>
    * If the type of the criteria query is
@@ -304,26 +307,26 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    * method, in the specified order, will be instantiated and
    * returned for each row that results from the query execution.
    *
-   * <li> If the type of the criteria query is <code>CriteriaQuery&#060;X&#062;</code> for
+   * <li>If the type of the criteria query is <code>CriteriaQuery&#060;X&#062;</code> for
    * some user-defined class X (i.e., a criteria query object
    * created by passing a X class argument to the <code>createQuery</code>
    * method), the arguments to the <code>multiselect</code> method will be
    * passed to the X constructor and an instance of type X will be
    * returned for each row.
    *
-   * <li> If the type of the criteria query is <code>CriteriaQuery&#060;X[]&#062;</code> for
+   * <li>If the type of the criteria query is <code>CriteriaQuery&#060;X[]&#062;</code> for
    * some class X, an instance of type X[] will be returned for
    * each row. The elements of the array will correspond to the
    * arguments of the <code>multiselect</code> method, in the
    * specified order.
    *
-   * <li> If the type of the criteria query is <code>CriteriaQuery&#060;Object&#062;</code>
+   * <li>If the type of the criteria query is <code>CriteriaQuery&#060;Object&#062;</code>
    * or if the criteria query was created without specifying a
    * type, and only a single argument is passed to the <code>multiselect</code>
    * method, an instance of type <code>Object</code> will be returned for
    * each row.
    *
-   * <li> If the type of the criteria query is <code>CriteriaQuery&#060;Object&#062;</code>
+   * <li>If the type of the criteria query is <code>CriteriaQuery&#060;Object&#062;</code>
    * or if the criteria query was created without specifying a
    * type, and more than one argument is passed to the <code>multiselect</code>
    * method, an instance of type <code>Object[]</code> will be instantiated

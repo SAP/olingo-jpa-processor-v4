@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ComplexValue;
@@ -129,8 +129,8 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
       throws ODataJPASerializerException, SerializerException {
 
     if (result != null
-        && !(result instanceof EntityCollection && ((EntityCollection) result).getEntities().isEmpty())) {
-
+        && !(result instanceof final EntityCollection collection
+            && collection.getEntities().isEmpty())) {
       final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType,
           request);
       createSuccessResponse(response, responseFormat, serializerResult);
@@ -142,11 +142,11 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
   protected Object createInstance(final EntityManager em, final JPAJavaOperation jpaOperation)
       throws InstantiationException, IllegalAccessException, InvocationTargetException {
 
-    final Constructor<?> c = jpaOperation.getConstructor();
-    if (c.getParameterCount() == 1)
-      return c.newInstance(em);
+    final Constructor<?> constructor = jpaOperation.getConstructor();
+    if (constructor.getParameterCount() == 1)
+      return constructor.newInstance(em);
     else
-      return c.newInstance();
+      return constructor.newInstance();
   }
 
 }

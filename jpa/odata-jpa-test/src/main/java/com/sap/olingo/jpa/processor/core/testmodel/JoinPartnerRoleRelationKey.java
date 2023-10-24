@@ -3,11 +3,11 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class JoinPartnerRoleRelationKey implements Serializable{
+public class JoinPartnerRoleRelationKey implements Serializable {
 
   private static final long serialVersionUID = 336967410352659606L;
 

@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Selection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

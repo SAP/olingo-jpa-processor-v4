@@ -139,8 +139,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
    */
   protected void getAnnotations(final List<CsdlAnnotation> edmAnnotations, final Member member,
       final String internalName) throws ODataJPAModelException {
-    if (member instanceof AnnotatedElement) {
-      extractAnnotations(edmAnnotations, (AnnotatedElement) member, internalName);
+    if (member instanceof final AnnotatedElement annotatedElement) {
+      extractAnnotations(edmAnnotations, annotatedElement, internalName);
     }
   }
 

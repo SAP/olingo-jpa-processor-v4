@@ -4,22 +4,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityGraph;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
-import javax.persistence.StoredProcedureQuery;
-import javax.persistence.TransactionRequiredException;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.metamodel.Metamodel;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityGraph;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.Query;
+import jakarta.persistence.StoredProcedureQuery;
+import jakarta.persistence.TransactionRequiredException;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.metamodel.Metamodel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -437,9 +437,11 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   /**
    * Create an instance of <code>StoredProcedureQuery</code> for executing a
    * stored procedure in the database.
-   * <p>Parameters must be registered before the stored procedure can
+   * <p>
+   * Parameters must be registered before the stored procedure can
    * be executed.
-   * <p>If the stored procedure returns one or more result sets,
+   * <p>
+   * If the stored procedure returns one or more result sets,
    * any result set will be returned as a list of type Object[].
    * @param name name assigned to the stored procedure query
    * in metadata
@@ -456,9 +458,11 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   /**
    * Create an instance of <code>StoredProcedureQuery</code> for executing a
    * stored procedure in the database.
-   * <p>Parameters must be registered before the stored procedure can
+   * <p>
+   * Parameters must be registered before the stored procedure can
    * be executed.
-   * <p>If the stored procedure returns one or more result sets,
+   * <p>
+   * If the stored procedure returns one or more result sets,
    * any result set will be returned as a list of type Object[].
    * @param procedureName name of the stored procedure in the
    * database
@@ -476,9 +480,11 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   /**
    * Create an instance of <code>StoredProcedureQuery</code> for executing a
    * stored procedure in the database.
-   * <p>Parameters must be registered before the stored procedure can
+   * <p>
+   * Parameters must be registered before the stored procedure can
    * be executed.
-   * <p>The <code>resultClass</code> arguments must be specified in the order in
+   * <p>
+   * The <code>resultClass</code> arguments must be specified in the order in
    * which the result sets will be returned by the stored procedure
    * invocation.
    * @param procedureName name of the stored procedure in the
@@ -501,9 +507,11 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   /**
    * Create an instance of <code>StoredProcedureQuery</code> for executing a
    * stored procedure in the database.
-   * <p>Parameters must be registered before the stored procedure can
+   * <p>
+   * Parameters must be registered before the stored procedure can
    * be executed.
-   * <p>The <code>resultSetMapping</code> arguments must be specified in the order
+   * <p>
+   * The <code>resultSetMapping</code> arguments must be specified in the order
    * in which the result sets will be returned by the stored
    * procedure invocation.
    * @param procedureName name of the stored procedure in the
@@ -525,7 +533,8 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   /**
    * Indicate to the entity manager that a JTA transaction is
    * active and join the persistence context to it.
-   * <p>This method should be called on a JTA application
+   * <p>
+   * This method should be called on a JTA application
    * managed entity manager that was created outside the scope
    * of the active transaction or on an entity manager of type
    * <code>SynchronizationType.UNSYNCHRONIZED</code> to associate
@@ -573,7 +582,8 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    * Return the underlying provider object for the <code>EntityManager</code>,
    * if available. The result of this method is implementation
    * specific.
-   * <p>The <code>unwrap</code> method is to be preferred for new applications.
+   * <p>
+   * The <code>unwrap</code> method is to be preferred for new applications.
    * @return underlying provider object for EntityManager
    */
   @Override

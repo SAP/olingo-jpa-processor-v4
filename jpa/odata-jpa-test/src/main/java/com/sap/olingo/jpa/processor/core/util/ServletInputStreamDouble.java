@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import javax.servlet.ServletInputStream;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
 
 public class ServletInputStreamDouble extends ServletInputStream {
   private final InputStream stream;
@@ -26,6 +27,21 @@ public class ServletInputStreamDouble extends ServletInputStream {
   @Override
   public int read() throws IOException {
     return stream.read();
+  }
+
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
+
+  @Override
+  public boolean isReady() {
+    return true;
+  }
+
+  @Override
+  public void setReadListener(final ReadListener readListener) {
+    throw new IllegalAccessError();
   }
 
 }

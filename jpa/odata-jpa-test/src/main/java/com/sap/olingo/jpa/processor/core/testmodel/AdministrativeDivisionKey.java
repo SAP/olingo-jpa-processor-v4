@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 
 public class AdministrativeDivisionKey implements Serializable, Comparable<AdministrativeDivisionKey> {
 
@@ -23,7 +23,7 @@ public class AdministrativeDivisionKey implements Serializable, Comparable<Admin
     // Needed to be used as IdClass
   }
 
-  public AdministrativeDivisionKey(String codePublisher, String codeID, String divisionCode) {
+  public AdministrativeDivisionKey(final String codePublisher, final String codeID, final String divisionCode) {
     this.codePublisher = codePublisher;
     this.codeID = codeID;
     this.divisionCode = divisionCode;
@@ -33,7 +33,7 @@ public class AdministrativeDivisionKey implements Serializable, Comparable<Admin
     return codePublisher;
   }
 
-  public void setCodePublisher(String codePublisher) {
+  public void setCodePublisher(final String codePublisher) {
     this.codePublisher = codePublisher;
   }
 
@@ -41,7 +41,7 @@ public class AdministrativeDivisionKey implements Serializable, Comparable<Admin
     return codeID;
   }
 
-  public void setCodeID(String codeID) {
+  public void setCodeID(final String codeID) {
     this.codeID = codeID;
   }
 
@@ -49,7 +49,7 @@ public class AdministrativeDivisionKey implements Serializable, Comparable<Admin
     return divisionCode;
   }
 
-  public void setDivisionCode(String divisionCode) {
+  public void setDivisionCode(final String divisionCode) {
     this.divisionCode = divisionCode;
   }
 
@@ -79,11 +79,11 @@ public class AdministrativeDivisionKey implements Serializable, Comparable<Admin
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    AdministrativeDivisionKey other = (AdministrativeDivisionKey) obj;
+    final AdministrativeDivisionKey other = (AdministrativeDivisionKey) obj;
     if (codeID == null) {
       if (other.codeID != null) return false;
     } else if (!codeID.equals(other.codeID)) return false;

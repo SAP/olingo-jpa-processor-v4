@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.AbstractQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.server.api.OData;
@@ -60,7 +60,7 @@ class JPANavigationFilterQueryBuilderTest {
   private JPAODataDatabaseOperations dbOperations;
   private JPAEntityType et;
   private EdmEntityType type;
-  private AbstractQuery query;
+  private AbstractQuery<?> query;
   private Subquery<Integer> subQuery;
   private Root<Person> queryRoot;
 
@@ -95,7 +95,7 @@ class JPANavigationFilterQueryBuilderTest {
     when(context.getOperationConverter()).thenReturn(dbOperations);
     when(parent.getContext()).thenReturn(context);
     when(parent.getLocale()).thenReturn(Locale.GERMANY);
-    when(parent.getQuery()).thenReturn(query);
+    doReturn(query).when(parent).getQuery();
     when(query.subquery(Integer.class)).thenReturn(subQuery);
     when(subQuery.from(Person.class)).thenReturn(queryRoot);
   }

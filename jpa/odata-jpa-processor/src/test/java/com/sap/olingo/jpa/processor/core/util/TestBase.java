@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,12 +26,12 @@ public class TestBase {
   protected TestHelper helper;
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
-  protected static DataSource ds;
+  protected static DataSource dataSource;
 
   @BeforeAll
   public static void setupClass() throws ODataJPAModelException {
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
-    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
+    dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
+    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
   }
 

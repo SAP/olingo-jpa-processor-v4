@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -113,7 +113,7 @@ class JPAExpandJoinCountQueryTest extends TestBase {
     assertEquals(1, act.size());
     assertEquals(5L, act.get(""));
   }
-  
+
   private JPANavigationPropertyInfo createHop(final JPAAssociationPath exp) {
     final UriInfoResource uriInfo = mock(UriInfoResource.class);
     return new JPANavigationPropertyInfo(sd, exp, uriInfo, et);

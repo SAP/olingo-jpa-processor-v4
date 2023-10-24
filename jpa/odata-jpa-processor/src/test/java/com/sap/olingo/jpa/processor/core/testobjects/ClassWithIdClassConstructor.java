@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testobjects;
 
 public class ClassWithIdClassConstructor {
-  @SuppressWarnings("unused")
+
   private final ClassWithMultipleKeysSetter key;
 
   public ClassWithIdClassConstructor(final ClassWithMultipleKeysSetter key) {

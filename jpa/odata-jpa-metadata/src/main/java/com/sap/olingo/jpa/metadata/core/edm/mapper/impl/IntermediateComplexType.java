@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import javax.persistence.metamodel.EmbeddableType;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+
+import jakarta.persistence.metamodel.EmbeddableType;
 
 /**
  * Complex Types are used to structure Entity Types by grouping properties that belong together. Complex Types can

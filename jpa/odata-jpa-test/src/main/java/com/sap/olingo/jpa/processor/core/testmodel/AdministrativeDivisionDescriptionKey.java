@@ -2,13 +2,13 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class AdministrativeDivisionDescriptionKey implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 4843041820527005995L;
 
@@ -45,7 +45,7 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
     return codePublisher;
   }
 
-  public void setCodePublisher(String codePublisher) {
+  public void setCodePublisher(final String codePublisher) {
     this.codePublisher = codePublisher;
   }
 
@@ -53,7 +53,7 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
     return codeID;
   }
 
-  public void setCodeID(String codeID) {
+  public void setCodeID(final String codeID) {
     this.codeID = codeID;
   }
 
@@ -61,11 +61,11 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
     return divisionCode;
   }
 
-  public void setDivisionCode(String divisionCode) {
+  public void setDivisionCode(final String divisionCode) {
     this.divisionCode = divisionCode;
   }
 
-  public void setLanguage(String language) {
+  public void setLanguage(final String language) {
     this.language = language;
   }
 
@@ -81,11 +81,11 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) { // NOSONAR
+  public boolean equals(final Object obj) { // NOSONAR
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    AdministrativeDivisionDescriptionKey other = (AdministrativeDivisionDescriptionKey) obj;
+    final AdministrativeDivisionDescriptionKey other = (AdministrativeDivisionDescriptionKey) obj;
     if (codeID == null) {
       if (other.codeID != null) return false;
     } else if (!codeID.equals(other.codeID)) return false;

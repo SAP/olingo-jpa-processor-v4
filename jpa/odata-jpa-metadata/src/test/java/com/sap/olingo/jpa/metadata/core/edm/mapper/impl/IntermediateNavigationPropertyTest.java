@@ -20,10 +20,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.ManagedType;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
@@ -947,7 +947,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     return jpaAttribute;
   }
 
-  private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
+  private class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {
@@ -971,7 +971,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 
-  private class PostProcessorOneDelete extends JPAEdmMetadataPostProcessor {
+  private class PostProcessorOneDelete implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {

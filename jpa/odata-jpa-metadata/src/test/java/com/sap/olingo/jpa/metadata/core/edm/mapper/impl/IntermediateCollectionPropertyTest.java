@@ -13,11 +13,11 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.PluralAttribute.CollectionType;
-import javax.persistence.metamodel.Type.PersistenceType;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.PluralAttribute.CollectionType;
+import jakarta.persistence.metamodel.Type.PersistenceType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
@@ -69,7 +69,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   void checkSimpleCollectionPropertyType() throws ODataJPAModelException {
     when(jpaAttribute.getName()).thenReturn("Text");
     @SuppressWarnings("rawtypes")
-    final javax.persistence.metamodel.Type type = mock(javax.persistence.metamodel.Type.class);
+    final jakarta.persistence.metamodel.Type type = mock(jakarta.persistence.metamodel.Type.class);
     when(type.getPersistenceType()).thenReturn(PersistenceType.BASIC);
     when(type.getJavaType()).thenAnswer(new Answer<Class<?>>() {
       @Override

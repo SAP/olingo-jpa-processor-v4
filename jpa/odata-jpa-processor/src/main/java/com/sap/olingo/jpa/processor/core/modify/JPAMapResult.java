@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 
@@ -48,17 +48,17 @@ final class JPAMapResult extends JPAMapBaseResult {
     }
     for (final JPAPath path : et.getCollectionAttributesPath()) {
       Map<String, Object> attributes = valuePairedResult;
-      for (final JPAElement e : path.getPath()) {
-        final Object value = attributes.get(e.getInternalName());
-        if (e instanceof JPAAttribute && ((JPAAttribute) e).isComplex() && !(((JPAAttribute) e).isCollection())
+      for (final JPAElement element : path.getPath()) {
+        final Object value = attributes.get(element.getInternalName());
+        if (element instanceof final JPAAttribute attribute && attribute.isComplex() && !(attribute.isCollection())
             && value != null) {
           attributes = (Map<String, Object>) value;
           continue;
         }
-        if (e instanceof JPACollectionAttribute && value != null) {
-          final JPAAssociationPath assPath = ((JPACollectionAttribute) e).asAssociation();
+        if (element instanceof final JPACollectionAttribute attribute && value != null) {
+          final JPAAssociationPath assPath = attribute.asAssociation();
           final JPAExpandResult child = new JPAMapCollectionResult(et, (Collection<?>) value, requestHeaders,
-              (JPACollectionAttribute) e);
+              attribute);
           child.convert(converter);
           children.put(assPath, child);
         }

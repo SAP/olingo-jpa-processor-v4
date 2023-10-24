@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Path;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
@@ -31,12 +31,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
-public final class ExpressionUtil {
+public final class ExpressionUtility {
   public static final int CONTAINS_ONLY_LANGU = 1;
   public static final int CONTAINS_LANGU_COUNTRY = 2;
   public static final String SELECT_ITEM_SEPARATOR = ",";
 
-  private ExpressionUtil() {}
+  private ExpressionUtility() {}
 
   public static Expression<Boolean> createEQExpression(final OData odata, final CriteriaBuilder cb,
       final From<?, ?> root, final JPAEntityType jpaEntity, final UriParameter keyPredicate)
@@ -62,9 +62,9 @@ public final class ExpressionUtil {
       final List<JPAElement> jpaPath) {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : jpaPath)
-      if (jpaPathElement instanceof JPADescriptionAttribute) {
+      if (jpaPathElement instanceof final JPADescriptionAttribute descriptionAttribute) {
         final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
-        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+        p = join.get(descriptionAttribute.getDescriptionAttribute().getInternalName());
       } else if (jpaPathElement instanceof JPACollectionAttribute) {
         p = joinTables.get(jpaPathElement.getExternalName());
       } else {

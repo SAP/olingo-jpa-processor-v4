@@ -2,13 +2,13 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.util.List;
 
-import javax.persistence.metamodel.Metamodel;
-
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+
+import jakarta.persistence.metamodel.Metamodel;
 
 public final class JPAServiceDocumentFactory {
 

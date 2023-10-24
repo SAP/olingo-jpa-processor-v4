@@ -6,13 +6,14 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Enumerated;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Enumerated;
 
 /**
  * Annotation to tag Java enumerations that shall be provided via an OData service. For details about OData Enumerations
  * see: <a
- * href="http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part3-csdl/odata-v4.0-errata03-os-part3-csdl-complete.html#_Toc453752565">10
+ * href=
+ * "http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part3-csdl/odata-v4.0-errata03-os-part3-csdl-complete.html#_Toc453752565">10
  * Enumeration Type</a>.
  * The following conversion rule have been established:
  * <ul>

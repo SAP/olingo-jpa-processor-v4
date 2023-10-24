@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;

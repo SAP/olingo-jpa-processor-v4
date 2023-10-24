@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -24,7 +24,7 @@ public class TestJavaActions implements ODataAction {
   @SuppressWarnings("unused")
   private final EntityManager em;
 
-  public TestJavaActions(EntityManager em) {
+  public TestJavaActions(final EntityManager em) {
     super();
     this.em = em;
     assert em != null;
@@ -33,14 +33,14 @@ public class TestJavaActions implements ODataAction {
 
   @EdmAction()
   public Integer unboundWithImport(
-      @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
+      @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {
     return a + b;
   }
 
   @EdmAction(name = "BoundNoImport", isBound = true)
   public void boundNoImport(
-      @EdmParameter(name = "Person") Person person,
-      @EdmParameter(name = "A", precision = 34, scale = 10) BigDecimal a) {
+      @EdmParameter(name = "Person") final Person person,
+      @EdmParameter(name = "A", precision = 34, scale = 10) final BigDecimal a) {
     // Do nothing
   }
 
@@ -51,13 +51,13 @@ public class TestJavaActions implements ODataAction {
 
   @EdmAction(returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
   public BigDecimal unboundReturnFacet(
-      @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
+      @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {
     return new BigDecimal(a).add(new BigDecimal(b));
   }
 
   @EdmAction(isBound = true, entitySetPath = "Person/Roles")
   public BusinessPartnerRole boundWithEntitySetPath(
-      @EdmParameter(name = "Person") Person person) {
+      @EdmParameter(name = "Person") final Person person) {
     return null;
   }
 
@@ -78,14 +78,14 @@ public class TestJavaActions implements ODataAction {
 
   @EdmAction(returnType = @ReturnType(type = ChangeInformation.class))
   public List<ChangeInformation> returnEmbeddableCollection() {
-    return Arrays.asList(new ChangeInformation[] { new ChangeInformation() });
+    return Arrays.asList(new ChangeInformation());
   }
 
   @EdmAction(returnType = @ReturnType(maxLength = 60,
       srid = @EdmGeospatial(dimension = Dimension.GEOGRAPHY, srid = "4326")))
   public String calculateLocation(
       @EdmParameter(name = "String", maxLength = 100,
-          srid = @EdmGeospatial(dimension = Dimension.GEOGRAPHY, srid = "4326")) String a) {
+          srid = @EdmGeospatial(dimension = Dimension.GEOGRAPHY, srid = "4326")) final String a) {
     return "";
   }
 

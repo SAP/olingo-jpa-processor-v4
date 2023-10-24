@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.Optional;
 
-import javax.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaBuilder;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;

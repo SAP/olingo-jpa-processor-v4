@@ -1,7 +1,5 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.INVALID_TOP_LEVEL_SETTING;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -15,17 +13,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.IdentifiableType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.MappedSuperclassType;
-import javax.persistence.metamodel.Type;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
@@ -34,7 +23,6 @@ import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation;
@@ -48,6 +36,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.IdentifiableType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.MappedSuperclassType;
+import jakarta.persistence.metamodel.Type;
 
 /**
  * <a href=
@@ -111,8 +108,8 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   @Override
   public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException {
     final JPAPath path = getPath(externalName);
-    if (path != null && path.getLeaf() instanceof JPACollectionAttribute)
-      return (JPACollectionAttribute) path.getLeaf();
+    if (path != null && path.getLeaf() instanceof final JPACollectionAttribute collectionAttribute)
+      return collectionAttribute;
     return null;
   }
 
@@ -160,7 +157,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
           .map(ManagedType::getJavaType)
           .map(Class::getDeclaredFields)
           .flatMap(Arrays::stream)
-          .collect(Collectors.toList()));
+          .toList());
 
       final IntermediateStructuredType<?> baseType = getBaseType();
       if (baseType != null) {
@@ -292,12 +289,11 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     for (final IntermediateModelElement element : mappingBuffer.values()) {
       if (!element.ignore()
           // Skip Streams
-          && !(element instanceof IntermediateSimpleProperty &&
-              ((IntermediateSimpleProperty) element).isStream())) {
-        if (element instanceof IntermediateEmbeddedIdProperty) {
-          extractionTarget.addAll((Collection<? extends I>) resolveEmbeddedId(
-              (IntermediateEmbeddedIdProperty) element));
-        } else {
+          && !(element instanceof final IntermediateSimpleProperty simpleProperty
+              && simpleProperty.isStream())) {
+        if (element instanceof final IntermediateEmbeddedIdProperty embeddedId) {
+          extractionTarget.addAll((Collection<? extends I>) resolveEmbeddedId(embeddedId));
+       } else {
           extractionTarget.add((I) element.getEdmItem());
         }
       }
@@ -326,7 +322,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       ((CsdlEntityType) edmStructuralType).setHasStream(determineHasStream());
       edmStructuralType.setAnnotations(determineAnnotations());
       determineHasEtag();
-      checkTopLevelTypeConsistency();
       checkPropertyConsistency(); //
       // TODO determine OpenType
     }
@@ -396,7 +391,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
     return getKey().stream()
         .map(this::asPropertyRef)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
@@ -447,23 +442,14 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return keyElements;
   }
 
-  private void checkTopLevelTypeConsistency() throws ODataJPAModelException {
-    final Optional<EdmAsEntitySet> jpaAsEntitySet = getAnnotation(jpaJavaType, EdmAsEntitySet.class);
-    final Optional<EdmEntityType> jpaEntityType = getAnnotation(jpaJavaType, EdmEntityType.class);
-    if (jpaAsEntitySet.isPresent() && jpaEntityType.isPresent())
-      throw new ODataJPAModelException(INVALID_TOP_LEVEL_SETTING, getInternalName());
-  }
-
   private List<CsdlAnnotation> determineAnnotations() throws ODataJPAModelException {
     getAnnotations(edmAnnotations, this.jpaManagedType.getJavaType(), internalName);
     return edmAnnotations;
   }
 
   private boolean determineAsEntitySet() {
-    final Optional<EdmAsEntitySet> jpaAsEntitySet = getAnnotation(jpaJavaType, EdmAsEntitySet.class);
     final Optional<EdmEntityType> jpaEntityType = getAnnotation(jpaJavaType, EdmEntityType.class);
-    return jpaAsEntitySet.isPresent()
-        || !jpaEntityType.isPresent()
+    return !jpaEntityType.isPresent()
         || jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET
         || jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY;
   }
@@ -475,12 +461,10 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   private boolean determineAsTopLevelOnly() {
-    final Optional<EdmAsEntitySet> jpaAsEntitySet = getAnnotation(jpaJavaType, EdmAsEntitySet.class);
     final Optional<EdmEntityType> jpaEntityType = getAnnotation(jpaJavaType, EdmEntityType.class);
-    return jpaAsEntitySet.isPresent()
-        || (jpaEntityType.isPresent()
-            && (jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY
-                || jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY));
+    return (jpaEntityType.isPresent()
+        && (jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY
+            || jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY));
   }
 
   @SuppressWarnings("unchecked")

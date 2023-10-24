@@ -11,12 +11,12 @@ import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.Parameter;
-import javax.persistence.Query;
-import javax.persistence.TemporalType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.Parameter;
+import jakarta.persistence.Query;
+import jakarta.persistence.TemporalType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -206,8 +206,8 @@ class TypedQueryImplTest extends BuilderBaseTest {
   void testSetParameterByValue() {
     @SuppressWarnings("unchecked")
     final Parameter<Integer> param = mock(Parameter.class);
-    assertEquals(cut, cut.setParameter(param, Integer.valueOf(1)));
-    verify(q).setParameter(param, Integer.valueOf(1));
+    assertEquals(cut, cut.setParameter(param, 1));
+    verify(q).setParameter(param, 1);
   }
 
   @Test

@@ -14,7 +14,7 @@ import java.sql.Clob;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -24,7 +24,6 @@ import com.sap.olingo.jpa.metadata.api.JPAODataQueryContext;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 public class IntermediateOperationHelper {
 
@@ -74,7 +73,9 @@ public class IntermediateOperationHelper {
 
   static boolean isCollection(final Class<?> declaredReturnType) {
     for (final Class<?> inter : Arrays.asList(declaredReturnType.getInterfaces())) {
-      if (inter == Collection.class)
+      if (inter == Collection.class) {
+        return true;
+      } else if (isCollection(inter))
         return true;
     }
     return false;
@@ -102,7 +103,7 @@ public class IntermediateOperationHelper {
             throw new ODataJPAModelException(FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
                 declaredReturnType.getName(), operationName);
         }
-       return edmType.getFullQualifiedName();
+        return edmType.getFullQualifiedName();
       }
     }
   }

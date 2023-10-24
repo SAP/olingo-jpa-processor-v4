@@ -10,14 +10,14 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
@@ -50,14 +49,12 @@ class JPANavigationFilterQueryTest extends TestBase {
   private From<?, ?> from;
   private Root<JoinPartnerRoleRelation> queryJoinTable;
   private Root<BusinessPartnerRoleProtected> queryRoot;
-  private Root<BusinessPartnerProtected> parentRoot;
   private JPAODataClaimProvider claimsProvider;
   private EdmEntityType edmEntityType;
   @SuppressWarnings("rawtypes")
   private CriteriaQuery cq;
   private CriteriaBuilder cb;
   private Subquery<Object> subQuery;
-  private JPAODataRequestContextAccess requestContext;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
@@ -75,9 +72,7 @@ class JPANavigationFilterQueryTest extends TestBase {
     subQuery = mock(Subquery.class);
     queryJoinTable = mock(Root.class);
     queryRoot = mock(Root.class);
-    parentRoot = mock(Root.class);
     from = mock(From.class);
-    requestContext = mock(JPAODataRequestContextAccess.class);
 
     final UriParameter key = mock(UriParameter.class);
 

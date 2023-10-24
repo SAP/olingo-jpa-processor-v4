@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-import javax.persistence.GeneratedValue;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpMethod;
@@ -110,7 +110,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkCreateEntityWithPrimitiveCollcetion() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityWithPrimitiveCollection() throws ODataJPAProcessException, ODataJPAModelException {
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
 
@@ -477,7 +477,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifiedEntity()).getName1());
+    assertNull(((Organization) act.modifiedEntity()).getName1());
   }
 
   @Test
@@ -495,7 +495,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifiedEntity()).getComment());
+    assertNull(((Organization) act.modifiedEntity()).getComment());
   }
 
   @Test
@@ -513,7 +513,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifiedEntity()).getAddress());
+    assertNull(((Organization) act.modifiedEntity()).getAddress());
   }
 
   @Test
@@ -533,7 +533,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Person) act.getModifiedEntity()).getInhouseAddress());
+    assertNull(((Person) act.modifiedEntity()).getInhouseAddress());
   }
 
   @Test
@@ -557,8 +557,8 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifiedEntity()).getAddress().getPOBox());
-    assertEquals("Hamburg", ((Organization) act.getModifiedEntity()).getAddress().getCityName());
+    assertNull(((Organization) act.modifiedEntity()).getAddress().getPOBox());
+    assertEquals("Hamburg", ((Organization) act.modifiedEntity()).getAddress().getCityName());
   }
 
   @Test
@@ -590,7 +590,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = updateSimplePrimitiveValue();
 
     assertFalse(act.wasCreate());
-    assertEquals("Example SE", ((Organization) act.getModifiedEntity()).getName1());
+    assertEquals("Example SE", ((Organization) act.modifiedEntity()).getName1());
   }
 
   @Test
@@ -618,8 +618,8 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Organization) act.getModifiedEntity()).getAddress());
-    final PostalAddressData afterImage = ((Organization) act.getModifiedEntity()).getAddress();
+    assertNotNull(((Organization) act.modifiedEntity()).getAddress());
+    final PostalAddressData afterImage = ((Organization) act.modifiedEntity()).getAddress();
 
     assertEquals("45", afterImage.getHouseNumber());
     assertEquals("Test", afterImage.getCityName());
@@ -645,8 +645,8 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Person) act.getModifiedEntity()).getInhouseAddress());
-    assertTrue(((Person) act.getModifiedEntity()).getInhouseAddress().isEmpty());
+    assertNotNull(((Person) act.modifiedEntity()).getInhouseAddress());
+    assertTrue(((Person) act.modifiedEntity()).getInhouseAddress().isEmpty());
   }
 
   @Test
@@ -676,8 +676,8 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.PATCH);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Person) act.getModifiedEntity()).getInhouseAddress());
-    final List<InhouseAddress> actInhouseAddrs = ((Person) act.getModifiedEntity()).getInhouseAddress();
+    assertNotNull(((Person) act.modifiedEntity()).getInhouseAddress());
+    final List<InhouseAddress> actInhouseAddrs = ((Person) act.modifiedEntity()).getInhouseAddress();
     assertEquals(2, actInhouseAddrs.size());
     assertTrue(actInhouseAddrs.get(0).getBuilding() == null || actInhouseAddrs.get(0).getBuilding().isEmpty());
     assertTrue(actInhouseAddrs.get(1).getBuilding() == null || actInhouseAddrs.get(1).getBuilding().isEmpty());
@@ -699,8 +699,8 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Organization) act.getModifiedEntity()).getComment());
-    final List<String> actComments = ((Organization) act.getModifiedEntity()).getComment();
+    assertNotNull(((Organization) act.modifiedEntity()).getComment());
+    final List<String> actComments = ((Organization) act.modifiedEntity()).getComment();
     assertEquals(2, actComments.size());
     assertTrue(actComments.contains("YAT"));
     assertTrue(actComments.contains("This is a test"));
@@ -742,7 +742,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertNotNull(act);
-    assertEquals(parent, act.getModifiedEntity());
+    assertEquals(parent, act.modifiedEntity());
     assertEquals(1, parent.getChildren().size());
     assertEquals("DE51", parent.getChildren().get(0).getDivisionCode());
   }
@@ -759,7 +759,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
 
   @Test
   void checkAuditFieldsSetOnUpdate() throws ODataJPAModelException, ODataJPAProcessException {
-    final OrganizationWithAudit act = (OrganizationWithAudit) updateOrganization().getModifiedEntity();
+    final OrganizationWithAudit act = (OrganizationWithAudit) updateOrganization().modifiedEntity();
     cut.validateChanges(em);
     assertNotNull(act.getUpdatedBy());
     assertNotNull(act.getUpdatedAt());
@@ -796,7 +796,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectedOnyOneProvided() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectedOnlyOneProvided() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID*");
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
@@ -851,7 +851,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectRangeWilrdcardMin() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectRangeWildcardMin() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MI+0*", "MID99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
@@ -860,7 +860,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectRangeWilrdcarMax() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectRangeWildcardMax() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID00", "MI*99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,

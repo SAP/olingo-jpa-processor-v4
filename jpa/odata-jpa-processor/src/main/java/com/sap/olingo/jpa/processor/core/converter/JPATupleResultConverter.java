@@ -8,9 +8,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TupleElement;
 
 import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.data.ComplexValue;

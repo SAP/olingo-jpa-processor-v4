@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import javax.persistence.JoinColumn;
+import jakarta.persistence.JoinColumn;
 
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 

@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.filter;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.From;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriResource;

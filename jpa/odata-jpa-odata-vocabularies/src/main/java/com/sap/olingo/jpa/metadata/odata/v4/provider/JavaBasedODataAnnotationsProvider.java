@@ -2,13 +2,10 @@ package com.sap.olingo.jpa.metadata.odata.v4.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +16,6 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabularyReadException;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceAccess;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceList;
 
 abstract class JavaBasedODataAnnotationsProvider implements AnnotationProvider {
@@ -36,7 +32,7 @@ abstract class JavaBasedODataAnnotationsProvider implements AnnotationProvider {
   public Collection<CsdlAnnotation> getAnnotations(@Nonnull final Applicability appliesTo,
       final ODataAnnotatable annotatable, final JPAReferences references) {
 
-    final Map<String, Annotation> annotations = requireNonNull(annotatable).javaAnnotations(packageName);
+    final var annotations = requireNonNull(annotatable).javaAnnotations(packageName);
 
     return requireNonNull(references).getTerms(getAlias(), requireNonNull(appliesTo)).stream()
         .map(term -> annotations.get(term.getName()))
@@ -44,15 +40,15 @@ abstract class JavaBasedODataAnnotationsProvider implements AnnotationProvider {
         .map(a -> converter.convert(references, a, annotatable))
         .map(converted -> converted.orElse(null))
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
   public void addReferences(final ReferenceList references) throws ODataVocabularyReadException {
 
     try {
-      final URI uri = getUri();
-      final ReferenceAccess reference = references.addReference(uri, getPath());
+      final var uri = getUri();
+      final var reference = references.addReference(uri, getPath());
       reference.addInclude(getNameSpace(), getAlias());
     } catch (final URISyntaxException e) {
       throw new ODataVocabularyReadException(getAlias(), getPath(), e);

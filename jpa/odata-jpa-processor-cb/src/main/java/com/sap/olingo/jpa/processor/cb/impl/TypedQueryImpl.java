@@ -10,22 +10,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
-import javax.persistence.LockTimeoutException;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.Parameter;
-import javax.persistence.PersistenceException;
-import javax.persistence.PessimisticLockException;
-import javax.persistence.Query;
-import javax.persistence.QueryTimeoutException;
-import javax.persistence.TemporalType;
-import javax.persistence.TransactionRequiredException;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.persistence.Parameter;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.PessimisticLockException;
+import jakarta.persistence.Query;
+import jakarta.persistence.QueryTimeoutException;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.TransactionRequiredException;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -35,7 +35,7 @@ import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 class TypedQueryImpl<T> implements TypedQuery<T> {
 
   private final CriteriaQueryImpl<T> parent;
-  private final Query q;
+  private final Query query;
   private final ProcessorSelection<T> selection;
 
   TypedQueryImpl(final CriteriaQuery<T> criteriaQuery, final EntityManager em,
@@ -44,78 +44,78 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
     this.parent = (CriteriaQueryImpl<T>) criteriaQuery;
     this.parent.getResultType();
     this.selection = (ProcessorSelection<T>) parent.getSelection();
-    this.q = em.createNativeQuery(parent.asSQL(sql).toString());
+    this.query = em.createNativeQuery(parent.asSQL(sql).toString());
     copyParameter(parameterBuffer.getParameter());
   }
 
   @Override
   public int executeUpdate() {
-    return q.executeUpdate();
+    return query.executeUpdate();
   }
 
   @Override
   public int getFirstResult() {
-    return q.getFirstResult();
+    return query.getFirstResult();
   }
 
   @Override
   public FlushModeType getFlushMode() {
-    return q.getFlushMode();
+    return query.getFlushMode();
   }
 
   @Override
   public Map<String, Object> getHints() {
-    return q.getHints();
+    return query.getHints();
   }
 
   @Override
   public LockModeType getLockMode() {
-    return q.getLockMode();
+    return query.getLockMode();
   }
 
   @Override
   public int getMaxResults() {
-    return q.getMaxResults();
+    return query.getMaxResults();
   }
 
   @Override
   public Parameter<?> getParameter(final int position) {
-    return q.getParameter(position);
+    return query.getParameter(position);
   }
 
   @Override
   public <X> Parameter<X> getParameter(final int position, final Class<X> type) {
-    return q.getParameter(position, type);
+    return query.getParameter(position, type);
   }
 
   @Override
   public Parameter<?> getParameter(final String name) {
-    return q.getParameter(name);
+    return query.getParameter(name);
   }
 
   @Override
   public <X> Parameter<X> getParameter(final String name, final Class<X> type) {
-    return q.getParameter(name, type);
+    return query.getParameter(name, type);
   }
 
   @Override
   public Set<Parameter<?>> getParameters() {
-    return q.getParameters();
+    return query.getParameters();
   }
 
   @Override
   public Object getParameterValue(final int position) {
-    return q.getParameterValue(position);
+    return query.getParameterValue(position);
   }
 
   @Override
   public <X> X getParameterValue(final Parameter<X> param) {
-    return q.getParameterValue(param);
+    return query.getParameterValue(param);
   }
 
   @Override
   public Object getParameterValue(final String name) {
-    return q.getParameterValue(name);
+    return query.getParameterValue(name);
   }
 
   /**
@@ -142,21 +142,21 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
   @Override
   public List<T> getResultList() {
 
-    final List<?> result = q.getResultList();
+    final List<?> result = query.getResultList();
     if (parent.getResultType().isAssignableFrom(Tuple.class)) {
       if (result.isEmpty())
         return Collections.emptyList();
-      final List<Entry<String, JPAPath>> selPath = buildSelection();
-      final Map<String, Integer> index = buildSelectionIndex(selPath);
-      final List<Entry<String, JPAAttribute>> selAttributes = toAttributeList(selPath);
+      final List<Entry<String, JPAPath>> selectionPath = buildSelection();
+      final Map<String, Integer> index = buildSelectionIndex(selectionPath);
+      final List<Entry<String, JPAAttribute>> selectionAttributes = toAttributeList(selectionPath);
       if (result.get(0).getClass().isArray()) {
         return (List<T>) ((List<Object[]>) result).stream()
-            .map(r -> new TupleImpl(r, selAttributes, index))
-            .collect(Collectors.toList());
+            .map(item -> new TupleImpl(item, selectionAttributes, index))
+            .collect(Collectors.toList()); // NOSONAR
       }
       return (List<T>) ((List<Object>) result).stream()
-          .map(r -> new TupleImpl(r, selAttributes, index))
-          .collect(Collectors.toList());
+          .map(item -> new TupleImpl(item, selectionAttributes, index))
+          .collect(Collectors.toList()); // NOSONAR
     }
     return (List<T>) result;
   }
@@ -192,118 +192,119 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
 
   @Override
   public boolean isBound(final Parameter<?> param) {
-    return q.isBound(param);
+    return query.isBound(param);
   }
 
   @Override
   public TypedQuery<T> setFirstResult(final int startPosition) {
 
-    q.setFirstResult(startPosition);
+    query.setFirstResult(startPosition);
     return this;
   }
 
   @Override
   public TypedQuery<T> setFlushMode(final FlushModeType flushMode) {
-    q.setFlushMode(flushMode);
+    query.setFlushMode(flushMode);
     return this;
   }
 
   @Override
   public TypedQuery<T> setHint(final String hintName, final Object value) {
-    q.setHint(hintName, value);
+    query.setHint(hintName, value);
     return this;
   }
 
   @Override
   public TypedQuery<T> setLockMode(final LockModeType lockMode) {
-    q.setLockMode(lockMode);
+    query.setLockMode(lockMode);
     return this;
   }
 
   @Override
   public TypedQuery<T> setMaxResults(final int maxResult) {
-    q.setMaxResults(maxResult);
+    query.setMaxResults(maxResult);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final int position, final Calendar value, final TemporalType temporalType) {
-    q.setParameter(position, value, temporalType);
+    query.setParameter(position, value, temporalType);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final int position, final Date value, final TemporalType temporalType) {
-    q.setParameter(position, value, temporalType);
+    query.setParameter(position, value, temporalType);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final int position, final Object value) {
-    q.setParameter(position, value);
+    query.setParameter(position, value);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final Parameter<Calendar> param, final Calendar value,
       final TemporalType temporalType) {
-    q.setParameter(param, value, temporalType);
+    query.setParameter(param, value, temporalType);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final Parameter<Date> param, final Date value, final TemporalType temporalType) {
-    q.setParameter(param, value, temporalType);
+    query.setParameter(param, value, temporalType);
     return this;
   }
 
   @Override
   public <X> TypedQuery<T> setParameter(final Parameter<X> param, final X value) {
-    q.setParameter(param, value);
+    query.setParameter(param, value);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final String name, final Calendar value, final TemporalType temporalType) {
-    q.setParameter(name, value, temporalType);
+    query.setParameter(name, value, temporalType);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final String name, final Date value, final TemporalType temporalType) {
-    q.setParameter(name, value, temporalType);
+    query.setParameter(name, value, temporalType);
     return this;
   }
 
   @Override
   public TypedQuery<T> setParameter(final String name, final Object value) {
-    q.setParameter(name, value);
+    query.setParameter(name, value);
     return this;
   }
 
   @Override
-  public <X> X unwrap(final Class<X> cls) {
-    return q.unwrap(cls);
+  public <X> X unwrap(final Class<X> clazz) {
+    return query.unwrap(clazz);
   }
 
   private List<Entry<String, JPAPath>> buildSelection() {
     return selection.getResolvedSelection();
   }
 
-  private Map<String, Integer> buildSelectionIndex(final List<Entry<String, JPAPath>> selPath) {
+  private Map<String, Integer> buildSelectionIndex(final List<Entry<String, JPAPath>> selectionPath) {
 
     final int[] count = { 0 };
-    return selPath.stream()
-        .collect(Collectors.toMap(Entry::getKey, p -> count[0]++));
+    return selectionPath.stream()
+        .collect(Collectors.toMap(Entry::getKey, path -> count[0]++));
   }
 
   private void copyParameter(final Map<Integer, ParameterExpression<?, ?>> map) {
-    map.entrySet().stream().forEach(e -> this.q.setParameter(e.getValue().getPosition(), e.getValue().getValue()));
+    map.entrySet().stream().forEach(es -> this.query.setParameter(es.getValue().getPosition(), es.getValue()
+        .getValue()));
   }
 
-  private List<Entry<String, JPAAttribute>> toAttributeList(final List<Entry<String, JPAPath>> selPath) {
-    final List<Entry<String, JPAAttribute>> result = new ArrayList<>(selPath.size());
-    for (final Entry<String, JPAPath> entity : selPath) {
+  private List<Entry<String, JPAAttribute>> toAttributeList(final List<Entry<String, JPAPath>> selectionPath) {
+    final List<Entry<String, JPAAttribute>> result = new ArrayList<>(selectionPath.size());
+    for (final Entry<String, JPAPath> entity : selectionPath) {
       result.add(new ProcessorSelection.SelectionAttribute(entity.getKey(), entity.getValue().getLeaf()));
     }
     return result;

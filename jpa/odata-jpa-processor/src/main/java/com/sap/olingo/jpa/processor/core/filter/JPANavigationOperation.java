@@ -3,9 +3,9 @@ package com.sap.olingo.jpa.processor.core.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -77,8 +77,8 @@ final class JPANavigationOperation extends JPAExistsOperation {
     super(jpaComplier);
     this.operator = operator;
     this.methodCall = null;
-    if (left instanceof JPAMemberOperator) {
-      jpaMember = (JPAMemberOperator) left;
+    if (left instanceof final JPAMemberOperator memberOperator) {
+      jpaMember = memberOperator;
       operand = (JPALiteralOperator) right;
     } else {
       jpaMember = (JPAMemberOperator) right;
@@ -91,8 +91,8 @@ final class JPANavigationOperation extends JPAExistsOperation {
     super(jpaComplier);
     this.operator = null;
     this.methodCall = methodCall;
-    if (parameters.get(0) instanceof JPAMemberOperator) {
-      jpaMember = (JPAMemberOperator) parameters.get(0);
+    if (parameters.get(0) instanceof final JPAMemberOperator memberOperator) {
+      jpaMember = memberOperator;
       operand = parameters.size() > 1 ? (JPALiteralOperator) parameters.get(1) : null;
     } else {
       jpaMember = (JPAMemberOperator) parameters.get(1);
@@ -105,9 +105,9 @@ final class JPANavigationOperation extends JPAExistsOperation {
     // return converter.cb.greaterThan(getExistsQuery().as("a"), converter.cb.literal('5')); //NOSONAR
 
     final Subquery<Object> existQuery = getExistsQuery();
-    if (expression instanceof JPAInvertibleVisitableExpression
-        && ((JPAInvertibleVisitableExpression) expression).isInversionRequired()) {
-      ((JPAInvertibleVisitableExpression) expression).inversionPerformed();
+    if (expression instanceof final JPAInvertibleVisitableExpression visitableExpression
+        && visitableExpression.isInversionRequired()) {
+      visitableExpression.inversionPerformed();
       return converter.cb.not(converter.cb.exists(existQuery));
     }
     return converter.cb.exists(existQuery);
@@ -321,7 +321,8 @@ final class JPANavigationOperation extends JPAExistsOperation {
       for (int i = source.size() - 1; i > 0; i--) {
         if (source.get(i).getKind() == UriResourceKind.navigationProperty
             || source.get(i).getKind() == UriResourceKind.entitySet
-            || (source.get(i) instanceof UriResourceProperty && ((UriResourceProperty) source.get(i)).isCollection())) {
+            || (source.get(i) instanceof final UriResourceProperty resourceProperty
+                && resourceProperty.isCollection())) {
           break;
         }
         result.add(0, source.get(i));

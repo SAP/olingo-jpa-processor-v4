@@ -257,7 +257,7 @@ class IntermediateReferencesTest extends TestMappingRoot {
     assertNotNull(act.getCause());
   }
 
-  class PostProcessor extends JPAEdmMetadataPostProcessor {
+  class PostProcessor implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,

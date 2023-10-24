@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.sap.olingo.jpa.metadata.api.JPAODataQueryContext;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;

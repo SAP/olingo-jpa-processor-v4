@@ -11,55 +11,58 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 
 public class ImageLoader {
   /**
-   * 
+   *
    */
   private static final String SELECT_PERSON_IMAGE =
       "SELECT * FROM \"OLINGO\".\"PersonImage\" WHERE ID = '$&1'";
   private static final String SELECT_ORGANIZATION_IMAGE =
       "SELECT * FROM \"OLINGO\".\"OrganizationImage\" WHERE ID = '$&1'";
   private static final String PATH = "images/";
-  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
+  private static final String ENTITY_MANAGER_DATA_SOURCE = "jakarta.persistence.nonJtaDataSource";
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
-  public static void main(String[] args) throws IOException {
+  public static void main(final String[] args) throws IOException {
 
     final ImageLoader i = new ImageLoader();
     final EntityManager em = createEntityManager();
     i.loadPerson(em, "OlingoOrangeTM.png", "99");
   }
 
-  public void loadPerson(EntityManager em, String imageName, String businessPartnerID) throws IOException {
+  public void loadPerson(final EntityManager em, final String imageName, final String businessPartnerID)
+      throws IOException {
 
     final byte[] image = loadImage(imageName);
     storePersonImageDB(em, image, businessPartnerID, SELECT_PERSON_IMAGE);
   }
 
-  public void loadPerson(String imageName, String businessPartnerID) throws IOException {
+  public void loadPerson(final String imageName, final String businessPartnerID) throws IOException {
 
     final byte[] image = loadImage(imageName);
     storePersonImageDB(createEntityManager(), image, businessPartnerID, SELECT_PERSON_IMAGE);
   }
 
-  public void loadOrg(EntityManager em, String imageName, String businessPartnerID) throws IOException {
+  public void loadOrg(final EntityManager em, final String imageName, final String businessPartnerID)
+      throws IOException {
 
     final byte[] image = loadImage(imageName);
     storeOrgImageDB(em, image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
   }
 
-  public void loadOrg(String imageName, String businessPartnerID) throws IOException {
+  public void loadOrg(final String imageName, final String businessPartnerID) throws IOException {
 
     final byte[] image = loadImage(imageName);
     storeOrgImageDB(createEntityManager(), image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
   }
 
-  private void storePersonImageDB(EntityManager em, byte[] image, String businessPartnerID, String query) {
+  private void storePersonImageDB(final EntityManager em, final byte[] image, final String businessPartnerID,
+      final String query) {
 
     final String s = query.replace("$&1", businessPartnerID);
     final Query q = em.createNativeQuery(s, PersonImage.class);
@@ -75,7 +78,8 @@ public class ImageLoader {
     compareImage(image, storedImage);
   }
 
-  private void storeOrgImageDB(EntityManager em, byte[] image, String businessPartnerID, String query) {
+  private void storeOrgImageDB(final EntityManager em, final byte[] image, final String businessPartnerID,
+      final String query) {
 
     final String s = query.replace("$&1", businessPartnerID);
     final Query q = em.createNativeQuery(s, OrganizationImage.class);
@@ -91,7 +95,7 @@ public class ImageLoader {
     compareImage(image, storedImage);
   }
 
-  private void updateDB(EntityManager em, List<?> result) {
+  private void updateDB(final EntityManager em, final List<?> result) {
     em.getTransaction().begin();
     em.persist(result.get(0));
     em.getTransaction().commit();
@@ -100,11 +104,12 @@ public class ImageLoader {
   private static EntityManager createEntityManager() {
     final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(DataSourceHelper.DB_H2));
-    final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
-    return emf.createEntityManager();
+    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties)) {
+      return emf.createEntityManager();
+    }
   }
 
-  private void compareImage(byte[] image, byte[] storedImage) {
+  private void compareImage(final byte[] image, final byte[] storedImage) {
     if (image.length != storedImage.length)
       fail("[Image]: length miss match");
     else {

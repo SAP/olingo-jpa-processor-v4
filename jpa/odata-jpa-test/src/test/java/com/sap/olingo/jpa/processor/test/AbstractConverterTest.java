@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 
 import org.junit.jupiter.api.Test;
 

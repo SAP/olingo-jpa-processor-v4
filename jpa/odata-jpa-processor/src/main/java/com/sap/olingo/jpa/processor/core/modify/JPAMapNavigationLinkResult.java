@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 
@@ -26,7 +26,7 @@ final class JPAMapNavigationLinkResult extends JPACreateResult {
     super(targetType, requestHeaders);
     result = new ArrayList<>();
 
-    for (JPARequestEntity entity : entities) {
+    for (final JPARequestEntity entity : entities) {
       result.add(new JPAMapResult(entity.getEntityType(), entity.getData(), requestHeaders, converter).getResult(
           ROOT_RESULT_KEY)
           .get(0));
@@ -34,7 +34,7 @@ final class JPAMapNavigationLinkResult extends JPACreateResult {
   }
 
   @Override
-  public List<Tuple> getResult(String key) {
+  public List<Tuple> getResult(final String key) {
     return result;
   }
 
@@ -50,11 +50,5 @@ final class JPAMapNavigationLinkResult extends JPACreateResult {
       final int index) throws ODataJPAProcessorException {
     // Not needed for JPAMapNavigationLinkResult
     return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException {
-    return (Map<String, Object>) entry;
   }
 }

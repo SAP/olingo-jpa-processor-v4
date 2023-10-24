@@ -334,7 +334,7 @@ class JPAODataServiceContextBuilderTest {
     assertTrue(cut.getAnnotationProvider().contains(provider2));
   }
 
-  private class TestEdmPostProcessor extends JPAEdmMetadataPostProcessor {
+  private class TestEdmPostProcessor implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,

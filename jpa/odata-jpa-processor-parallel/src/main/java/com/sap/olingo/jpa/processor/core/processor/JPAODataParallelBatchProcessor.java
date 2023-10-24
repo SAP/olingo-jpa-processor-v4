@@ -5,7 +5,6 @@ import static com.sap.olingo.jpa.processor.core.exception.ODataJPABatchException
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -27,13 +26,14 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchRuntimeException
 
 /**
  * Process parts of a batch request in parallel. This is possible for GET requests until the first request with side
- * effects  comes. In case a request with side effect is followed by a set of request without side effect, they are processed in
+ * effects comes. In case a request with side effect is followed by a set of request without side effect, they are
+ * processed in
  * parallel again.
  * <p>
  * Please note that this is, according to the OData specification,only allowed:
  * <ol>
- * <li> In case the client sends an continue-on-error=true</li>
- * <li> It is guaranteed that the GET do not fail
+ * <li>In case the client sends an continue-on-error=true</li>
+ * <li>It is guaranteed that the GET do not fail
  * </ol>
  * @author Oliver Grande
  * Created: 27.02.2020
@@ -54,7 +54,7 @@ public class JPAODataParallelBatchProcessor extends JPAODataBatchProcessor {
       return buildGroups(requestParts).stream()
           .map(JPAODataBatchRequestGroup::execute)
           .flatMap(List::stream)
-          .collect(Collectors.toList());
+          .toList();
     } catch (final ODataJPABatchRuntimeException e) {
       throw new ODataJPABatchException(e);
     }
@@ -94,11 +94,11 @@ public class JPAODataParallelBatchProcessor extends JPAODataBatchProcessor {
   OData getOdata() {
     return odata;
   }
-  
+
   JPAODataRequestContextAccess getRequestContext() {
     return requestContext;
   }
-  
+
   JPAODataSessionContextAccess getServiceContext() {
     return serviceContext;
   }

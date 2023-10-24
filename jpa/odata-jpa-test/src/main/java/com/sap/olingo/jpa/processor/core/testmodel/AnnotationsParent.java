@@ -3,16 +3,16 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.CountRestrictions;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.ExpandRestrictions;
@@ -56,7 +56,7 @@ public class AnnotationsParent {
   private String alternativeCode;
   @ComputedDefaultValue
   @Column(name = "\"Area\"") // , precision = 34, scale = 0)
-  private final Integer area = 0;
+  private Integer area;
   @Column(name = "\"Population\"", precision = 34, scale = 0)
   private long population;
 

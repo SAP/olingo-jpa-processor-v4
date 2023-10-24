@@ -9,8 +9,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
+
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;

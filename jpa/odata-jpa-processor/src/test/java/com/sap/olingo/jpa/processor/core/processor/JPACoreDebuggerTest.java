@@ -68,20 +68,20 @@ class JPACoreDebuggerTest {
 
   @Test
   void testMeassumentCreated() throws Exception {
-    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
   void testNoMeassumentDebugFalls() throws Exception {
     cutDebugOn = new JPACoreDebugger(false);
-    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertTrue(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
   void testMeassumentCreateMeassument() throws Exception {
-    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       TimeUnit.MILLISECONDS.sleep(100);
     }
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
@@ -95,7 +95,7 @@ class JPACoreDebuggerTest {
   @Test
   void testRuntimeMeasurementEmptyAfterStopWhenOff() throws InterruptedException {
     System.setErr(printOut);
-    try (JPARuntimeMeasurement meassument = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       TimeUnit.MILLISECONDS.sleep(10);
     }
     final String act = output.toString();

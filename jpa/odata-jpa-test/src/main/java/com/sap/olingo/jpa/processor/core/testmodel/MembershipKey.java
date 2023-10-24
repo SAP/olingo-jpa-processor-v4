@@ -2,13 +2,13 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 
 public class MembershipKey implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -2197928070426048826L;
 
@@ -39,11 +39,11 @@ public class MembershipKey implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    MembershipKey other = (MembershipKey) obj;
+    final MembershipKey other = (MembershipKey) obj;
     if (personID == null) {
       if (other.personID != null) return false;
     } else if (!personID.equals(other.personID)) return false;

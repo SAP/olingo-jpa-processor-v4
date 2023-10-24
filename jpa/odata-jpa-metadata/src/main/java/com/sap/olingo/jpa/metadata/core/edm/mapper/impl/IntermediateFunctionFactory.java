@@ -5,8 +5,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.metamodel.EntityType;
-
 import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -15,7 +13,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 
-final class IntermediateFunctionFactory<F extends IntermediateFunction> extends IntermediateOperationFactory<F> {
+import jakarta.persistence.metamodel.EntityType;
+
+final class IntermediateFunctionFactory<F extends IntermediateFunction> implements IntermediateOperationFactory<F> {
 
   /**
    * Creates all functions declared at on entity type
@@ -55,7 +55,7 @@ final class IntermediateFunctionFactory<F extends IntermediateFunction> extends 
 
   @SuppressWarnings("unchecked")
   @Override
-  F createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
+  public F createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
       final Method method, final Object functionDescription)
       throws ODataJPAModelException {
     return (F) new IntermediateJavaFunction(nameBuilder, (EdmFunction) functionDescription, method, schema);

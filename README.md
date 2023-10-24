@@ -8,7 +8,7 @@
 [![GitHub release](https://img.shields.io/github/release-pre/sap/olingo-jpa-processor-v4.svg?color=orange&label=release)](https://github.com/SAP/olingo-jpa-processor-v4/releases/)
 [![Project Map](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/sapolingojpaprocessorv4/)
 
-The JPA Processor shall fill the gap between [Olingo V4](https://olingo.apache.org/doc/odata4/index.html) and the database if [JPA](https://en.wikipedia.org/wiki/Java_Persistence_API) is used for object-relational mapping.
+The JPA Processor shall fill the gap between [Olingo V4](https://olingo.apache.org/doc/odata4/index.html) and the database, if [JPA](https://en.wikipedia.org/wiki/Java_Persistence_API) is used for object-relational mapping. If you want to be updated about Olingo changes subscribe to Olingo's [user mailing list](user-subscribe@olingo.apache.org).
 
 At the current state the JPA Processor provide support for:
 
@@ -22,9 +22,21 @@ The tutorials from the previous major version is still available under: [Tutoria
 
 ## Requirements
 
-The JPA Processor requires, minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with [Olingo 4.9.0](https://github.com/apache/olingo-odata4). If you want to be updated about Olingo changes subscribe to Olingo's [user mailing list](user-subscribe@olingo.apache.org).
+As of now, the JPA Processor has two major versions 1.1.x and 2.x.x.
+
+### 1.1.x
+
+The JPA Processor requires, minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with [Olingo 4.9.0](https://github.com/apache/olingo-odata4).
 
 Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.2](https://jcp.org/en/jsr/detail?id=338), it has to be stated that all test have been performed with [Eclipselink 2.7.9](http://www.eclipse.org/eclipselink/). If you have any problem e.g. with [Hibernate](http://hibernate.org) or [OpenJPA](https://openjpa.apache.org/), create an [issue](https://github.com/SAP/olingo-jpa-processor-v4/issues), but there is no guaranty that it can be solved, as e.g. Hibernate implements some JPA interfaces "differently" than EclipseLink.
+
+There is no father development for this major version.
+
+### 2.x.x
+
+The current version is based on [Jakarta 10](https://projects.eclipse.org/releases/jakarta-10), so [JPA 3.1.0](https://projects.eclipse.org/projects/ee4j.jpa/releases/3.1) or [Jakarta Persistence Specification](https://github.com/jakartaee/persistence), receptively and [Jakarta Servlet 6.0](https://projects.eclipse.org/projects/ee4j.servlet/releases/6.0). Test are performed using [Eclipselink 4.0.2](https://projects.eclipse.org/projects/ee4j.eclipselink/releases/4.0.2), but there is no real dependency to a JPA implementation. This versions require Java [17](https://sap.github.io/SapMachine/#download).
+
+The current version comes with [Olingo 4.9.0](https://github.com/apache/olingo-odata4), which does not support Jakarta. Till Olingo supports Jakarta, requests get mapped by the JPA Processor.
 
 ## Download and Installation
 
@@ -35,7 +47,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
-    <version>1.1.1</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
@@ -45,14 +57,13 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
-    <version>1.1.1</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
 ## Limitations
 
 The core of this project became stable. Some of the addons are still in the state of incubation, so some incompatible changes my come up. Nevertheless feel free to use the JPA processor and the addons where ever it helps.
-
 
 ## Contributing
 
@@ -64,6 +75,7 @@ We'd love all and any contributions.
 
 The flowing extensions/changes are planned:
 
+* Support of method call at $orderby
 * Tenant depended metadata
 * Enable hooks for retrieving data
 * Support of $ref
@@ -82,24 +94,8 @@ Detailed information including third-party components and their licensing/copyri
 
 |Version|Changes|Incompatible Changes|
 |-- |-- |-- |
-|0.2.4|- Switch to Olingo version 4.4.0<br> - Support of Enumeration Types<br>- Support of $count at $expand|Yes|
-|0.2.6|- Solution for issue [#21](https://github.com/SAP/olingo-jpa-processor-v4/issues/21)<br> - JPA Join tables can be used e.g. for Many To Many relationship (issue [#22](https://github.com/SAP/olingo-jpa-processor-v4/issues/22)). If such relation shall be used in a filter a corresponding JPA entity is required, which can be hidden from the API using @EdmIgnore. Please be aware that in case both source and target are subtypes Eclipselink (version 2.7.1 used) may get confused when generating a subquery for filtering, see [Bug 529565](https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565) | No|
-|0.2.7|- Solution for issue [#29](https://github.com/SAP/olingo-jpa-processor-v4/issues/29)<br> - Solution for issue [#35](https://github.com/SAP/olingo-jpa-processor-v4/issues/35)<br> - Solution for issue [#37](https://github.com/SAP/olingo-jpa-processor-v4/issues/37)<br>|No|
-|0.2.8|- Support of Collection Properties<br> - New tutorials 1.7 Suppressing Elements and 1.13 Collection Properties |No|
-|0.2.9|- Support on top level server driven paging<br> - New tutorial 4.3 Server Driven Paging |No|  
-|0.2.10|- Handling of Content-Id in batch requests<br> - Update to Olingo 4.5.0<br> - Update tutorial 1.6, 3.3, 3.5 and 3.6  |No|  
-|0.3.1|- Support of instance based authorizations<br> - Solution for issue [#60](https://github.com/SAP/olingo-jpa-processor-v4/issues/60)<br> - Solution for issue [#49](https://github.com/SAP/olingo-jpa-processor-v4/issues/49)<br> - Correct typo in interface JPAODataPagingProvider <br> - New tutorials 2.3, 4.4  |Yes|
-|0.3.2|- Lift unit tests to JUnit 5<br> - Correction of http return codes on empty responses |No|
-|0.3.3|- Support of PUT requests on collection properties and simple primitive properties<br> - Update to Olingo 4.6.0 <br> - Solution for issue [#69](https://github.com/SAP/olingo-jpa-processor-v4/issues/69) <br> - Solution for issue [#71](https://github.com/SAP/olingo-jpa-processor-v4/issues/71)<br>- Update tutorial [4.4](jpa-tutorial/Tutorials/SpecialTopics/4-4-InstanceBasedAuthorizations.md)|No
-|0.3.4|- Support of $select as part of $expand<br> - Support of field groups<br> - Introduction of a request context, which includes deprecation of methods <br> - Etag now written into response e.g. @odata.etag when JSON was requested<br> - Solution for issue [#78](https://github.com/SAP/olingo-jpa-processor-v4/issues/78) <br> - Updated tutorials: [2.2](jpa-tutorial/Tutorials/RetrieveData/2-2-RetrievingData.md), [2.3](jpa-tutorial/Tutorials/RetrieveData/2-3-UsingFunctions.md), [3.1](jpa-tutorial/Tutorials/ChangeData/3-1-Preparation.md), [3.2](jpa-tutorial/Tutorials/ChangeData/3-2-CreatingEntities.md),  [4.4](jpa-tutorial/Tutorials/SpecialTopics/4-4-InstanceBasedAuthorizations.md)  |Yes|
-|0.3.5|- Extension of session context, so an entity manager factory can be provided. This will allow creating Spring based services without `persistence.xml` file <br> - Solution for issue [#85](https://github.com/SAP/olingo-jpa-processor-v4/issues/85)<br> - Usage of Olingo JSON deserializer for CUD requests<br> - Extension of session context, so an own Edm Name Builder can be provided|Yes|
-|0.3.6|- Enable more flexible transaction handling<br> - Part solution for issue [#83](https://github.com/SAP/olingo-jpa-processor-v4/issues/83)<br> - Increase support of Spring by performing request mapping in case a mapping path is provided via the service context|No|
-|0.3.7| - Update Olingo dependency to 4.7.0|No|
-|0.3.8| - Update Olingo dependency to 4.7.1<br> - Support of  `java.time` data types. Prerequisite is the usage of JPA 2.2. <br> - Support of Absolute Context URL. See issue [#103](https://github.com/SAP/olingo-jpa-processor-v4/issues/103)<br> - Temporal data types do not longer require a Precision [#98](https://github.com/SAP/olingo-jpa-processor-v4/issues/98)<br>Support of MappedSuperclass|No|
-|0.3.9| - Solutions for issue [#112](https://github.com/SAP/olingo-jpa-processor-v4/issues/112) <br> - Solutions for issue [#114](https://github.com/SAP/olingo-jpa-processor-v4/issues/114)|No|
-|0.3.10| - Update Olingo dependency to 4.8.0<br> - Deprecation of ```setExternalName``` in ```IntermediateModelItemAccess```<br>- Solutions for issue [#134](https://github.com/SAP/olingo-jpa-processor-v4/issues/136)<br>- Solution for issue [#136](https://github.com/SAP/olingo-jpa-processor-v4/issues/136) |No|
-|0.3.11| - Solutions for issue [#138](https://github.com/SAP/olingo-jpa-processor-v4/issues/138)|No|
 |1.0.6|- Transient Properties<br> - Singletons<br> - Entity Types without Entity Set<br> - Rework Request Context<br> - Deprecation of annotation  EdmAsEntitySet   |Yes|
 |1.0.8|- Solution for issue [#145](https://github.com/SAP/olingo-jpa-processor-v4/issues/145) |No|
 |1.0.9|- Update Olingo dependency to 4.9.0<br> - Solutions for issues [#164](https://github.com/SAP/olingo-jpa-processor-v4/issues/164), [#155](https://github.com/SAP/olingo-jpa-processor-v4/issues/155), [#191](https://github.com/SAP/olingo-jpa-processor-v4/issues/191), [#156](https://github.com/SAP/olingo-jpa-processor-v4/issues/156)<br>|No|
 |1.1.1|- Enable action overload<br> - Basic support of OData annotations<br>- Solution of issues [#207](https://github.com/SAP/olingo-jpa-processor-v4/issues/207), [#211](https://github.com/SAP/olingo-jpa-processor-v4/issues/211), [#212](https://github.com/SAP/olingo-jpa-processor-v4/issues/212), [#213](https://github.com/SAP/olingo-jpa-processor-v4/issues/213), [#214](https://github.com/SAP/olingo-jpa-processor-v4/issues/214),[#218](https://github.com/SAP/olingo-jpa-processor-v4/issues/218)|No|
+|2.0.0|- Minimum Java release now 17<br>- Switch to Jakarta Persistency<br> - Support of Spring Boot 3.x<br> - JPAEdmMetadataPostProcessor became an interface|Yes|
