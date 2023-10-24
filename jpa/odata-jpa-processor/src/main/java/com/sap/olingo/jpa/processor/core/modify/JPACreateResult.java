@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATuple;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
+import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 
 abstract class JPACreateResult implements JPAExpandResult {
 
@@ -37,7 +37,7 @@ abstract class JPACreateResult implements JPAExpandResult {
     this.helper = new JPAConversionHelper();
     this.children = new HashMap<>(0);
     this.pathList = et.getPathList();
-    this.locale = ExpressionUtil.determineFallbackLocale(requestHeaders);
+    this.locale = ExpressionUtility.determineFallbackLocale(requestHeaders);
     this.requestHeaders = requestHeaders;
   }
 
@@ -73,17 +73,17 @@ abstract class JPACreateResult implements JPAExpandResult {
 
   protected void addValueToTuple(final JPATuple tuple, final JPAPath path, final int index, final Object value)
       throws ODataJPAProcessorException {
-    if (path.getPath().get(index) instanceof JPADescriptionAttribute) {
+    if (path.getPath().get(index) instanceof final JPADescriptionAttribute descriptionAttribute) {
       @SuppressWarnings("unchecked")
-      final Collection<Object> desc = (Collection<Object>) value;
-      if (desc != null) {
-        for (final Object entry : desc) {
-          final Map<String, Object> descGetterMap = entryAsMap(entry);
-          final JPADescriptionAttribute jpaAttribute = (JPADescriptionAttribute) path.getPath().get(index);
-          final String providedLocale = determineLocale(descGetterMap, jpaAttribute);
+      final Collection<Object> values = (Collection<Object>) value;
+      if (values != null) {
+        for (final Object entry : values) {
+          final Map<String, Object> descriptionGetterMap = entryAsMap(entry);
+          final String providedLocale = determineLocale(descriptionGetterMap, descriptionAttribute);
           if (locale.getLanguage().equals(providedLocale)
               || locale.toString().equals(providedLocale)) {
-            final Object description = descGetterMap.get(jpaAttribute.getDescriptionAttribute().getInternalName());
+            final Object description = descriptionGetterMap.get(descriptionAttribute.getDescriptionAttribute()
+                .getInternalName());
             tuple.addElement(path.getAlias(), path.getLeaf().getType(), description);
             break;
           }
@@ -108,20 +108,25 @@ abstract class JPACreateResult implements JPAExpandResult {
     }
   }
 
-  protected abstract String determineLocale(final Map<String, Object> descGetterMap,
+  protected abstract String determineLocale(final Map<String, Object> descriptionGetterMap,
       JPAPath localeAttribute, final int index) throws ODataJPAProcessorException;
 
-  protected abstract Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException;
+  @SuppressWarnings("unchecked")
+  protected Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException { // NOSONAR
+    return (Map<String, Object>) entry;
+  }
 
   protected boolean notContainsCollection(final JPAPath path) {
-    for (final JPAElement e : path.getPath())
-      if (e instanceof JPAAttribute && ((JPAAttribute) e).isCollection())
+    for (final JPAElement element : path.getPath())
+      if (element instanceof final JPAAttribute attribute
+          && attribute.isCollection())
         return false;
     return true;
   }
 
-  private String determineLocale(final Map<String, Object> descGetterMap,
-      final JPADescriptionAttribute descAttribute) throws ODataJPAProcessorException {
-    return determineLocale(descGetterMap, descAttribute.getLocaleFieldName(), 0);
+  private String determineLocale(final Map<String, Object> descriptionGetterMap,
+      final JPADescriptionAttribute descriptionAttribute) throws ODataJPAProcessorException {
+    return determineLocale(descriptionGetterMap, descriptionAttribute.getLocaleFieldName(), 0);
   }
+
 }

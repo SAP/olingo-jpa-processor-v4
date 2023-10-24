@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.metadata.converter;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  * Default converter to convert from {@link java.time.OffsetDateTime} to {@link java.time.ZonedDateTime}. This is

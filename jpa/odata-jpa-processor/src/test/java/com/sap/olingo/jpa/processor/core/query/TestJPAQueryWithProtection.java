@@ -21,17 +21,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Predicate.BooleanOperator;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Predicate.BooleanOperator;
 
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.eclipse.persistence.internal.jpa.querydef.CompoundExpressionImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -56,6 +57,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessExceptio
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
+import com.sap.olingo.jpa.processor.core.util.Assertions;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
@@ -130,7 +132,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   @ParameterizedTest
   @CsvSource({
-      "200, 'Willi;Marvin', 13",
+      "200, 'Willi;Marvin', 16",
       "200, 'Willi', 3", })
   void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
@@ -178,6 +180,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     assertEquals(2, actExpand.size());
   }
 
+  @Tag(Assertions.CB_ONLY_TEST)
   @Test
   void testRestrictExpandResultWithTop() throws IOException, ODataException {
 
@@ -206,7 +209,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   @ParameterizedTest
   @CsvSource({
-      "200, 'Willi;Marvin', 13",
+      "200, 'Willi;Marvin', 16",
       "200, 'Willi', 3", })
   void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
@@ -509,7 +512,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException {
+  void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException, ODataJPAQueryException {
     prepareTestDeepProtected();
     when(etSpy.getProtections()).thenCallRealMethod();
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -645,7 +648,8 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(etSpy).when(sdSpy).getEntity("ProtectionExamples");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
     doReturn(null).when(etSpy).getAssociation("");
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext, context);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
+        contextSpy);
     try {
       requestContext.setUriInfo(uriInfo);
     } catch (final ODataJPAIllegalAccessException e) {

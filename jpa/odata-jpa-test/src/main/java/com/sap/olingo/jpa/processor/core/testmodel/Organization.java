@@ -3,16 +3,16 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.OrderColumn;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OrderColumn;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
@@ -61,7 +61,7 @@ public class Organization extends BusinessPartner { // NOSONAR
     return name1;
   }
 
-  public void setName1(String name1) {
+  public void setName1(final String name1) {
     this.name1 = name1;
   }
 
@@ -69,7 +69,7 @@ public class Organization extends BusinessPartner { // NOSONAR
     return name2;
   }
 
-  public void setName2(String name2) {
+  public void setName2(final String name2) {
     this.name2 = name2;
   }
 
@@ -77,7 +77,7 @@ public class Organization extends BusinessPartner { // NOSONAR
     return aBCClass;
   }
 
-  public void setABCClass(ABCClassification aBCClass) {
+  public void setABCClass(final ABCClassification aBCClass) {
     this.aBCClass = aBCClass;
   }
 
@@ -85,7 +85,7 @@ public class Organization extends BusinessPartner { // NOSONAR
     return comment;
   }
 
-  public void setComment(List<String> comment) {
+  public void setComment(final List<String> comment) {
     this.comment = comment;
   }
 }

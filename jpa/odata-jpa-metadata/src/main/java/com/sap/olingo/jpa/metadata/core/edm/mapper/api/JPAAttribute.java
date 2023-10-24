@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
-import javax.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
@@ -13,7 +12,9 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAAttribute extends JPAElement {
+import jakarta.persistence.AttributeConverter;
+
+public interface JPAAttribute extends JPAElement, JPAAnnotatable {
   /**
    * Returns an instance of the converter defined at the attribute, in case an explicit conversion is required. That is,
    * Olingo does not support the Java type. In that case the JPA Processor converts the attribute into the DB type
@@ -36,6 +37,11 @@ public interface JPAAttribute extends JPAElement {
 
   public CsdlAbstractEdmItem getProperty() throws ODataJPAModelException;
 
+  /**
+   * Returns the complex type if Attributes is structured and Null if not. Check with {@link #isComplex()}
+   * @return
+   * @throws ODataJPAModelException
+   */
   public JPAStructuredType getStructuredType() throws ODataJPAModelException;
 
   /**
@@ -65,6 +71,12 @@ public interface JPAAttribute extends JPAElement {
    *
    */
   public @CheckForNull Class<?> getDbType();
+
+  /**
+   * @return The type of the attribute as defined in the entity.
+   *
+   */
+  public @CheckForNull Class<?> getJavaType();
 
   public boolean isAssociation();
 

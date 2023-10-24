@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Selection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,4 +95,10 @@ class JPAPathWrapperTest {
     when(path.getAlias()).thenReturn("Alpha");
     assertTrue(cut.compareTo(path) > 0);
   }
+
+  @Test
+  void testGetPathAsString() {
+    assertEquals(ALIAS, cut.getPathAsString());
+  }
+
 }

@@ -16,10 +16,17 @@ public @interface EdmParameter {
 
   int maxLength() default -1;
 
+  /**
+   * Mandatory name of the parameter. The name
+   * may adopt by the name builder to fulfill naming conventions.
+   * <br>
+   * There is no fallback for JAVA based functions and actions.
+   * @return
+   */
   String name();
 
   /**
-   * Defines the name of the input parameter at a stored procedure or user defined function.
+   * Defines the name of the input parameter at a user defined function. Not supported for actions.
    * @return Parameter name
    */
   String parameterName() default "";
@@ -31,8 +38,9 @@ public @interface EdmParameter {
   EdmGeospatial srid() default @EdmGeospatial();
 
   /**
-   * Define the parameter type in case of stored procedure or user defined function.<p>
-   * 
+   * Define the parameter type in case of user defined function.
+   * <p>
+   *
    * @return Class of java parameter (row) type. This can be either a simple type like <code> Integer.class</code> or
    * the POJO defining an Entity.
    */

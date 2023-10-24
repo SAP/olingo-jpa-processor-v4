@@ -2,17 +2,19 @@ package com.sap.olingo.jpa.processor.core.api;
 
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
+import com.sap.olingo.jpa.processor.core.api.mapper.JakartaResponseMapper;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public class JPAODataRequestHandler {
@@ -71,7 +73,6 @@ public class JPAODataRequestHandler {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private void processInternal(final HttpServletRequest request, final HttpServletResponse response)
       throws ODataException {
 
@@ -85,7 +86,7 @@ public class JPAODataRequestHandler {
     handler.register(serviceContext.getEdmProvider().getServiceDocument());
     handler.register(serviceContext.getErrorProcessor());
     handler.register(new JPAODataServiceDocumentProcessor(serviceContext));
-    handler.process(mappedRequest, response);
+    handler.process(new JakartaRequestMapper(mappedRequest), new JakartaResponseMapper(response));
   }
 
   private HttpServletRequest prepareRequestMapping(final HttpServletRequest req, final String requestPath) {

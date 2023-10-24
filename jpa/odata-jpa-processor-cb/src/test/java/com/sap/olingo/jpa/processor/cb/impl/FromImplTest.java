@@ -14,18 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.InheritanceType;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
-import javax.persistence.metamodel.CollectionAttribute;
-import javax.persistence.metamodel.ListAttribute;
-import javax.persistence.metamodel.MapAttribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.metamodel.CollectionAttribute;
+import jakarta.persistence.metamodel.ListAttribute;
+import jakarta.persistence.metamodel.MapAttribute;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SetAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -203,6 +203,34 @@ class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
+  void testCreateJoinByCollectionAttributeName() {
+    final String exp =
+        "\"OLINGO\".\"BusinessPartner\" E0 "
+            + "INNER JOIN \"OLINGO\".\"Comment\" E1 "
+            + "ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
+    final StringBuilder statement = new StringBuilder();
+    final Join<?, ?> act = cut.join("comment");
+    assertNotNull(act);
+    assertEquals(1, cut.getJoins().size());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
+  }
+
+  @Test
+  void testCreateLeftJoinByCollectionAttributeName() {
+    final String exp =
+        "\"OLINGO\".\"BusinessPartner\" E0 "
+            + "LEFT OUTER JOIN \"OLINGO\".\"Comment\" E1 "
+            + "ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
+    final StringBuilder statement = new StringBuilder();
+    final Join<?, ?> act = cut.join("comment", JoinType.LEFT);
+    assertNotNull(act);
+    assertEquals(1, cut.getJoins().size());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
+  }
+
+  @Test
   void testGetJavaType() {
     assertEquals(Organization.class, cut.getJavaType());
   }
@@ -248,5 +276,10 @@ class FromImplTest extends BuilderBaseTest {
   @Test
   void testJoinThrowsExceptionOnUnknownAttribute() {
     assertThrows(IllegalArgumentException.class, () -> cut.join("dummy"));
+  }
+
+  @Test
+  void testGetFetchesReturnsEmpty() {
+    assertEquals(0, cut.getFetches().size());
   }
 }

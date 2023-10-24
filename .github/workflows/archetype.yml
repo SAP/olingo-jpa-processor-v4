@@ -20,5 +20,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
+      - name: 1. Build JPA
+        run: cd ./jpa && mvn clean -Dmaven.test.skip
+      - name: 2. Build and test archetype
         run: cd ./jpa-archetype && mvn clean install archetype:integration-test

@@ -1,8 +1,9 @@
 package com.sap.olingo.jpa.processor.core.query;
+
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAKeyPairException;
@@ -82,8 +83,8 @@ public class JPAKeyPair {
       try {
         final AttributeConverter<Object, Object> converter = keyElement.getRawConverter();
         if (dbType != null
-            && (keyElement.getDbType() == Byte[].class 
-            || keyElement.getDbType() == byte[].class)) {
+            && (keyElement.getDbType() == Byte[].class
+                || keyElement.getDbType() == byte[].class)) {
           return new ComparableByteArray(
               ComparableByteArray.unboxedArray(converter.convertToDatabaseColumn(value))).compareTo(
                   ComparableByteArray.unboxedArray(converter.convertToDatabaseColumn(minValue)));

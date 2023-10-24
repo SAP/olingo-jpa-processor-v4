@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
+
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>${groupId}</groupId>
 	<artifactId>${artifactId}</artifactId>
@@ -12,15 +12,15 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		 <version>2.6.2</version>
+		<version>3.1.3</version>
 		<relativePath />
 	</parent>
 
 	<properties>
-		<processor.version>1.0.9</processor.version>
-		<java.version>1.8</java.version>
-        <eclipselink.version>2.7.9</eclipselink.version>
-        <jpa.version>2.2.1</jpa.version>
+		<processor.version>2.0.0</processor.version>
+		<java.version>17</java.version>
+		<eclipselink.version>4.0.2</eclipselink.version>
+		<jpa.version>3.1.0</jpa.version>
 	</properties>
 
 	<dependencies>
@@ -37,7 +37,7 @@
 					<groupId>junit</groupId>
 					<artifactId>junit</artifactId>
 				</exclusion>
-			</exclusions>			
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -58,8 +58,8 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>javax.persistence</artifactId>
+			<groupId>jakarta.persistence</groupId>
+			<artifactId>jakarta.persistence-api</artifactId>
 			<version>${jpa.version}</version>
 			<scope>compile</scope>
 		</dependency>
@@ -73,37 +73,37 @@
 			<artifactId>odata-jpa-processor</artifactId>
 			<version>${processor.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>com.sap.olingo</groupId>
-            <artifactId>odata-jpa-processor-cb</artifactId>
-            <version>${processor.version}</version>
-        </dependency>         
+		<dependency>
+			<groupId>com.sap.olingo</groupId>
+			<artifactId>odata-jpa-processor-cb</artifactId>
+			<version>${processor.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-spring-support</artifactId>
 			<version>${processor.version}</version>
-		</dependency>			
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.2.222</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>8.4.0</version>
+			<version>9.22.0</version>
+		</dependency>		
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>runtime</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.1.210</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <scope>runtime</scope>
-        </dependency>           
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -117,15 +117,15 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.8.1</version>
+			<version>5.9.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.8.1</version><!--$NO-MVN-MAN-VER$-->
+			<version>1.9.1</version><!--$NO-MVN-MAN-VER$-->
 			<scope>test</scope>
-		</dependency>	
+		</dependency>
 	</dependencies>
 
 	<build>

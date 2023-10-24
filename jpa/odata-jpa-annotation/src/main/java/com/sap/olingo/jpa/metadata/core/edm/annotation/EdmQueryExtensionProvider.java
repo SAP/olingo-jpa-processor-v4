@@ -4,15 +4,18 @@
 package com.sap.olingo.jpa.metadata.core.edm.annotation;
 
 import javax.annotation.CheckForNull;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
 
 /**
- * Provides a set to methods to extend or influence the generated query.<p>
+ * Provides a set to methods to extend or influence the generated query.
+ * <p>
  *
  * An instance of the extension provider is created once per OData request. That is, it could be created multiple times
- * per http request in case of $batch requests. <p>
+ * per http request in case of $batch requests.
+ * <p>
  * An implementing class may provide <b>one</b> constructor having no parameter or a combination of the following:
  * <ul>
  * <li>All header: com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap</li></li>

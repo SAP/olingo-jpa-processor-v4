@@ -22,43 +22,51 @@ import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestFunctionReturnType implements ODataFunction {
 
-  @EdmFunction(name = "PrimitiveValue", returnType = @ReturnType)
-  public Integer primitiveValue(@EdmParameter(name = "A") short a) {
+  @EdmFunction(name = "PrimitiveValue", returnType = @ReturnType, hasFunctionImport = true)
+  public Integer primitiveValue(@EdmParameter(name = "A") final short a) {
     if (a == 0)
       return null;
-    return Integer.valueOf(a);
+    return (int) a;
   }
 
-  @EdmFunction(name = "ListOfPrimitiveValues", returnType = @ReturnType(type = Integer.class))
-  public List<Integer> listOfPrimitiveValues(@EdmParameter(name = "A") Integer a) {
-    return Arrays.asList(new Integer[] { a, a / 2 });
+  @EdmFunction(name = "PrimitiveValueNullable", returnType = @ReturnType, hasFunctionImport = false)
+  public Integer primitiveValueNullable(@EdmParameter(name = "A") final Short a) {
+    if (a == null)
+      return 0;
+    return (int) a;
   }
 
-  @EdmFunction(name = "ComplexType", returnType = @ReturnType)
-  public CommunicationData complexType(@EdmParameter(name = "A") int a) {
+  @EdmFunction(name = "ListOfPrimitiveValues", returnType = @ReturnType(type = Integer.class), hasFunctionImport = true)
+  public List<Integer> listOfPrimitiveValues(@EdmParameter(name = "A") final Integer a) {
+    return Arrays.asList(a, a / 2);
+  }
+
+  @EdmFunction(name = "ComplexType", returnType = @ReturnType, hasFunctionImport = true)
+  public CommunicationData complexType(@EdmParameter(name = "A") final int a) {
     if (a == 0)
       return null;
-    CommunicationData result = new CommunicationData();
+    final CommunicationData result = new CommunicationData();
     result.setLandlinePhoneNumber(Integer.valueOf(a).toString());
     return result;
   }
 
-  @EdmFunction(name = "ListOfComplexType", returnType = @ReturnType(type = AdministrativeInformation.class))
-  public List<AdministrativeInformation> listOfComplexType(@EdmParameter(name = "A") String user) {
-    Long milliPerDay = (long) (24 * 60 * 60 * 1000);
-    AdministrativeInformation admin1 = new AdministrativeInformation();
+  @EdmFunction(name = "ListOfComplexType", returnType = @ReturnType(type = AdministrativeInformation.class),
+      hasFunctionImport = true)
+  public List<AdministrativeInformation> listOfComplexType(@EdmParameter(name = "A") final String user) {
+    final Long milliPerDay = (long) (24 * 60 * 60 * 1000);
+    final AdministrativeInformation admin1 = new AdministrativeInformation();
     admin1.setCreated(new ChangeInformation(user, new Date(LocalDate.now().toEpochDay() * milliPerDay)));
-    AdministrativeInformation admin2 = new AdministrativeInformation();
+    final AdministrativeInformation admin2 = new AdministrativeInformation();
     admin2.setUpdated(new ChangeInformation(user, new Date(LocalDate.now().toEpochDay() * milliPerDay)));
-    return Arrays.asList(new AdministrativeInformation[] { admin1, admin2 });
+    return Arrays.asList(admin1, admin2);
   }
-  
-  @EdmFunction(name = "EntityType", returnType = @ReturnType)
-  public AdministrativeDivision entityType(@EdmParameter(name = "A") int a) {
+
+  @EdmFunction(name = "EntityType", returnType = @ReturnType, hasFunctionImport = true)
+  public AdministrativeDivision entityType(@EdmParameter(name = "A") final int a) {
 
     if (a == 0)
       return null;
-    AdministrativeDivision result = new AdministrativeDivision();
+    final AdministrativeDivision result = new AdministrativeDivision();
     result.setArea(a);
     result.setCodePublisher("1");
     result.setCodeID("2");
@@ -66,31 +74,34 @@ public class TestFunctionReturnType implements ODataFunction {
     return result;
   }
 
-  @EdmFunction(name = "ListOfEntityType", returnType = @ReturnType(type = AdministrativeDivision.class))
-  public List<AdministrativeDivision> listOfEntityType(@EdmParameter(name = "A") Integer a) {
-    return Arrays.asList(new AdministrativeDivision[] { entityType(a), entityType(a / 2) });
+  @EdmFunction(name = "ListOfEntityType", returnType = @ReturnType(type = AdministrativeDivision.class),
+      hasFunctionImport = true)
+  public List<AdministrativeDivision> listOfEntityType(@EdmParameter(name = "A") final Integer a) {
+    return Arrays.asList(entityType(a), entityType(a / 2));
   }
 
-  @EdmFunction(name = "ConvertBirthday", returnType = @ReturnType)
+  @EdmFunction(name = "ConvertBirthday", returnType = @ReturnType, hasFunctionImport = true)
   public Person convertBirthday() {
-    Person p = new Person();
+    final Person p = new Person();
     p.setID("1");
     p.setBirthDay(LocalDate.now());
     p.setInhouseAddress(new ArrayList<>());
     return p;
   }
 
-  @EdmFunction(name = "ListOfEntityTypeWithCollection", returnType = @ReturnType(type = Person.class))
-  public List<Person> listOfEntityTypeWithCollection(@EdmParameter(name = "A") Integer a) {
-    Person person = new Person();
+  @EdmFunction(name = "ListOfEntityTypeWithCollection", returnType = @ReturnType(type = Person.class),
+      hasFunctionImport = true)
+  public List<Person> listOfEntityTypeWithCollection(@EdmParameter(name = "A") final Integer a) {
+    final Person person = new Person();
     person.setID("1");
     person.addInhouseAddress(new InhouseAddress("DEV", "7"));
     person.addInhouseAddress(new InhouseAddress("ADMIN", "2"));
     return Arrays.asList(person);
   }
 
-  @EdmFunction(name = "EntityTypeWithDeepCollection", returnType = @ReturnType(type = CollectionDeep.class))
-  public CollectionDeep entityTypeWithDeepCollection(@EdmParameter(name = "A") Integer a) {
+  @EdmFunction(name = "EntityTypeWithDeepCollection", returnType = @ReturnType(type = CollectionDeep.class),
+      hasFunctionImport = true)
+  public CollectionDeep entityTypeWithDeepCollection(@EdmParameter(name = "A") final Integer a) {
     final CollectionDeep deepCollection = new CollectionDeep();
     final CollectionFirstLevelComplex firstLevel = new CollectionFirstLevelComplex();
     final CollectionSecondLevelComplex secondLevel = new CollectionSecondLevelComplex();

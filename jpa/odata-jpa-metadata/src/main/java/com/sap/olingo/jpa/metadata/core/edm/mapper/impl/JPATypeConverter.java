@@ -15,17 +15,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.Lob;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.metamodel.Attribute;
-
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+
+import jakarta.persistence.Lob;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.metamodel.Attribute;
 
 /**
  * This class holds utility methods for type conversions between JPA Java types and OData Types.
@@ -48,6 +47,7 @@ public final class JPATypeConverter {
     types.add(Integer.class);
     types.add(java.math.BigDecimal.class);
     types.add(java.math.BigInteger.class);
+    types.add(java.sql.Date.class);
     types.add(java.sql.Time.class);
     types.add(java.sql.Timestamp.class);
     types.add(java.util.Calendar.class);
@@ -76,6 +76,7 @@ public final class JPATypeConverter {
     types.add(BigInteger.class);
     types.add(Byte.class);
     types.add(Boolean.class);
+    types.add(java.sql.Date.class);
     types.add(java.sql.Time.class);
     types.add(java.time.LocalTime.class);
     types.add(java.time.Duration.class);
@@ -83,14 +84,14 @@ public final class JPATypeConverter {
     types.add(java.time.OffsetDateTime.class);
     types.add(java.time.ZonedDateTime.class);
     types.add(java.time.Instant.class);
-    types.add(java.sql.Date.class);
     types.add(Calendar.class);
     types.add(Timestamp.class);
+    types.add(java.util.Calendar.class);
     types.add(java.util.Date.class);
     types.add(UUID.class);
     return types;
   }
-  
+
   public static EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<?> type) throws ODataJPAModelException {
     return convertToEdmSimpleType(type, null);
   }
@@ -103,6 +104,7 @@ public final class JPATypeConverter {
    * The JPA Type input.
    * @return The corresponding EdmPrimitiveTypeKind.
    * @throws ODataJPAModelException
+   * @throws org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPARuntimeException
    *
    * @see EdmPrimitiveTypeKind
    */
@@ -167,11 +169,6 @@ public final class JPATypeConverter {
       return null;
   }
 
-  public static EdmPrimitiveTypeKind convertToEdmSimpleType(final JPAAttribute attribute)
-      throws ODataJPAModelException {
-    return convertToEdmSimpleType(attribute.getType(), null);
-  }
-
   public static boolean isSimpleType(final Class<?> type, final Attribute<?, ?> currentAttribute) {
     return type != null
         && (isScalarType(type)
@@ -200,6 +197,11 @@ public final class JPATypeConverter {
    * {@link org.apache.olingo.commons.core.edm.primitivetype.EdmDateTimeOffset#internalValueToString
    * EdmDateTimeOffset.internalValueToString}</li>
    * </ul>
+   * Not longer supported are e.g.:
+   * <ul>
+   * <li>For EdmDate:
+   * {@link java.sql.Date}
+   * </ul>
    * @param type
    * @return
    */
@@ -210,8 +212,7 @@ public final class JPATypeConverter {
 
   private static EdmPrimitiveTypeKind convertGeography(final Class<?> jpaType, final Attribute<?, ?> currentAttribute)
       throws ODataJPAModelException {
-    
-    
+
     if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.Point.class))
       return EdmPrimitiveTypeKind.GeographyPoint;
     else if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.MultiPoint.class))

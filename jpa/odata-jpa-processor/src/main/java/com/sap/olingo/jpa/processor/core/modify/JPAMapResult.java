@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 
@@ -37,8 +37,8 @@ final class JPAMapResult extends JPAMapBaseResult {
   @SuppressWarnings("unchecked")
   private void createChildren(final JPATupleChildConverter converter) throws ODataJPAModelException,
       ODataApplicationException {
-    for (JPAAssociationPath path : et.getAssociationPathList()) {
-      String pathPropertyName = path.getPath().get(0).getInternalName();
+    for (final JPAAssociationPath path : et.getAssociationPathList()) {
+      final String pathPropertyName = path.getPath().get(0).getInternalName();
       if (valuePairedResult.get(pathPropertyName) instanceof List) {
         children.put(path,
             new JPAMapNavigationLinkResult((JPAEntityType) path.getTargetType(),
@@ -48,17 +48,17 @@ final class JPAMapResult extends JPAMapBaseResult {
     }
     for (final JPAPath path : et.getCollectionAttributesPath()) {
       Map<String, Object> attributes = valuePairedResult;
-      for (JPAElement e : path.getPath()) {
-        final Object value = attributes.get(e.getInternalName());
-        if (e instanceof JPAAttribute && ((JPAAttribute) e).isComplex() && !(((JPAAttribute) e).isCollection())
+      for (final JPAElement element : path.getPath()) {
+        final Object value = attributes.get(element.getInternalName());
+        if (element instanceof final JPAAttribute attribute && attribute.isComplex() && !(attribute.isCollection())
             && value != null) {
           attributes = (Map<String, Object>) value;
           continue;
         }
-        if (e instanceof JPACollectionAttribute && value != null) {
-          final JPAAssociationPath assPath = ((JPACollectionAttribute) e).asAssociation();
+        if (element instanceof final JPACollectionAttribute attribute && value != null) {
+          final JPAAssociationPath assPath = attribute.asAssociation();
           final JPAExpandResult child = new JPAMapCollectionResult(et, (Collection<?>) value, requestHeaders,
-              (JPACollectionAttribute) e);
+              attribute);
           child.convert(converter);
           children.put(assPath, child);
         }
@@ -68,10 +68,10 @@ final class JPAMapResult extends JPAMapBaseResult {
   }
 
   private List<Tuple> createResult() throws ODataJPAProcessorException {
-    JPATuple tuple = new JPATuple();
-    List<Tuple> tupleResult = new ArrayList<>();
+    final JPATuple tuple = new JPATuple();
+    final List<Tuple> tupleResult = new ArrayList<>();
 
-    for (JPAPath path : pathList) {
+    for (final JPAPath path : pathList) {
       if (notContainsCollection(path))
         convertPathToTuple(tuple, valuePairedResult, path, 0);
     }

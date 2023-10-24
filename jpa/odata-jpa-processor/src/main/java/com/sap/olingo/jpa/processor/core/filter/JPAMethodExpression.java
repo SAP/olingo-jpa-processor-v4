@@ -37,4 +37,8 @@ public final class JPAMethodExpression implements JPAVisitableExpression {
     return member.getResourcePath();
   }
 
+  @Override
+  public Literal getLiteral() {
+    return literal;
+  }
 }

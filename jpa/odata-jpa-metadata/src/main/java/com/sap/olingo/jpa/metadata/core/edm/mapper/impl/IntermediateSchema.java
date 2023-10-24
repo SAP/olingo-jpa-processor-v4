@@ -1,24 +1,18 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.PluralAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
-import org.apache.olingo.commons.api.edm.provider.CsdlAction;
-import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
-import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
-import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.reflections8.Reflections;
 
@@ -31,8 +25,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.PluralAttribute;
+
 /**
- * <p>For details about Schema metadata see:
+ * <p>
+ * For details about Schema metadata see:
  * <a href=
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397946"
  * >OData Version 4.0 Part 3 - 5 Schema </a>
@@ -44,23 +45,23 @@ final class IntermediateSchema extends IntermediateModelElement {
   private final Map<String, IntermediateComplexType<?>> complexTypeListInternalKey;
   private final Map<String, IntermediateEntityType<?>> entityTypeListInternalKey;
   private final Map<String, IntermediateFunction> functionListInternalKey;
-  private final Map<String, IntermediateJavaAction> actionListInternalKey;
+  private final Map<ODataActionKey, IntermediateJavaAction> actionListByKey;
   private final Map<String, IntermediateEnumerationType> enumTypeListInternalKey;
   private IntermediateEntityContainer container;
   private final Reflections reflections;
   private CsdlSchema edmSchema;
 
-  IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel, final Reflections reflections)
-      throws ODataJPAModelException {
+  IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel, final Reflections reflections,
+      final IntermediateAnnotationInformation annotationInfo) throws ODataJPAModelException {
 
-    super(nameBuilder, nameBuilder.getNamespace());
-    this.reflections = reflections;
+    super(nameBuilder, nameBuilder.getNamespace(), annotationInfo);
     this.jpaMetamodel = jpaMetamodel;
+    this.reflections = reflections;
     this.enumTypeListInternalKey = buildEnumerationTypeList();
     this.complexTypeListInternalKey = buildComplexTypeList();
     this.entityTypeListInternalKey = buildEntityTypeList();
     this.functionListInternalKey = buildFunctionList();
-    this.actionListInternalKey = buildActionList();
+    this.actionListByKey = buildActionList();
   }
 
   public IntermediateEnumerationType getEnumerationType(final Class<?> enumType) {
@@ -85,45 +86,45 @@ final class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
-    edmSchema = new CsdlSchema();
-    edmSchema.setNamespace(nameBuilder.getNamespace());
-    edmSchema.setEnumTypes((List<CsdlEnumType>) extractEdmModelElements(enumTypeListInternalKey));
-    edmSchema.setComplexTypes((List<CsdlComplexType>) extractEdmModelElements(complexTypeListInternalKey));
-    edmSchema.setEntityTypes((List<CsdlEntityType>) extractEdmModelElements(entityTypeListInternalKey));
-    edmSchema.setFunctions((List<CsdlFunction>) extractEdmModelElements(functionListInternalKey));
-    edmSchema.setActions((List<CsdlAction>) extractEdmModelElements(actionListInternalKey));
-//  edm:Annotations
-//  edm:Annotation
-//  edm:Term
-//  edm:TypeDefinition
-    // MUST be the last thing that is done !!!!
-    if (container != null)
-      edmSchema.setEntityContainer(container.getEdmItem());
-
-  }
-
-  JPAAction getAction(final String externalName) {
-    for (final Entry<String, IntermediateJavaAction> action : actionListInternalKey.entrySet()) {
-      if (action.getValue().getExternalName().equals(externalName) && !action.getValue().ignore())
-        return action.getValue();
+    try {
+      edmSchema = new CsdlSchema();
+      edmSchema.setNamespace(nameBuilder.getNamespace());
+      edmSchema.setEnumTypes(extractEdmModelElements(enumTypeListInternalKey));
+      edmSchema.setComplexTypes(extractEdmModelElements(complexTypeListInternalKey));
+      edmSchema.setEntityTypes(extractEdmModelElements(entityTypeListInternalKey));
+      edmSchema.setFunctions(extractEdmModelElements(functionListInternalKey));
+      edmSchema.setActions(extractEdmModelElements(actionListByKey));
+      // edm:Annotations
+      // edm:Annotation
+      // edm:Term
+      // edm:TypeDefinition
+      // MUST be the last thing that is done !!!!
+      if (container != null)
+        edmSchema.setEntityContainer(container.getEdmItem());
+    } catch (final ODataJPAModelException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw new ODataJPAModelException(e);
     }
-    return null;
   }
 
+  @CheckForNull
+  JPAAction getAction(final String externalName, final FullQualifiedName actionFqn) {
+    return actionListByKey.get(new ODataActionKey(externalName, actionFqn));
+  }
+
+  @SuppressWarnings("unchecked")
   @Nonnull
-  List<JPAAction> getActions() {
-    final ArrayList<JPAAction> actions = new ArrayList<>();
-    for (final Entry<String, IntermediateJavaAction> action : actionListInternalKey.entrySet()) {
-      actions.add(action.getValue());
-    }
-    return actions;
+  <S extends JPAAction> List<S> getActions() {
+    return Collections.unmodifiableList(new ArrayList<>((Collection<S>) actionListByKey.values()));
   }
 
-  IntermediateStructuredType<?> getComplexType(final Class<?> targetClass) {
-    return complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getComplexType(final Class<T> targetClass) {
+    return (IntermediateStructuredType<T>) complexTypeListInternalKey.get(InternalNameBuilder.buildStructuredTypeName(
+        targetClass));
   }
 
   JPAStructuredType getComplexType(final String externalName) {
@@ -141,8 +142,11 @@ final class IntermediateSchema extends IntermediateModelElement {
     return edmSchema;
   }
 
-  IntermediateStructuredType<?> getEntityType(final Class<?> targetClass) {
-    return entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
+  @SuppressWarnings("unchecked")
+  @CheckForNull
+  <T> IntermediateStructuredType<T> getEntityType(final Class<T> targetClass) {
+    return (IntermediateStructuredType<T>) entityTypeListInternalKey.get(InternalNameBuilder.buildStructuredTypeName(
+        targetClass));
   }
 
   JPAEntityType getEntityType(final String externalName) {
@@ -189,37 +193,40 @@ final class IntermediateSchema extends IntermediateModelElement {
     return functions;
   }
 
-  IntermediateStructuredType<?> getStructuredType(final PluralAttribute<?, ?, ?> jpaAttribute) {
-    IntermediateStructuredType<?> type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getStructuredType(final PluralAttribute<?, ?, ?> jpaAttribute) {
+    IntermediateStructuredType<?> type = complexTypeListInternalKey.get(InternalNameBuilder.buildStructuredTypeName(
         jpaAttribute.getElementType().getJavaType()));
     if (type == null)
-      type = entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute.getElementType()
+      type = entityTypeListInternalKey.get(InternalNameBuilder.buildStructuredTypeName(jpaAttribute.getElementType()
           .getJavaType()));
-    return type;
+    return (IntermediateStructuredType<T>) type;
   }
 
-  IntermediateStructuredType<?> getStructuredType(final Attribute<?, ?> jpaAttribute) {
-    IntermediateStructuredType<?> type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getStructuredType(final Attribute<?, ?> jpaAttribute) {
+    IntermediateStructuredType<?> type = complexTypeListInternalKey.get(InternalNameBuilder.buildStructuredTypeName(
         jpaAttribute.getJavaType()));
     if (type == null)
-      type = entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
-    return type;
+      type = entityTypeListInternalKey.get(InternalNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
+    return (IntermediateStructuredType<T>) type;
   }
 
-  IntermediateStructuredType<?> getStructuredType(final Class<?> targetClass) {
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getStructuredType(final Class<?> targetClass) {
     IntermediateStructuredType<?> type = entityTypeListInternalKey
-        .get(IntNameBuilder.buildStructuredTypeName(targetClass));
+        .get(InternalNameBuilder.buildStructuredTypeName(targetClass));
     if (type == null)
-      type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
-    return type;
+      type = complexTypeListInternalKey.get(InternalNameBuilder.buildStructuredTypeName(targetClass));
+    return (IntermediateStructuredType<T>) type;
   }
 
   void setContainer(final IntermediateEntityContainer container) {
     this.container = container;
   }
 
-  private Map<String, IntermediateJavaAction> buildActionList() throws ODataJPAModelException {
-    final HashMap<String, IntermediateJavaAction> actionList = new HashMap<>();
+  private Map<ODataActionKey, IntermediateJavaAction> buildActionList() throws ODataJPAModelException {
+    final HashMap<ODataActionKey, IntermediateJavaAction> actionList = new HashMap<>();
     final IntermediateActionFactory factory = new IntermediateActionFactory();
     actionList.putAll(factory.create(nameBuilder, reflections, this));
     return actionList;
@@ -251,8 +258,9 @@ final class IntermediateSchema extends IntermediateModelElement {
       for (final Class<?> enumeration : reflections.getTypesAnnotatedWith(EdmEnumeration.class)) {
         if (enumeration.isEnum()) {
           @SuppressWarnings("unchecked")
-          final IntermediateEnumerationType e = new IntermediateEnumerationType(nameBuilder, (Class<T>) enumeration);
-          enumList.put(e.getInternalName(), e);
+          final IntermediateEnumerationType type = new IntermediateEnumerationType(nameBuilder, (Class<T>) enumeration,
+              getAnnotationInformation());
+          enumList.put(type.getInternalName(), type);
         }
       }
     }
@@ -260,15 +268,15 @@ final class IntermediateSchema extends IntermediateModelElement {
   }
 
   private Map<String, IntermediateFunction> buildFunctionList() throws ODataJPAModelException {
-    final HashMap<String, IntermediateFunction> funcList = new HashMap<>();
+    final HashMap<String, IntermediateFunction> functionList = new HashMap<>();
     // 1. Option: Create Function from Entity Annotations
     final IntermediateFunctionFactory<?> factory = new IntermediateFunctionFactory<>();
     for (final EntityType<?> entity : this.jpaMetamodel.getEntities()) {
 
-      funcList.putAll(factory.create(nameBuilder, entity, this));
+      functionList.putAll(factory.create(nameBuilder, entity, this));
     }
     // 2. Option: Create Function from Java Classes
-    funcList.putAll(factory.create(nameBuilder, reflections, this));
-    return funcList;
+    functionList.putAll(factory.create(nameBuilder, reflections, this));
+    return functionList;
   }
 }

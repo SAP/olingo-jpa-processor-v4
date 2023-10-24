@@ -4,16 +4,17 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 
 import java.lang.reflect.AnnotatedElement;
 
-import javax.persistence.metamodel.Attribute;
-
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
+import jakarta.persistence.metamodel.Attribute;
+
 final class IntermediateEmbeddedIdProperty extends IntermediateSimpleProperty {
 
   IntermediateEmbeddedIdProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
-      final IntermediateSchema schema) throws ODataJPAModelException {
+      final IntermediateSchema schema)
+      throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);
   }
 

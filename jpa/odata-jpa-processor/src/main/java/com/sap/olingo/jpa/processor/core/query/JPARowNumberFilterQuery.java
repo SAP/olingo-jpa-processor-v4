@@ -6,7 +6,6 @@ import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
@@ -17,18 +16,19 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
+
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
+import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
@@ -72,32 +73,27 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
     filter.compile();
   }
 
-  @Override
-  public From<?, ?> getRoot() {
-    return queryRoot;
-  }
-
   /**
    *
    */
   @SuppressWarnings("unchecked")
   @Nonnull
   @Override
-  public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery) throws ODataApplicationException {
+  public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery,
+      @Nullable final VisitableExpression expression) throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createSubQuery");
-    final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
-    this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
-    this.navigationInfo.setFromClause(queryRoot);
-    buildJoinTable(emptyList(), outerSelections, null);
-    final List<Selection<?>> selections = createSelectForParent();
-    selections.addAll(crateSelectionJoinTable());
-    selections.add(createRowNumber(useInverse));
-    nextQuery.where(createWhereSubQuery(childQuery, useInverse));
-    nextQuery.multiselect(selections);
-    debugger.stopRuntimeMeasurement(handle);
-    return nextQuery;
-
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSubQuery")) {
+      final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
+      this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+      this.navigationInfo.setFromClause(queryRoot);
+      buildJoinTable(emptyList(), outerSelections, null);
+      final List<Selection<?>> selections = createSelectForParent();
+      selections.addAll(crateSelectionJoinTable());
+      selections.add(createRowNumber(useInverse));
+      nextQuery.where(createWhereSubQuery(childQuery, useInverse));
+      nextQuery.multiselect(selections);
+      return nextQuery;
+    }
   }
 
   private List<? extends Selection<?>> crateSelectionJoinTable() throws ODataJPAQueryException {
@@ -109,7 +105,7 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
         return columns
             .stream()
             .map(key -> mapOnToSelection(key.getRightPath(), queryJoinTable, null))
-            .collect(toList());
+            .toList();
       } catch (final ODataJPAModelException e) {
         if (e.getId().equals(NO_JOIN_TABLE_TYPE.getKey())) {
           throw new ODataJPAQueryException(QUERY_PREPARATION_JOIN_TABLE_TYPE_MISSING, INTERNAL_SERVER_ERROR,
@@ -123,19 +119,18 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
 
   private List<Selection<?>> createSelectForParent() {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
-    final List<Selection<?>> selections = new ArrayList<>();
-
-    // Build select clause
-    for (final JPAPath jpaPath : this.outerSelections) {
-      if (jpaPath.isPartOfGroups(groups)) {
-        final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, queryRoot, jpaPath.getPath());
-        p.alias(jpaPath.getAlias());
-        selections.add(p);
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSelectClause")) {
+      final List<Selection<?>> selections = new ArrayList<>();
+      // Build select clause
+      for (final JPAPath jpaPath : this.outerSelections) {
+        if (jpaPath.isPartOfGroups(groups)) {
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, queryRoot, jpaPath.getPath());
+          path.alias(jpaPath.getAlias());
+          selections.add(path);
+        }
       }
+      return selections;
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return selections;
   }
 
   private Expression<Long> createRowNumber(final boolean inverse) throws ODataApplicationException {

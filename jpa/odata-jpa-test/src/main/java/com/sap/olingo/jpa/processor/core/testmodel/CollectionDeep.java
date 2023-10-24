@@ -1,10 +1,10 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"CollectionsDeep\"")
@@ -18,11 +18,11 @@ public class CollectionDeep {
   @Embedded
   private CollectionFirstLevelComplex firstLevel;
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
-  public void setFirstLevel(CollectionFirstLevelComplex firstLevel) {
+  public void setFirstLevel(final CollectionFirstLevelComplex firstLevel) {
     this.firstLevel = firstLevel;
   }
 
@@ -43,11 +43,11 @@ public class CollectionDeep {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    CollectionDeep other = (CollectionDeep) obj;
+    final CollectionDeep other = (CollectionDeep) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;

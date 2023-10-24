@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
 
@@ -30,18 +31,18 @@ class TypeConverter {
       if (target == String.class) {
         return source.toString();
       }
-      if (boxed(target) == Boolean.class && source instanceof String)
-        return Boolean.valueOf((String) source);
-      if (boxed(target) == Boolean.class && source instanceof Number)
-        return ((Number) source).intValue() == 0 ? Boolean.FALSE : Boolean.TRUE;
-      if (source instanceof Number && Number.class.isAssignableFrom(boxed(target))) {
-        return convertNumber((Number) source, target);
+      if (boxed(target) == Boolean.class && source instanceof final String asString)
+        return Boolean.valueOf(asString);
+      if (boxed(target) == Boolean.class && source instanceof final Number asNumber)
+        return asNumber.intValue() == 0 ? Boolean.FALSE : Boolean.TRUE;
+      if (source instanceof final Number asNumber && Number.class.isAssignableFrom(boxed(target))) {
+        return convertNumber(asNumber, target);
       }
       if (Temporal.class.isAssignableFrom(target)) {
         return convertTemporal(source, target);
       }
-      if (boxed(target) == Character.class && source instanceof String) {
-        return convertToCharacter((String) source);
+      if (boxed(target) == Character.class && source instanceof final String asString) {
+        return convertToCharacter(asString);
       }
       if (target == Duration.class) {
         return convertDuration(source);
@@ -93,7 +94,7 @@ class TypeConverter {
           return OffsetTime.parse((String) source);
         }
         if (target == OffsetDateTime.class) {
-          return OffsetDateTime.parse((String) source);
+          return convertTemporalToOffsetDateTime(source, target);
         }
       } catch (final DateTimeParseException e) {
         throw new IllegalArgumentException(e);
@@ -135,6 +136,15 @@ class TypeConverter {
       return Instant.parse((String) source);
     if (source.getClass() == Timestamp.class)
       return ((Timestamp) source).toInstant();
+    throw new IllegalArgumentException(createCastException(source, target));
+  }
+
+  private static OffsetDateTime convertTemporalToOffsetDateTime(final Object source, final Class<?> target) {
+    if (source.getClass() == Timestamp.class) {
+      return OffsetDateTime.ofInstant(((Timestamp) source).toInstant(), ZoneId.of("UTC"));
+    }
+    if (source.getClass() == String.class)
+      return OffsetDateTime.parse((String) source);
     throw new IllegalArgumentException(createCastException(source, target));
   }
 
@@ -209,9 +219,9 @@ class TypeConverter {
     if (target == Integer.class || target == int.class) return source == Byte.class || source == Short.class
         || source == Long.class;
     if (target == Long.class || target == long.class) return source == Byte.class || source == Short.class
-        || source == Integer.class|| source == BigInteger.class || source == BigDecimal.class;
+        || source == Integer.class || source == BigInteger.class || source == BigDecimal.class;
     if (target == BigInteger.class) return source == Byte.class || source == Short.class || source == Integer.class
-        || source == Long.class|| source == BigDecimal.class;
+        || source == Long.class || source == BigDecimal.class;
     if (target == Float.class || target == float.class) return source == Byte.class || source == Short.class
         || source == Integer.class || source == Long.class || source == BigInteger.class || source == BigDecimal.class;
     if (target == Double.class || target == double.class) return source == Byte.class || source == Short.class
@@ -227,7 +237,7 @@ class TypeConverter {
     if (target == LocalDate.class) return source == Date.class || source == Timestamp.class || source == String.class;
     if (target == LocalDateTime.class) return source == Timestamp.class || source == String.class;
     if (target == LocalTime.class) return source == Time.class || source == String.class;
-    if (target == OffsetDateTime.class) return source == String.class;
+    if (target == OffsetDateTime.class) return source == Timestamp.class || source == String.class;
     if (target == OffsetTime.class) return source == String.class;
     return false;
   }

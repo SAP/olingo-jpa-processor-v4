@@ -16,18 +16,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.criteria.CollectionJoin;
-import javax.persistence.criteria.CompoundSelection;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.ListJoin;
-import javax.persistence.criteria.MapJoin;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.SetJoin;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.criteria.CollectionJoin;
+import jakarta.persistence.criteria.CompoundSelection;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.ListJoin;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.SetJoin;
+import jakarta.persistence.metamodel.EntityType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,16 +76,16 @@ class SubqueryImplTest extends BuilderBaseTest {
     return Stream.of(
         arguments(c.getMethod("select", Expression.class), mock(Expression.class)),
         arguments(c.getMethod("where", Expression.class), mock(Expression.class)),
-        arguments(c.getMethod("groupBy", List.class), new ArrayList<Expression>()),
+        arguments(c.getMethod("groupBy", List.class), new ArrayList<>()),
         arguments(c.getMethod("groupBy", Expression[].class), new Predicate[] {}),
         arguments(c.getMethod("having", Expression.class), mock(Predicate.class)),
         arguments(c.getMethod("having", Predicate[].class), new Predicate[] {}),
         arguments(c.getMethod("distinct", boolean.class), true),
         arguments(c.getMethod("setMaxResults", Integer.class), Integer.valueOf(10)),
         arguments(c.getMethod("setFirstResult", Integer.class), Integer.valueOf(10)),
-        arguments(c.getMethod("multiselect", List.class), new ArrayList<Selection>()),
+        arguments(c.getMethod("multiselect", List.class), new ArrayList<>()),
         arguments(c.getMethod("multiselect", Selection[].class), new Selection[] {}),
-        arguments(c.getMethod("orderBy", List.class), new ArrayList<Order>()),
+        arguments(c.getMethod("orderBy", List.class), new ArrayList<>()),
         arguments(c.getMethod("orderBy", Order[].class), new Order[] {}));
 
   }
@@ -101,16 +101,17 @@ class SubqueryImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("notImplemented")
-  void testThrowsNotImplemented(final Method m) throws IllegalAccessException {
+  void testThrowsNotImplemented(final Method method) throws IllegalAccessException {
 
-    testNotImplemented(m, cut);
+    testNotImplemented(method, cut);
   }
 
   @ParameterizedTest
   @MethodSource("returnsSelf")
-  void testReturnsSelf(final Method m, final Object param) throws IllegalAccessException, InvocationTargetException {
+  void testReturnsSelf(final Method method, final Object param) throws IllegalAccessException,
+      InvocationTargetException {
 
-    assertEquals(cut, invokeMethod(m, cut, param));
+    assertEquals(cut, invokeMethod(method, cut, param));
   }
 
   @Test

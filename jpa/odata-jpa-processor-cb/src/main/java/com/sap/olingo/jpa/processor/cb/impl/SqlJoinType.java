@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import java.util.EnumMap;
 
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.JoinType;
 
 enum SqlJoinType {
 

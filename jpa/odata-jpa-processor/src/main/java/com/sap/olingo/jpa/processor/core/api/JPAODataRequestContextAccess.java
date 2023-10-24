@@ -6,7 +6,8 @@ import java.util.Optional;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.persistence.EntityManager;
+
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
@@ -53,7 +54,7 @@ public interface JPAODataRequestContextAccess {
 
   public JPAODataDatabaseProcessor getDatabaseProcessor();
 
-  public JPAEdmProvider getEdmProvider() throws ODataJPAProcessorException;
+  public @Nonnull JPAEdmProvider getEdmProvider() throws ODataJPAProcessorException;
 
   public JPAODataDatabaseOperations getOperationConverter();
 

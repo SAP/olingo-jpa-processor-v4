@@ -120,4 +120,9 @@ public class ExampleJavaActions implements ODataAction {
       @EdmParameter(name = "Person") final Person person) {
     return null;
   }
+
+  @EdmAction(name = "", returnType = @ReturnType())
+  public void nameEmpty(@EdmParameter(name = "") final AccessRights rights) {
+    // Do nothing
+  }
 }

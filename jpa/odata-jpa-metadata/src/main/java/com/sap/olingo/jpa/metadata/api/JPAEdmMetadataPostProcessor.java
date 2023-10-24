@@ -9,18 +9,17 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateSingletonAccess;
 
-public abstract class JPAEdmMetadataPostProcessor {
+public interface JPAEdmMetadataPostProcessor {
+  public default void processEntityContainer(final IntermediateEntityContainerAccess container) {}
 
-  public void processEntityContainer(final IntermediateEntityContainerAccess container) {}
+  public default void processEntityType(final IntermediateEntityTypeAccess entityType){}
 
-  public abstract void processEntityType(final IntermediateEntityTypeAccess entityType);
+  public default void processEntitySet(final IntermediateEntitySetAccess entitySet) {}
 
-  public void processEntitySet(final IntermediateEntitySetAccess entitySet) {}
+  public default void processSingleton(final IntermediateSingletonAccess singleton) {}
 
-  public void processSingleton(final IntermediateSingletonAccess singleton) {}
-
-  public abstract void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
-      final String jpaManagedTypeClassName);
+  public default void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
+      final String jpaManagedTypeClassName){}
 
   /**
    *
@@ -28,7 +27,12 @@ public abstract class JPAEdmMetadataPostProcessor {
    * @param jpaManagedTypeClassName
    * @return
    */
-  public abstract void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName);
+  public default void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName){}
 
-  public abstract void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException;
+  /**
+   * Option to provide references to external CSDL documents. The document must be an XML document
+   * @param references List of refernces to external CSDL documents.
+   * @throws ODataJPAModelException
+   */
+  public default void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException{}
 }

@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
@@ -34,7 +34,7 @@ public class InhouseAddressWithGroup {
     return building;
   }
 
-  public void setBuilding(String building) {
+  public void setBuilding(final String building) {
     this.building = building;
   }
 
@@ -42,7 +42,7 @@ public class InhouseAddressWithGroup {
     return floor;
   }
 
-  public void setFloor(Short floor) {
+  public void setFloor(final Short floor) {
     this.floor = floor;
   }
 
@@ -50,7 +50,7 @@ public class InhouseAddressWithGroup {
     return roomNumber;
   }
 
-  public void setRoomNumber(Integer roomNumber) {
+  public void setRoomNumber(final Integer roomNumber) {
     this.roomNumber = roomNumber;
   }
 
@@ -58,7 +58,7 @@ public class InhouseAddressWithGroup {
     return taskID;
   }
 
-  public void setTaskID(String taskID) {
+  public void setTaskID(final String taskID) {
     this.taskID = taskID;
   }
 

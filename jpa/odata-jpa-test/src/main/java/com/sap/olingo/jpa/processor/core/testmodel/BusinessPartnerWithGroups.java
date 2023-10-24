@@ -8,23 +8,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.AssociationOverride;
-import javax.persistence.AssociationOverrides;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.AssociationOverride;
+import jakarta.persistence.AssociationOverrides;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
@@ -79,7 +79,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
       joinColumns = @JoinColumn(name = "\"BusinessPartnerID\""))
   @Column(name = "\"Text\"")
-  private List<String> comment = new ArrayList<>();
+  private final List<String> comment = new ArrayList<>();
 
   @EdmAnnotation(term = "Core.IsLanguageDependent", constantExpression = @EdmAnnotation.ConstantExpression(
       type = ConstantExpressionType.Bool, value = "true"))
@@ -105,7 +105,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
               @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
               @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
   })
-  private PostalAddressDataWithGroup address = new PostalAddressDataWithGroup();
+  private final PostalAddressDataWithGroup address = new PostalAddressDataWithGroup();
 
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
@@ -115,18 +115,18 @@ public class BusinessPartnerWithGroups implements KeyAccess {
 
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
-      joinColumns = @JoinColumn(name = "\"ID\""))
-  private List<InhouseAddressWithGroup> inhouseAddress = new ArrayList<>();
+      joinColumns = @JoinColumn(name = "\"ParentID\""))
+  private final List<InhouseAddressWithGroup> inhouseAddress = new ArrayList<>();
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    BusinessPartnerWithGroups other = (BusinessPartnerWithGroups) obj;
+    final BusinessPartnerWithGroups other = (BusinessPartnerWithGroups) obj;
     if (iD == null) {
       if (other.iD != null)
         return false;
@@ -250,7 +250,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   @PrePersist
   public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
-    ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
+    final ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }

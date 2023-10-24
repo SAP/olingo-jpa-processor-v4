@@ -1,19 +1,21 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.Collection;
+import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
@@ -48,10 +50,10 @@ public class BusinessPartnerProtected {
   @EdmProtectedBy(name = "UserId")
   @EdmIgnore
   @Column(name = "\"UserName\"", length = 60)
-  private String username;
+  private String userName;
 
   @Embedded
-  private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
+  private final AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
@@ -60,6 +62,15 @@ public class BusinessPartnerProtected {
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
   private Collection<BusinessPartnerRole> roles;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  @JoinTable(name = "\"JoinPartnerRoleRelation\"", schema = "\"OLINGO\"",
+      joinColumns = @JoinColumn(name = "\"SourceID\"", referencedColumnName = "\"ID\""),
+      inverseJoinColumns = {
+          @JoinColumn(name = "\"SourceID\"", referencedColumnName = "\"BusinessPartnerID\""),
+          @JoinColumn(name = "\"TargetID\"", referencedColumnName = "\"BusinessPartnerRole\"")
+      })
+  private List<BusinessPartnerRoleProtected> rolesJoinProtected;
 
   @Override
   public int hashCode() {
@@ -70,11 +81,11 @@ public class BusinessPartnerProtected {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    BusinessPartnerProtected other = (BusinessPartnerProtected) obj;
+    final BusinessPartnerProtected other = (BusinessPartnerProtected) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;
@@ -105,11 +116,11 @@ public class BusinessPartnerProtected {
     return country;
   }
 
-  public String getUsername() {
-    return username;
+  public String getUserName() {
+    return userName;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 

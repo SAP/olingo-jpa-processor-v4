@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.JoinType;
 
 import org.junit.jupiter.api.Test;
 

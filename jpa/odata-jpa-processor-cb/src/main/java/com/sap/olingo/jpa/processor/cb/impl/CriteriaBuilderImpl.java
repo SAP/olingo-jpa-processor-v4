@@ -5,6 +5,9 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,25 +16,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
-import javax.persistence.criteria.CollectionJoin;
-import javax.persistence.criteria.CompoundSelection;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.ListJoin;
-import javax.persistence.criteria.MapJoin;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.SetJoin;
-import javax.persistence.criteria.Subquery;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.CollectionJoin;
+import jakarta.persistence.criteria.CompoundSelection;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.ListJoin;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.SetJoin;
+import jakarta.persistence.criteria.Subquery;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
@@ -58,7 +61,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @return absolute value
    */
   @Override
-  public <N extends Number> Expression<N> abs(@Nonnull final Expression<N> x) {
+  public <N extends Number> Expression<N> abs(@Nonnull final Expression<N> expression) {
     throw new NotImplementedException();
   }
 
@@ -414,8 +417,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
   public <T> Expression<T> function(@Nonnull final String name, @Nonnull final Class<T> type,
       final Expression<?>... args) {
     final List<Expression<Object>> parameters = args == null ? Collections.emptyList() : Arrays.asList(args).stream()
-        .map(
-            p -> ((Expression<Object>) p)).collect(Collectors.toList());
+        .map(p -> ((Expression<Object>) p)).toList();
     return new ExpressionImpl.FunctionExpression<>(name, type, parameters);
   }
 
@@ -770,7 +772,6 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @param pattern string expression
    * @return like predicate
    */
-  @SuppressWarnings("unchecked")
   @Override
   public Predicate like(@Nonnull final Expression<String> x, @Nonnull final Expression<String> pattern) {
     return new PredicateImpl.LikePredicate(Objects.requireNonNull(x),
@@ -799,7 +800,6 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @param escapeChar escape character expression
    * @return like predicate
    */
-  @SuppressWarnings("unchecked")
   @Override
   public Predicate like(@Nonnull final Expression<String> x, @Nonnull final Expression<String> pattern,
       final Expression<Character> escapeChar) {
@@ -1183,7 +1183,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @return parameter expression
    */
   @Override
-  public <T> javax.persistence.criteria.ParameterExpression<T> parameter(@Nonnull final Class<T> paramClass) {
+  public <T> jakarta.persistence.criteria.ParameterExpression<T> parameter(@Nonnull final Class<T> paramClass) {
     throw new NotImplementedException();
   }
 
@@ -1195,7 +1195,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @return parameter expression
    */
   @Override
-  public <T> javax.persistence.criteria.ParameterExpression<T> parameter(@Nonnull final Class<T> paramClass,
+  public <T> jakarta.persistence.criteria.ParameterExpression<T> parameter(@Nonnull final Class<T> paramClass,
       @Nonnull final String name) {
     throw new NotImplementedException();
   }
@@ -1326,8 +1326,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
 
   @Override
   public Expression<Double> sqrt(final Expression<? extends Number> x) {
-    // "SQRT"
-    return null;
+    throw new NotImplementedException();
   }
 
   /**
@@ -1702,5 +1701,60 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
   private Predicate binaryExpression(@Nonnull final Expression<?> x, @Nonnull final Object y,
       @Nonnull final Operation p) {
     return new PredicateImpl.BinaryExpressionPredicate(p, Objects.requireNonNull(x), literal(y, x));
+  }
+
+  @Override
+  public Expression<Integer> sign(final Expression<? extends Number> x) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public <N extends Number> Expression<N> ceiling(final Expression<N> x) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public <N extends Number> Expression<N> floor(final Expression<N> x) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Expression<Double> exp(final Expression<? extends Number> x) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Expression<Double> ln(final Expression<? extends Number> x) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Expression<Double> power(final Expression<? extends Number> x, final Expression<? extends Number> y) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Expression<Double> power(final Expression<? extends Number> x, final Number y) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public <T extends Number> Expression<T> round(final Expression<T> x, final Integer n) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Expression<LocalDate> localDate() {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Expression<LocalDateTime> localDateTime() {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Expression<LocalTime> localTime() {
+    throw new NotImplementedException();
   }
 }

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,10 +22,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.SingularAttribute;
-import javax.persistence.metamodel.Type.PersistenceType;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.Type.PersistenceType;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -35,7 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  *
  */
 abstract class TestEqualHashCodeMethods {
-
+  protected static final String ENTITY_MANAGER_DATA_SOURCE = "jakarta.persistence.nonJtaDataSource";
   protected static Metamodel model;
 
   @SuppressWarnings({ "rawtypes" })
@@ -120,6 +121,8 @@ abstract class TestEqualHashCodeMethods {
       return counter.toString();
     if (javaType == Integer.class)
       return counter;
+    if (javaType == LocalDate.class)
+      return LocalDate.now().plusDays(counter.longValue());
     return null;
   }
 
@@ -194,7 +197,7 @@ abstract class TestEqualHashCodeMethods {
 
   @ParameterizedTest
   @MethodSource("equalInstances")
-  void tesHashCodeReturnsValue(final Entry<Object, List<Object>> instance) {
+  void testHashCodeReturnsValue(final Entry<Object, List<Object>> instance) {
 
     assertNotEquals(0, instance.getKey().hashCode());
   }

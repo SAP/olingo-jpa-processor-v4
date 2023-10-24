@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -32,13 +32,13 @@ final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPA
     super(et, requestHeaders);
     this.converter = converter;
     this.result = new ArrayList<>();
-    for (Object v : value) {
+    for (final Object v : value) {
       result.add(new JPAEntityResult(et, v, requestHeaders, converter).getResult(ROOT_RESULT_KEY).get(0));
     }
   }
 
   @Override
-  public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
+  public Map<String, EntityCollection> asEntityCollection(final JPATupleChildConverter converter)
       throws ODataApplicationException {
     convert(new JPATupleChildConverter(converter));
     return odataResult;
@@ -56,7 +56,7 @@ final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPA
   }
 
   @Override
-  public List<Tuple> getResult(String key) {
+  public List<Tuple> getResult(final String key) {
     return result;
   }
 
@@ -68,7 +68,8 @@ final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPA
   }
 
   @Override
-  public void putChildren(Map<JPAAssociationPath, JPAExpandResult> childResults) throws ODataApplicationException {
+  public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
+      throws ODataApplicationException {
     // Not needed for JPAEntityNavigationLinkResult
   }
 

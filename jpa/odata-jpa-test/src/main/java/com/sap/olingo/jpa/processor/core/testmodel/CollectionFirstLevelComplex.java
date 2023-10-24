@@ -3,10 +3,10 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Transient;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
@@ -22,13 +22,13 @@ public class CollectionFirstLevelComplex {
 
   @Transient
   @EdmTransient(requiredAttributes = { "levelID" }, calculator = DummyPropertyCalculator.class)
-  private List<String> transientCollection = new ArrayList<>();
+  private final List<String> transientCollection = new ArrayList<>();
 
-  public void setLevelID(Integer levelID) {
+  public void setLevelID(final Integer levelID) {
     this.levelID = levelID;
   }
 
-  public void setSecondLevel(CollectionSecondLevelComplex secondLevel) {
+  public void setSecondLevel(final CollectionSecondLevelComplex secondLevel) {
     this.secondLevel = secondLevel;
   }
 

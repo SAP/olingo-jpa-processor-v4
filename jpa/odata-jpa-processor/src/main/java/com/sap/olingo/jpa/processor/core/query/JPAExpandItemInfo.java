@@ -19,7 +19,7 @@ public final class JPAExpandItemInfo extends JPAInlineItemInfo {
       this.hops.add(new JPANavigationPropertyInfo(predecessor));
     this.hops.get(this.hops.size() - 1).setAssociationPath(expandAssociation);
     if (!uriInfo.getUriResourceParts().isEmpty())
-      this.hops.addAll(Util.determineNavigationPath(sd, uriInfo.getUriResourceParts(), uriInfo));
+      this.hops.addAll(Utility.determineNavigationPath(sd, uriInfo.getUriResourceParts(), uriInfo));
     else
       this.hops.add(new JPANavigationPropertyInfo(sd, null, uriInfo, uriInfo.getEntityType()));
   }

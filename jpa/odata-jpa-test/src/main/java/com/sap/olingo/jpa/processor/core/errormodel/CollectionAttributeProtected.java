@@ -3,15 +3,15 @@ package com.sap.olingo.jpa.processor.core.errormodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Version;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Version;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
@@ -30,7 +30,7 @@ public class CollectionAttributeProtected {
 
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
-      joinColumns = @JoinColumn(name = "\"ID\""))
+      joinColumns = @JoinColumn(name = "\"ParentID\""))
   @EdmProtectedBy(name = "WrongAnnotation")
   private List<InhouseAddress> inhouseAddress = new ArrayList<>();
 
@@ -38,7 +38,7 @@ public class CollectionAttributeProtected {
     return iD;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
@@ -63,11 +63,11 @@ public class CollectionAttributeProtected {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    CollectionAttributeProtected other = (CollectionAttributeProtected) obj;
+    final CollectionAttributeProtected other = (CollectionAttributeProtected) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;

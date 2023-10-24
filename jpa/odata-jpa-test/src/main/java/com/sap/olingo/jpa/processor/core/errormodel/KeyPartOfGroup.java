@@ -5,10 +5,10 @@ package com.sap.olingo.jpa.processor.core.errormodel;
 
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
@@ -50,11 +50,10 @@ public class KeyPartOfGroup {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    KeyPartOfGroup other = (KeyPartOfGroup) obj;
+    if (!(obj instanceof KeyPartOfGroup)) return false;
+    final KeyPartOfGroup other = (KeyPartOfGroup) obj;
     return eTag == other.eTag && Objects.equals(iD, other.iD);
   }
 

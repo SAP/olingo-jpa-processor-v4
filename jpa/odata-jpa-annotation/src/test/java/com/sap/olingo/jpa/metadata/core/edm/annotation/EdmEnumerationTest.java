@@ -6,14 +6,14 @@ package com.sap.olingo.jpa.metadata.core.edm.annotation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import javax.persistence.AttributeConverter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import jakarta.persistence.AttributeConverter;
+
 /**
  * @author Oliver Grande
- * @since pom_version
+ * @since 1.0.9
  * 18.01.2022
  */
 class EdmEnumerationTest {

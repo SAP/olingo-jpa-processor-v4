@@ -9,8 +9,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.persistence.Transient;
-
 /**
  * The annotation marks attributes that are transient, but shall be part of the Edm.<br>
  * Please note that the attribute needs the corresponding JPA annotation {@link Transient} as well.
@@ -23,7 +21,9 @@ import javax.persistence.Transient;
 public @interface EdmTransient {
   /**
    * Optional: An array of path to attributes that need to be present to build the annotated one. In case the path
-   * is composed, path segments joined together by forward slashes (/) e.g <i>address/cityName</i>.</p> The correctness
+   * is composed, path segments joined together by forward slashes (/) e.g <i>address/cityName</i>.
+   * </p>
+   * The correctness
    * of the path is check when the entity type is build.
    */
   String[] requiredAttributes() default {};

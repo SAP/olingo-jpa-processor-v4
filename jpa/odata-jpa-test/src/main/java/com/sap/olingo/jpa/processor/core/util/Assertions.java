@@ -14,6 +14,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.jupiter.api.function.Executable;
 
 public class Assertions {
+  public static final String CB_ONLY_TEST = "CB_ONLY";
 
   public static <T extends Throwable> void assertException(final Class<T> expectedType, final Executable executable,
       final String expMessageKey) {

@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;

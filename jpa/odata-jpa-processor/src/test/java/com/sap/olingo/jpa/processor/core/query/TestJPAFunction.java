@@ -6,12 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,7 @@ class TestJPAFunction {
   void setup() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     final Map<String, Object> properties = new HashMap<>();
-    properties.put("javax.persistence.nonJtaDataSource", ds);
+    properties.put("jakarta.persistence.nonJtaDataSource", ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
     emf.getProperties();
     createFunction();

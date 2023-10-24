@@ -1,26 +1,18 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Transient;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @MappedSuperclass
-public class Group {
-
-  @Id
-  @Column(name = "\"TeamKey\"")
-  private String iD;
-
-  @Column(name = "\"Name\"")
-  private String name;
+public class Group extends AbstractGroup {
 
   @EdmIgnore
   @Column(name = "\"GroupLead\"")
@@ -31,7 +23,17 @@ public class Group {
       insertable = false, updatable = false)
   private Person lead;
 
-  @EdmTransient(requiredAttributes = { "iD", "name" }, calculator = GroupNameCalculator.class)
+  @EdmTransient(requiredAttributes = { "id", "name" }, calculator = GroupNameCalculator.class)
   @Transient
   private String fullName;
+
+  @Override
+  public boolean equals(final Object object) {
+    return super.equals(object);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
 }

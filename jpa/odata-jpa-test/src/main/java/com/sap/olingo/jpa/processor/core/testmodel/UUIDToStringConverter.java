@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.UUID;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  * Default converter to convert from {@link java.util.UUID} to a byte array.
@@ -14,12 +14,12 @@ import javax.persistence.Converter;
 public class UUIDToStringConverter implements AttributeConverter<UUID, String> {
 
   @Override
-  public String convertToDatabaseColumn(UUID uuid) {
+  public String convertToDatabaseColumn(final UUID uuid) {
     return uuid == null ? null : uuid.toString();
   }
 
   @Override
-  public UUID convertToEntityAttribute(String dbData) {
+  public UUID convertToEntityAttribute(final String dbData) {
     return dbData == null ? null : UUID.fromString(dbData);
   }
 }

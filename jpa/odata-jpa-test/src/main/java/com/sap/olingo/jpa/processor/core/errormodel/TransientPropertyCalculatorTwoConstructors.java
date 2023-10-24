@@ -1,9 +1,9 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.errormodel;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 

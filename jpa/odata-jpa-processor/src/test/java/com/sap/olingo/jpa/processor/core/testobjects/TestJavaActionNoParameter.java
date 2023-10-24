@@ -6,6 +6,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 
 public class TestJavaActionNoParameter {
   public static int constructorCalls = 0;
@@ -29,31 +30,37 @@ public class TestJavaActionNoParameter {
   }
 
   @EdmAction()
-  public void unboundVoidOneParameter(@EdmParameter(name = "A") Short a) {
+  public void unboundVoidOneParameter(@EdmParameter(name = "A") final Short a) {
     param1 = a;
   }
 
   @EdmAction()
-  public void unboundVoidTwoParameter(@EdmParameter(name = "A") Short a, @EdmParameter(name = "B") Integer b) {
+  public void unboundVoidTwoParameter(@EdmParameter(name = "A") final Short a, @EdmParameter(
+      name = "B") final Integer b) {
     param1 = a;
     param2 = b;
   }
 
   @EdmAction(isBound = true)
-  public void boundOnlyBinding(@EdmParameter(name = "Root") AdministrativeDivision root) {
+  public void boundOnlyBinding(@EdmParameter(name = "Root") final AdministrativeDivision root) {
     bindingParam = root;
   }
 
   @EdmAction(isBound = true)
-  public void boundBindingPlus(@EdmParameter(name = "Root") AdministrativeDivision root, @EdmParameter(
-      name = "A") Short a, @EdmParameter(name = "B") Integer b) {
+  public void boundBindingPlus(@EdmParameter(name = "Root") final AdministrativeDivision root, @EdmParameter(
+      name = "A") final Short a, @EdmParameter(name = "B") final Integer b) {
     bindingParam = root;
     param1 = a;
     param2 = b;
   }
 
   @EdmAction()
-  public void unboundVoidOneEnumerationParameter(@EdmParameter(name = "AccessRights") FileAccess a) {
+  public void unboundVoidOneEnumerationParameter(@EdmParameter(name = "AccessRights") final FileAccess a) {
     enumeration = a;
+  }
+
+  @EdmAction(isBound = true)
+  public void boundBindingSuperType(@EdmParameter(name = "Root") final BusinessPartner root) {
+
   }
 }

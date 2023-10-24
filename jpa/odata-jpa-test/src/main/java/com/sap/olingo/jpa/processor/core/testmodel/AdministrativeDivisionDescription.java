@@ -1,9 +1,9 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 
@@ -22,7 +22,7 @@ public class AdministrativeDivisionDescription implements KeyAccess {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
@@ -31,7 +31,7 @@ public class AdministrativeDivisionDescription implements KeyAccess {
     return key;
   }
 
-  public void setKey(AdministrativeDivisionDescriptionKey key) {
+  public void setKey(final AdministrativeDivisionDescriptionKey key) {
     this.key = key;
   }
 }

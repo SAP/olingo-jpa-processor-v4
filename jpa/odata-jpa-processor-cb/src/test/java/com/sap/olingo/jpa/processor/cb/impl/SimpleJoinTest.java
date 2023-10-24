@@ -1,15 +1,18 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import javax.persistence.Tuple;
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.JoinType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,4 +59,16 @@ class SimpleJoinTest extends BuilderBaseTest {
     assertThrows(NotImplementedException.class, () -> cut.getAttribute());
   }
 
+  @Test
+  void testHashCode() {
+    assertNotEquals(0, cut.hashCode());
+  }
+
+  @SuppressWarnings("unlikely-arg-type")
+  @Test
+  void testEquals() {
+    assertTrue(cut.equals(cut)); // NOSONAR
+    assertFalse(cut.equals(null)); // NOSONAR
+    assertFalse(cut.equals("Willi")); // NOSONAR
+  }
 }

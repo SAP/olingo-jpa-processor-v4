@@ -7,25 +7,26 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.InheritanceType;
-import javax.persistence.criteria.CollectionJoin;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Fetch;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.ListJoin;
-import javax.persistence.criteria.MapJoin;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.SetJoin;
-import javax.persistence.metamodel.CollectionAttribute;
-import javax.persistence.metamodel.ListAttribute;
-import javax.persistence.metamodel.MapAttribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.criteria.CollectionJoin;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.ListJoin;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.SetJoin;
+import jakarta.persistence.metamodel.CollectionAttribute;
+import jakarta.persistence.metamodel.ListAttribute;
+import jakarta.persistence.metamodel.MapAttribute;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SetAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +47,8 @@ import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
  * Represents a bound type, usually an entity that appears in
  * the from clause, but may also be an embeddable belonging to
  * an entity in the from clause.
- * <p> Serves as a factory for Joins of associations, embeddables, and
+ * <p>
+ * Serves as a factory for Joins of associations, embeddables, and
  * collections belonging to the type, and for Paths of attributes
  * belonging to the type.
  *
@@ -64,15 +66,15 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   private InheritanceInfo inInfo;
   private final CriteriaBuilder cb;
 
-  FromImpl(final JPAEntityType type, final AliasBuilder ab, final CriteriaBuilder cb) {
-    this(type, null, ab, cb);
+  FromImpl(final JPAEntityType type, final AliasBuilder aliasBuilder, final CriteriaBuilder cb) {
+    this(type, null, aliasBuilder, cb);
   }
 
-  FromImpl(final JPAEntityType type, final JPAPath path, final AliasBuilder ab, final CriteriaBuilder cb) {
-    super(Optional.ofNullable(path), Optional.empty(), type, Optional.of(ab.getNext()));
+  FromImpl(final JPAEntityType type, final JPAPath path, final AliasBuilder aliasBuilder, final CriteriaBuilder cb) {
+    super(Optional.ofNullable(path), Optional.empty(), type, Optional.of(aliasBuilder.getNext()));
     this.joins = new HashSet<>();
     this.fetches = new HashSet<>();
-    this.aliasBuilder = ab;
+    this.aliasBuilder = aliasBuilder;
     this.cb = cb;
     this.inInfo = new InheritanceInfo(type);
   }
@@ -105,7 +107,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   @Override
   public StringBuilder asSQL(final StringBuilder statement) {
     statement.append(st.getTableName());
-    tableAlias.ifPresent(p -> statement.append(" ").append(p));
+    tableAlias.ifPresent(alias -> statement.append(" ").append(alias));
     statement.append(joins.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " ")));
     return statement;
   }
@@ -125,11 +127,12 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    * Create a fetch join to the specified collection-valued
    * attribute using the given join type.
    * @param attribute target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting join
    */
   @Override
-  public <Y> Fetch<X, Y> fetch(@Nonnull final PluralAttribute<? super X, ?, Y> attribute, @Nonnull final JoinType jt) {
+  public <Y> Fetch<X, Y> fetch(@Nonnull final PluralAttribute<? super X, ?, Y> attribute,
+      @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -148,11 +151,12 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    * Create a fetch join to the specified single-valued attribute
    * using the given join type.
    * @param attribute target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting fetch join
    */
   @Override
-  public <Y> Fetch<X, Y> fetch(@Nonnull final SingularAttribute<? super X, Y> attribute, @Nonnull final JoinType jt) {
+  public <Y> Fetch<X, Y> fetch(@Nonnull final SingularAttribute<? super X, Y> attribute,
+      @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -176,13 +180,13 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    * the given join type.
    * @param attributeName name of the attribute for the
    * target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting fetch join
    * @throws IllegalArgumentException if attribute of the given
    * name does not exist
    */
   @Override
-  public <X, Y> Fetch<X, Y> fetch(@Nonnull final String attributeName, @Nonnull final JoinType jt) {
+  public <X, Y> Fetch<X, Y> fetch(@Nonnull final String attributeName, @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -249,7 +253,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <Y> CollectionJoin<X, Y> join(@Nonnull final CollectionAttribute<? super X, Y> collection) {
-    return join(collection, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
@@ -260,7 +264,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <Y> CollectionJoin<X, Y> join(@Nonnull final CollectionAttribute<? super X, Y> collection,
-      @Nonnull final JoinType jt) {
+      @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -271,7 +275,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <Y> ListJoin<X, Y> join(@Nonnull final ListAttribute<? super X, Y> list) {
-    return join(list, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
@@ -280,7 +284,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    * @return the resulting join
    */
   @Override
-  public <Y> ListJoin<X, Y> join(@Nonnull final ListAttribute<? super X, Y> list, @Nonnull final JoinType jt) {
+  public <Y> ListJoin<X, Y> join(@Nonnull final ListAttribute<? super X, Y> list, @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -291,7 +295,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <K, V> MapJoin<X, K, V> join(@Nonnull final MapAttribute<? super X, K, V> map) {
-    return join(map, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
@@ -300,7 +304,8 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    * @return the resulting join
    */
   @Override
-  public <K, V> MapJoin<X, K, V> join(@Nonnull final MapAttribute<? super X, K, V> map, @Nonnull final JoinType jt) {
+  public <K, V> MapJoin<X, K, V> join(@Nonnull final MapAttribute<? super X, K, V> map,
+      @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -311,7 +316,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <Y> SetJoin<X, Y> join(@Nonnull final SetAttribute<? super X, Y> set) {
-    return join(set, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
@@ -320,7 +325,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    * @return the resulting join
    */
   @Override
-  public <Y> SetJoin<X, Y> join(@Nonnull final SetAttribute<? super X, Y> set, @Nonnull final JoinType jt) {
+  public <Y> SetJoin<X, Y> join(@Nonnull final SetAttribute<? super X, Y> set, @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -331,18 +336,18 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <Y> Join<X, Y> join(@Nonnull final SingularAttribute<? super X, Y> attribute) {
-    return join(attribute, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
    * Create a join to the specified single-valued attribute
    * using the given join type.
    * @param attribute target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting join
    */
   @Override
-  public <Y> Join<X, Y> join(@Nonnull final SingularAttribute<? super X, Y> attribute, final JoinType jt) {
+  public <Y> Join<X, Y> join(@Nonnull final SingularAttribute<? super X, Y> attribute, final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -362,7 +367,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   /**
    * Create a join to the specified attribute using the given join type.
    * @param attributeName name of the attribute for the target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting join
    * @throws IllegalArgumentException if attribute of the given name does not exist
    */
@@ -381,14 +386,13 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
       final JPAPath joinPath = determinePath(joinAttribute);
       @SuppressWarnings("rawtypes")
       Join join;
-      if (joinAttribute instanceof JPADescriptionAttribute) {
+      if (joinAttribute instanceof final JPADescriptionAttribute attribute) {
         final JoinType joinType = jt == null ? JoinType.LEFT : jt;
-        final Optional<JPAAssociationPath> path = Optional.ofNullable(((JPADescriptionAttribute) joinAttribute)
-            .asAssociationAttribute().getPath());
+        final Optional<JPAAssociationPath> path = Optional.ofNullable(attribute.asAssociationAttribute().getPath());
         join = new SimpleJoin<>(path.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(attributeName))),
             joinType, determineParent(), aliasBuilder, cb);
       } else if (joinAttribute instanceof JPACollectionAttribute) {
-        join = new CollectionJoinImpl<>(joinPath, determineParent(), aliasBuilder, cb);
+        join = new CollectionJoinImpl<>(joinPath, determineParent(), aliasBuilder, cb, jt);
       } else if (joinAttribute.isComplex()) {
         join = new PathJoin<>((FromImpl<X, Y>) determineParent(), joinPath, aliasBuilder, cb);
       } else {
@@ -398,8 +402,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
           associationPath = Optional.ofNullable(st.getAssociationPath(path.get().getAlias() + JPAPath.PATH_SEPARATOR
               + joinAttribute.getExternalName()));
         else
-          associationPath = Optional.ofNullable(source.getAssociationPath(joinAttribute
-              .getExternalName()));
+          associationPath = Optional.ofNullable(source.getAssociationPath(joinAttribute.getExternalName()));
         if (associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(attributeName)))
             .hasJoinTable())
           join = new JoinTableJoin<>(associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(
@@ -423,18 +426,19 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <X, Y> CollectionJoin<X, Y> joinCollection(@Nonnull final String attributeName) {
-    return joinCollection(attributeName, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
    * Create a join to the specified Collection-valued attribute using the given join type.
    * @param attributeName name of the attribute for the target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting join
    * @throws IllegalArgumentException if attribute of the given name does not exist
    */
   @Override
-  public <X, Y> CollectionJoin<X, Y> joinCollection(@Nonnull final String attributeName, @Nonnull final JoinType jt) {
+  public <X, Y> CollectionJoin<X, Y> joinCollection(@Nonnull final String attributeName,
+      @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -448,18 +452,18 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <X, Y> ListJoin<X, Y> joinList(@Nonnull final String attributeName) {
-    return joinList(attributeName, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
    * Create a join to the specified List-valued attribute using the given join type.
    * @param attributeName name of the attribute for the target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting join
    * @throws IllegalArgumentException if attribute of the given name does not exist
    */
   @Override
-  public <X, Y> ListJoin<X, Y> joinList(@Nonnull final String attributeName, @Nonnull final JoinType jt) {
+  public <X, Y> ListJoin<X, Y> joinList(@Nonnull final String attributeName, @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -473,18 +477,18 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <X, K, V> MapJoin<X, K, V> joinMap(@Nonnull final String attributeName) {
-    return joinMap(attributeName, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
    * Create a join to the specified Map-valued attribute using the given join type.
    * @param attributeName name of the attribute for the target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting join
    * @throws IllegalArgumentException if attribute of the given name does not exist
    */
   @Override
-  public <X, K, V> MapJoin<X, K, V> joinMap(@Nonnull final String attributeName, @Nonnull final JoinType jt) {
+  public <X, K, V> MapJoin<X, K, V> joinMap(@Nonnull final String attributeName, @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -498,18 +502,18 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
    */
   @Override
   public <X, Y> SetJoin<X, Y> joinSet(@Nonnull final String attributeName) {
-    return joinSet(attributeName, JoinType.INNER);
+    throw new NotImplementedException();
   }
 
   /**
    * Create a join to the specified Set-valued attribute using the given join type.
    * @param attributeName name of the attribute for the target of the join
-   * @param jt join type
+   * @param joinType join type
    * @return the resulting join
    * @throws IllegalArgumentException if attribute of the given name does not exist
    */
   @Override
-  public <X, Y> SetJoin<X, Y> joinSet(@Nonnull final String attributeName, @Nonnull final JoinType jt) {
+  public <X, Y> SetJoin<X, Y> joinSet(@Nonnull final String attributeName, @Nonnull final JoinType joinType) {
     throw new NotImplementedException();
   }
 
@@ -519,7 +523,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   }
 
   Expression<Boolean> createInheritanceWhere() {
-    if (inInfo.getInheritanceType().filter(t -> t == InheritanceType.SINGLE_TABLE).isPresent()) {
+    if (inInfo.getInheritanceType().filter(type -> type == InheritanceType.SINGLE_TABLE).isPresent()) {
       final Optional<String> columnName = inInfo.getDiscriminatorColumn();
       if (!columnName.isPresent())
         throw new IllegalStateException("DiscriminatorColumn annotation missing at " + st.getTypeClass().getSuperclass()
@@ -539,7 +543,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
         throw new IllegalStateException("DiscriminatorValue annotation missing at " + st.getTypeClass()
             .getCanonicalName());
       return cb.equal(columnPath, value.value());
-    } else if (inInfo.getInheritanceType().filter(t -> t == InheritanceType.JOINED).isPresent()) {
+    } else if (inInfo.getInheritanceType().filter(type -> type == InheritanceType.JOINED).isPresent()) {
       LOGGER.warn("Unsupported inheritance type " + inInfo.getInheritanceType() + " not supported");
     }
     return null;
@@ -597,7 +601,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    return super.equals(obj);
+  public boolean equals(final Object object) {
+    return super.equals(object);
   }
 }

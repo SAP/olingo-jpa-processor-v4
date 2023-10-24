@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -118,10 +118,11 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     return orders;
   }
 
-  protected From<?, ?> determineParentFrom() throws ODataJPAQueryException {
+  @SuppressWarnings("unchecked")
+  protected <S, T> From<S, T> determineParentFrom() throws ODataJPAQueryException {
     for (final JPANavigationPropertyInfo item : this.navigationInfo) {
       if (item.getAssociationPath() == association)
-        return item.getFromClause();
+        return (From<S, T>) item.getFromClause();
     }
     throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
         HttpStatusCode.BAD_REQUEST);
@@ -134,7 +135,7 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     try {
       final List<JPAOnConditionItem> associationPathList = association.getJoinColumnsList();
       for (final JPAOnConditionItem onCondition : associationPathList) {
-        groupBy.add(ExpressionUtil.convertToCriteriaPath(root, onCondition.getRightPath().getPath()));
+        groupBy.add(ExpressionUtility.convertToCriteriaPath(root, onCondition.getRightPath().getPath()));
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
@@ -159,7 +160,7 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     try {
       final List<JPAOnConditionItem> associationPathList = association.getJoinColumnsList();
       for (final JPAOnConditionItem onCondition : associationPathList) {
-        final Path<?> p = ExpressionUtil.convertToCriteriaPath(root, onCondition.getRightPath().getPath());
+        final Path<?> p = ExpressionUtility.convertToCriteriaPath(root, onCondition.getRightPath().getPath());
         p.alias(onCondition.getRightPath().getAlias());
         selections.add(p);
       }

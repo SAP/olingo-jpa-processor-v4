@@ -6,24 +6,26 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
@@ -69,8 +71,13 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
   @Column(name = "\"AccessRights\"")
   private AccessRights[] accessRights;
 
+  @EdmIgnore
+  @Column(name = "\"Image_ID\"")
+  private String imageId;
+
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-  @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
+  @JoinColumn(name = "\"Image_ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,
+      nullable = true)
   private PersonImage image;
 
   @EdmAnnotation(term = "Core.Description", qualifier = "Address",
@@ -78,7 +85,7 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
           value = "Address for inhouse Mail"))
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
-      joinColumns = @JoinColumn(name = "\"ID\""))
+      joinColumns = @JoinColumn(name = "\"ParentID\""))
   private List<InhouseAddress> inhouseAddress = new ArrayList<>();
 
   @ManyToMany
@@ -92,6 +99,11 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
       joinColumns = @JoinColumn(name = "\"PersonID\"", referencedColumnName = "\"ID\""),
       inverseJoinColumns = @JoinColumn(name = "\"TeamID\"", referencedColumnName = "\"TeamKey\""))
   private List<Team> teams;
+
+  @OneToMany
+  @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,
+      nullable = true)
+  private List<TemporalWithValidityPeriod> jobs;
 
   public Person() {
     type = "1";
@@ -133,8 +145,8 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
     return inhouseAddress;
   }
 
-  public void setInhouseAddress(final List<InhouseAddress> inhouseAddress) {
-    this.inhouseAddress = inhouseAddress;
+  public void setInhouseAddress(final List<InhouseAddress> inHouseAddress) {
+    this.inhouseAddress = inHouseAddress;
   }
 
   public void addInhouseAddress(final InhouseAddress address) {

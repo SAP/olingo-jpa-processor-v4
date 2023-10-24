@@ -2,6 +2,10 @@ logging:
   level:
     org:
       springframework: INFO
+    com:
+      sap:
+        olingo:
+          jpa: TRACE
 odata:
   jpa:
     punit_name: ${punit}

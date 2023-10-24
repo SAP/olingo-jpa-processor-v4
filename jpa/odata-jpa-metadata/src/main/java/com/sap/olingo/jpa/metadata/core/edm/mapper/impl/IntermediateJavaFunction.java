@@ -6,6 +6,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
+
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
@@ -33,7 +35,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
       final Method javaFunction, final IntermediateSchema schema) throws ODataJPAModelException {
 
     super(nameBuilder, jpaFunction, schema,
-        IntNameBuilder.buildFunctionName(jpaFunction).isEmpty() ? javaFunction.getName() : IntNameBuilder
+        InternalNameBuilder.buildFunctionName(jpaFunction).isEmpty() ? javaFunction.getName() : InternalNameBuilder
             .buildFunctionName(jpaFunction));
 
     this.setExternalName(jpaFunction.name().isEmpty()
@@ -73,8 +75,14 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ANNOTATION_MISSING,
               declaredParameter.getName(), javaFunction.getName(), javaFunction
                   .getDeclaringClass().getName());
-        final JPAParameter parameter = new IntermediateFunctionParameter(definedParameter, nameBuilder
-            .buildPropertyName(definedParameter.name()), declaredParameter.getName(), types[i]);
+        if (definedParameter.name().isEmpty())
+          // Fallback not possible. Reflection does not contain parameter name, just returns e.g. arg1
+          // Name of parameter required. Name missing at function '%1$s' in class '%2$s'.
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_NAME_REQUIRED,
+              javaFunction.getName(), javaFunction.getDeclaringClass().getName());
+        final JPAParameter parameter = new IntermediateFunctionParameter(nameBuilder, definedParameter, nameBuilder
+            .buildPropertyName(definedParameter.name()), declaredParameter.getName(), types[i],
+            getAnnotationInformation());
         parameterList.add(parameter);
       }
     }
@@ -86,6 +94,16 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
     for (final JPAParameter parameter : getParameter()) {
       if (parameter.getInternalName().equals(internalName))
         return parameter;
+    }
+    return null;
+  }
+
+  @Override
+  @CheckForNull
+  public JPAParameter getParameter(final Parameter declaredParameter) throws ODataJPAModelException {
+    for (final JPAParameter param : getParameter()) {
+      if (param.getInternalName().equals(declaredParameter.getName()))
+        return param;
     }
     return null;
   }
@@ -128,6 +146,9 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
     final CsdlReturnType edmResultType = new CsdlReturnType();
     final Class<?> declaredReturnType = javaFunction.getReturnType();
 
+    if (definedReturnType.type() == Void.class || "void".equals(declaredReturnType
+        .getCanonicalName()))
+      throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_EXP, javaFunction.getName());
     if (IntermediateOperationHelper.isCollection(declaredReturnType)) {
       if (definedReturnType.type() == Object.class)
         // Type parameter expected for %1$s
@@ -137,6 +158,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
           schema, javaFunction.getName()));
     } else {
       if (definedReturnType.type() != Object.class
+          && declaredReturnType != Object.class
           && !definedReturnType.type().getCanonicalName().equals(declaredReturnType.getCanonicalName()))
         // The return type %1$s from EdmFunction does not match type %2$s declared at method %3$s
         throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
@@ -171,7 +193,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
 
   @Override
   boolean hasImport() {
-    return true;
+    return jpaFunction.hasFunctionImport();
   }
 
   @Override

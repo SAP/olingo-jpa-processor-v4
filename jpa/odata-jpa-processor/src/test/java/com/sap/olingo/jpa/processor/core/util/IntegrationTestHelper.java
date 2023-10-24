@@ -20,15 +20,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.server.api.OData;
@@ -45,6 +46,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
@@ -54,12 +56,14 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
+import com.sap.olingo.jpa.processor.core.api.mapper.JakartaResponseMapper;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public class IntegrationTestHelper {
-  public final HttpServletRequest req;
-  public final HttpServletResponse resp;
-  private final ArgumentCaptor<Integer> acStatus;
+  public final HttpServletRequest request;
+  public final HttpServletResponse response;
+  private final ArgumentCaptor<Integer> captorStatus;
   private static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
@@ -69,19 +73,23 @@ public class IntegrationTestHelper {
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
+      final AnnotationProvider annotationsProvider) throws IOException, ODataException {
+    this(localEmf, null, urlPath, null, null, null, null, null, null, annotationsProvider);
+  }
+
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final Map<String, List<String>> headers) throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, null, headers, null, null);
+    this(localEmf, null, urlPath, null, null, null, headers, null, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final JPAODataGroupProvider groups) throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, null, null, null, groups);
+    this(localEmf, null, urlPath, null, null, null, null, null, groups, null);
   }
 
-  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource ds, final String urlPath)
-      throws IOException,
-      ODataException {
-    this(localEmf, ds, urlPath, null, null, null);
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath)
+      throws IOException, ODataException {
+    this(localEmf, dataSource, urlPath, null, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
@@ -90,16 +98,16 @@ public class IntegrationTestHelper {
     this(localEmf, null, urlPath, requestBody, null, null);
   }
 
-  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource ds, final String urlPath,
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath,
       final String functionPackage)
       throws IOException, ODataException {
-    this(localEmf, ds, urlPath, null, functionPackage, null);
+    this(localEmf, dataSource, urlPath, null, functionPackage, null);
   }
 
-  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource ds, final String urlPath,
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath,
       final StringBuffer requestBody)
       throws IOException, ODataException {
-    this(localEmf, ds, urlPath, requestBody, null, null);
+    this(localEmf, dataSource, urlPath, requestBody, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
@@ -110,49 +118,52 @@ public class IntegrationTestHelper {
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final JPAODataClaimsProvider claims)
       throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, null, null, claims, null);
+    this(localEmf, null, urlPath, null, null, null, null, claims, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final JPAODataPagingProvider provider, final JPAODataClaimsProvider claims) throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, provider, null, claims, null);
+    this(localEmf, null, urlPath, null, null, provider, null, claims, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory emf, final String urlPath,
       final JPAODataPagingProvider provider, final Map<String, List<String>> headers) throws IOException,
       ODataException {
-    this(emf, null, urlPath, null, null, provider, headers, null, null);
+    this(emf, null, urlPath, null, null, provider, headers, null, null, null);
   }
 
-  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource ds, final String urlPath,
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath,
       final StringBuffer requestBody,
       final String functionPackage, final JPAODataPagingProvider provider) throws IOException, ODataException {
-    this(localEmf, ds, urlPath, requestBody, functionPackage, provider, null, null, null);
+    this(localEmf, dataSource, urlPath, requestBody, functionPackage, provider, null, null, null, null);
   }
 
-  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource ds, final String urlPath,
-      final StringBuffer requestBody, final String functionPackage, final JPAODataPagingProvider provider,
-      final Map<String, List<String>> headers, final JPAODataClaimsProvider claims, final JPAODataGroupProvider groups)
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath,
+      final StringBuffer requestBody, final String functionPackage, final JPAODataPagingProvider pagingProvider,
+      final Map<String, List<String>> headers, final JPAODataClaimsProvider claims, final JPAODataGroupProvider groups,
+      final AnnotationProvider annotationsProvider)
       throws IOException, ODataException {
 
     super();
     final OData odata = OData.newInstance();
     String[] packages = TestBase.enumPackages;
-    acStatus = ArgumentCaptor.forClass(Integer.class);
-    this.req = getRequestMock(uriPrefix + urlPath,
+    captorStatus = ArgumentCaptor.forClass(Integer.class);
+    this.request = getRequestMock(uriPrefix + urlPath,
         requestBody == null ? null : new StringBuilder(requestBody.toString()), headers);
-    this.resp = getResponseMock();
+    this.response = getResponseMock();
     if (functionPackage != null)
       packages = ArrayUtils.add(packages, functionPackage);
-    final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages);
+    final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages,
+        annotationsProvider == null ? Collections.emptyList() : Collections.singletonList(annotationsProvider));
 
     final EntityManager em = createEmfWrapper(localEmf, edmProvider).createEntityManager();
 
-    final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, ds, provider,
-        functionPackage);
+    final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, dataSource,
+        pagingProvider, annotationsProvider, functionPackage);
 
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
-        new ArrayList<EdmxReference>()));
+        new ArrayList<>()));
+
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(em);
     when(externalContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
@@ -164,48 +175,48 @@ public class IntegrationTestHelper {
 
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
-    handler.process(req, resp);
+    handler.process(new JakartaRequestMapper(request), new JakartaResponseMapper(response));
 
   }
 
   public HttpServletResponse getResponse() {
-    return resp;
+    return response;
   }
 
   public int getStatus() {
-    verify(resp).setStatus(acStatus.capture());
-    return acStatus.getValue();
+    verify(response).setStatus(captorStatus.capture());
+    return captorStatus.getValue();
   }
 
   public String getRawResult() throws IOException {
     final InputStream in = asInputStream();
-    final StringBuilder sb = new StringBuilder();
-    final BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    final StringBuilder builder = new StringBuilder();
+    final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
     String read;
 
-    while ((read = br.readLine()) != null) {
-      sb.append(read);
+    while ((read = reader.readLine()) != null) {
+      builder.append(read);
     }
-    br.close();
-    return sb.toString();
+    reader.close();
+    return builder.toString();
   }
 
   public List<String> getRawBatchResult() throws IOException {
     final List<String> result = new ArrayList<>();
 
     final InputStream in = asInputStream();
-    final BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
     String read;
 
-    while ((read = br.readLine()) != null) {
+    while ((read = reader.readLine()) != null) {
       result.add(read);
     }
-    br.close();
+    reader.close();
     return result;
   }
 
   public InputStream asInputStream() throws IOException {
-    return new ResultStream((OutPutStream) resp.getOutputStream());
+    return new ResultStream((OutPutStream) response.getOutputStream());
   }
 
   public ArrayNode getValues() throws JsonProcessingException, IOException {
@@ -300,14 +311,14 @@ public class IntegrationTestHelper {
   public static HttpServletRequest getRequestMock(final String uri, final StringBuilder body,
       final Map<String, List<String>> headers) throws IOException {
 
-    final HttpRequestHeaderDouble reqHeader = new HttpRequestHeaderDouble();
+    final HttpRequestHeaderDouble requestHeader = new HttpRequestHeaderDouble();
     final HttpServletRequest response = mock(HttpServletRequest.class);
     final String[] uriParts = uri.split("\\?");
 
-    reqHeader.setHeaders(headers);
+    requestHeader.setHeaders(headers);
     if (uri.contains("$batch")) {
       when(response.getMethod()).thenReturn(HttpMethod.POST.toString());
-      reqHeader.setBatchRequest();
+      requestHeader.setBatchRequest();
     } else {
       when(response.getMethod()).thenReturn(HttpMethod.GET.toString());
     }
@@ -316,11 +327,11 @@ public class IntegrationTestHelper {
     when(response.getServletPath()).thenReturn("/Olingo.svc");
     when(response.getQueryString()).thenReturn((uriParts.length == 2) ? uriParts[1] : null);
     when(response.getRequestURL()).thenReturn(new StringBuffer(uriParts[0]));
-    when(response.getHeaderNames()).thenReturn(reqHeader.getEnumerator());
-    final Enumeration<String> headerEnumerator = reqHeader.getEnumerator();
+    when(response.getHeaderNames()).thenReturn(requestHeader.getEnumerator());
+    final Enumeration<String> headerEnumerator = requestHeader.getEnumerator();
     while (headerEnumerator.hasMoreElements()) {
       final String header = headerEnumerator.nextElement();
-      when(response.getHeaders(header)).thenReturn(reqHeader.get(header));
+      when(response.getHeaders(header)).thenReturn(requestHeader.get(header));
     }
     return response;
   }
@@ -366,6 +377,16 @@ public class IntegrationTestHelper {
 
     public int getSize() {
       return buffer.size();
+    }
+
+    @Override
+    public boolean isReady() {
+      return true;
+    }
+
+    @Override
+    public void setWriteListener(final WriteListener writeListener) {
+
     }
   }
 

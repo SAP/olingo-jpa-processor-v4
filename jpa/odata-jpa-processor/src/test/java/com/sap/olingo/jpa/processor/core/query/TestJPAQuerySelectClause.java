@@ -1,17 +1,23 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_BUSINESS_PARTNER_T;
-import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS;
-import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS_T;
+import static com.sap.olingo.jpa.processor.core.util.TestDataConstants.NO_ATTRIBUTES_BUSINESS_PARTNER_T;
+import static com.sap.olingo.jpa.processor.core.util.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS;
+import static com.sap.olingo.jpa.processor.core.util.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS_T;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -25,14 +31,20 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmPropertyDouble;
 import com.sap.olingo.jpa.processor.core.util.ExpandItemDouble;
@@ -51,7 +63,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
   }
 
   @Test
@@ -61,7 +73,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(selOpts)).joinedPersistent(), root, Collections.emptyList());
 
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
   }
 
   @Test
@@ -71,13 +83,13 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     final List<ExpandItem> expItems = new ArrayList<>();
     final EdmEntityType startEntity = new EdmEntityTypeDouble(nameBuilder, "Organization");
     final EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "AdministrativeDivision");
-    final SelectOption selOpts = null;
+    final SelectOption selectOpts = null;
 
-    final ExpandOption expOps = new ExpandOptionDouble("AdministrativeDivision", expItems);
+    final ExpandOption expOpts = new ExpandOptionDouble("AdministrativeDivision", expItems);
     expItems.add(new ExpandItemDouble(targetEntity));
     final List<UriResource> startResources = new ArrayList<>();
-    final UriInfoDouble uriInfo = new UriInfoDouble(selOpts);
-    uriInfo.setExpandOpts(expOps);
+    final UriInfoDouble uriInfo = new UriInfoDouble(selectOpts);
+    uriInfo.setExpandOpts(expOpts);
     uriInfo.setUriResources(startResources);
 
     startResources.add(new UriResourceNavigationDouble(startEntity));
@@ -171,7 +183,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T, selectClause.size());
+    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS.value + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T.value, selectClause.size());
   }
 
   @Test
@@ -269,7 +281,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T, selectClause
+    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS.value + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T.value, selectClause
         .size());
     assertContains(selectClause, "Address/CountryName");
     assertContains(selectClause, "ETag");
@@ -350,7 +362,49 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     fillJoinTable(root);
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
+  }
+
+  @Test
+  void checkSelectContainsJoinTable() throws ODataException {
+    // Organizations$select=Address
+    final JPAServiceDocument sd = mock(JPAServiceDocument.class);
+    final JPAAssociationPath association = mock(JPAAssociationPath.class);
+    final UriResourcePartTyped uriResource = mock(UriResourcePartTyped.class);
+    final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
+    final JPAPath idPath = mock(JPAPath.class);
+    when(association.hasJoinTable()).thenReturn(Boolean.TRUE);
+    when(association.getLeftColumnsList()).thenReturn(Collections.singletonList(idPath));
+    when(association.getJoinColumnsList()).thenReturn(Collections.singletonList(onCondition));
+    when(onCondition.getLeftPath()).thenReturn(idPath);
+    when(association.getAlias()).thenReturn("SupportEngineers");
+    when(idPath.getAlias()).thenReturn("Id");
+
+    jpaEntityType = helper.getJPAEntityType(Organization.class);
+    root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
+    joinTables.put(jpaEntityType.getInternalName(), root);
+    fillJoinTable(root);
+
+    final Join<?, ?> join = root.join("supportEngineers", JoinType.LEFT);
+    joinTables.put("SupportEngineers", join);
+    when(uriResource.isCollection()).thenReturn(Boolean.TRUE);
+
+    final JPANavigationPropertyInfo navi = new JPANavigationPropertyInfo(sd, uriResource, association, uriInfo);
+    final JPAInlineItemInfo info = mock(JPAInlineItemInfo.class);
+    when(info.getExpandAssociation()).thenReturn(association);
+    when(info.getHops()).thenReturn(Collections.singletonList(navi));
+    when(info.getEntityType()).thenReturn(jpaEntityType);
+    navi.setFromClause(root);
+
+    cut = new JPAExpandJoinQuery(null, info, requestContext, Optional.empty());
+
+    final List<Selection<?>> selectClause = ((JPAExpandJoinQuery) cut).createSelectClause(
+        joinTables,
+        cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(),
+        root,
+        Collections.emptyList());
+
+    assertTrue(selectClause.stream().filter(s -> "SupportEngineers.Id".equals(s.getAlias())).findFirst().isPresent());
   }
 
   private void assertContains(final List<Selection<?>> selectClause, final String alias) {

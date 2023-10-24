@@ -1,14 +1,14 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Transient;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
@@ -26,5 +26,5 @@ public class ComplexWithTransientComplexCollection {
 
   @Transient
   @EdmTransient(calculator = DummyPropertyCalculator.class)
-  private List<InhouseAddress> transientCollection = new ArrayList<>();
+  private final List<InhouseAddress> transientCollection = new ArrayList<>();
 }
