@@ -406,7 +406,7 @@ public abstract class JPAAbstractQuery {
         } else
           // TODO Support methods like tolower for order by as well
           throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_NOT_SUPPORTED, BAD_REQUEST,
-              expression.getClass().getSimpleName());
+              expression.toString());
       }
     }
     debugger.trace(this, "The following navigation attributes in order by were found: %s", navigationAttributes

@@ -6,7 +6,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigat
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 
-final class DefaultEdmPostProcessor extends JPAEdmMetadataPostProcessor {
+final class DefaultEdmPostProcessor implements JPAEdmMetadataPostProcessor {
 
   @Override
   public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
@@ -20,12 +20,12 @@ final class DefaultEdmPostProcessor extends JPAEdmMetadataPostProcessor {
   }
 
   @Override
-  public void provideReferences(IntermediateReferenceList references) {
+  public void provideReferences(final IntermediateReferenceList references) {
     // Default shall do nothing
   }
 
   @Override
-  public void processEntityType(IntermediateEntityTypeAccess entity) {
+  public void processEntityType(final IntermediateEntityTypeAccess entity) {
     // Default shall do nothing
   }
 }

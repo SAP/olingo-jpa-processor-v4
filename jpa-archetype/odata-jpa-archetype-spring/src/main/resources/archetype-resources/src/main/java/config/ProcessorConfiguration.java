@@ -2,7 +2,7 @@ package ${package}.config;
 
 import static org.springframework.web.context.WebApplicationContext.SCOPE_REQUEST;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.debug.DefaultDebugSupport;

@@ -2,7 +2,7 @@ package ${package}.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 
 public class ValueObjectTemplateKey implements Serializable {
 

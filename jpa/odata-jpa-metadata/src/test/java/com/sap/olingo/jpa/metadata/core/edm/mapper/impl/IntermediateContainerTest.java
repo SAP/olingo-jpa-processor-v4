@@ -292,7 +292,7 @@ class IntermediateContainerTest extends TestMappingRoot {
 
   }
 
-  private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
+  private class PostProcessorSetIgnore implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {

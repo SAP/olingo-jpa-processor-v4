@@ -318,7 +318,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected jakarta.persistence.criteria.Expression<Boolean> createWhere(final UriInfoResource uriInfo,
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createWhere")) {
+    try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "createWhere")) {
       jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);

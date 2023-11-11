@@ -35,7 +35,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 class TestFunctions {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
-  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
+  private static final String ENTITY_MANAGER_DATA_SOURCE = "jakarta.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
   private static DataSource ds;
 

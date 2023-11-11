@@ -46,7 +46,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
-import com.sap.olingo.jpa.processor.core.testmodel.JoinPartnerRoleRelation;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
@@ -59,9 +58,7 @@ class JPANavigationNullQueryTest extends TestBase {
   private JPAAbstractQuery parent;
   private JPAAssociationPath association;
   private From<?, ?> from;
-  private Root<JoinPartnerRoleRelation> queryJoinTable;
   private Root<BusinessPartnerProtected> queryRoot;
-  private Root<BusinessPartnerProtected> parentRoot;
   private JPAODataClaimProvider claimsProvider;
   private EdmEntityType edmEntityType;
   @SuppressWarnings("rawtypes")
@@ -84,9 +81,7 @@ class JPANavigationNullQueryTest extends TestBase {
     cq = mock(CriteriaQuery.class);
     cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
     subQuery = mock(Subquery.class);
-    queryJoinTable = mock(Root.class);
     queryRoot = mock(Root.class);
-    parentRoot = mock(Root.class);
     from = mock(From.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
 

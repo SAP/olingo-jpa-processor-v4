@@ -25,7 +25,7 @@ public class ImageLoader {
   private static final String SELECT_ORGANIZATION_IMAGE =
       "SELECT * FROM \"OLINGO\".\"OrganizationImage\" WHERE ID = '$&1'";
   private static final String PATH = "images/";
-  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
+  private static final String ENTITY_MANAGER_DATA_SOURCE = "jakarta.persistence.nonJtaDataSource";
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   public static void main(final String[] args) throws IOException {

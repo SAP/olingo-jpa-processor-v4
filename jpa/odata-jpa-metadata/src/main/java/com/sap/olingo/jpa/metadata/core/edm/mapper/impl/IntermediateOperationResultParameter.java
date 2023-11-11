@@ -77,4 +77,10 @@ class IntermediateOperationResultParameter implements JPAOperationResultParamete
     return srid;
   }
 
+  @Override
+  public String toString() {
+    return "IntermediateOperationResultParameter [jpaOperation=" + jpaOperation.getInternalName()
+        + ", type=" + type.getName() + ", isCollection=" + isCollection + "]";
+  }
+
 }

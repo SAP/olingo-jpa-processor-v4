@@ -73,7 +73,9 @@ public class IntermediateOperationHelper {
 
   static boolean isCollection(final Class<?> declaredReturnType) {
     for (final Class<?> inter : Arrays.asList(declaredReturnType.getInterfaces())) {
-      if (inter == Collection.class)
+      if (inter == Collection.class) {
+        return true;
+      } else if (isCollection(inter))
         return true;
     }
     return false;

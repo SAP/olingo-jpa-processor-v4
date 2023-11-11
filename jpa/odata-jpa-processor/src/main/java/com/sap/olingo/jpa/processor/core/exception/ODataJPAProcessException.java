@@ -3,7 +3,10 @@ package com.sap.olingo.jpa.processor.core.exception;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 
@@ -86,21 +89,27 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   @Override
   public String getMessage() {
-    final ODataJPAMessageBufferRead messageBuffer = getTextBundle();
+    try {
+      final ODataJPAMessageBufferRead messageBuffer = getTextBundle();
 
-    if (messageBuffer != null && id != null) {
-      final String message = messageBuffer.getText(this, id, parameter);
-      if (message != null) {
-        return message;
+      if (messageBuffer != null && id != null) {
+        final String message = messageBuffer.getText(this, id, parameter);
+        if (message != null) {
+          return message;
+        }
+        return messageText;
+      } else if (getCause() != null) {
+        return getCause().getLocalizedMessage();
+      } else if (messageText != null && !messageText.isEmpty()) {
+        return messageText;
+      } else {
+        return UNKNOWN_MESSAGE;
       }
-      return messageText;
-    } else if (getCause() != null) {
-      return getCause().getLocalizedMessage();
-    } else if (messageText != null && !messageText.isEmpty()) {
-      return messageText;
-    } else {
-      return UNKNOWN_MESSAGE;
+    } catch (final MissingResourceException e) {
+      final Log logger = LogFactory.getLog(this.getClass());
+      logger.error("Message bundle not found: " + getBundleName(), e);
     }
+    return UNKNOWN_MESSAGE;
   }
 
   public List<String> getParameter() {

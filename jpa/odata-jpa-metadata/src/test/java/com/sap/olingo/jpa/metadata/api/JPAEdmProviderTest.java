@@ -346,7 +346,7 @@ class JPAEdmProviderTest {
     return fqn;
   }
 
-  private class PostProcessor extends JPAEdmMetadataPostProcessor {
+  private class PostProcessor implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {}

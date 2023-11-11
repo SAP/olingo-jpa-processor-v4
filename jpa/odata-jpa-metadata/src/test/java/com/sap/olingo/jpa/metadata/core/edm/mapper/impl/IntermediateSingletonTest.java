@@ -200,7 +200,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
         .thenReturn(annotations);
   }
 
-  private class PostProcessor extends JPAEdmMetadataPostProcessor {
+  private class PostProcessor implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {

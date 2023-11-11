@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
@@ -50,14 +49,12 @@ class JPANavigationFilterQueryTest extends TestBase {
   private From<?, ?> from;
   private Root<JoinPartnerRoleRelation> queryJoinTable;
   private Root<BusinessPartnerRoleProtected> queryRoot;
-  private Root<BusinessPartnerProtected> parentRoot;
   private JPAODataClaimProvider claimsProvider;
   private EdmEntityType edmEntityType;
   @SuppressWarnings("rawtypes")
   private CriteriaQuery cq;
   private CriteriaBuilder cb;
   private Subquery<Object> subQuery;
-  private JPAODataRequestContextAccess requestContext;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
@@ -75,9 +72,7 @@ class JPANavigationFilterQueryTest extends TestBase {
     subQuery = mock(Subquery.class);
     queryJoinTable = mock(Root.class);
     queryRoot = mock(Root.class);
-    parentRoot = mock(Root.class);
     from = mock(From.class);
-    requestContext = mock(JPAODataRequestContextAccess.class);
 
     final UriParameter key = mock(UriParameter.class);
 

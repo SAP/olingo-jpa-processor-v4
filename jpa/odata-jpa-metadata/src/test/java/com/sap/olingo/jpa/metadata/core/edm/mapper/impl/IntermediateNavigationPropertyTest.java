@@ -947,7 +947,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     return jpaAttribute;
   }
 
-  private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
+  private class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {
@@ -971,7 +971,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 
-  private class PostProcessorOneDelete extends JPAEdmMetadataPostProcessor {
+  private class PostProcessorOneDelete implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {

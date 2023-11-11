@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -78,5 +80,14 @@ class CollectionJoinImplTest {
   @Test
   void testGetAttributeNotImplemented() {
     assertThrows(NotImplementedException.class, () -> cut.getAttribute());
+  }
+
+  @SuppressWarnings("unlikely-arg-type")
+  @Test
+  void testEquals() throws ODataJPAModelException {
+
+    assertTrue(cut.equals(cut)); // NOSONAR
+    assertFalse(cut.equals(null));// NOSONAR
+    assertFalse(cut.equals("Test"));// NOSONAR
   }
 }
