@@ -168,7 +168,7 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("NavigationPropertyIsNull",
             "AssociationOneToOneSources?$format=json&$filter=ColumnTarget ne null", 3),
         arguments("NavigationPropertyIsNullOneHop",
-            "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 30),
+            "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 11),
         arguments("NavigationPropertyMixCountAndNull",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 and Parent/Parent/Parent eq null", 2),
         arguments("NavigationPropertyIsNullJoinTable", "JoinTargets?$filter=ManyToOne ne null", 2),

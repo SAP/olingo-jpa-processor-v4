@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
@@ -117,7 +119,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   @Nonnull
   @Override
   public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery,
-      final VisitableExpression expression) throws ODataApplicationException {
+      final VisitableExpression expression, final List<Path<Comparable<?>>> inPath) throws ODataApplicationException {
     // Last childQuery == null
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
@@ -217,8 +219,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
       JPARowNumberFilterQuery rowNumberQuery;
       try {
         rowNumberQuery = new JPARowNumberFilterQuery(odata, requestContext, navigationInfo, parentQuery,
-            childAssociation, jpaEntity
-                .getKeyPath());
+            childAssociation, jpaEntity.getKeyPath());
       } catch (final ODataException e) {
         throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
       }
@@ -233,8 +234,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
       final ProcessorSubquery<?> nextQuery) throws ODataApplicationException {
 
     if (hasRowLimit(childQuery))
-      this.queryRoot = nextQuery.from((ProcessorSubquery<?>) ((JPARowNumberFilterQuery) queries.inner()).getSubQuery(
-          childQuery, null));
+      this.queryRoot = nextQuery.from((ProcessorSubquery<?>) ((JPARowNumberFilterQuery) queries.inner())
+          .getSubQuery(childQuery, null, Collections.emptyList()));
     else
       this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
     navigationInfo.setFromClause(queryRoot);
@@ -318,5 +319,10 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
       }
       throw new ODataJPAQueryException(QUERY_PREPARATION_ERROR, INTERNAL_SERVER_ERROR, e);
     }
+  }
+
+  @Override
+  public List<Path<Comparable<?>>> getLeftPaths() throws ODataJPAIllegalAccessException {
+    return Collections.emptyList();
   }
 }

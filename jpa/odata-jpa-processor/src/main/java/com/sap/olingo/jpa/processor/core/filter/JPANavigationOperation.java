@@ -1,13 +1,16 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -34,12 +37,14 @@ import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
-import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQueryBuilder;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
+import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfoAccess;
 
 /**
  * In case the query result shall be filtered on an attribute of navigation target a sub-select will be generated.
@@ -102,15 +107,14 @@ final class JPANavigationOperation extends JPAExistsOperation {
 
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
-    // return converter.cb.greaterThan(getExistsQuery().as("a"), converter.cb.literal('5')); //NOSONAR
+    try {
+      final SubQueryItem existQuery = getExistsQuery();
+      return ExpressionUtility.createSubQueryBasedExpression(existQuery.query(), existQuery.jpaPath(), converter.cb,
+          expression);
 
-    final Subquery<Object> existQuery = getExistsQuery();
-    if (expression instanceof final JPAInvertibleVisitableExpression visitableExpression
-        && visitableExpression.isInversionRequired()) {
-      visitableExpression.inversionPerformed();
-      return converter.cb.not(converter.cb.exists(existQuery));
+    } catch (final ODataJPAIllegalAccessException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    return converter.cb.exists(existQuery);
   }
 
   @SuppressWarnings("unchecked")
@@ -124,9 +128,8 @@ final class JPANavigationOperation extends JPAExistsOperation {
     return operator != null ? operator.name() : methodCall.name();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  <T> Subquery<T> getExistsQuery() throws ODataApplicationException {
+  SubQueryItem getExistsQuery() throws ODataApplicationException, ODataJPAIllegalAccessException {
     final List<UriResource> allUriResourceParts = new ArrayList<>(uriResourceParts);
     allUriResourceParts.addAll(jpaMember.getMember().getResourcePath().getUriResourceParts());
 
@@ -137,14 +140,14 @@ final class JPANavigationOperation extends JPAExistsOperation {
 
     // 2. Create the queries and roots
     for (int i = navigationPathList.size() - 1; i >= 0; i--) {
-      final JPANavigationPropertyInfo navigationInfo = navigationPathList.get(i);
+      final JPANavigationPropertyInfoAccess navigationInfo = navigationPathList.get(i);
       if (i == 0) {
         expression = createExpression();
         if (navigationInfo.getUriResource() instanceof UriResourceProperty) {
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, navigationInfo.getAssociationPath(),
               expression, determineFrom(i, navigationPathList.size(), parent), groups));
         } else {
-          queryList.add(new JPANavigationFilterQueryBuilder()
+          queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
               .setOdata(odata)
               .setServiceDocument(sd)
               .setUriResourceItem(navigationInfo.getUriResource())
@@ -159,17 +162,28 @@ final class JPANavigationOperation extends JPAExistsOperation {
               .build());
         }
       } else {
-        queryList.add(new JPANavigationFilterQuery(odata, sd, navigationInfo.getUriResource(), parent, em,
-            navigationInfo.getAssociationPath(), determineFrom(i, navigationPathList.size(), parent), claimsProvider));
+        queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
+            .setOdata(odata)
+            .setServiceDocument(sd)
+            .setUriResourceItem(navigationInfo.getUriResource())
+            .setParent(parent)
+            .setEntityManager(em)
+            .setAssociation(navigationInfo.getAssociationPath())
+            .setFrom(determineFrom(i, navigationPathList.size(), parent))
+            .setParent(parent)
+            .setClaimsProvider(claimsProvider)
+            .build());
       }
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements
-    Subquery<?> childQuery = null;
+    Subquery<List<Comparable<?>>> childQuery = null;
+    List<Path<Comparable<?>>> inPath = Collections.emptyList();
     for (int i = queryList.size() - 1; i >= 0; i--) {
-      childQuery = queryList.get(i).getSubQuery(childQuery, expression);
+      childQuery = queryList.get(i).getSubQuery(childQuery, expression, inPath);
+      inPath = queryList.get(i).getLeftPaths();
     }
-    return (Subquery<T>) childQuery;
+    return new SubQueryItem(inPath, childQuery);
   }
 
   Member getMember() {

@@ -9,3 +9,4 @@ target/
 .settings/
 .metadata
 *.log
+/old.project

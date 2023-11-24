@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -19,7 +21,10 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
@@ -32,7 +37,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAVisitableExpression;
  * <li>Filter on a given value: AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq
  * 'BE212'</li>
  * <li>Filter on the number of items of the relation target:
- * CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2&</li>
+ * CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2</li>
  * <li>Filter on the existence (to one) of an item: AssociationOneToOneSources?$filter=ColumnTarget eq null</li>
  * </ol>
  * The builder creates the corresponding query implementation.
@@ -43,7 +48,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAVisitableExpression;
 public class JPANavigationFilterQueryBuilder {
 
   private static final String NULL = "null";
-
+  private final CriteriaBuilder cb;
   private OData odata;
   private JPAServiceDocument sd;
   private JPAAbstractQuery parent;
@@ -56,19 +61,26 @@ public class JPANavigationFilterQueryBuilder {
   private List<UriParameter> keyPredicates;
   private EdmEntityType type;
 
+  public JPANavigationFilterQueryBuilder(final CriteriaBuilder cb) {
+    this.cb = cb;
+  }
+
   public JPANavigationSubQuery build() throws ODataApplicationException {
     final JPANavigationSubQuery query;
-    if (expression != null
-        && getAggregationType(expression) != null)
-      query = new JPANavigationCountQuery(odata, sd,
-          type, em, parent, from, association, claimsProvider, keyPredicates);
-    else if (expression != null
-        && isNullExpression(expression))
+    if (expression != null && getAggregationType(expression) != null) {
+      if (asInQuery())
+        query = new JPANavigationCountForInQuery(odata, sd,
+            type, em, parent, from, association, claimsProvider, keyPredicates);
+      else
+        query = new JPANavigationCountForExistsQuery(odata, sd,
+            type, em, parent, from, association, claimsProvider, keyPredicates);
+    } else if (expression != null && isNullExpression(expression)) {
       query = new JPANavigationNullQuery(odata, sd,
           type, em, parent, from, association, claimsProvider, keyPredicates);
-    else
+    } else {
       query = new JPANavigationFilterQuery(odata, sd,
           type, em, parent, from, association, claimsProvider, keyPredicates);
+    }
     query.buildExpression(expression, groups);
     return query;
   }
@@ -130,6 +142,16 @@ public class JPANavigationFilterQueryBuilder {
     return this;
   }
 
+  boolean asInQuery() throws ODataJPAFilterException {
+    try {
+      return (cb instanceof ProcessorCriteriaBuilder
+          || association.getJoinColumnsList().size() == 1)
+          && getAggregationType(expression) != null;
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   private UriResourceKind getAggregationType(final VisitableExpression expression) {
     UriInfoResource member = null;
     if (expression instanceof final Binary binary) {
@@ -155,5 +177,4 @@ public class JPANavigationFilterQueryBuilder {
     return expression instanceof final JPANullExpression nullExpression
         && NULL.equals(nullExpression.getLiteral().getText());
   }
-
 }

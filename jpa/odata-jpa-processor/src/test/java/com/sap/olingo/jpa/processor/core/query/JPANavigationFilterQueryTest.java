@@ -39,22 +39,22 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 class JPANavigationFilterQueryTest extends TestBase {
-  private JPAAbstractSubQuery cut;
-  private TestHelper helper;
-  private EntityManager em;
-  private OData odata;
-  private UriResourceNavigation uriResourceItem;
-  private JPAAbstractQuery parent;
-  private JPAAssociationPath association;
-  private From<?, ?> from;
-  private Root<JoinPartnerRoleRelation> queryJoinTable;
-  private Root<BusinessPartnerRoleProtected> queryRoot;
-  private JPAODataClaimProvider claimsProvider;
-  private EdmEntityType edmEntityType;
+  protected JPAAbstractSubQuery cut;
+  protected TestHelper helper;
+  protected EntityManager em;
+  protected OData odata;
+  protected UriResourceNavigation uriResourceItem;
+  protected JPAAbstractQuery parent;
+  protected JPAAssociationPath association;
+  protected From<?, ?> from;
+  protected Root<JoinPartnerRoleRelation> queryJoinTable;
+  protected Root<BusinessPartnerRoleProtected> queryRoot;
+  protected JPAODataClaimProvider claimsProvider;
+  protected EdmEntityType edmEntityType;
   @SuppressWarnings("rawtypes")
-  private CriteriaQuery cq;
-  private CriteriaBuilder cb;
-  private Subquery<Object> subQuery;
+  protected CriteriaQuery cq;
+  protected CriteriaBuilder cb;
+  protected Subquery<Object> subQuery;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
@@ -89,10 +89,14 @@ class JPANavigationFilterQueryTest extends TestBase {
     doReturn(BusinessPartnerProtected.class).when(from).getJavaType();
   }
 
+  protected JPAAbstractSubQuery createCut() throws ODataApplicationException {
+    return new JPANavigationFilterQuery(odata, helper.sd, uriResourceItem,
+        parent, em, association, from, Optional.of(claimsProvider));
+  }
+
   @Test
   void testCutExists() throws ODataApplicationException {
-    cut = new JPANavigationFilterQuery(odata, helper.sd, uriResourceItem,
-        parent, em, association, from, Optional.of(claimsProvider));
+    cut = createCut();
     assertNotNull(cut);
   }
 
@@ -130,10 +134,9 @@ class JPANavigationFilterQueryTest extends TestBase {
     when(cb.and(equalExpression2, equalExpression3)).thenReturn(andExpression1);
     when(cb.and(equalExpression1, andExpression1)).thenReturn(andExpression2);
 
-    cut = new JPANavigationFilterQuery(odata, helper.sd, uriResourceItem,
-        parent, em, association, from, Optional.of(claimsProvider));
+    cut = createCut();
     @SuppressWarnings("unused")
-    final Subquery<Object> act = cut.getSubQuery(subQuery, null);
+    final Subquery<Object> act = cut.getSubQuery(subQuery, null, Collections.emptyList());
     verify(subQuery).select(roleIdPath);
     verify(subQuery).where(andExpression2);
     verify(cb).equal(roleCategoryPath, targetPath);

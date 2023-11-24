@@ -322,21 +322,23 @@ public abstract class JPAAbstractQuery {
     return compoundCondition;
   }
 
+  @SuppressWarnings("unchecked")
   protected final Expression<Boolean> createWhereKeyIn(final JPAAssociationPath associationPath,
       final From<?, ?> target, final Subquery<?> subQuery) throws ODataJPAQueryException {
 
     try {
-      final List<Path<?>> paths = createWhereKeyInPathList(associationPath, target);
+      final List<Path<Comparable<?>>> paths = (List<Path<Comparable<?>>>) createWhereKeyInPathList(associationPath,
+          target);
       debugger.trace(this, "Creating WHERE snipped for in clause %s", paths);
-      return ((ProcessorCriteriaBuilder) cb).in(paths, subQuery);
+      return ((ProcessorCriteriaBuilder) cb).in(paths, (Subquery<List<Comparable<?>>>) subQuery);
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
   }
 
-  protected List<Path<?>> createWhereKeyInPathList(final JPAAssociationPath associationPath, final From<?, ?> target)
-      throws ODataJPAModelException {
+  protected List<?> createWhereKeyInPathList(final JPAAssociationPath associationPath,
+      final From<?, ?> target) throws ODataJPAModelException {
 
     if (associationPath.hasJoinTable()) {
       final JPAJoinTable joinTable = associationPath.getJoinTable();
@@ -444,7 +446,7 @@ public abstract class JPAAbstractQuery {
     return whereCondition;
   }
 
-  protected JPAEntityType getJpaEntity() {
+  public JPAEntityType getJpaEntity() {
     return jpaEntity;
   }
 
@@ -520,7 +522,7 @@ public abstract class JPAAbstractQuery {
     return path;
   }
 
-  private Path<?> mapOnToWhere(final JPAOnConditionItem on, final From<?, ?> target) {
+  private Path<Comparable<?>> mapOnToWhere(final JPAOnConditionItem on, final From<?, ?> target) {
     return target.get(on.getRightPath().getLeaf().getInternalName());
   }
 

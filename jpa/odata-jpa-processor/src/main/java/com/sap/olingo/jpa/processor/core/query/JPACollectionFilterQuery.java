@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -8,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -25,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -91,8 +94,8 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Subquery<T> getSubQuery(final Subquery<?> childQuery, @Nullable final VisitableExpression expression)
-      throws ODataApplicationException {
+  public <T> Subquery<T> getSubQuery(final Subquery<?> childQuery, @Nullable final VisitableExpression expression,
+      final List<Path<Comparable<?>>> inPath) throws ODataApplicationException {
 
     if (this.queryJoinTable != null) {
       if (this.aggregationType != null) {
@@ -147,7 +150,7 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
       final List<JPAOnConditionItem> left = association
           .getJoinTable()
           .getJoinColumns();
-      createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns());
+      createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns(), false);
       final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       subQuery.where(applyAdditionalFilter(whereCondition));
     } catch (final ODataJPAModelException e) {
@@ -158,13 +161,18 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
   private void createSubQueryJoinTableAggregation() throws ODataApplicationException {
 
     try {
-      createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns());
+      createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns(), false);
       final Expression<Boolean> whereCondition = createWhereSelfJoin(from, queryJoinTable, jpaEntity);
       subQuery.where(applyAdditionalFilter(whereCondition));
       handleAggregation(subQuery, queryJoinTable, determineAggregationLeftColumns());
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Override
+  public List<Path<Comparable<?>>> getLeftPaths() throws ODataJPAIllegalAccessException {
+    return Collections.emptyList();
   }
 
 }

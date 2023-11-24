@@ -112,7 +112,7 @@ class JPANavigationNullQueryTest extends TestBase {
 
     cut = new JPANavigationNullQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional.of(
         claimsProvider), Collections.emptyList());
-    assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null));
+    assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null, Collections.emptyList()));
   }
 
   @SuppressWarnings("unchecked")
@@ -146,7 +146,7 @@ class JPANavigationNullQueryTest extends TestBase {
         claimsProvider), Collections.emptyList());
     cut.buildExpression(expression, Collections.emptyList());
 
-    cut.getSubQuery(null, null);
+    cut.getSubQuery(null, null, Collections.emptyList());
     assertNotNull(cut);
     verify(cb).equal(idPath, idPath);
     verify(cb).equal(userNamePath, "Willi");

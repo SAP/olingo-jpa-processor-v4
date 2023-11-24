@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,11 +53,17 @@ class CriteriaBuilderH2Test extends CriteriaBuilderOverallTest {
   @Test
   void testRowNumberSupport() {
 
+    final List<Object> list = new ArrayList<>(1);
+
     final ProcessorCriteriaQuery<Tuple> cq = cb.createTupleQuery();
     final ProcessorSubquery<?> nuts3RowQuery = cq.subquery(AdministrativeDivision.class);
-    final ProcessorSubquery<?> nuts2Query = nuts3RowQuery.subquery(AdministrativeDivision.class);
+    @SuppressWarnings("unchecked")
+    final ProcessorSubquery<List<Comparable<?>>> nuts2Query = (ProcessorSubquery<List<Comparable<?>>>) nuts3RowQuery
+        .subquery(list.getClass());
     final ProcessorSubquery<?> nuts2RowQuery = nuts2Query.subquery(AdministrativeDivision.class);
-    final ProcessorSubquery<AdministrativeDivision> nuts1 = nuts2RowQuery.subquery(AdministrativeDivision.class);
+    @SuppressWarnings("unchecked")
+    final ProcessorSubquery<List<Comparable<?>>> nuts1 = (ProcessorSubquery<List<Comparable<?>>>) nuts2RowQuery
+        .subquery(list.getClass());
 
     final Root<?> nuts3Root = cq.from(nuts3RowQuery);
     final Root<AdministrativeDivision> nuts3RowRoot = nuts3RowQuery.from(AdministrativeDivision.class);
@@ -97,6 +104,7 @@ class CriteriaBuilderH2Test extends CriteriaBuilderOverallTest {
     assertEquals("BE212", result.get(0).get("divisionCode"));
   }
 
+  @SuppressWarnings({ "unchecked" })
   private Expression<Long> createRowNumber(final Root<AdministrativeDivision> root) {
     return (Expression<Long>) cb.rowNumber()
         .orderBy(cb.asc(root))

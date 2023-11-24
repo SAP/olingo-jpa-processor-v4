@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Map;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -291,6 +293,38 @@ class TestCriteriaBuilder {
     else
       // EclipseLink problem has been solved: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
       assertEquals(1, act.size());
+  }
+
+  @Test
+  void testInClauseSubquery() {
+
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<BusinessPartner> businessPartner = cq.from(BusinessPartner.class);
+    cq.select(businessPartner.get("iD"));
+    final Subquery<String> subquery = cq.subquery(String.class);
+    final Root<BusinessPartnerRole> role = subquery.from(BusinessPartnerRole.class);
+    subquery.select(role.get("businessPartnerID")).distinct(false);
+    final In<Object> in = cb.in(businessPartner.get("iD")).value(subquery);
+    cq.where(in);
+    final List<Tuple> act = em.createQuery(cq).getResultList();
+    assertFalse(act.isEmpty());
+  }
+
+  @Test
+  void testInClauseSubqueryInvert() {
+
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<BusinessPartner> businessPartner = cq.from(BusinessPartner.class);
+    cq.select(businessPartner.get("iD"));
+    final Subquery<BusinessPartnerRole> subquery = cq.subquery(BusinessPartnerRole.class);
+    final Root<BusinessPartnerRole> role = subquery.from(BusinessPartnerRole.class);
+    subquery.select(role.get("businessPartnerID"))
+        .distinct(false);
+
+    final Predicate in = role.in(businessPartner.get("iD"));
+    cq.where(in);
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
+    assertThrows(PersistenceException.class, () -> tq.getResultList());
   }
 
   @Test

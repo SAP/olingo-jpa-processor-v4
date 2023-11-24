@@ -1,19 +1,24 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
@@ -36,11 +41,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPANullExpression;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -55,6 +63,7 @@ class JPANavigationFilterQueryBuilderTest {
   private From<?, ?> from;
   private JPAODataClaimProvider claimsProvider;
   private List<String> groups;
+  private CriteriaBuilder cb;
 
   private JPAODataRequestContextAccess context;
   private JPAODataDatabaseOperations dbOperations;
@@ -85,8 +94,9 @@ class JPANavigationFilterQueryBuilderTest {
     query = mock(AbstractQuery.class);
     subQuery = mock(Subquery.class);
     queryRoot = mock(Root.class);
+    cb = mock(CriteriaBuilder.class);
 
-    cut = new JPANavigationFilterQueryBuilder();
+    cut = new JPANavigationFilterQueryBuilder(cb);
 
     when(((UriResourceNavigation) uriResourceItem).getType()).thenReturn(type);
     when(sd.getEntity(type)).thenReturn(et);
@@ -115,7 +125,7 @@ class JPANavigationFilterQueryBuilderTest {
         .setExpression(expression)
         .setGroups(groups);
 
-    final JPANavigationSubQuery act = cut.build();
+    final JPAAbstractSubQuery act = cut.build();
     assertTrue(act instanceof JPANavigationFilterQuery);
     assertNotNull(act);
     assertEquals(o, act.odata);
@@ -151,7 +161,7 @@ class JPANavigationFilterQueryBuilderTest {
         .setExpression(exp)
         .setGroups(groups);
 
-    final JPANavigationSubQuery act = cut.build();
+    final JPAAbstractSubQuery act = cut.build();
     assertTrue(act instanceof JPANavigationCountQuery);
     assertNotNull(act);
     assertEquals(o, act.odata);
@@ -187,7 +197,7 @@ class JPANavigationFilterQueryBuilderTest {
         .setExpression(exp)
         .setGroups(groups);
 
-    final JPANavigationSubQuery act = cut.build();
+    final JPAAbstractSubQuery act = cut.build();
     assertTrue(act instanceof JPANavigationNullQuery);
     assertNotNull(act);
     assertEquals(o, act.odata);
@@ -200,6 +210,54 @@ class JPANavigationFilterQueryBuilderTest {
     assertEquals(Locale.GERMANY, act.locale);
     assertEquals(subQuery, act.subQuery);
     assertTrue(act.claimsProvider.isPresent());
+  }
+
+  @Test
+  void testAsInQueryForProcessorCriteriaBuilder() throws ODataJPAFilterException {
+    cb = mock(ProcessorCriteriaBuilder.class);
+    cut = new JPANavigationFilterQueryBuilder(cb);
+    cut.setExpression(buildCountFromCountExpression());
+    assertTrue(cut.asInQuery());
+  }
+
+  @Test
+  void testAsExistsQueryForProcessorCriteriaBuilderNotCount() throws ODataJPAFilterException {
+    cb = mock(ProcessorCriteriaBuilder.class);
+    cut = new JPANavigationFilterQueryBuilder(cb);
+    assertFalse(cut.asInQuery());
+  }
+
+  @Test
+  void testAsInQueryTrueForCriteriaBuilderAssociationOneAttribute() throws ODataJPAModelException,
+      ODataJPAFilterException {
+
+    final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
+    final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
+    when(associationPath.getJoinColumnsList()).thenReturn(Collections.singletonList(onCondition));
+    cut.setAssociation(associationPath);
+    cut.setExpression(buildCountFromCountExpression());
+    assertTrue(cut.asInQuery());
+  }
+
+  @Test
+  void testAsInQueryFalseForCriteriaBuilderAssociationTwoAttribute() throws ODataJPAModelException,
+      ODataJPAFilterException {
+
+    final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
+    final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
+    when(associationPath.getJoinColumnsList()).thenReturn(Arrays.asList(onCondition, onCondition));
+    cut.setAssociation(associationPath);
+    cut.setExpression(buildCountFromCountExpression());
+    assertFalse(cut.asInQuery());
+  }
+
+  @Test
+  void testAsInQueryRethrowsException() throws ODataJPAFilterException, ODataJPAModelException {
+
+    final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
+    when(associationPath.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
+    cut.setAssociation(associationPath);
+    assertThrows(ODataJPAFilterException.class, () -> cut.asInQuery());
   }
 
   private static VisitableExpression buildCountFromCountExpression() {

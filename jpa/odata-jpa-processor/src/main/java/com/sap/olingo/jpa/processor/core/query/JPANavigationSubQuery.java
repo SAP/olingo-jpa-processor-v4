@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -99,10 +101,15 @@ public abstract class JPANavigationSubQuery extends JPAAbstractSubQuery {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public From<?, ?> getRoot() {
     assert queryRoot != null;
     return queryRoot;
   }
 
+  @Override
+  public List<Path<Comparable<?>>> getLeftPaths() throws ODataJPAIllegalAccessException {
+    return Collections.emptyList();
+  }
 }
