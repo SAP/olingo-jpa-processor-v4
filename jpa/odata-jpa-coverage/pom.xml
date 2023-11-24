@@ -11,10 +11,6 @@
     <name>odata-jpa-coverage</name>
     <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.sap.olingo</groupId>
@@ -59,7 +55,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -88,7 +83,6 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-                <version>${coveralls.version}</version>
             </plugin>
         </plugins>
     </build>

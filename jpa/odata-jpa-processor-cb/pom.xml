@@ -31,7 +31,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jcl</artifactId>
-			<version>${spring-jcl.version}</version>
         </dependency>
     </dependencies>
 
@@ -40,14 +39,6 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>1.15.3</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.pitest</groupId>
-                        <artifactId>pitest-junit5-plugin</artifactId>
-                        <version>1.2.1</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
                     <targetClasses>
                         <param>com.sap.olingo.jpa.processor.cb*</param>

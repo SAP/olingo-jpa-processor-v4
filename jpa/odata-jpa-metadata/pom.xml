@@ -14,9 +14,6 @@
 
 	<name>odata-jpa-metadata</name>
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<!-- Testing -->
 		<dependency>
@@ -35,7 +32,6 @@
 		<dependency>
 			<groupId>jakarta.persistence</groupId>
 			<artifactId>jakarta.persistence-api</artifactId>
-			<version>${jpa.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.olingo</groupId>
@@ -45,7 +41,6 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-codec-http</artifactId>
-			<version>4.1.101.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.olingo</groupId>
@@ -58,17 +53,14 @@
 		<dependency>
 			<groupId>net.oneandone.reflections8</groupId>
 			<artifactId>reflections8</artifactId>
-			<version>0.11.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
-			<version>3.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jcl</artifactId>
-			<version>${spring-jcl.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -76,14 +68,6 @@
 			<plugin>
 				<groupId>org.pitest</groupId>
 				<artifactId>pitest-maven</artifactId>
-				<version>1.15.3</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.pitest</groupId>
-						<artifactId>pitest-junit5-plugin</artifactId>
-						<version>1.2.1</version>
-					</dependency>
-				</dependencies>
 				<configuration>
 					<targetClasses>
 						<param>com.sap.olingo.jpa.metadata*</param>
