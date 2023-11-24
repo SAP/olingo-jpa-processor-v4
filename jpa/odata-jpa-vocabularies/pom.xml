@@ -15,7 +15,6 @@
         <dependency>
             <groupId>org.apache.olingo</groupId>
             <artifactId>odata-commons-api</artifactId>
-            <version>${odata.version}</version>
         </dependency>		
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>

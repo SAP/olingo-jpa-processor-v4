@@ -37,12 +37,10 @@
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-annotation</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-odata-vocabularies</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 		    <groupId>jakarta.persistence</groupId>

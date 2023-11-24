@@ -23,27 +23,22 @@
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-test</artifactId>
 			<scope>test</scope>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-annotation</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-metadata</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-processor-ext</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.olingo</groupId>
 			<artifactId>odata-server-core</artifactId>
-			<version>${odata.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.persistence</groupId>
@@ -92,7 +87,6 @@
 				<dependency>
 					<groupId>com.sap.olingo</groupId>
 					<artifactId>odata-jpa-processor-cb</artifactId>
-					<version>${project.version}</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>

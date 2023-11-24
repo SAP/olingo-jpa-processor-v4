@@ -62,6 +62,81 @@
 		<module>odata-jpa-vocabularies</module>
 		<module>odata-jpa-odata-vocabularies</module>
 	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-metadata</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-test</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-annotation</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor-cb</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor-parallel</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-coverage</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-spring-support</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor-ext</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-vocabularies</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-odata-vocabularies</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- odata artifacts outside of this repo -->
+			<dependency>
+				<groupId>org.apache.olingo</groupId>
+				<artifactId>odata-server-api</artifactId>
+				<version>${odata.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.olingo</groupId>
+				<artifactId>odata-server-core</artifactId>
+				<version>${odata.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.olingo</groupId>
+				<artifactId>odata-commons-api</artifactId>
+				<version>${odata.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<build>
 		<pluginManagement>
 			<plugins>

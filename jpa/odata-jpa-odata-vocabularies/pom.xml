@@ -13,17 +13,14 @@
 		<dependency>
 			<groupId>org.apache.olingo</groupId>
 			<artifactId>odata-commons-api</artifactId>
-			<version>${odata.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-annotation</artifactId>
-			<version>${project.version}</version>
 		</dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-vocabularies</artifactId>
-            <version>${project.version}</version>
         </dependency>		
 		<dependency>
 			<groupId>org.springframework</groupId>

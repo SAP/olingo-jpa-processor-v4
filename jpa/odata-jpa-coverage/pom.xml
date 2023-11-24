@@ -14,52 +14,43 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-annotation</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-metadata</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-processor</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-processor-cb</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-processor-ext</artifactId>
-            <version>${project.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-test</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-odata-vocabularies</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-processor-parallel</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-vocabularies</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
