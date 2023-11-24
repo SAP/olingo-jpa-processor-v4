@@ -24,7 +24,7 @@ class JPANavigationCountForExistsQueryTest extends JPANavigationCountQueryTest {
 
   @Override
   protected JPANavigationSubQuery createCut() throws ODataApplicationException {
-    return new JPANavigationCountForExistsQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional
+    return new JPANavigationCountForExistsQuery(odata, helper.sd, jpaEntityType, em, parent, from, association, Optional
         .of(claimsProvider), Collections.emptyList());
   }
 

@@ -9,6 +9,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.metamodel.PluralAttribute;
@@ -88,7 +90,7 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
   public JPAAssociationPath asAssociation() throws ODataJPAModelException {
     if (this.associationPath == null) {
       getJoinTable();
-      this.associationPath = new JPAAssociationPathImpl(this, sourceType,
+      this.associationPath = new JPAAssociationPathImpl(this,
           path == null ? sourceType.getPath(getExternalName()) : path,
           joinTable == null ? null : joinTable.getLeftJoinColumns());
     }
@@ -111,7 +113,7 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
     if (isComplex())
       return null;
     else {
-      for (final JPAAttribute a : ((IntermediateStructuredType<?>) getJoinTable().getEntityType()).getAttributes()) {
+      for (final JPAAttribute a : getTargetEntity().getAttributes()) {
         if (dbFieldName.equals(((IntermediateProperty) a).getDBFieldName()))
           return a;
       }
@@ -119,9 +121,11 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
-    return getJoinTable().getEntityType();
+    final JPAJoinTable joinInfo = getJoinTable();
+    return joinInfo == null ? null : ((IntermediateCollectionTable) joinInfo).getTargetType();
   }
 
   @Override
@@ -209,6 +213,7 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
     return null;
   }
 
+  @CheckForNull
   JPAJoinTable getJoinTable() throws ODataJPAModelException {
     if (joinTable == null) {
       final jakarta.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
@@ -237,19 +242,23 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
   private class IntermediateCollectionTable implements JPAJoinTable {
     private final CollectionTable jpaJoinTable;
     private final List<IntermediateJoinColumn> joinColumns;
-    private final JPAEntityType jpaEntityType;
+    private final JPAEntityType jpaTargetType;
 
     public IntermediateCollectionTable(final CollectionTable jpaJoinTable, final IntermediateSchema schema)
         throws ODataJPAModelException {
       super();
       this.jpaJoinTable = jpaJoinTable;
-      this.jpaEntityType = schema.getEntityType(jpaJoinTable.catalog(), jpaJoinTable.schema(), jpaJoinTable.name());
+      this.jpaTargetType = schema.getEntityType(jpaJoinTable.catalog(), jpaJoinTable.schema(), jpaJoinTable.name());
       this.joinColumns = buildJoinColumns(sourceType);
     }
 
     @Override
     public JPAEntityType getEntityType() {
-      return jpaEntityType;
+      return (JPAEntityType) sourceType;
+    }
+
+    JPAStructuredType getTargetType() {
+      return jpaTargetType;
     }
 
     @Override
@@ -258,20 +267,21 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
 
       for (final IntermediateJoinColumn column : joinColumns) {
         result.add(new JPAOnConditionItemImpl(
-            ((IntermediateEntityType<?>) jpaEntityType).getPathByDBField(column.getReferencedColumnName()),
-            sourceType.getPathByDBField(column.getName())));
+            sourceType.getPathByDBField(column.getName()),
+            ((IntermediateEntityType<?>) jpaTargetType).getPathByDBField(column.getReferencedColumnName())));
       }
       return result;
     }
 
     @Override
     public List<JPAOnConditionItem> getJoinColumns() throws ODataJPAModelException {
-      assert jpaEntityType != null;
+      assert jpaTargetType != null;
       final List<JPAOnConditionItem> result = new ArrayList<>();
+      // Self Join
       for (final IntermediateJoinColumn column : joinColumns) {
         result.add(new JPAOnConditionItemImpl(
             sourceType.getPathByDBField(column.getName()),
-            ((IntermediateEntityType<?>) jpaEntityType).getPathByDBField(column.getReferencedColumnName())));
+            sourceType.getPathByDBField(column.getName())));
       }
       return result;
     }
@@ -327,7 +337,7 @@ class IntermediateCollectionProperty<S> extends IntermediateProperty implements 
 
     @Override
     public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
-      return getJoinColumns().stream()
+      return getInverseJoinColumns().stream()
           .map(JPAOnConditionItem::getRightPath)
           .toList();
     }

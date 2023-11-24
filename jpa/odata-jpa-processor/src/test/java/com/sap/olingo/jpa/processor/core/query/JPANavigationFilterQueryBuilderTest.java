@@ -31,6 +31,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceCount;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +50,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPANullExpression;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -56,7 +58,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Person;
 class JPANavigationFilterQueryBuilderTest {
   private JPAServiceDocument sd;
   private EntityManager em;
-  private UriResource uriResourceItem;
+  private UriResourcePartTyped uriResourceItem;
   private JPAAbstractQuery parent;
   private JPAAssociationPath association;
   private VisitableExpression expression;
@@ -65,6 +67,7 @@ class JPANavigationFilterQueryBuilderTest {
   private List<String> groups;
   private CriteriaBuilder cb;
 
+  private JPANavigationPropertyInfoAccess navigationInfo;
   private JPAODataRequestContextAccess context;
   private JPAODataDatabaseOperations dbOperations;
   private JPAEntityType et;
@@ -80,12 +83,13 @@ class JPANavigationFilterQueryBuilderTest {
   void setup() throws ODataJPAModelException {
     sd = mock(JPAServiceDocument.class);
     em = mock(EntityManager.class);
-    uriResourceItem = mock(UriResource.class);
+    uriResourceItem = mock(UriResourcePartTyped.class);
     parent = mock(JPAAbstractQuery.class);
     association = mock(JPAAssociationPath.class);
     from = mock(From.class);
     claimsProvider = mock(JPAODataClaimProvider.class);
 
+    navigationInfo = mock(JPANavigationPropertyInfoAccess.class);
     uriResourceItem = mock(UriResourceNavigation.class);
     context = mock(JPAODataRequestContextAccess.class);
     dbOperations = mock(JPAODataDatabaseOperations.class);
@@ -108,6 +112,8 @@ class JPANavigationFilterQueryBuilderTest {
     doReturn(query).when(parent).getQuery();
     when(query.subquery(Integer.class)).thenReturn(subQuery);
     when(subQuery.from(Person.class)).thenReturn(queryRoot);
+    when(navigationInfo.getAssociationPath()).thenReturn(association);
+    when(navigationInfo.getUriResource()).thenReturn(uriResourceItem);
   }
 
   @Test
@@ -117,10 +123,9 @@ class JPANavigationFilterQueryBuilderTest {
     cut.setOdata(o)
         .setServiceDocument(sd)
         .setEntityManager(em)
-        .setUriResourceItem(uriResourceItem)
+        .setNavigationInfo(navigationInfo)
         .setParent(parent)
         .setFrom(from)
-        .setAssociation(association)
         .setClaimsProvider(claimsProvider)
         .setExpression(expression)
         .setGroups(groups);
@@ -153,10 +158,9 @@ class JPANavigationFilterQueryBuilderTest {
     cut.setOdata(o)
         .setServiceDocument(sd)
         .setEntityManager(em)
-        .setUriResourceItem(uriResourceItem)
+        .setNavigationInfo(navigationInfo)
         .setParent(parent)
         .setFrom(from)
-        .setAssociation(association)
         .setClaimsProvider(claimsProvider)
         .setExpression(exp)
         .setGroups(groups);
@@ -189,10 +193,9 @@ class JPANavigationFilterQueryBuilderTest {
     cut.setOdata(o)
         .setServiceDocument(sd)
         .setEntityManager(em)
-        .setUriResourceItem(uriResourceItem)
+        .setNavigationInfo(navigationInfo)
         .setParent(parent)
         .setFrom(from)
-        .setAssociation(association)
         .setClaimsProvider(claimsProvider)
         .setExpression(exp)
         .setGroups(groups);
@@ -229,34 +232,37 @@ class JPANavigationFilterQueryBuilderTest {
 
   @Test
   void testAsInQueryTrueForCriteriaBuilderAssociationOneAttribute() throws ODataJPAModelException,
-      ODataJPAFilterException {
+      ODataJPAFilterException, ODataJPAQueryException {
 
     final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
     final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
     when(associationPath.getJoinColumnsList()).thenReturn(Collections.singletonList(onCondition));
-    cut.setAssociation(associationPath);
+    when(navigationInfo.getAssociationPath()).thenReturn(associationPath);
+    cut.setNavigationInfo(navigationInfo);
     cut.setExpression(buildCountFromCountExpression());
     assertTrue(cut.asInQuery());
   }
 
   @Test
   void testAsInQueryFalseForCriteriaBuilderAssociationTwoAttribute() throws ODataJPAModelException,
-      ODataJPAFilterException {
+      ODataJPAFilterException, ODataJPAQueryException {
 
     final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
     final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
     when(associationPath.getJoinColumnsList()).thenReturn(Arrays.asList(onCondition, onCondition));
-    cut.setAssociation(associationPath);
+    when(navigationInfo.getAssociationPath()).thenReturn(associationPath);
+    cut.setNavigationInfo(navigationInfo);
     cut.setExpression(buildCountFromCountExpression());
     assertFalse(cut.asInQuery());
   }
 
   @Test
-  void testAsInQueryRethrowsException() throws ODataJPAFilterException, ODataJPAModelException {
+  void testAsInQueryRethrowsException() throws ODataJPAFilterException, ODataJPAModelException, ODataJPAQueryException {
 
     final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
     when(associationPath.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
-    cut.setAssociation(associationPath);
+    when(navigationInfo.getAssociationPath()).thenReturn(associationPath);
+    cut.setNavigationInfo(navigationInfo);
     assertThrows(ODataJPAFilterException.class, () -> cut.asInQuery());
   }
 

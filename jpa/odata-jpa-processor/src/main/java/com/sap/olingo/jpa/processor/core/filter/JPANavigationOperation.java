@@ -41,7 +41,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessExceptio
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
-import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQueryBuilder;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfoAccess;
@@ -143,32 +142,25 @@ final class JPANavigationOperation extends JPAExistsOperation {
       final JPANavigationPropertyInfoAccess navigationInfo = navigationPathList.get(i);
       if (i == 0) {
         expression = createExpression();
-        if (navigationInfo.getUriResource() instanceof UriResourceProperty) {
-          queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, navigationInfo.getAssociationPath(),
-              expression, determineFrom(i, navigationPathList.size(), parent), groups));
-        } else {
-          queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
-              .setOdata(odata)
-              .setServiceDocument(sd)
-              .setUriResourceItem(navigationInfo.getUriResource())
-              .setParent(parent)
-              .setEntityManager(em)
-              .setAssociation(navigationInfo.getAssociationPath())
-              .setExpression(expression)
-              .setFrom(determineFrom(i, navigationPathList.size(), parent))
-              .setParent(parent)
-              .setClaimsProvider(claimsProvider)
-              .setGroups(groups)
-              .build());
-        }
+        queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
+            .setOdata(odata)
+            .setServiceDocument(sd)
+            .setNavigationInfo(navigationInfo)
+            .setParent(parent)
+            .setEntityManager(em)
+            .setExpression(expression)
+            .setFrom(determineFrom(i, navigationPathList.size(), parent))
+            .setParent(parent)
+            .setClaimsProvider(claimsProvider)
+            .setGroups(groups)
+            .build());
       } else {
         queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
             .setOdata(odata)
             .setServiceDocument(sd)
-            .setUriResourceItem(navigationInfo.getUriResource())
+            .setNavigationInfo(navigationInfo)
             .setParent(parent)
             .setEntityManager(em)
-            .setAssociation(navigationInfo.getAssociationPath())
             .setFrom(determineFrom(i, navigationPathList.size(), parent))
             .setParent(parent)
             .setClaimsProvider(claimsProvider)

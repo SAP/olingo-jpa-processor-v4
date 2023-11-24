@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -114,7 +113,8 @@ public final class ExpressionUtility {
   public static List<Path<Comparable<?>>> convertToCriteriaPaths(final From<?, ?> from, final List<JPAPath> jpaPaths) {
     return jpaPaths.stream()
         .map(jpaPath -> ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from, jpaPath.getPath()))
-        .collect(Collectors.toList());
+        .toList();
+    // .collect(Collectors.toList());
   }
 
   public static Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value)

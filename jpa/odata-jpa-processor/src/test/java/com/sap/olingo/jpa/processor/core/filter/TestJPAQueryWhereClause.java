@@ -161,7 +161,7 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("CountNavigationPropertyMultipleHopsNavigations zero",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 0", 0),
         arguments("CountNavigationPropertyJoinTable not zero", "JoinSources?$filter=OneToMany/$count eq 2", 1),
-        arguments("CountNavigationPropertyJoinTable zero", "JoinSources?$filter=OneToMany/$count eq 0", 1),
+        arguments("CountCollectionPropertyOne", "Organizations?$select=ID&$filter=Comment/$count ge 1", 2),
         // To one association null
         arguments("NavigationPropertyIsNull",
             "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),

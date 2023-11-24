@@ -19,7 +19,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
@@ -50,7 +50,7 @@ class JPANavigationFilterQueryTest extends TestBase {
   protected Root<JoinPartnerRoleRelation> queryJoinTable;
   protected Root<BusinessPartnerRoleProtected> queryRoot;
   protected JPAODataClaimProvider claimsProvider;
-  protected EdmEntityType edmEntityType;
+  protected JPAEntityType jpaEntityType;
   @SuppressWarnings("rawtypes")
   protected CriteriaQuery cq;
   protected CriteriaBuilder cb;
@@ -66,7 +66,7 @@ class JPANavigationFilterQueryTest extends TestBase {
     claimsProvider = mock(JPAODataClaimProvider.class);
     odata = OData.newInstance();
     uriResourceItem = mock(UriResourceNavigation.class);
-    edmEntityType = mock(EdmEntityType.class);
+    jpaEntityType = helper.getJPAEntityType(BusinessPartnerRoleProtected.class);
     cq = mock(CriteriaQuery.class);
     cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
     subQuery = mock(Subquery.class);
@@ -77,10 +77,7 @@ class JPANavigationFilterQueryTest extends TestBase {
     final UriParameter key = mock(UriParameter.class);
 
     when(em.getCriteriaBuilder()).thenReturn(cb);
-    when(uriResourceItem.getType()).thenReturn(edmEntityType);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
-    when(edmEntityType.getName()).thenReturn("BusinessPartnerRoleProtected");
-    when(edmEntityType.getNamespace()).thenReturn(PUNIT_NAME);
     when(parent.getQuery()).thenReturn(cq);
     when(cq.subquery(any())).thenReturn(subQuery);
     when(subQuery.from(JoinPartnerRoleRelation.class)).thenReturn(queryJoinTable);
@@ -90,8 +87,8 @@ class JPANavigationFilterQueryTest extends TestBase {
   }
 
   protected JPAAbstractSubQuery createCut() throws ODataApplicationException {
-    return new JPANavigationFilterQuery(odata, helper.sd, uriResourceItem,
-        parent, em, association, from, Optional.of(claimsProvider));
+    return new JPANavigationFilterQuery(odata, helper.sd, jpaEntityType,
+        parent, em, association, from, Optional.of(claimsProvider), Collections.emptyList());
   }
 
   @Test

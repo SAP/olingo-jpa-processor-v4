@@ -24,7 +24,6 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -42,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
@@ -69,7 +69,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
   protected From<?, ?> from;
 
   protected JPAODataClaimProvider claimsProvider;
-  protected EdmEntityType edmEntityType;
+  protected JPAEntityType jpaEntityType;
   @SuppressWarnings("rawtypes")
   protected CriteriaQuery cq;
   protected CriteriaBuilder cb;
@@ -99,7 +99,6 @@ abstract class JPANavigationCountQueryTest extends TestBase {
     final UriParameter key = mock(UriParameter.class);
 
     when(em.getCriteriaBuilder()).thenReturn(cb);
-    when(uriResourceItem.getType()).thenReturn(edmEntityType);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
     when(parent.getQuery()).thenReturn(cq);
     when(cq.<Comparable<?>> subquery(any())).thenReturn(subQuery);
@@ -107,17 +106,15 @@ abstract class JPANavigationCountQueryTest extends TestBase {
     doReturn(BusinessPartnerProtected.class).when(from).getJavaType();
   }
 
-  protected void createEdmEntityType(final String name) {
-    edmEntityType = mock(EdmEntityType.class);
-    when(edmEntityType.getName()).thenReturn(name);
-    when(edmEntityType.getNamespace()).thenReturn(PUNIT_NAME);
+  protected void createEdmEntityType(final Class<?> clazz) throws ODataJPAModelException {
+    jpaEntityType = helper.getJPAEntityType(clazz);
   }
 
   protected abstract Subquery<Comparable<?>> createSubQuery();
 
   @Test
-  void testCutExists() throws ODataApplicationException {
-    createEdmEntityType("BusinessPartnerRoleProtected");
+  void testCutExists() throws ODataApplicationException, ODataJPAModelException {
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
     cut = createCut();
     assertNotNull(cut);
   }
@@ -125,9 +122,9 @@ abstract class JPANavigationCountQueryTest extends TestBase {
   protected abstract JPANavigationSubQuery createCut() throws ODataApplicationException;
 
   @Test
-  void testGetSubQueryThrowsExceptionWhenChildQueryProvided() throws ODataApplicationException {
+  void testGetSubQueryThrowsExceptionWhenChildQueryProvided() throws ODataApplicationException, ODataJPAModelException {
 
-    createEdmEntityType("BusinessPartnerRoleProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
     cut = createCut();
     assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null, Collections.emptyList()));
   }
@@ -138,7 +135,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
       EdmPrimitiveTypeException, ODataJPAIllegalAccessException {
 
     association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesJoinProtected");
-    createEdmEntityType("BusinessPartnerRoleProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
     final Root<JoinPartnerRoleRelation> queryJoinTable = mock(Root.class);
     final Root<BusinessPartnerRoleProtected> queryRoot = mock(Root.class);
     final Root<BusinessPartnerProtected> parentRoot = mock(Root.class);
@@ -183,7 +180,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
       EdmPrimitiveTypeException, ODataJPAIllegalAccessException {
 
     association = helper.getJPAAssociationPath(AdministrativeDivision.class, "Children");
-    createEdmEntityType("AdministrativeDivision");
+    createEdmEntityType(AdministrativeDivision.class);
 
     final Root<AdministrativeDivision> queryRoot = mock(Root.class);
     when(subQuery.from(AdministrativeDivision.class)).thenReturn(queryRoot);
@@ -211,7 +208,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
       EdmPrimitiveTypeException, ODataJPAIllegalAccessException {
 
     association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
-    createEdmEntityType("BusinessPartnerRoleProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
 
     final Path<Object> roleCategoryPath = mock(Path.class);
     final Root<BusinessPartnerRoleProtected> queryRoot = mock(Root.class);
@@ -237,8 +234,9 @@ abstract class JPANavigationCountQueryTest extends TestBase {
   }
 
   @Test
-  void testGetLeftOnEarlyAccess() throws ODataApplicationException, ODataJPAIllegalAccessException {
-    createEdmEntityType("BusinessPartnerRoleProtected");
+  void testGetLeftOnEarlyAccess() throws ODataApplicationException, ODataJPAIllegalAccessException,
+      ODataJPAModelException {
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
     cut = createCut();
     assertLeftEarlyAccess();
   }

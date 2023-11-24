@@ -79,13 +79,12 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    * @param joinColumns
    * @throws ODataJPAModelException
    */
-  public JPAAssociationPathImpl(final IntermediateCollectionProperty<?> collectionProperty,
-      final IntermediateStructuredType<?> source, final JPAPath path, final List<? extends JPAJoinColumn> joinColumns)
-      throws ODataJPAModelException {
+  public JPAAssociationPathImpl(final IntermediateCollectionProperty<?> collectionProperty, final JPAPath path,
+      final List<? extends JPAJoinColumn> joinColumns) throws ODataJPAModelException {
 
     alias = path.getAlias();
-    this.sourceType = source;
-    this.targetType = null;
+    this.sourceType = collectionProperty.getSourceType();
+    this.targetType = (IntermediateStructuredType<?>) collectionProperty.getTargetEntity();
     this.joinColumns = joinColumns;
     this.pathElements = path.getPath();
     this.cardinality = PersistentAttributeType.ONE_TO_MANY;

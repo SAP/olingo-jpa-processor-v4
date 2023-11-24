@@ -10,7 +10,6 @@ import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -18,6 +17,7 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPANavigationCountForExistsQuery extends JPANavigationCountQuery implements ExistsExpressionValue {
 
-  JPANavigationCountForExistsQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType type,
+  JPANavigationCountForExistsQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType type,
       final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
       final JPAAssociationPath association, final Optional<JPAODataClaimProvider> claimsProvider,
       final List<UriParameter> keyPredicates) throws ODataApplicationException {

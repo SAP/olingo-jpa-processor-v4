@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,6 +21,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 class CollectionJoinImplTest {
@@ -33,6 +35,7 @@ class CollectionJoinImplTest {
   private JPAJoinTable joinTable;
   private JPAJoinColumn joinColumn;
   private JPAEntityType targetType;
+  private JPAEntityType sourceType;
   private CollectionJoinImpl<?, ?> cut;
 
   @BeforeEach
@@ -45,14 +48,20 @@ class CollectionJoinImplTest {
     joinTable = mock(JPAJoinTable.class);
     joinColumn = mock(JPAJoinColumn.class);
     targetType = mock(JPAEntityType.class);
+    sourceType = mock(JPAEntityType.class);
     when(path.getLeaf()).thenReturn(attribute);
     when(attribute.asAssociation()).thenReturn(associationPath);
     when(attribute.getInternalName()).thenReturn("Test");
     when(associationPath.getJoinTable()).thenReturn(joinTable);
+    when(associationPath.getTargetType()).thenReturn(targetType);
+    when(associationPath.getSourceType()).thenReturn(sourceType);
     when(joinTable.getRawInverseJoinInformation()).thenReturn(Arrays.asList(joinColumn));
-    when(joinTable.getEntityType()).thenReturn(targetType);
-    when(targetType.getTypeClass()).thenAnswer(new ClassAnswer(Person.class));
-    when(targetType.getInternalName()).thenReturn("Dummy");
+    when(joinTable.getEntityType()).thenReturn(sourceType);
+    when(sourceType.getTypeClass()).thenAnswer(new ClassAnswer(Person.class));
+    when(sourceType.getInternalName()).thenReturn("Dummy");
+
+    when(targetType.getTypeClass()).thenAnswer(new ClassAnswer(InhouseAddressTable.class));
+    when(targetType.getInternalName()).thenReturn("InhouseAddressTable");
     cut = new CollectionJoinImpl<>(path, parent, ab, cb, null);
   }
 
@@ -89,5 +98,10 @@ class CollectionJoinImplTest {
     assertTrue(cut.equals(cut)); // NOSONAR
     assertFalse(cut.equals(null));// NOSONAR
     assertFalse(cut.equals("Test"));// NOSONAR
+  }
+
+  @Test
+  void testDeterminedType() {
+    assertEquals(targetType, cut.st);
   }
 }

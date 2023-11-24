@@ -94,19 +94,8 @@ public abstract class JPAAbstractQuery {
 
   JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
       final EntityManager em, final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
-    super();
-    this.em = em;
-    this.cb = em.getCriteriaBuilder();
-    this.sd = sd;
-    try {
-      this.jpaEntity = sd.getEntity(edmEntityType);
-    } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
-    }
-    this.debugger = new JPAEmptyDebugger();
-    this.odata = odata;
-    this.claimsProvider = claimsProvider;
-    this.groups = Collections.emptyList();
+
+    this(odata, sd, asJPAEntityType(sd, edmEntityType), em, claimsProvider);
   }
 
   JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
@@ -149,6 +138,15 @@ public abstract class JPAAbstractQuery {
   public abstract <T> AbstractQuery<T> getQuery();
 
   public abstract <S, T> From<S, T> getRoot();
+
+  protected static JPAEntityType asJPAEntityType(final JPAServiceDocument sd, final EdmEntityType edmEntityType)
+      throws ODataJPAQueryException {
+    try {
+      return sd.getEntity(edmEntityType);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+    }
+  }
 
   protected jakarta.persistence.criteria.Expression<Boolean> addWhereClause(
       jakarta.persistence.criteria.Expression<Boolean> whereCondition,

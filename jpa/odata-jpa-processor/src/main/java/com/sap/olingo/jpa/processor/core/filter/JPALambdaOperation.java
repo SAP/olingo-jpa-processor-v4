@@ -12,13 +12,11 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceLambdaAll;
 import org.apache.olingo.server.api.uri.UriResourceLambdaAny;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
-import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQueryBuilder;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfoAccess;
@@ -26,11 +24,6 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfoAccess;
 abstract class JPALambdaOperation extends JPAExistsOperation {
 
   protected final UriInfoResource member;
-
-  JPALambdaOperation(final JPAFilterComplierAccess jpaComplier, final UriInfoResource member) {
-    super(jpaComplier);
-    this.member = member;
-  }
 
   JPALambdaOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
     super(jpaComplier);
@@ -57,31 +50,25 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
     for (int i = navigationPathList.size() - 1; i >= 0; i--) {
       final JPANavigationPropertyInfoAccess navigationInfo = navigationPathList.get(i);
       if (i == 0) {
-        if (navigationInfo.getUriResource() instanceof UriResourceProperty)
-          queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, member.getUriResourceParts(), expression,
-              from, groups));
-        else
-          queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
-              .setOdata(odata)
-              .setServiceDocument(sd)
-              .setUriResourceItem(navigationInfo.getUriResource())
-              .setParent(parent)
-              .setEntityManager(em)
-              .setAssociation(navigationInfo.getAssociationPath())
-              .setExpression(expression)
-              .setFrom(from)
-              .setParent(parent)
-              .setClaimsProvider(claimsProvider)
-              .setGroups(groups)
-              .build());
+        queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
+            .setOdata(odata)
+            .setServiceDocument(sd)
+            .setNavigationInfo(navigationInfo)
+            .setParent(parent)
+            .setEntityManager(em)
+            .setExpression(expression)
+            .setFrom(from)
+            .setParent(parent)
+            .setClaimsProvider(claimsProvider)
+            .setGroups(groups)
+            .build());
       } else {
         queryList.add(new JPANavigationFilterQueryBuilder(converter.cb)
             .setOdata(odata)
             .setServiceDocument(sd)
-            .setUriResourceItem(navigationInfo.getUriResource())
+            .setNavigationInfo(navigationInfo)
             .setParent(parent)
             .setEntityManager(em)
-            .setAssociation(navigationInfo.getAssociationPath())
             .setFrom(from)
             .setParent(parent)
             .setClaimsProvider(claimsProvider)

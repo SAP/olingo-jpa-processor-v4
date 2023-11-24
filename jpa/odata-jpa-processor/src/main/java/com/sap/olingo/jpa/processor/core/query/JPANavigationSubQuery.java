@@ -14,7 +14,6 @@ import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -24,6 +23,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -38,11 +38,11 @@ public abstract class JPANavigationSubQuery extends JPAAbstractSubQuery {
 
   protected final List<UriParameter> keyPredicates;
 
-  JPANavigationSubQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
+  JPANavigationSubQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntity,
       final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
       final JPAAssociationPath association, final Optional<JPAODataClaimProvider> claimsProvider,
       final List<UriParameter> keyPredicates) throws ODataApplicationException {
-    super(odata, sd, edmEntityType, em, parent, from, association, claimsProvider);
+    super(odata, sd, jpaEntity, em, parent, from, association, claimsProvider);
     this.keyPredicates = keyPredicates;
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
     this.locale = parent.getLocale();
@@ -52,7 +52,7 @@ public abstract class JPANavigationSubQuery extends JPAAbstractSubQuery {
   final void buildExpression(final VisitableExpression expression, final List<String> groups)
       throws ODataApplicationException {
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-        getContext().getOperationConverter()), null, this, expression, null, groups);
+        getContext().getOperationConverter()), null, this, expression, association, groups);
     createDescriptionJoin();
   }
 

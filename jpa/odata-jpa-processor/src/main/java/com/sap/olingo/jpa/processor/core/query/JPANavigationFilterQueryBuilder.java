@@ -16,15 +16,18 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.expression.Binary;
 import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
@@ -59,7 +62,7 @@ public class JPANavigationFilterQueryBuilder {
   private Optional<JPAODataClaimProvider> claimsProvider;
   private List<String> groups;
   private List<UriParameter> keyPredicates;
-  private EdmEntityType type;
+  private UriResourcePartTyped uriResource;
 
   public JPANavigationFilterQueryBuilder(final CriteriaBuilder cb) {
     this.cb = cb;
@@ -67,6 +70,7 @@ public class JPANavigationFilterQueryBuilder {
 
   public JPANavigationSubQuery build() throws ODataApplicationException {
     final JPANavigationSubQuery query;
+    final JPAEntityType type = determineJpaEntityType();
     if (expression != null && getAggregationType(expression) != null) {
       if (asInQuery())
         query = new JPANavigationCountForInQuery(odata, sd,
@@ -85,6 +89,13 @@ public class JPANavigationFilterQueryBuilder {
     return query;
   }
 
+  private JPAEntityType determineJpaEntityType() throws ODataJPAQueryException {
+    if (uriResource instanceof UriResourceProperty)
+      return determineEntityType(association);
+    else
+      return asJPAEntityType((EdmEntityType) uriResource.getType());
+  }
+
   public JPANavigationFilterQueryBuilder setOdata(final OData odata) {
     this.odata = odata;
     return this;
@@ -95,10 +106,11 @@ public class JPANavigationFilterQueryBuilder {
     return this;
   }
 
-  public JPANavigationFilterQueryBuilder setUriResourceItem(final UriResource uriResourceItem)
-      throws ODataApplicationException {
-    keyPredicates = Utility.determineKeyPredicates(uriResourceItem);
-    type = (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType();
+  public JPANavigationFilterQueryBuilder setNavigationInfo(final JPANavigationPropertyInfoAccess navigationInfo) {
+    this.keyPredicates = navigationInfo.getKeyPredicates();
+    this.association = navigationInfo.getAssociationPath();
+    this.uriResource = navigationInfo.getUriResource();
+
     return this;
   }
 
@@ -109,11 +121,6 @@ public class JPANavigationFilterQueryBuilder {
 
   public JPANavigationFilterQueryBuilder setEntityManager(final EntityManager em) {
     this.em = em;
-    return this;
-  }
-
-  public JPANavigationFilterQueryBuilder setAssociation(final JPAAssociationPath association) {
-    this.association = association;
     return this;
   }
 
@@ -176,5 +183,17 @@ public class JPANavigationFilterQueryBuilder {
 
     return expression instanceof final JPANullExpression nullExpression
         && NULL.equals(nullExpression.getLiteral().getText());
+  }
+
+  private JPAEntityType determineEntityType(final JPAAssociationPath associationPath) {
+    return (JPAEntityType) associationPath.getTargetType();
+  }
+
+  private JPAEntityType asJPAEntityType(final EdmEntityType edmEntityType) throws ODataJPAQueryException {
+    try {
+      return sd.getEntity(edmEntityType);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+    }
   }
 }

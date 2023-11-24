@@ -33,5 +33,5 @@ public @interface EdmTransient {
    * property collection.
    * @return
    */
-  Class<? extends EdmTransientPropertyCalculator<?>> calculator();
+  Class<? extends EdmTransientPropertyCalculator<?>> calculator(); // NOSONAR
 }

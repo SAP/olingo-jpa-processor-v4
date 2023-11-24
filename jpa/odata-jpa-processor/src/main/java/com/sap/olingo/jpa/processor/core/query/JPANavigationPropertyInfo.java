@@ -142,7 +142,8 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
     return fromClause;
   }
 
-  List<UriParameter> getKeyPredicates() {
+  @Override
+  public List<UriParameter> getKeyPredicates() {
     return keyPredicates;
   }
 
