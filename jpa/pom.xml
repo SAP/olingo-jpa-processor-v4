@@ -14,7 +14,7 @@
 		<project.build.target>17</project.build.target>
 		<maven.compiler.version>3.11.0</maven.compiler.version>
 		<odata.version>4.10.0</odata.version>
-		<jackson.version>2.14.3</jackson.version>
+		<jackson.version>2.16.0</jackson.version>
 		<powermock.version>1.7.1</powermock.version>
 		<coveralls.version>4.3.0</coveralls.version>
 		<cf-logging.version>3.8.0</cf-logging.version>
@@ -227,24 +227,11 @@
 				<version>3.0.2</version>
 			</dependency>
 			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-annotations</artifactId>
+				<groupId>com.fasterxml.jackson</groupId>
+				<artifactId>jackson-bom</artifactId>
 				<version>${jackson.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-core</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.dataformat</groupId>
-				<artifactId>jackson-dataformat-xml</artifactId>
-				<version>${jackson.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>io.netty</groupId>
