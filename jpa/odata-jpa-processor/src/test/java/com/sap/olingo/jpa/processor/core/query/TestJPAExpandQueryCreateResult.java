@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -44,7 +44,7 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     createHeaders();
     final EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
     sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
-        TestBase.enumPackages), ds, null);
+        TestBase.enumPackages), dataSource, null, null);
 
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
@@ -62,8 +62,8 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final HashMap<String, Object> oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "1");
     oneResult.put("RoleCategory", "A");
-    final Tuple t = new TupleDouble(oneResult);
-    result.add(t);
+    final Tuple tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
@@ -77,18 +77,18 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
     final List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
-    Tuple t;
+    Tuple tuple;
 
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
@@ -103,18 +103,18 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
     final List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
-    Tuple t;
+    Tuple tuple;
 
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, 1);
 
@@ -129,18 +129,18 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
     final List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
-    Tuple t;
+    Tuple tuple;
 
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 1, 1000);
 
@@ -155,18 +155,18 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
     final List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
-    Tuple t;
+    Tuple tuple;
 
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "1");
     oneResult.put("RoleCategory", "A");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
     oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
@@ -187,8 +187,8 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     oneResult.put("CodeID", "2");
     oneResult.put("ParentCodeID", "1");
     oneResult.put("ParentDivisionCode", "BE2");
-    final Tuple t = new TupleDouble(oneResult);
-    result.add(t);
+    final Tuple tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
@@ -202,7 +202,7 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final JPAAssociationPath exp = helper.getJPAAssociationPath("AdministrativeDivisions", "Parent");
     final List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
-    Tuple t;
+    Tuple tuple;
 
     oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
@@ -210,8 +210,8 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     oneResult.put("CodeID", "2");
     oneResult.put("ParentCodeID", "1");
     oneResult.put("ParentDivisionCode", "BE2");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
@@ -219,8 +219,8 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     oneResult.put("CodeID", "2");
     oneResult.put("ParentCodeID", "1");
     oneResult.put("ParentDivisionCode", "BE1");
-    t = new TupleDouble(oneResult);
-    result.add(t);
+    tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
@@ -245,8 +245,8 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final HashMap<String, Object> oneResult = new HashMap<>();
     oneResult.put("SupportEngineers" + JPAExpandJoinQuery.ALIAS_SEPARATOR + "ID", "2");
     oneResult.put("ID", "97");
-    final Tuple t = new TupleDouble(oneResult);
-    result.add(t);
+    final Tuple tuple = new TupleDouble(oneResult);
+    result.add(tuple);
 
     final Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 

@@ -1,12 +1,12 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.Optional;
 
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TupleElement;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 

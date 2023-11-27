@@ -15,9 +15,9 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.OptimisticLockException;
-import javax.persistence.RollbackException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.RollbackException;
 
 import org.apache.olingo.commons.api.format.PreferenceName;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -235,11 +235,11 @@ class JPAODataBatchProcessorTest {
   @Test
   void whenNotContinueOnErrorSecondNotPerformed() throws ODataApplicationException, ODataLibraryException {
     final List<BatchRequestPart> requestParts = createBatchRequest();
-    final ODataResponsePart resp = mock(ODataResponsePart.class);
+    final ODataResponsePart response = mock(ODataResponsePart.class);
     final List<ODataResponse> responses = createBatchPartResponse(400);
 
-    when(facade.handleBatchRequest(requestParts.get(0))).thenReturn(resp);
-    when(resp.getResponses()).thenReturn(responses);
+    when(facade.handleBatchRequest(requestParts.get(0))).thenReturn(response);
+    when(response.getResponses()).thenReturn(responses);
 
     cut.executeBatchParts(facade, requestParts, false);
 
@@ -249,15 +249,15 @@ class JPAODataBatchProcessorTest {
   @Test
   void whenContinueOnErrorSecondPerformed() throws ODataApplicationException, ODataLibraryException {
     final List<BatchRequestPart> requestParts = createBatchRequest();
-    final ODataResponsePart resp1 = mock(ODataResponsePart.class);
-    final ODataResponsePart resp2 = mock(ODataResponsePart.class);
+    final ODataResponsePart response1 = mock(ODataResponsePart.class);
+    final ODataResponsePart response2 = mock(ODataResponsePart.class);
     final List<ODataResponse> responses1 = createBatchPartResponse(400);
     final List<ODataResponse> responses2 = createBatchPartResponse(200);
 
-    when(facade.handleBatchRequest(requestParts.get(0))).thenReturn(resp1);
-    when(resp1.getResponses()).thenReturn(responses1);
-    when(facade.handleBatchRequest(requestParts.get(1))).thenReturn(resp2);
-    when(resp2.getResponses()).thenReturn(responses2);
+    when(facade.handleBatchRequest(requestParts.get(0))).thenReturn(response1);
+    when(response1.getResponses()).thenReturn(responses1);
+    when(facade.handleBatchRequest(requestParts.get(1))).thenReturn(response2);
+    when(response2.getResponses()).thenReturn(responses2);
 
     final List<ODataResponsePart> act = cut.executeBatchParts(facade, requestParts, true);
 
@@ -266,17 +266,17 @@ class JPAODataBatchProcessorTest {
   }
 
   @Test
-  void whenNotContinueOnErrorSecondPerformedNoFailuer() throws ODataApplicationException, ODataLibraryException {
+  void whenNotContinueOnErrorSecondPerformedNoFailure() throws ODataApplicationException, ODataLibraryException {
     final List<BatchRequestPart> requestParts = createBatchRequest();
-    final ODataResponsePart resp1 = mock(ODataResponsePart.class);
-    final ODataResponsePart resp2 = mock(ODataResponsePart.class);
+    final ODataResponsePart response1 = mock(ODataResponsePart.class);
+    final ODataResponsePart response2 = mock(ODataResponsePart.class);
     final List<ODataResponse> responses1 = createBatchPartResponse(200);
     final List<ODataResponse> responses2 = createBatchPartResponse(200);
 
-    when(facade.handleBatchRequest(requestParts.get(0))).thenReturn(resp1);
-    when(resp1.getResponses()).thenReturn(responses1);
-    when(facade.handleBatchRequest(requestParts.get(1))).thenReturn(resp2);
-    when(resp2.getResponses()).thenReturn(responses2);
+    when(facade.handleBatchRequest(requestParts.get(0))).thenReturn(response1);
+    when(response1.getResponses()).thenReturn(responses1);
+    when(facade.handleBatchRequest(requestParts.get(1))).thenReturn(response2);
+    when(response2.getResponses()).thenReturn(responses2);
 
     final List<ODataResponsePart> act = cut.executeBatchParts(facade, requestParts, false);
 

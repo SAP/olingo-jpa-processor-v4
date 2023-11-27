@@ -52,10 +52,10 @@ class EdmBoundCast implements EdmBindingTarget {
   public EdmBindingTarget getRelatedBindingTarget(final String path) {
     final EdmNavigationProperty navigation = edmType.getNavigationProperty(path);
     if (navigation == null)
-      throw new EdmException("Unknown navigation propery with name: " + path);
+      throw new EdmException("Unknown navigation property with name: " + path);
     final EdmEntityType targetEntityType = navigation.getType();
     if (targetEntityType == null)
-      throw new EdmException("Target entity type not found of navigation propery with name: " + path);
+      throw new EdmException("Target entity type not found of navigation property with name: " + path);
     return new EdmBoundCast(targetEntityType, this);
   }
 

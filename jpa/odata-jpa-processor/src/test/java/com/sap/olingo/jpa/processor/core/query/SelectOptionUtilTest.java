@@ -75,7 +75,7 @@ class SelectOptionUtilTest {
   }
 
   @Test
-  void testThrowsInternaServerPathThrowsException() throws ODataJPAModelException {
+  void testThrowsInternalServerPathThrowsException() throws ODataJPAModelException {
     jpaEntity = mock(JPAStructuredType.class);
     when(jpaEntity.getPath(anyString())).thenThrow(ODataJPAModelException.class);
 

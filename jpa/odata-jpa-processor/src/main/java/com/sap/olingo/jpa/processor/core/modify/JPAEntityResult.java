@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 
@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
  * Provides an entity as tuple result. This is primarily done to reuse the existing tuple converter.
- * 
+ *
  * @author Oliver Grande
  *
  */
@@ -54,17 +54,17 @@ final class JPAEntityResult extends JPAEntityBasedResult {
     }
     for (final JPAPath path : et.getCollectionAttributesPath()) {
       Map<String, Object> embeddedGetterMap = valuePairedResult;
-      for (JPAElement e : path.getPath()) {
-        final Object value = embeddedGetterMap.get(e.getInternalName());
-        if (e instanceof JPAAttribute && ((JPAAttribute) e).isComplex() && !(((JPAAttribute) e).isCollection())
+      for (final JPAElement element : path.getPath()) {
+        final Object value = embeddedGetterMap.get(element.getInternalName());
+        if (element instanceof final JPAAttribute attribute && attribute.isComplex() && !(attribute.isCollection())
             && value != null) {
           embeddedGetterMap = helper.buildGetterMap(value);
           continue;
         }
-        if (e instanceof JPACollectionAttribute && value != null) {
-          final JPAAssociationPath assPath = ((JPACollectionAttribute) e).asAssociation();
+        if (element instanceof final JPACollectionAttribute attribute && value != null) {
+          final JPAAssociationPath assPath = attribute.asAssociation();
           final JPAExpandResult child = new JPAEntityCollectionResult(et, (Collection<?>) value, requestHeaders,
-              (JPACollectionAttribute) e);
+              attribute);
           child.convert(converter);
           children.put(assPath, child);
         }

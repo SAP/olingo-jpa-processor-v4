@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.debug.DebugSupport;
@@ -81,7 +81,6 @@ class JPAODataInternalRequestContextTest {
     contextAccess = mock(JPAODataRequestContextAccess.class);
     requestContext = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
-    page = mock(JPAODataPage.class);
     uriInfoResource = mock(UriInfoResource.class);
     header = new HashMap<>();
 
@@ -98,6 +97,7 @@ class JPAODataInternalRequestContextTest {
     dbProcessor = mock(JPAODataDatabaseProcessor.class);
     edmProvider = mock(JPAEdmProvider.class);
     operationConverter = mock(JPAODataDatabaseOperations.class);
+    page = new JPAODataPage(uriInfo, 0, 0, claims);
 
     when(contextAccess.getTransactionFactory()).thenReturn(transactionFactory);
     when(contextAccess.getRequestParameter()).thenReturn(customParameter);
@@ -106,7 +106,6 @@ class JPAODataInternalRequestContextTest {
     when(contextAccess.getGroupsProvider()).thenReturn(groups);
     when(contextAccess.getProvidedLocale()).thenReturn(locales);
     when(contextAccess.getDebugger()).thenReturn(debugger);
-    when(page.getUriInfo()).thenReturn(uriInfo);
 
     when(requestContext.getClaimsProvider()).thenReturn(claims);
     when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
@@ -266,7 +265,7 @@ class JPAODataInternalRequestContextTest {
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);
-    when(et.getQueryExtention()).thenReturn(Optional.of(extension));
+    when(et.getQueryExtension()).thenReturn(Optional.of(extension));
     when(extension.getConstructor()).thenAnswer(new Answer<Constructor<? extends EdmQueryExtensionProvider>>() {
       @Override
       public Constructor<? extends EdmQueryExtensionProvider> answer(final InvocationOnMock invocation)

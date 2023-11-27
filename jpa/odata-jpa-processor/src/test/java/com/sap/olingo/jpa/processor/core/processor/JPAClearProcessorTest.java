@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -342,7 +342,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testReraiseWithRollback() throws ODataJPATransactionException {
+  void testReRaiseWithRollback() throws ODataJPATransactionException {
     // .../Organizations('35')/Name2
     final ODataResponse response = new ODataResponse();
 
@@ -357,7 +357,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testReraiseReturnCodeWithOutRollback() throws ODataJPAProcessException {
+  void testReRaiseReturnCodeWithOutRollback() throws ODataJPAProcessException {
     // .../Organizations('35')/Name2
     final ODataResponse response = new ODataResponse();
 
@@ -372,7 +372,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+  void testCallsValidateChangesOnSuccessfulProcessing() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 
@@ -384,7 +384,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+  void testDoesNotCallsValidateChangesOnForeignTransaction() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 
@@ -514,12 +514,12 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
     when(uriProperty.getProperty()).thenReturn(property);
     when(property.getName()).thenReturn("Updated");
 
-    UriResourcePrimitiveProperty uriPrimProperty;
-    uriPrimProperty = mock(UriResourcePrimitiveProperty.class);
+    UriResourcePrimitiveProperty uriPrimitiveProperty;
+    uriPrimitiveProperty = mock(UriResourcePrimitiveProperty.class);
     property = mock(EdmProperty.class);
 
-    pathParts.add(uriPrimProperty);
-    when(uriPrimProperty.getProperty()).thenReturn(property);
+    pathParts.add(uriPrimitiveProperty);
+    when(uriPrimitiveProperty.getProperty()).thenReturn(property);
     when(property.getName()).thenReturn("By");
 
     final RequestHandleSpy spy = new RequestHandleSpy();

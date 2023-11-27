@@ -70,14 +70,14 @@ class JPANavigationOperationTest {
   }
 
   @TestFactory
-  Stream<DynamicTest> testMemberMethodsReturninfNull() {
+  Stream<DynamicTest> testMemberMethodsReturningNull() {
     final Member act = cut.getMember();
     return Stream.of("getStartTypeFilter", "getType")
         .map(method -> dynamicTest(method, () -> assertNull(executeMethod(act, method))));
   }
 
   @Test
-  void testMemberAcceptReturtnsNull() throws ExpressionVisitException, ODataApplicationException {
+  void testMemberAcceptReturnsNull() throws ExpressionVisitException, ODataApplicationException {
     assertNull(cut.getMember().accept(null));
   }
 
@@ -87,7 +87,7 @@ class JPANavigationOperationTest {
   }
 
   @TestFactory
-  Stream<DynamicTest> testMemberResourceMethodsReturninfNull() {
+  Stream<DynamicTest> testMemberResourceMethodsReturningNull() {
     final UriInfoResource act = cut.getMember().getResourcePath();
     return Stream.of("getApplyOption", "getCountOption", "getDeltaTokenOption", "getExpandOption", "getFilterOption",
         "getFormatOption", "getIdOption", "getOrderByOption", "getSearchOption", "getSelectOption", "getSkipOption",
@@ -109,7 +109,7 @@ class JPANavigationOperationTest {
   }
 
   @TestFactory
-  Stream<DynamicTest> testMethodsReturninfNull() {
+  Stream<DynamicTest> testMethodsReturningNull() {
     return Stream.of("getOperator")
         .map(method -> dynamicTest(method, () -> assertNull(executeMethod(cut, method))));
   }

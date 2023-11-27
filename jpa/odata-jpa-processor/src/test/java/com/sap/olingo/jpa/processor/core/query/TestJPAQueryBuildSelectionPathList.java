@@ -54,7 +54,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     createHeaders();
     sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        ds, null);
+        dataSource, null, null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext);
@@ -139,7 +139,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   }
 
   @Test
-  void checkSelectAllFromNavgateComplexPrimitiveAndOnePrimitiveWithKey() throws ODataApplicationException {
+  void checkSelectAllFromNavigateComplexPrimitiveAndOnePrimitiveWithKey() throws ODataApplicationException {
     final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
         "Address/CountryName,Country"))).getODataSelections();
     assertEquals(4, act.size());
@@ -178,7 +178,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   }
 
   @Test
-  void checkSelectNavigationCompexComplexProperty() throws ODataException {
+  void checkSelectNavigationComplexComplexProperty() throws ODataException {
     final List<UriResource> resourcePath = buildUriInfo("BusinessPartners", "BusinessPartner");
     final UriResourceComplexProperty adminInfoResource = mock(UriResourceComplexProperty.class);
     final EdmProperty adminInfoProperty = mock(EdmProperty.class);
@@ -213,7 +213,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(byResource);
 
     final UriResourceValue valueResource = mock(UriResourceValue.class);
-    when(valueResource.getSegmentValue()).thenReturn(Util.VALUE_RESOURCE.toLowerCase());
+    when(valueResource.getSegmentValue()).thenReturn(Utility.VALUE_RESOURCE.toLowerCase());
     resourcePath.add(valueResource);
 
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo).getODataSelections();
@@ -221,7 +221,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   }
 
   @Test
-  void checkSelectNavigationCompexWithSelectPrimitive() throws ODataException {
+  void checkSelectNavigationComplexWithSelectPrimitive() throws ODataException {
     final List<UriResource> resourcePath = buildUriInfo("BusinessPartners", "BusinessPartner");
     final UriResourceComplexProperty addressResource = mock(UriResourceComplexProperty.class);
     final EdmProperty addressProperty = mock(EdmProperty.class);
@@ -238,7 +238,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   }
 
   @Test
-  void checkSelectContainesVersionEvenSoIgnored() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectContainsVersionEvenSoIgnored() throws ODataApplicationException, ODataJPAModelException {
     final List<UriResource> resourcePath = buildUriInfo("BusinessPartnerProtecteds", "BusinessPartnerProtected");
     final UriResourcePrimitiveProperty byResource = mock(UriResourcePrimitiveProperty.class);
     final EdmProperty byProperty = mock(EdmProperty.class);
@@ -247,7 +247,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(byResource);
 
     final UriResourceValue valueResource = mock(UriResourceValue.class);
-    when(valueResource.getSegmentValue()).thenReturn(Util.VALUE_RESOURCE.toLowerCase());
+    when(valueResource.getSegmentValue()).thenReturn(Utility.VALUE_RESOURCE.toLowerCase());
     resourcePath.add(valueResource);
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo).getODataSelections();
     assertEquals(2, act.size());

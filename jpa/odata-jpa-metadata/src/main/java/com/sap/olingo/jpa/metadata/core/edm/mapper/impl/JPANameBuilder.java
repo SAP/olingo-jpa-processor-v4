@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import javax.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 

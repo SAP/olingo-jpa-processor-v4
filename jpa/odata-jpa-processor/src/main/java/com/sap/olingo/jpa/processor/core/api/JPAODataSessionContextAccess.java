@@ -3,13 +3,14 @@ package com.sap.olingo.jpa.processor.core.api;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.processor.ErrorProcessor;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
 /**
@@ -36,7 +37,8 @@ public interface JPAODataSessionContextAccess {
   /**
    * If server side paging shall be supported <code>getPagingProvider</code> returns an implementation of a paging
    * provider. Details about the OData specification can be found under <a
-   * href="https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Server-Driven_Paging">OData
+   * href=
+   * "https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Server-Driven_Paging">OData
    * Version 4.0 Part 1 - 11.2.5.7 Server-Driven Paging</a>
    * @return
    */
@@ -61,4 +63,6 @@ public interface JPAODataSessionContextAccess {
   public default boolean useAbsoluteContextURL() {
     return false;
   }
+
+  public List<AnnotationProvider> getAnnotationProvider();
 }

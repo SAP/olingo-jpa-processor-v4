@@ -7,10 +7,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -34,17 +39,43 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.Me
  * in a Map the internal, JAVA attribute, names. Based on the JAVA naming
  * conventions the corresponding Setter is called, as long as the Setter has the
  * correct type.
- * 
+ *
  * @author Oliver Grande
  *
  */
 public final class JPAModifyUtil {
-
+  private static final Log LOGGER = LogFactory.getLog(JPAModifyUtil.class);
   private JPAStructuredType st = null;
 
-  public String buildMethodNameSuffix(final JPAElement pathItem) {
+  public String buildMethodNameSuffix(@Nonnull final JPAElement pathItem) {
     final String relationName = pathItem.getInternalName();
     return relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
+  }
+
+  String buildSetterName(@Nonnull final JPAElement pathItem) {
+    return "set" + buildMethodNameSuffix(pathItem);
+  }
+
+  /**
+   * Creates a list of setter names from a list of {@link JPAAttribute}
+   * @param st
+   * @param pathItem
+   * @return
+   */
+  Map<JPAAttribute, Method> buildSetterList(@Nonnull final Class<?> type,
+      @Nonnull final List<JPAAttribute> attributes) {
+
+    final Map<JPAAttribute, Method> result = new HashMap<>(attributes.size());
+
+    for (final JPAAttribute attribute : attributes) {
+      try {
+        result.put(attribute, type.getMethod(buildSetterName(attribute), attribute.getJavaType()));
+      } catch (NoSuchMethodException | SecurityException e) {
+        LOGGER.warn("Exception thrown while building setter list: " + e.getLocalizedMessage());
+        result.put(attribute, null);
+      }
+    }
+    return result;
   }
 
   /**
@@ -52,7 +83,7 @@ public final class JPAModifyUtil {
    * <br>
    * For JPA entities having only one key, so do not use an IdClass, the
    * corresponding value in <code>jpaKeys</code> is returned
-   * 
+   *
    * @param et
    * @param jpaKeys
    * @return
@@ -74,7 +105,7 @@ public final class JPAModifyUtil {
   }
 
   /**
-   * 
+   *
    * @param et
    * @param instance
    * @return
@@ -103,7 +134,7 @@ public final class JPAModifyUtil {
    * existing setter and getter on the level of the sourceInstance. In case of to n associations it is expected that the
    * getter always returns a collection. In case structured properties are passed either a getter returns always an
    * instance or the corresponding type has a parameter less constructor.
-   * 
+   *
    * @param parentInstance
    * @param newInstance
    * @param pathInfo
@@ -125,7 +156,7 @@ public final class JPAModifyUtil {
 
   /**
    * Fills instance without filling its embedded components.
-   * 
+   *
    * @param jpaAttributes Map of attributes and values that shall be changed
    * @param instance JPA POJO instance to take the changes
    * @param st Entity Type
@@ -173,7 +204,7 @@ public final class JPAModifyUtil {
    * Fills instance and its embedded components. In case of embedded
    * components it first tries to get an existing instance. If that is non
    * provided a new one is created and set.
-   * 
+   *
    * @param jpaAttributes Map of attributes and values that shall be changed
    * @param instance JPA POJO instance to take the changes
    * @param st Entity Type
@@ -261,8 +292,9 @@ public final class JPAModifyUtil {
         Object next = getter.invoke(source);
         if (next == null) {
           try {
-            final Constructor<?> c = ((JPAAttribute) pathItem).getStructuredType().getTypeClass().getConstructor();
-            next = c.newInstance();
+            final Constructor<?> constructor = ((JPAAttribute) pathItem).getStructuredType().getTypeClass()
+                .getConstructor();
+            next = constructor.newInstance();
             final Method setter = source.getClass().getMethod("set" + methodSuffix, next.getClass());
             setter.invoke(source, next);
           } catch (ODataJPAModelException | InstantiationException e) {
@@ -296,8 +328,7 @@ public final class JPAModifyUtil {
   }
 
   private void handleInvocationTargetException(final JPAStructuredType st, final String attributeName,
-      final Exception e)
-      throws ODataJPAInvocationTargetException, ODataJPAProcessorException {
+      final Exception exception) throws ODataJPAInvocationTargetException, ODataJPAProcessorException {
 
     String pathPart = null;
     try {
@@ -305,18 +336,18 @@ public final class JPAModifyUtil {
           HttpStatusCode.INTERNAL_SERVER_ERROR, attributeName)).getExternalName();
       if (this.st != null && this.st.equals(st)) {
         final String path = st.getExternalName() + JPAPath.PATH_SEPARATOR + pathPart + JPAPath.PATH_SEPARATOR
-            + ((ODataJPAInvocationTargetException) e).getPath();
+            + ((ODataJPAInvocationTargetException) exception).getPath();
         this.st = null;
-        throw new ODataJPAInvocationTargetException(e.getCause(), path);
+        throw new ODataJPAInvocationTargetException(exception.getCause(), path);
       }
     } catch (final ODataJPAModelException e1) {
       throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    if (e instanceof ODataJPAInvocationTargetException)
-      throw new ODataJPAInvocationTargetException(e.getCause(), pathPart + JPAPath.PATH_SEPARATOR
-          + ((ODataJPAInvocationTargetException) e).getPath());
+    if (exception instanceof final ODataJPAInvocationTargetException invocationTargetException)
+      throw new ODataJPAInvocationTargetException(exception.getCause(), pathPart + JPAPath.PATH_SEPARATOR
+          + invocationTargetException.getPath());
     else
-      throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);
+      throw new ODataJPAInvocationTargetException(exception.getCause(), pathPart);
   }
 
   /**
@@ -347,7 +378,7 @@ public final class JPAModifyUtil {
     setter.invoke(instance, value);
   }
 
-  private void setAttributeDeep(final Object instance, final JPAStructuredType st, final Method meth,
+  private void setAttributeDeep(final Object instance, final JPAStructuredType st, final Method method,
       final String attributeName, final Object value, final Class<?>[] parameters) throws ODataJPAProcessorException,
       ODataJPAInvocationTargetException {
     try {
@@ -356,12 +387,12 @@ public final class JPAModifyUtil {
               HttpStatusCode.INTERNAL_SERVER_ERROR, attributeName));
       if (!attribute.isComplex() || value == null) {
         if (value == null || parameters[0].isAssignableFrom(value.getClass())) {
-          meth.invoke(instance, value);
+          method.invoke(instance, value);
         }
       } else if (attribute.isCollection()) {
-        setEmbeddedCollectionAttributeDeep(instance, st, meth, value, parameters, attribute);
+        setEmbeddedCollectionAttributeDeep(instance, st, method, value, parameters, attribute);
       } else {
-        setEmbeddedAttributeDeep(instance, st, meth, value, parameters, attribute);
+        setEmbeddedAttributeDeep(instance, st, method, value, parameters, attribute);
       }
     } catch (IllegalAccessException | IllegalArgumentException | ODataJPAModelException
         | NoSuchMethodException | SecurityException | InstantiationException e) {
@@ -393,7 +424,7 @@ public final class JPAModifyUtil {
   }
 
   @SuppressWarnings("unchecked")
-  private void setEmbeddedCollectionAttributeDeep(final Object instance, final JPAStructuredType st, final Method meth,
+  private void setEmbeddedCollectionAttributeDeep(final Object instance, final JPAStructuredType st, final Method method,
       final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
       ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
@@ -406,7 +437,7 @@ public final class JPAModifyUtil {
       } else {
         embedded = (Collection<Object>) createInstance(parameters[0]);
       }
-      meth.invoke(instance, embedded);
+      method.invoke(instance, embedded);
     }
     if (embedded != null) {
       if (this.st == null)

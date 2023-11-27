@@ -106,8 +106,9 @@ class TestJPAQueryOrderByClause extends TestBase {
 
     helper.assertStatus(200);
     final ArrayNode deeps = helper.getValues();
-    assertEquals("501", deeps.get(0).get("ID").asText());
-    assertEquals("502", deeps.get(1).get("ID").asText());
+    assertEquals("506", deeps.get(0).get("ID").asText());
+    assertEquals("501", deeps.get(1).get("ID").asText());
+    assertEquals("502", deeps.get(2).get("ID").asText());
   }
 
   @Test
@@ -223,7 +224,7 @@ class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
-  void testOrderByOnTransientPrimitveSimpleProperty() throws IOException, ODataException {
+  void testOrderByOnTransientPrimitiveSimpleProperty() throws IOException, ODataException {
 
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,

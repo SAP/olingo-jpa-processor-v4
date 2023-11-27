@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataHandler;
@@ -30,7 +29,7 @@ public class JPAODataBatchSequentialRequestGroup implements JPAODataBatchRequest
     final BatchFacade facade = buildFacade();
     return groupElements.stream()
         .map(part -> executePart(facade, part))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private ODataResponsePart executePart(final BatchFacade facade, final BatchRequestPart part) {

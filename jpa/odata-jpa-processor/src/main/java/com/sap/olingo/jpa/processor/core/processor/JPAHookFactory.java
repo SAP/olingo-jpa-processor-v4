@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.EntityManager;
+
+import jakarta.persistence.EntityManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,7 +63,7 @@ final class JPAHookFactory {
 
     if (!queryExtensionProviderCache.containsKey(et)) {
       try {
-        queryExtensionProviderCache.put(et, et.getQueryExtention()
+        queryExtensionProviderCache.put(et, et.getQueryExtension()
             .map(this::createQueryExtensionProvider)
             .orElse(null));
       } catch (final Exception e) {

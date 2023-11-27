@@ -3,13 +3,13 @@ package com.sap.olingo.jpa.processor.core.util;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Optional;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 
@@ -51,22 +51,28 @@ public class TestHelper {
     return sd.getEntity(clazz);
   }
 
-  public JPAAssociationPath getJPAAssociationPath(final String entitySetName, final String attributeExtName)
+  public JPAAssociationPath getJPAAssociationPath(final String entitySetName, final String attributeExternalName)
       throws ODataJPAModelException {
     final JPAEntityType jpaEntity = sd.getEntity(entitySetName);
-    return jpaEntity.getAssociationPath(attributeExtName);
+    return jpaEntity.getAssociationPath(attributeExternalName);
   }
 
-  public JPAAttribute getJPAAssociation(final String entitySetName, final String attributeIntName)
+  public JPAAssociationPath getJPAAssociationPath(final Class<?> clazz, final String attributeExternalName)
       throws ODataJPAModelException {
-    final JPAEntityType jpaEntity = sd.getEntity(entitySetName);
-    return jpaEntity.getAssociation(attributeIntName);
+    final JPAEntityType jpaEntity = sd.getEntity(clazz);
+    return jpaEntity.getAssociationPath(attributeExternalName);
   }
 
-  public Optional<JPAAttribute> getJPAAttribute(final String entitySetName, final String attributeIntName)
+  public JPAAttribute getJPAAssociation(final String entitySetName, final String attributeInternalName)
       throws ODataJPAModelException {
     final JPAEntityType jpaEntity = sd.getEntity(entitySetName);
-    return jpaEntity.getAttribute(attributeIntName);
+    return jpaEntity.getAssociation(attributeInternalName);
+  }
+
+  public Optional<JPAAttribute> getJPAAttribute(final String entitySetName, final String attributeInternalName)
+      throws ODataJPAModelException {
+    final JPAEntityType jpaEntity = sd.getEntity(entitySetName);
+    return jpaEntity.getAttribute(attributeInternalName);
   }
 
   public EdmFunction getStoredProcedure(final EntityType<?> jpaEntityType, final String string) {
@@ -90,7 +96,7 @@ public class TestHelper {
     return null;
   }
 
-  public EmbeddableType<?> getEmbeddedableType(final String typeName) {
+  public EmbeddableType<?> getEmbeddableType(final String typeName) {
     for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
       if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
         return embeddableType;

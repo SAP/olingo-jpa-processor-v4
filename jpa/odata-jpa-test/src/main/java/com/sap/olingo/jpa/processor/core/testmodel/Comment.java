@@ -1,23 +1,21 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import java.io.Serializable;
 import java.sql.Clob;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
 @EdmIgnore
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"Comment\"")
-public class Comment implements Serializable {
-  private static final long serialVersionUID = 1L;
+public class Comment {
 
   @Id
   @Column(name = "\"BusinessPartnerID\"")
@@ -43,7 +41,7 @@ public class Comment implements Serializable {
     return order;
   }
 
-  public void setOrder(String order) {
+  public void setOrder(final String order) {
     this.order = order;
   }
 
@@ -51,11 +49,11 @@ public class Comment implements Serializable {
     return text;
   }
 
-  public void setText(Clob text) {
+  public void setText(final Clob text) {
     this.text = text;
   }
 
-  public void setBusinessPartnerID(String businessPartnerID) {
+  public void setBusinessPartnerID(final String businessPartnerID) {
     this.businessPartnerID = businessPartnerID;
   }
 
@@ -68,11 +66,11 @@ public class Comment implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    Comment other = (Comment) obj;
+    final Comment other = (Comment) obj;
     if (businessPartnerID == null) {
       if (other.businessPartnerID != null) return false;
     } else if (!businessPartnerID.equals(other.businessPartnerID)) return false;

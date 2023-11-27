@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.processor.core.testobjects;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.processor.core.api.example.JPAExampleAuditable;

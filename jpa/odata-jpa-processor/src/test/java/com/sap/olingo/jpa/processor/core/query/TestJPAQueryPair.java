@@ -21,12 +21,12 @@ class TestJPAQueryPair {
 
   @Test
   void testGetOuter() {
-    assertEquals(outer, cut.getOuter());
+    assertEquals(outer, cut.outer());
   }
 
   @Test
   void testGetInner() {
-    assertEquals(inner, cut.getInner());
+    assertEquals(inner, cut.inner());
   }
 
   @Test

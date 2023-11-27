@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.http.HttpMethod;
 
@@ -65,7 +65,8 @@ public interface JPACUDRequestHandler {
   /**
    * Hook that is called after all changes of one transaction have been processed. The method shall enable a check of
    * all modification within the new context. This can be imported if multiple entities are changes with the same
-   * request (batch request or deep-insert) and consistency constrains exist between them.<p>
+   * request (batch request or deep-insert) and consistency constrains exist between them.
+   * <p>
    * In case changes are made to the entities, these changes are not part of the response in case of batch requests.
    * @throws ODataJPAProcessException
    */

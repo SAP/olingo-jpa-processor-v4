@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -9,14 +8,15 @@ import java.util.Optional;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
 
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
+
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
@@ -93,31 +93,6 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   @Override
   public Class<? extends Boolean> getJavaType() {
     throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Collection<?> values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Expression<?>... values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Expression<Collection<?>> values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public Predicate in(final Object... values) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public boolean isCompoundSelection() {
-    return false;
   }
 
   /**
@@ -384,12 +359,12 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public javax.persistence.criteria.CriteriaBuilder.In<X> value(final X value) {
+    public jakarta.persistence.criteria.CriteriaBuilder.In<X> value(final X value) {
       throw new NotImplementedException();
     }
 
     @Override
-    public javax.persistence.criteria.CriteriaBuilder.In<X> value(final Expression<? extends X> value) {
+    public jakarta.persistence.criteria.CriteriaBuilder.In<X> value(final Expression<? extends X> value) {
       throw new NotImplementedException();
     }
 

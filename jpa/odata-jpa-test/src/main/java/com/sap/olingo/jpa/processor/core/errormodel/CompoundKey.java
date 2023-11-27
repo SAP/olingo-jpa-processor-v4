@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.errormodel;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class CompoundKey implements Serializable {
@@ -46,7 +46,7 @@ public class CompoundKey implements Serializable {
     this.name = name;
   }
 
-  public static long getSerialversionuid() {
+  public static long getSerialVersionUID() {
     return serialVersionUID;
   }
 

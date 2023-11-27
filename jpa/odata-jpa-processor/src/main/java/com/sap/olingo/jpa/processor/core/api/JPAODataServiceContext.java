@@ -9,10 +9,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +25,7 @@ import org.apache.olingo.server.api.processor.ErrorProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
@@ -50,6 +52,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
   private final String mappingPath;
   private final JPAODataBatchProcessorFactory<JPAODataBatchProcessor> batchProcessorFactory;
   private final boolean useAbsoluteContextURL;
+  private final List<AnnotationProvider> annotationProvider;
 
   public static Builder with() {
     return new Builder();
@@ -71,6 +74,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     mappingPath = builder.mappingPath;
     batchProcessorFactory = (JPAODataBatchProcessorFactory<JPAODataBatchProcessor>) builder.batchProcessorFactory;
     useAbsoluteContextURL = builder.useAbsoluteContextURL;
+    annotationProvider = Arrays.asList(builder.annotationProvider);
   }
 
   @Override
@@ -86,7 +90,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
   public JPAEdmProvider getEdmProvider(@Nonnull final EntityManager em) throws ODataException {
     if (jpaEdm == null) {
       Objects.nonNull(em);
-      jpaEdm = new JPAEdmProvider(this.namespace, em.getMetamodel(), postProcessor, packageName);
+      jpaEdm = new JPAEdmProvider(this.namespace, em.getMetamodel(), postProcessor, packageName, annotationProvider);
     }
     return jpaEdm;
   }
@@ -136,6 +140,11 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     return batchProcessorFactory;
   }
 
+  @Override
+  public List<AnnotationProvider> getAnnotationProvider() {
+    return annotationProvider;
+  }
+
   public static class Builder {
 
     private String namespace;
@@ -153,6 +162,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     private String mappingPath;
     private JPAODataBatchProcessorFactory<?> batchProcessorFactory;
     private boolean useAbsoluteContextURL = false;
+    private AnnotationProvider[] annotationProvider;
 
     private Builder() {
       super();
@@ -164,13 +174,18 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
           LOGGER.trace("No name-builder provided, use JPADefaultEdmNameBuilder");
           nameBuilder = new JPADefaultEdmNameBuilder(namespace);
         }
+        if (annotationProvider == null || annotationProvider.length == 0) {
+          LOGGER.trace("No annotation provider provided, use default factory to create one");
+          annotationProvider = new AnnotationProvider[] {};
+        }
         if (packageName == null)
           packageName = new String[0];
         if (!emf.isPresent() && ds != null && namespace != null)
           emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, ds));
         createEmfWrapper();
         if (emf.isPresent() && jpaEdm == null)
-          jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
+          jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays.asList(
+              annotationProvider));
         if (databaseProcessor == null) {
           LOGGER.trace("No database-processor provided, use JPAODataDatabaseProcessorFactory to create one");
           databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
@@ -214,10 +229,12 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     /**
      * Allows to provide an Olingo error processor. The error processor allows to enrich an error response. See
      * <a
-     * href="http://docs.oasis-open.org/odata/odata-json-format/v4.0/errata03/os/odata-json-format-v4.0-errata03-os-complete.html#_Toc453766668"
+     * href=
+     * "http://docs.oasis-open.org/odata/odata-json-format/v4.0/errata03/os/odata-json-format-v4.0-errata03-os-complete.html#_Toc453766668"
      * >JSON Error Response</a> or
      * <a
-     * href="http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792829">Atom
+     * href=
+     * "http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792829">Atom
      * Error Response</a>.
      * @param errorProcessor
      */
@@ -281,8 +298,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     /**
      * Name of the top level package to look for
      * <ul>
-     * <li> Enumeration Types
-     * <li> Java class based Functions
+     * <li>Enumeration Types
+     * <li>Java class based Functions
      * </ul>
      * @param packageName
      */
@@ -337,6 +354,11 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
       return this;
     }
 
+    public Builder setAnnotationProvider(final AnnotationProvider... annotationProvider) {
+      this.annotationProvider = annotationProvider;
+      return this;
+    }
+
     @SuppressWarnings("unchecked")
     private void createEmfWrapper() {
       if (emf.isPresent()) {
@@ -344,7 +366,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
           final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class
               .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
           if (jpaEdm == null)
-            jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
+            jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays
+                .asList(annotationProvider));
           emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
               JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument()));
           LOGGER.trace("Criteria Builder Extension found. It will be used");

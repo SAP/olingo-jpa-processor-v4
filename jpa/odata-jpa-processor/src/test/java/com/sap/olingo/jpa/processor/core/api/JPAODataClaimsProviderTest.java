@@ -73,4 +73,8 @@ class JPAODataClaimsProviderTest {
     assertFalse(cut.user().isPresent());
   }
 
+  @Test
+  void checkToString() {
+    assertNotNull(cut.toString());
+  }
 }

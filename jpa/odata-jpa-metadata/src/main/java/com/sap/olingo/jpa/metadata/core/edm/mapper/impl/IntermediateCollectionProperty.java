@@ -3,17 +3,11 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_COLLECTION;
-import static javax.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
+import static jakarta.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.CollectionTable;
-import javax.persistence.JoinColumn;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.Type;
-import javax.persistence.metamodel.Type.PersistenceType;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
@@ -32,19 +26,26 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.Type;
+import jakarta.persistence.metamodel.Type.PersistenceType;
+
 /**
  * Represents a collection property. That is a property that may occur more than once.
- * <p>For details about Complex Type metadata see:
+ * <p>
+ * For details about Complex Type metadata see:
  * <a href=
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part3-csdl/odata-v4.0-errata03-os-part3-csdl-complete.html#_Toc453752525"
  * >OData Version 4.0 Part 3 - 9 Complex Type</a>
  * @author Oliver Grande
- *
+ * @param <S>: Source type
  */
 
-class IntermediateCollectionProperty extends IntermediateProperty implements JPACollectionAttribute,
+class IntermediateCollectionProperty<S> extends IntermediateProperty implements JPACollectionAttribute,
     JPAAssociationAttribute {
-  private final IntermediateStructuredType<?> sourceType;
+  private final IntermediateStructuredType<S> sourceType;
   private IntermediateCollectionTable joinTable; // lazy builded
   private JPAAssociationPathImpl associationPath; // lazy builded
   private final JPAPath path;
@@ -55,8 +56,8 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
    * @param intermediateStructuredType
    * @throws ODataJPAModelException
    */
-  public IntermediateCollectionProperty(final IntermediateCollectionProperty original,
-      final IntermediateStructuredType<?> parent, final IntermediateProperty pathRoot) throws ODataJPAModelException {
+  public IntermediateCollectionProperty(final IntermediateCollectionProperty<?> original,
+      final IntermediateStructuredType<S> parent, final IntermediateProperty pathRoot) throws ODataJPAModelException {
 
     super(original.nameBuilder, original.jpaAttribute, original.schema);
     this.sourceType = parent;
@@ -76,7 +77,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
 
   IntermediateCollectionProperty(final JPAEdmNameBuilder nameBuilder,
       final PluralAttribute<?, ?, ?> jpaAttribute, final IntermediateSchema schema,
-      final IntermediateStructuredType<?> parent) throws ODataJPAModelException {
+      final IntermediateStructuredType<S> parent) throws ODataJPAModelException {
 
     super(nameBuilder, jpaAttribute, schema);
     this.sourceType = parent;
@@ -210,14 +211,14 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
 
   JPAJoinTable getJoinTable() throws ODataJPAModelException {
     if (joinTable == null) {
-      final javax.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
-          .getAnnotation(javax.persistence.CollectionTable.class);
+      final jakarta.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+          .getAnnotation(jakarta.persistence.CollectionTable.class);
       joinTable = jpaJoinTable != null ? new IntermediateCollectionTable(jpaJoinTable, schema) : null;
     }
     return joinTable;
   }
 
-  IntermediateStructuredType<?> getSourceType() {
+  IntermediateStructuredType<S> getSourceType() {
     return sourceType;
   }
 
@@ -247,22 +248,8 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     }
 
     @Override
-    public String getAlias(final String dbFieldName) {
-      for (final IntermediateJoinColumn column : joinColumns) {
-        if (column.getName().equals(dbFieldName))
-          return column.getReferencedColumnName();
-      }
-      return null;
-    }
-
-    @Override
     public JPAEntityType getEntityType() {
       return jpaEntityType;
-    }
-
-    @Override
-    public String getInverseAlias(final String dbFieldName) {
-      return null;
     }
 
     @Override
@@ -336,6 +323,20 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
         }
       }
       return result;
+    }
+
+    @Override
+    public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
+      return getJoinColumns().stream()
+          .map(JPAOnConditionItem::getRightPath)
+          .toList();
+    }
+
+    @Override
+    public List<JPAPath> getLeftColumnsList() throws ODataJPAModelException {
+      return getJoinColumns().stream()
+          .map(JPAOnConditionItem::getLeftPath)
+          .toList();
     }
   }
 }

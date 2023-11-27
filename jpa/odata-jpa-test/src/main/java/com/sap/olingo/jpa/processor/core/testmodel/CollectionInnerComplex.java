@@ -3,8 +3,11 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.math.BigInteger;
 import java.time.Instant;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
+
+import com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter;
 
 @Embeddable
 public class CollectionInnerComplex {
@@ -13,7 +16,7 @@ public class CollectionInnerComplex {
   private Long figure1;
 
   @Column(name = "\"Figure2\"")
-  // @Convert(converter = TimeInstantLongConverter.class)
+  @Convert(converter = TimeInstantLongConverter.class)
   private Instant figure2;
 
   @Column(name = "\"Figure3\"")

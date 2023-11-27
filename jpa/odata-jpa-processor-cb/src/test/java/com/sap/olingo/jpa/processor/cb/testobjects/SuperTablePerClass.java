@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.cb.testobjects;
 
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 
 @Entity(name = "Super")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

@@ -2,11 +2,13 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Subquery;
+import javax.annotation.Nullable;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
@@ -89,21 +91,12 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Subquery<T> getSubQuery(final Subquery<?> childQuery) throws ODataApplicationException {
+  public <T> Subquery<T> getSubQuery(final Subquery<?> childQuery, @Nullable final VisitableExpression expression)
+      throws ODataApplicationException {
 
     if (this.queryJoinTable != null) {
       if (this.aggregationType != null) {
-
-        try {
-          final List<JPAOnConditionItem> right = association.getJoinTable()
-              .getInverseJoinColumns();
-          createSelectClauseJoin(subQuery, queryJoinTable, right);
-          final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, jpaEntity);
-          subQuery.where(applyAdditionalFilter(whereCondition));
-          handleAggregation(subQuery, queryJoinTable, right);
-        } catch (final ODataJPAModelException e) {
-          throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
+        createSubQueryJoinTableAggregation();
       } else {
         createSubQueryJoinTable();
       }
@@ -123,10 +116,10 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
       if (association.getJoinTable().getEntityType() != null) {
         if (aggregationType != null) {
           this.queryJoinTable = subQuery.from(from.getJavaType());
-          From<?, ?> p = queryJoinTable;
+          From<?, ?> path = queryJoinTable;
           for (int i = 0; i < association.getPath().size() - 1; i++)
-            p = p.join(association.getPath().get(i).getInternalName());
-          this.queryRoot = p.join(association.getLeaf().getInternalName(), JoinType.LEFT);
+            path = path.join(association.getPath().get(i).getInternalName());
+          this.queryRoot = path.join(association.getLeaf().getInternalName(), JoinType.LEFT);
         } else {
           this.queryRoot = this.queryJoinTable = subQuery.from(association.getJoinTable()
               .getEntityType()
@@ -142,8 +135,7 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
     }
   }
 
-  @Override
-  protected void createSubQueryJoinTable() throws ODataApplicationException {
+  private void createSubQueryJoinTable() throws ODataApplicationException {
     /*
      * SELECT * FROM "BusinessPartner" AS B
      * WHERE "Type" = '2'
@@ -155,11 +147,24 @@ public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
       final List<JPAOnConditionItem> left = association
           .getJoinTable()
           .getJoinColumns();
-      createSelectClauseJoin(subQuery, queryRoot, left);
+      createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns());
       final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       subQuery.where(applyAdditionalFilter(whereCondition));
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
+
+  private void createSubQueryJoinTableAggregation() throws ODataApplicationException {
+
+    try {
+      createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns());
+      final Expression<Boolean> whereCondition = createWhereSelfJoin(from, queryJoinTable, jpaEntity);
+      subQuery.where(applyAdditionalFilter(whereCondition));
+      handleAggregation(subQuery, queryJoinTable, determineAggregationLeftColumns());
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }

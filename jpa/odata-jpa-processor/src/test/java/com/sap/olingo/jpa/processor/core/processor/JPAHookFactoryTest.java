@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -156,7 +156,7 @@ class JPAHookFactoryTest {
   void testGetQueryExtensionReturnsEmptyOptionalIfSet() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final JPAEntityType et = mock(JPAEntityType.class);
-    when(et.getQueryExtention()).thenReturn(Optional.empty());
+    when(et.getQueryExtension()).thenReturn(Optional.empty());
     assertFalse(cut.getQueryExtensionProvider(et).isPresent());
   }
 
@@ -167,7 +167,7 @@ class JPAHookFactoryTest {
 
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);
-    when(et.getQueryExtention()).thenReturn(Optional.of(extension));
+    when(et.getQueryExtension()).thenReturn(Optional.of(extension));
     when(extension.getConstructor()).thenAnswer(new Answer<Constructor<? extends EdmQueryExtensionProvider>>() {
       @Override
       public Constructor<? extends EdmQueryExtensionProvider> answer(final InvocationOnMock invocation)
@@ -186,7 +186,7 @@ class JPAHookFactoryTest {
 
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);
-    when(et.getQueryExtention()).thenReturn(Optional.of(extension));
+    when(et.getQueryExtension()).thenReturn(Optional.of(extension));
     when(extension.getConstructor()).thenAnswer(new Answer<Constructor<? extends EdmQueryExtensionProvider>>() {
       @Override
       public Constructor<? extends EdmQueryExtensionProvider> answer(final InvocationOnMock invocation)
@@ -205,7 +205,7 @@ class JPAHookFactoryTest {
 
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);
-    when(et.getQueryExtention()).thenReturn(Optional.of(extension));
+    when(et.getQueryExtension()).thenReturn(Optional.of(extension));
     when(extension.getConstructor()).thenAnswer(new Answer<Constructor<? extends EdmQueryExtensionProvider>>() {
       @Override
       public Constructor<? extends EdmQueryExtensionProvider> answer(final InvocationOnMock invocation)

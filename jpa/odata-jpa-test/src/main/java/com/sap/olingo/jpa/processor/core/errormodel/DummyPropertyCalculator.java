@@ -1,13 +1,13 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.errormodel;
 
 import java.util.Arrays;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 
@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalcu
  * Created: 17.03.2020
  *
  */
-public class DummyPropertyCalculator implements EdmTransientPropertyCalculator<String>  {
+public class DummyPropertyCalculator implements EdmTransientPropertyCalculator<String> {
 
   private final EntityManager em;
 
@@ -30,8 +30,8 @@ public class DummyPropertyCalculator implements EdmTransientPropertyCalculator<S
   }
 
   @Override
-  public List<String> calculateCollectionProperty(Tuple row) {
-    return Arrays.asList("Hello","World");
+  public List<String> calculateCollectionProperty(final Tuple row) {
+    return Arrays.asList("Hello", "World");
   }
 
 }

@@ -14,13 +14,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.server.api.OData;
@@ -64,12 +64,12 @@ public class IntegrationTestHelper {
     when(sessionContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
     when(customContext.getEntityManager()).thenReturn(em);
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(edmProvider,
-        new ArrayList<EdmxReference>()));
+        new ArrayList<>()));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(customContext,
         sessionContext);
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
-    handler.process(req, resp);
+    handler.process(new JakartaRequestMapper(req), new JakartaResponseMapper(resp));
   }
 
   public List<String> getRawBatchResult() throws IOException {
@@ -176,6 +176,16 @@ public class IntegrationTestHelper {
 
     public int getSize() {
       return buffer.size();
+    }
+
+    @Override
+    public boolean isReady() {
+      return true;
+    }
+
+    @Override
+    public void setWriteListener(final WriteListener writeListener) {
+
     }
   }
 

@@ -50,8 +50,10 @@ import com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
+import com.sap.olingo.jpa.processor.core.testmodel.Country;
 import com.sap.olingo.jpa.processor.core.testmodel.CountryKey;
 import com.sap.olingo.jpa.processor.core.testmodel.CountryRestriction;
+import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithGroup;
@@ -68,6 +70,9 @@ import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressDataWithGroup;
+import com.sap.olingo.jpa.processor.core.testmodel.Team;
+import com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriod;
+import com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey;
 import com.sap.olingo.jpa.processor.core.testmodel.User;
 
 /**
@@ -117,6 +122,7 @@ class TestStandardMethodsOfTestModel {
         arguments(CollectionFirstLevelComplex.class),
         arguments(CollectionSecondLevelComplex.class),
         arguments(Comment.class),
+        arguments(Country.class),
         arguments(CountryKey.class),
         arguments(CountryRestriction.class),
         arguments(InhouseAddress.class),
@@ -135,7 +141,11 @@ class TestStandardMethodsOfTestModel {
         arguments(PersonDeepProtectedHidden.class),
         arguments(PostalAddressData.class),
         arguments(PostalAddressDataWithGroup.class),
-        arguments(User.class));
+        arguments(Team.class),
+        arguments(TemporalWithValidityPeriod.class),
+        arguments(TemporalWithValidityPeriodKey.class),
+        arguments(User.class),
+        arguments(DummyToBeIgnored.class));
   }
 
   static Stream<Arguments> testErrorEntities() {
@@ -151,7 +161,11 @@ class TestStandardMethodsOfTestModel {
         arguments(com.sap.olingo.jpa.processor.core.errormodel.NavigationPropertyPartOfGroup.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.KeyPartOfGroup.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.MandatoryPartOfGroup.class),
-        arguments(com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected.class));
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorConstructorError.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorError.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientKey.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorError.class));
   }
 
   @BeforeEach
@@ -213,10 +227,10 @@ class TestStandardMethodsOfTestModel {
     assertNotNull(constructor);
     final Object instance = constructor.newInstance();
 
-    for (final Method hashcode : methods) {
-      if ("hashCode".equals(hashcode.getName())
-          && hashcode.getParameterCount() == 0) {
-        assertNotEquals(0, hashcode.invoke(instance));
+    for (final Method hashCode : methods) {
+      if ("hashCode".equals(hashCode.getName())
+          && hashCode.getParameterCount() == 0) {
+        assertNotEquals(0, hashCode.invoke(instance));
       }
     }
   }

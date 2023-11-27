@@ -35,7 +35,7 @@ This happens in an automated fashion during the submission process:	 the CLA ass
 
 Code that is contributed should use:
 
-- [eclipse-codestyle-formatter.xml](https://github.com/SAP/olingo-jpa-processor-v4/blob/master/jpa/eclipse-codestyle-formatter.xml)
-- [eclipse-cleanup-profile.xml](https://github.com/SAP/olingo-jpa-processor-v4/blob/master/jpa/eclipse-cleanup-profile.xml)
+- [eclipse-codestyle-formatter.xml](https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/eclipse-codestyle-formatter.xml)
+- [eclipse-cleanup-profile.xml](https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/eclipse-cleanup-profile.xml)
 
 A contribution should contain tests when ever possible. An approved pull request must not be changed after the approval.

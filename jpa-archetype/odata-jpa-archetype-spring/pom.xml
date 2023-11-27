@@ -1,37 +1,36 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.sap.olingo</groupId>
-        <artifactId>odata-jpa-archetype</artifactId>
-        <version>1.0.9-SNAPSHOT</version>
-    </parent>
-    <artifactId>odata-jpa-archetype-spring</artifactId>
-    <name>Archetype - odata-jpa-archetype-spring</name>
-    
-    <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
-    <packaging>jar</packaging>
+	<parent>
+		<groupId>com.sap.olingo</groupId>
+		<artifactId>odata-jpa-archetype</artifactId>
+        <version>2.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>odata-jpa-archetype-spring</artifactId>
+	<name>Archetype - odata-jpa-archetype-spring</name>
 
-    <properties>
-        <java.version>1.8</java.version>
-    </properties>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <source>${project.build.source}</source>
-                    <target>${project.build.source}</target>
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
-                    <compilerArgument>-Xlint:unchecked</compilerArgument>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
+	<packaging>maven-archetype</packaging>
+
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.archetype</groupId>
+				<artifactId>archetype-packaging</artifactId>
+				<version>3.2.1</version>
+			</extension>
+		</extensions>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-archetype-plugin</artifactId>
+					<version>3.2.1</version>
+					<configuration>
+						<debug>true</debug>
+					</configuration>					
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

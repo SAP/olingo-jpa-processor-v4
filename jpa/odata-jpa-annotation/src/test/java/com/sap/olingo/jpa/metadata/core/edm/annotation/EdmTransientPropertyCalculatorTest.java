@@ -8,14 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import javax.persistence.Tuple;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import jakarta.persistence.Tuple;
+
 /**
  * @author Oliver Grande
- * @since pom_version
+ * @since 1.0.9
  * 18.01.2022
  */
 class EdmTransientPropertyCalculatorTest {

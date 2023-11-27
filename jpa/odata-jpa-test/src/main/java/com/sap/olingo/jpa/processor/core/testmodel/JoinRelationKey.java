@@ -2,14 +2,14 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class JoinRelationKey implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 5206755977104102088L;
 
@@ -23,7 +23,7 @@ public class JoinRelationKey implements Serializable {
     return sourceID;
   }
 
-  public void setSourceID(Integer sourceID) {
+  public void setSourceID(final Integer sourceID) {
     this.sourceID = sourceID;
   }
 
@@ -31,7 +31,7 @@ public class JoinRelationKey implements Serializable {
     return targetID;
   }
 
-  public void setTargetID(Integer targetID) {
+  public void setTargetID(final Integer targetID) {
     this.targetID = targetID;
   }
 
@@ -45,11 +45,11 @@ public class JoinRelationKey implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    JoinRelationKey other = (JoinRelationKey) obj;
+    final JoinRelationKey other = (JoinRelationKey) obj;
     if (sourceID == null) {
       if (other.sourceID != null) return false;
     } else if (!sourceID.equals(other.sourceID)) return false;

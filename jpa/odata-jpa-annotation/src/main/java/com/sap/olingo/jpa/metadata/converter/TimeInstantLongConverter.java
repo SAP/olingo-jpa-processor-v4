@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.metadata.converter;
 
 import java.time.Instant;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  * Default converter to convert from {@link Long} to {@link java.time.Instant}.

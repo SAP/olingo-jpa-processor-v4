@@ -12,8 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

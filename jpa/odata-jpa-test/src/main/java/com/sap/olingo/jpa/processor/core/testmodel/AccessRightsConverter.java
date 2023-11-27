@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @Converter(autoApply = false)
 public class AccessRightsConverter implements AttributeConverter<AccessRights[], Short> {

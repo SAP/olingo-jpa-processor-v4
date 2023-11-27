@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.uri.UriInfo;

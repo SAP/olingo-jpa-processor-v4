@@ -1,16 +1,17 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
-import javax.persistence.metamodel.EntityType;
+
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
 class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
@@ -18,7 +19,7 @@ class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
   private final Subquery<X> query;
 
   SubqueryRootImpl(@Nonnull final ProcessorSubquery<X> inner, @Nonnull final AliasBuilder ab,
-      final JPAServiceDocument sd) throws ODataJPAModelException {
+      @Nonnull final JPAServiceDocument sd) throws ODataJPAModelException {
 
     super(sd.getEntity(inner.getJavaType()), ab, null);
     this.query = inner;
@@ -53,10 +54,9 @@ class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
   @Override
   public <Y> Path<Y> get(final String attributeName) {
 
-    for (final Selection<?> sel : query.getCompoundSelectionItems()) {
-      if (sel instanceof SelectionImpl<?>) {
-        final SelectionImpl<?> selImpl = (SelectionImpl<?>) sel;
-        final Selection<?> x = selImpl.selection;
+    for (final Selection<?> selection : query.getCompoundSelectionItems()) {
+      if (selection instanceof final SelectionImpl<?> selectionImpl) {
+        final Selection<?> x = selectionImpl.selection;
 
         if (x instanceof PathImpl<?>) {
           if (x.getAlias().equals(attributeName)
@@ -66,7 +66,7 @@ class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
               || ((PathImpl<?>) x).path
                   .orElseThrow(IllegalStateException::new)
                   .getLeaf().getInternalName().equals(attributeName)) {
-            return new SelectionPath(selImpl, tableAlias);
+            return new SelectionPath(selectionImpl, tableAlias);
           }
         } else if (x instanceof WindowFunctionExpression<?>
             && x.getAlias().equals(attributeName)) {
@@ -81,20 +81,17 @@ class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((query == null) ? 0 : query.hashCode());
+    result = prime * result + query.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (!super.equals(obj)) return false;
-    if (getClass() != obj.getClass()) return false;
+  public boolean equals(final Object object) {
+    if (this == object) return true;
+    if (!super.equals(object)) return false;
+    if (getClass() != object.getClass()) return false;
     @SuppressWarnings("unchecked")
-    final SubqueryRootImpl<X> other = (SubqueryRootImpl<X>) obj;
-    if (query == null) {
-      if (other.query != null) return false;
-    } else if (!query.equals(other.query)) return false;
-    return true;
+    final SubqueryRootImpl<X> other = (SubqueryRootImpl<X>) object;
+    return (query.equals(other.query));
   }
 }

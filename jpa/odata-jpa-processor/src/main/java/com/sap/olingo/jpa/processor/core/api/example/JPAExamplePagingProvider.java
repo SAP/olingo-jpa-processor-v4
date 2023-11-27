@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -41,14 +41,14 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
     final CacheEntry previousPage = pageCache.get(skipToken.replace("'", ""));
     if (previousPage != null) {
       // Calculate next page
-      final Integer skip = previousPage.getPage().getSkip() + previousPage.getPage().getTop();
+      final Integer skip = previousPage.getPage().skip() + previousPage.getPage().top();
       // Create a new skip token if next page is not the last one
       String nextToken = null;
-      if (skip + previousPage.getPage().getTop() < previousPage.getMaxTop())
+      if (skip + previousPage.getPage().top() < previousPage.getMaxTop())
         nextToken = UUID.randomUUID().toString();
-      final int top = (int) ((skip + previousPage.getPage().getTop()) < previousPage.getMaxTop() ? previousPage
-          .getPage().getTop() : previousPage.getMaxTop() - skip);
-      final JPAODataPage page = new JPAODataPage(previousPage.getPage().getUriInfo(),
+      final int top = (int) ((skip + previousPage.getPage().top()) < previousPage.getMaxTop() ? previousPage
+          .getPage().top() : previousPage.getMaxTop() - skip);
+      final JPAODataPage page = new JPAODataPage(previousPage.getPage().uriInfo(),
           skip, top, nextToken);
       if (nextToken != null)
         addToCache(page, previousPage.getMaxTop());
@@ -64,9 +64,9 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
 
     final UriResource root = uriInfo.getUriResourceParts().get(0);
     // Paging will only be done for Entity Sets
-    if (root instanceof UriResourceEntitySet) {
+    if (root instanceof final UriResourceEntitySet entitySet) {
       // Check if Entity Set shall be packaged
-      final Integer maxSize = maxPageSizes.get(((UriResourceEntitySet) root).getEntitySet().getName());
+      final Integer maxSize = maxPageSizes.get(entitySet.getEntitySet().getName());
       if (maxSize != null) {
         // Read $top and $skip
         final Integer skipValue = uriInfo.getSkipOption() != null ? uriInfo.getSkipOption().getValue() : 0;
@@ -95,8 +95,8 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
     if (pageCache.size() == cacheSize)
       pageCache.remove(index.poll());
 
-    pageCache.put((String) page.getSkipToken(), new CacheEntry(count, page));
-    index.add((String) page.getSkipToken());
+    pageCache.put((String) page.skipToken(), new CacheEntry(count, page));
+    index.add((String) page.skipToken());
   }
 
   private static class CacheEntry {

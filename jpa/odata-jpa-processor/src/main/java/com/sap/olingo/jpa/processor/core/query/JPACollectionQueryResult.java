@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -68,7 +68,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
+  public Map<String, EntityCollection> asEntityCollection(final JPATupleChildConverter converter)
       throws ODataApplicationException {
     this.collectionResult = converter.getCollectionResult(this, requestedSelection);
     final Map<String, EntityCollection> result = new HashMap<>(1);
@@ -89,7 +89,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public void convert(JPATupleChildConverter converter) throws ODataApplicationException {
+  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
     this.collectionResult = converter.getCollectionResult(this, requestedSelection);
   }
 
@@ -114,7 +114,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public EntityCollection getEntityCollection(String key) {
+  public EntityCollection getEntityCollection(final String key) {
     // Not needed yet. Collections with navigation properties not supported
     return new EntityCollection();
   }

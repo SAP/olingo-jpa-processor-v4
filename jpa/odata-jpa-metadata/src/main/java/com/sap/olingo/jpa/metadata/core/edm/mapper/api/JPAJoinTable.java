@@ -6,12 +6,11 @@ import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public interface JPAJoinTable {
-
+  /**
+   * Returns the name of the join table including the schema name, using the following pattern: {schema}.{table}
+   * @return
+   */
   public String getTableName();
-
-  public String getAlias(String dbFieldName);
-
-  public String getInverseAlias(String dbFieldName);
 
   public JPAEntityType getEntityType();
 
@@ -27,4 +26,9 @@ public interface JPAJoinTable {
   public <T extends JPAJoinColumn> List<T> getRawJoinInformation();
 
   public <T extends JPAJoinColumn> List<T> getRawInverseJoinInformation() throws ODataJPAModelException;
+
+  List<JPAPath> getRightColumnsList() throws ODataJPAModelException;
+
+  List<JPAPath> getLeftColumnsList() throws ODataJPAModelException;
+
 }

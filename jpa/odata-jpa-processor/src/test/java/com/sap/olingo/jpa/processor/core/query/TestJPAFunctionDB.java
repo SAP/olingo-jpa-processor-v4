@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -10,7 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.edm.EdmFunction;
@@ -119,7 +118,7 @@ class TestJPAFunctionDB {
     when(edmReturnType.getType()).thenReturn(new EdmBoolean());
 
     cut.retrieveData(request, response, ContentType.JSON);
-    verify(dbProcessor, times(1)).executeFunctionQuery(eq(uriResources), eq(function), eq(em));
+    verify(dbProcessor, times(1)).executeFunctionQuery(uriResources, function, em);
   }
 
   @Test
@@ -141,6 +140,6 @@ class TestJPAFunctionDB {
     when(edmReturnType.getType()).thenReturn(new EdmBoolean());
 
     cut.retrieveData(request, response, ContentType.JSON);
-    verify(dbProcessor, times(1)).executeFunctionQuery(eq(uriResources), eq(function), eq(em));
+    verify(dbProcessor, times(1)).executeFunctionQuery(uriResources, function, em);
   }
 }

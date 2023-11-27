@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,21 +13,22 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import javax.persistence.Tuple;
-import javax.persistence.criteria.CollectionJoin;
-import javax.persistence.criteria.CriteriaBuilder.Trimspec;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.ListJoin;
-import javax.persistence.criteria.MapJoin;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.SetJoin;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.criteria.CollectionJoin;
+import jakarta.persistence.criteria.CriteriaBuilder.Coalesce;
+import jakarta.persistence.criteria.CriteriaBuilder.Trimspec;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.ListJoin;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.SetJoin;
+import jakarta.persistence.criteria.Subquery;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ConcatExpression;
+import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -45,8 +49,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 class CriteriaBuilderImplTest extends BuilderBaseTest {
   CriteriaBuilderImpl cut;
-  private StringBuilder stmt;
-  private CriteriaQuery<Tuple> q;
+  private StringBuilder statement;
+  private CriteriaQuery<Tuple> query;
 
   static Stream<Arguments> notImplemented() throws NoSuchMethodException, SecurityException {
     final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
@@ -106,7 +110,19 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
         arguments(c.getMethod("parameter", Class.class)),
         arguments(c.getMethod("parameter", Class.class, String.class)),
         arguments(c.getMethod("currentDate")),
-        arguments(c.getMethod("currentTime")));
+        arguments(c.getMethod("currentTime")),
+        arguments(c.getMethod("sign", Expression.class)),
+        arguments(c.getMethod("ceiling", Expression.class)),
+        arguments(c.getMethod("floor", Expression.class)),
+        arguments(c.getMethod("exp", Expression.class)),
+        arguments(c.getMethod("power", Expression.class, Expression.class)),
+        arguments(c.getMethod("power", Expression.class, Number.class)),
+        arguments(c.getMethod("round", Expression.class, Integer.class)),
+        arguments(c.getMethod("localDate")),
+        arguments(c.getMethod("localDateTime")),
+        arguments(c.getMethod("localTime")),
+        arguments(c.getMethod("ln", Expression.class)),
+        arguments(c.getMethod("sqrt", Expression.class)));
   }
 
   static Stream<Arguments> binaryImplemented() throws NoSuchMethodException, SecurityException {
@@ -229,8 +245,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   @BeforeEach
   void setup() {
     cut = new CriteriaBuilderImpl(sd, new ParameterBuffer());
-    stmt = new StringBuilder();
-    q = cut.createTupleQuery();
+    statement = new StringBuilder();
+    query = cut.createTupleQuery();
   }
 
   @ParameterizedTest
@@ -244,12 +260,12 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   void testBinaryExpressionWithExpression(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
 
-    final Object[] params = { adminDiv.get("codeID"), adminDiv.get("parentCodeID") };
+    final Object[] params = { administrativeDivision.get("codeID"), administrativeDivision.get("parentCodeID") };
     final Predicate act = (Predicate) m.invoke(cut, params);
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
     assertEquals(0, cut.getParameter().getParameter().size());
   }
 
@@ -258,15 +274,18 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   void testBinaryExpressionWithObject(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
 
-    final Object[] params = { adminDiv.get("codeID"), "NUTS2" };
+    final Object[] params = { administrativeDivision.get("codeID"), "NUTS2" };
     final Predicate act = (Predicate) m.invoke(cut, params);
 
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
-    assertEquals("NUTS2", cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals("NUTS2", parameter.getValue());
+    }
   }
 
   @ParameterizedTest
@@ -274,11 +293,11 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   void testBinaryNumericExpressionWithExpression(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Object[] params = { adminDiv.get("area"), adminDiv.get("population") };
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Object[] params = { administrativeDivision.get("area"), administrativeDivision.get("population") };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
     assertEquals(0, cut.getParameter().getParameter().size());
   }
 
@@ -287,14 +306,17 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   void testBinaryNumericExpressionWithObject(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Object[] params = { adminDiv.get("area"), 1000 };
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Object[] params = { administrativeDivision.get("area"), 1000 };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
 
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
-    assertEquals(1000, cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals(1000, parameter.getValue());
+    }
   }
 
   @ParameterizedTest
@@ -303,36 +325,39 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
       throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Object[] params = { 1000, adminDiv.get("area") };
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Object[] params = { 1000, administrativeDivision.get("area") };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
 
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
-    assertEquals(1000, cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals(1000, parameter.getValue());
+    }
   }
 
   @ParameterizedTest
   @MethodSource("unaryFunctionsImplemented")
   void testCreateUnaryFunction(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
-    final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
-    final Object[] params = { adminDiv.get("name") };
+    final Root<?> administrativeDivision = query.from(AdministrativeDivisionDescription.class);
+    final Object[] params = { administrativeDivision.get("name") };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @ParameterizedTest
   @MethodSource("subQueryExpressionsImplemented")
   void testCreateSubQuery(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
-    final Subquery<Long> sub = q.subquery(Long.class);
+    final Subquery<Long> sub = query.subquery(Long.class);
     sub.select(cut.literal(1L));
     sub.from(AdministrativeDivision.class);
     final Object[] params = { sub };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
@@ -370,11 +395,11 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @Test
   void testCreateGeExpressionWithExpression() {
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate act = cut.ge(adminDiv.get("area"), adminDiv.get("population"));
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate act = cut.ge(administrativeDivision.get("area"), administrativeDivision.get("population"));
 
     assertNotNull(act);
-    assertEquals("(E0.\"Area\" >= E0.\"Population\")", ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals("(E0.\"Area\" >= E0.\"Population\")", ((SqlConvertible) act).asSQL(statement).toString());
     assertEquals(0, cut.getParameter().getParameter().size());
   }
 
@@ -384,15 +409,25 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
+  void testCreateAnd() {
+    final String exp = "((E0.\"CodeID\" = ?1) AND (E0.\"DivisionCode\" = ?2))";
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate restriction1 = cut.equal(administrativeDivision.get("codeID"), "NUTS2");
+    final Predicate restriction2 = cut.equal(administrativeDivision.get("divisionCode"), "BE34");
+    final Predicate act = cut.and(restriction1, restriction2);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+  }
+
+  @Test
   void testCreateMultiAnd() {
     final String exp = "(((E0.\"CodeID\" = ?1) AND (E0.\"DivisionCode\" = ?2)) AND (E0.\"CodePublisher\" = ?3))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Predicate[] restrictions = new Predicate[3];
-    restrictions[0] = cut.equal(adminDiv.get("codeID"), "NUTS2");
-    restrictions[1] = cut.equal(adminDiv.get("divisionCode"), "BE34");
-    restrictions[2] = cut.equal(adminDiv.get("codePublisher"), "Eurostat");
+    restrictions[0] = cut.equal(administrativeDivision.get("codeID"), "NUTS2");
+    restrictions[1] = cut.equal(administrativeDivision.get("divisionCode"), "BE34");
+    restrictions[2] = cut.equal(administrativeDivision.get("codePublisher"), "Eurostat");
     final Predicate act = cut.and(restrictions);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
@@ -403,20 +438,20 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Predicate[] rEmpty = new Predicate[3];
     assertThrows(IllegalArgumentException.class, () -> cut.and(rEmpty));
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Predicate[] rOneEntry = new Predicate[1];
-    rOneEntry[0] = cut.equal(adminDiv.get("codeID"), "NUTS2");
+    rOneEntry[0] = cut.equal(administrativeDivision.get("codeID"), "NUTS2");
     assertThrows(IllegalArgumentException.class, () -> cut.and(rOneEntry));
   }
 
   @Test
   void testCreateOneOr() {
     final String exp = "((E0.\"CodeID\" = ?1) OR (E0.\"CodeID\" = ?2))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate one = cut.equal(adminDiv.get("codeID"), "NUTS2");
-    final Predicate two = cut.equal(adminDiv.get("codeID"), "NUTS3");
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate one = cut.equal(administrativeDivision.get("codeID"), "NUTS2");
+    final Predicate two = cut.equal(administrativeDivision.get("codeID"), "NUTS3");
     final Predicate act = cut.or(one, two);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
@@ -427,38 +462,38 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Predicate[] rEmpty = new Predicate[3];
     assertThrows(IllegalArgumentException.class, () -> cut.or(rEmpty));
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Predicate[] rOneEntry = new Predicate[1];
-    rOneEntry[0] = cut.equal(adminDiv.get("codeID"), "NUTS2");
+    rOneEntry[0] = cut.equal(administrativeDivision.get("codeID"), "NUTS2");
     assertThrows(IllegalArgumentException.class, () -> cut.and(rOneEntry));
   }
 
   @Test
   void testCreateMultiOr() {
     final String exp = "(((E0.\"CodeID\" = ?1) OR (E0.\"DivisionCode\" = ?2)) OR (E0.\"CodePublisher\" = ?3))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Predicate[] restrictions = new Predicate[3];
-    restrictions[0] = cut.equal(adminDiv.get("codeID"), "NUTS2");
-    restrictions[1] = cut.equal(adminDiv.get("divisionCode"), "BE34");
-    restrictions[2] = cut.equal(adminDiv.get("codePublisher"), "Eurostat");
+    restrictions[0] = cut.equal(administrativeDivision.get("codeID"), "NUTS2");
+    restrictions[1] = cut.equal(administrativeDivision.get("divisionCode"), "BE34");
+    restrictions[2] = cut.equal(administrativeDivision.get("codePublisher"), "Eurostat");
     final Predicate act = cut.or(restrictions);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateNot() {
     final String exp = "(NOT (E0.\"CodeID\" = ?1))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate one = cut.equal(adminDiv.get("codeID"), "NUTS2");
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate one = cut.equal(administrativeDivision.get("codeID"), "NUTS2");
     final Predicate act = cut.not(one);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testLiteralExpressionReturnsParameter() {
     final String exp = "?1";
     final Expression<LocalDate> act = cut.literal(LocalDate.now());
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
     assertNotNull(cut.getParameter());
     assertEquals(1, cut.getParameter().getParameter().size());
   }
@@ -471,206 +506,206 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   @Test
   void testCreateLikeExpressionWithString() {
     final String exp = "(E0.\"CodeID\" LIKE ?1)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate act = cut.like(adminDiv.get("codeID"), "6-1");
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate act = cut.like(administrativeDivision.get("codeID"), "6-1");
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateNotLikeExpressionWithString() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate act = cut.notLike(adminDiv.get("codeID"), "6-1");
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate act = cut.notLike(administrativeDivision.get("codeID"), "6-1");
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLikeExpressionWithStringAndEscape() {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate act = cut.like(adminDiv.get("codeID"), "%6-1", '/');
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate act = cut.like(administrativeDivision.get("codeID"), "%6-1", '/');
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateNotLikeExpressionWithStringAndEscape() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate act = cut.notLike(adminDiv.get("codeID"), "%6-1", '/');
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate act = cut.notLike(administrativeDivision.get("codeID"), "%6-1", '/');
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLikeExpressionWithLiteral() {
     final String exp = "(E0.\"CodeID\" LIKE ?1)";
     final Expression<String> literal = cut.literal("%6-1");
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate act = cut.like(adminDiv.get("codeID"), literal);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate act = cut.like(administrativeDivision.get("codeID"), literal);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateNotLikeExpressionWithLiteral() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1))";
     final Expression<String> literal = cut.literal("%6-1");
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Predicate act = cut.notLike(adminDiv.get("codeID"), literal);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Predicate act = cut.notLike(administrativeDivision.get("codeID"), literal);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLikeExpressionWithLiteralLiteral() {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
     final Expression<Character> e = cut.literal('/');
-    final Predicate act = cut.like(adminDiv.get("codeID"), p, e);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Predicate act = cut.like(administrativeDivision.get("codeID"), p, e);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateNotLikeExpressionWithLiteralLiteral() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
     final Expression<Character> e = cut.literal('/');
-    final Predicate act = cut.notLike(adminDiv.get("codeID"), p, e);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Predicate act = cut.notLike(administrativeDivision.get("codeID"), p, e);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLikeExpressionWithLiteralString() {
     final String exp = "(E0.\"CodeID\" LIKE ?2 ESCAPE ?1)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Expression<Character> e = cut.literal('/');
-    final Predicate act = cut.like(adminDiv.get("codeID"), "%6-1", e);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Predicate act = cut.like(administrativeDivision.get("codeID"), "%6-1", e);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateNotLikeExpressionWithLiteralString() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?2 ESCAPE ?1))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Expression<Character> e = cut.literal('/');
-    final Predicate act = cut.notLike(adminDiv.get("codeID"), "%6-1", e);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Predicate act = cut.notLike(administrativeDivision.get("codeID"), "%6-1", e);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
-  void testCreateLikeExpressionWithStrngLiteral() {
+  void testCreateLikeExpressionWithStringLiteral() {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
-    final Predicate act = cut.like(adminDiv.get("codeID"), p, '/');
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Predicate act = cut.like(administrativeDivision.get("codeID"), p, '/');
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
-  void testCreateNotLikeExpressionWithStrngLiteral() {
+  void testCreateNotLikeExpressionWithStringLiteral() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
-    final Predicate act = cut.notLike(adminDiv.get("codeID"), p, '/');
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Predicate act = cut.notLike(administrativeDivision.get("codeID"), p, '/');
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateOrderByDescending() {
     final String exp = "E0.\"CodeID\" DESC";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Order act = cut.desc(adminDiv.get("codeID"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Order act = cut.desc(administrativeDivision.get("codeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateOrderByAscending() {
     final String exp = "E0.\"CodeID\" ASC";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Order act = cut.asc(adminDiv.get("codeID"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Order act = cut.asc(administrativeDivision.get("codeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateOrderByAscendingCount() {
     final String exp = "COUNT(E0.\"CodeID\") ASC";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<?> count = cut.count(adminDiv.get("codeID"));
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<?> count = cut.count(administrativeDivision.get("codeID"));
     final Order act = cut.asc(count);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateOrderByEntity() {
     final String exp = "E0.\"CodePublisher\" ASC, E0.\"CodeID\" ASC, E0.\"DivisionCode\" ASC";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Order act = cut.asc(adminDiv);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Order act = cut.asc(administrativeDivision);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateIsNull() {
     final String exp = "(E0.\"ParentCodeID\" IS NULL)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<?> act = cut.isNull(adminDiv.get("parentCodeID"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<?> act = cut.isNull(administrativeDivision.get("parentCodeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateIsNotNull() {
     final String exp = "(E0.\"ParentCodeID\" IS NOT NULL)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<?> act = cut.isNotNull(adminDiv.get("parentCodeID"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<?> act = cut.isNotNull(administrativeDivision.get("parentCodeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLocateExpressionWithStringNull() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\")";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), "3");
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<Integer> act = cut.locate(administrativeDivision.get("divisionCode"), "3");
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLocateExpressionWithLiteralNull() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\")";
     final Expression<String> literal = cut.literal("3");
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), literal);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<Integer> act = cut.locate(administrativeDivision.get("divisionCode"), literal);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLocateExpressionWithLiteralLiteral() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\", ?2)";
     final Expression<String> literal = cut.literal("3");
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), literal, cut.literal(2));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<Integer> act = cut.locate(administrativeDivision.get("divisionCode"), literal, cut.literal(2));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateLocateExpressionWithStringInt() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\", ?2)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), "3", 2);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<Integer> act = cut.locate(administrativeDivision.get("divisionCode"), "3", 2);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateSubstringExpressionWithIntInt() {
     final String exp = "SUBSTRING(E0.\"Name\", ?1, ?2)";
-    final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
-    final Expression<String> act = cut.substring(adminDiv.get("name"), 1, 5);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivisionDescription.class);
+    final Expression<String> act = cut.substring(administrativeDivision.get("name"), 1, 5);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateSubstringExpressionWithInt() {
     final String exp = "SUBSTRING(E0.\"Name\", ?1)";
-    final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
-    final Expression<String> act = cut.substring(adminDiv.get("name"), 1);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivisionDescription.class);
+    final Expression<String> act = cut.substring(administrativeDivision.get("name"), 1);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
@@ -678,64 +713,75 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "SUBSTRING(E0.\"Name\", ?1, ?2)";
     final Expression<Integer> from = cut.literal(1);
     final Expression<Integer> len = cut.literal(5);
-    final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
-    final Expression<String> act = cut.substring(adminDiv.get("name"), from, len);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivisionDescription.class);
+    final Expression<String> act = cut.substring(administrativeDivision.get("name"), from, len);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateSubstringExpressionWithLiteral() {
     final String exp = "SUBSTRING(E0.\"Name\", ?1)";
     final Expression<Integer> literal = cut.literal(1);
-    final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
-    final Expression<String> act = cut.substring(adminDiv.get("name"), literal);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivisionDescription.class);
+    final Expression<String> act = cut.substring(administrativeDivision.get("name"), literal);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateCoalesceExpressionWithExpressionExpression() {
     final String exp = "COALESCE(E0.\"Area\", E0.\"ParentCodeID\")";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<String> act = cut.coalesce(adminDiv.get("area"), adminDiv.get("parentCodeID"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<String> act = cut.coalesce(administrativeDivision.get("area"), administrativeDivision.get(
+        "parentCodeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+  }
+
+  @Test
+  void testCreateCoalesceExpression() {
+    final Coalesce<String> act = cut.coalesce();
+    assertThrows(NotImplementedException.class, () -> act.value(""));
   }
 
   @Test
   void testCreateCoalesceExpressionWithExpressionValue() {
     final String exp = "COALESCE(E0.\"Area\", ?1)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<Integer> act = cut.coalesce(adminDiv.get("area"), 10);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<Integer> act = cut.coalesce(administrativeDivision.get("area"), 10);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateCountDistinctExpression() {
     final String exp = "COUNT(DISTINCT(E0.\"CodeID\"))";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Expression<Long> act = cut.countDistinct(adminDiv.get("codeID"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Expression<Long> act = cut.countDistinct(administrativeDivision.get("codeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateFunctionExpression() {
     // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     final String exp = "\"OLINGO\".\"PopulationDensity\"(E0.\"Area\", E0.\"Population\")";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
 
     final Expression<Double> act = cut.function("\"OLINGO\".\"PopulationDensity\"", Double.class,
-        adminDiv.get("area"), adminDiv.get("population"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+        administrativeDivision.get("area"), administrativeDivision.get("population"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+    assertEquals(Double.class, act.getJavaType());
   }
 
   @Test
   void testCreateEqualWithValueAndConverter() {
     // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     final String exp = "(E0.\"AccessRights\" = ?1)";
-    final Root<?> person = q.from(Person.class);
-    final AccessRights[] rights = { AccessRights.Read, AccessRights.Delete };
+    final Root<?> person = query.from(Person.class);
+    final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), rights);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
-    assertEquals((short) 9, cut.getParameter().getParameter().get(1).getValue());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals((short) 9, parameter.getValue());
+    }
   }
 
   @Test
@@ -743,77 +789,111 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     // AccessRights[] accessRights
     final String exp = "(E0.\"AccessRights\" = ?1)";
-    final Root<?> person = q.from(Person.class);
-    final AccessRights[] rights = { AccessRights.Read, AccessRights.Delete };
+    final Root<?> person = query.from(Person.class);
+    final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), cut.literal(rights));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
-    assertEquals((short) 9, cut.getParameter().getParameter().get(1).getValue());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals((short) 9, parameter.getValue());
+    }
   }
 
   @Test
   void testCreateBetweenObject() {
     final String exp = "(E0.\"BusinessPartnerRole\" BETWEEN ?1 AND ?2)";
-    final Root<?> roles = q.from(BusinessPartnerRole.class);
+    final Root<?> roles = query.from(BusinessPartnerRole.class);
     final Expression<Boolean> act = cut.between(roles.get("roleCategory"), "A", "B");
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateBetweenExpression() {
     final String exp = "(E0.\"BusinessPartnerRole\" BETWEEN ?1 AND ?2)";
-    final Root<?> roles = q.from(BusinessPartnerRole.class);
+    final Root<?> roles = query.from(BusinessPartnerRole.class);
     final Expression<String> low = cut.literal("A");
     final Expression<String> high = cut.literal("B");
     final Expression<Boolean> act = cut.between(roles.get("roleCategory"), low, high);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateRowNumber() {
     final String exp = "ROW_NUMBER() OVER()";
     final Selection<Long> act = cut.rowNumber();
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateRowNumberWithAlice() {
     final String exp = "ROW_NUMBER() OVER()";
     final Selection<Long> act = cut.rowNumber().alias("\"A\"");
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateRowNumberWithOrderBy() {
     final String exp = "ROW_NUMBER() OVER( ORDER BY E0.\"CodeID\" ASC)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Selection<Long> act = cut.rowNumber().orderBy(cut.asc(adminDiv.get("codeID")));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Selection<Long> act = cut.rowNumber().orderBy(cut.asc(administrativeDivision.get("codeID")));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateRowNumberWithOrderByPrimaryKey() {
     final String exp =
         "ROW_NUMBER() OVER( ORDER BY E0.\"CodePublisher\" ASC, E0.\"CodeID\" ASC, E0.\"DivisionCode\" ASC)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Selection<Long> act = cut.rowNumber().orderBy(cut.asc(adminDiv));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Selection<Long> act = cut.rowNumber().orderBy(cut.asc(administrativeDivision));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateRowNumberWithPartitionBy() {
     final String exp = "ROW_NUMBER() OVER( PARTITION BY E0.\"CodeID\")";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final Selection<Long> act = cut.rowNumber().partitionBy(adminDiv.get("codeID"));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    final Selection<Long> act = cut.rowNumber().partitionBy(administrativeDivision.get("codeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @Test
   void testCreateRowNumberWithPartitionAndOrder() {
     final String exp = "ROW_NUMBER() OVER( PARTITION BY E0.\"CodeID\" ORDER BY E0.\"CodeID\" ASC)";
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
     final Selection<Long> act = cut.rowNumber()
-        .partitionBy(adminDiv.get("codeID"))
-        .orderBy(cut.asc(adminDiv.get("codeID")));
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+        .partitionBy(administrativeDivision.get("codeID"))
+        .orderBy(cut.asc(administrativeDivision.get("codeID")));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+  }
+
+  @Test
+  void testCreateConcatExpression() {
+    final String stringA = "A";
+    final String stringB = "B";
+
+    final Expression<String> literalA = cut.literal(stringA);
+    final Expression<String> literalB = cut.literal(stringB);
+
+    assertConcatExpression(stringA, stringB, cut.concat(literalA, literalB));
+    assertConcatExpression(stringA, stringB, cut.concat(stringA, literalB));
+    assertConcatExpression(stringA, stringB, cut.concat(literalA, stringB));
+  }
+
+  void assertConcatExpression(final String stringA, final String stringB, final Expression<String> act) {
+    final StringBuilder builder = new StringBuilder();
+    assertTrue(act instanceof ConcatExpression);
+    assertEquals("CONCAT(?1, ?2)", ((ExpressionImpl<String>) act).asSQL(builder).toString());
+    final Map<Integer, ParameterExpression<?, ?>> actMap = cut.getParameter().getParameter();
+    assertEquals(2, actMap.size());
+    boolean aFound = false;
+    boolean bFound = false;
+    for (final ParameterExpression<?, ?> parameter : actMap.values()) {
+      if (stringA.equals(parameter.getValue()))
+        aFound = true;
+      if (stringB.equals(parameter.getValue()))
+        bFound = true;
+    }
+    assertTrue(aFound);
+    assertTrue(bFound);
   }
 }

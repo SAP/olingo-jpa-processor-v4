@@ -38,8 +38,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
 
   private CsdlEntityContainer edmContainer;
 
-  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList) {
-    super(nameBuilder, nameBuilder.buildContainerName());
+  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList,
+      final IntermediateAnnotationInformation annotationInfo) {
+    super(nameBuilder, nameBuilder.buildContainerName(), annotationInfo);
     this.schemaList = schemaList;
     this.setExternalName(nameBuilder.buildContainerName());
     this.entitySetListInternalKey = new HashMap<>();
@@ -77,8 +78,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     if (edmContainer == null) {
       lazyBuildEdmItem();
     }
-    return (IntermediateEntitySet) findModelElementByEdmItem(edmEntitySetName,
-        entitySetListInternalKey);
+    return (IntermediateEntitySet) findModelElementByEdmItem(edmEntitySetName, entitySetListInternalKey);
   }
 
   IntermediateSingleton getSingleton(final String edmSingletonName) throws ODataJPAModelException {
@@ -113,17 +113,16 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * @param Entity Type
    * @return Entity Set
    */
-  @SuppressWarnings("unchecked")
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
         if ((!et.ignore() || et.asTopLevelOnly()) && et.asEntitySet()) {
-          final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
+          final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et, getAnnotationInformation());
           entitySetListInternalKey.put(es.internalName, es);
         }
       }
     }
-    return (List<CsdlEntitySet>) extractEdmModelElements(entitySetListInternalKey);
+    return extractEdmModelElements(entitySetListInternalKey);
   }
 
   /**
@@ -131,35 +130,35 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * @return List of Singletons
    * @throws ODataJPAModelException
    */
-  @SuppressWarnings("unchecked")
   private List<CsdlSingleton> buildSingletons() throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
         if ((!et.ignore() || et.asTopLevelOnly()) && et.asSingleton()) {
-          final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+          final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, getAnnotationInformation());
           singletonListInternalKey.put(singleton.internalName, singleton);
         }
       }
     }
-    return (List<CsdlSingleton>) extractEdmModelElements(singletonListInternalKey);
+    return extractEdmModelElements(singletonListInternalKey);
   }
 
   /**
    * Creates the FunctionImports. Function Imports have to be created for <i>unbound</i> functions. These are functions,
-   * which do not depend on an entity set. E.g. .../MyFunction(). <p>
+   * which do not depend on an entity set. E.g. .../MyFunction().
+   * <p>
    * Details are described in : <a href=
    * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042"
    * >OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a>
    * @param CsdlFunction edmFu
    */
-  private CsdlFunctionImport buildFunctionImport(final CsdlFunction edmFu) {
-    final CsdlFunctionImport edmFuImport = new CsdlFunctionImport();
-    edmFuImport.setName(edmFu.getName());
-    edmFuImport.setFunction(buildFQN(edmFu.getName()));
-    edmFuImport.setIncludeInServiceDocument(true);
+  private CsdlFunctionImport buildFunctionImport(final CsdlFunction edmFunction) {
+    final CsdlFunctionImport edmFunctionImport = new CsdlFunctionImport();
+    edmFunctionImport.setName(edmFunction.getName());
+    edmFunctionImport.setFunction(buildFQN(edmFunction.getName()));
+    edmFunctionImport.setIncludeInServiceDocument(true);
     // edmFuImport.setEntitySet(entitySet)
 
-    return edmFuImport;
+    return edmFunctionImport;
   }
 
   private List<CsdlFunctionImport> buildFunctionImports() throws ODataJPAModelException {
@@ -196,19 +195,20 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
 
   /**
    * Creates the ActionImports. Function Imports have to be created for <i>unbound</i> actions. These are actions,
-   * which do not depend on an entity set. E.g. .../MyAction(). <p>
+   * which do not depend on an entity set. E.g. .../MyAction().
+   * <p>
    * Details are described in : <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-
    * complete.html#_Toc406398038">13.5 Element edm:ActionImport</a>
-   * @param edmAc
+   * @param edmAction
    * @return
    */
-  private CsdlActionImport buildActionImport(final CsdlAction edmAc) {
-    final CsdlActionImport edmAcImport = new CsdlActionImport();
-    edmAcImport.setName(edmAc.getName());
-    edmAcImport.setAction(buildFQN(edmAc.getName()));
+  private CsdlActionImport buildActionImport(final CsdlAction edmAction) {
+    final CsdlActionImport edmActionImport = new CsdlActionImport();
+    edmActionImport.setName(edmAction.getName());
+    edmActionImport.setAction(buildFQN(edmAction.getName()));
     // edmAcImport.setEntitySet(entitySet)
-    return edmAcImport;
+    return edmActionImport;
   }
 
 }

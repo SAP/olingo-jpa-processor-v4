@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TupleElement;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,7 +116,7 @@ class TupleImplTest {
   }
 
   @Test
-  void testGetByAliseThrowsExceptionOnInvalidValue() {
+  void testGetByAliasThrowsExceptionOnInvalidValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.get("Willi"));
   }
 
@@ -137,7 +137,7 @@ class TupleImplTest {
   }
 
   @Test
-  void testGetByAliseWithCastThrowsExceptionOnInvalidValue() {
+  void testGetByAliasWithCastThrowsExceptionOnInvalidValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.get("Willi", Number.class));
   }
 

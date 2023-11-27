@@ -17,15 +17,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -42,6 +43,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -61,12 +63,12 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
 
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "execute");
-    try {
+
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "execute")) {
       final JPAQueryCreationResult tupleQuery = createTupleQuery();
-      final List<Tuple> intermediateResult = tupleQuery.getQuery().getResultList();
+      final List<Tuple> intermediateResult = tupleQuery.query().getResultList();
       final Map<String, List<Tuple>> result = convertResult(intermediateResult);
-      return new JPAExpandQueryResult(result, count(), jpaEntity, tupleQuery.getSelection().joinedRequested());
+      return new JPAExpandQueryResult(result, count(), jpaEntity, tupleQuery.selection().joinedRequested());
     } catch (final JPANoSelectionException e) {
       return new JPAExpandQueryResult(emptyMap(), emptyMap(), this.jpaEntity, emptyList());
     } catch (final ODataApplicationException e) {
@@ -74,8 +76,6 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), INTERNAL_SERVER_ERROR.getStatusCode(), getLocale(),
           e);
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 
@@ -103,9 +103,9 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
       selections = new ArrayList<>(requestedProperties.size());
       for (final JPAPath jpaPath : requestedProperties) {
         if (jpaPath.isPartOfGroups(groups)) {
-          final Path<?> p = target.get(jpaPath.getAlias());
-          p.alias(jpaPath.getAlias());
-          selections.add(p);
+          final Path<?> path = target.get(jpaPath.getAlias());
+          path.alias(jpaPath.getAlias());
+          selections.add(path);
         }
       }
     } else {
@@ -119,9 +119,9 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   void addSelectJoinTable(final List<Selection<?>> selections) throws ODataJPAQueryException {
     if (association.hasJoinTable()) {
       try {
-        final JPAJoinTable jt = association.getJoinTable();
-        debugger.trace(this, "Creating SELECT snipped for join table %s with join conditions %s", jt.toString(),
-            jt.getJoinColumns());
+        final JPAJoinTable joinTable = association.getJoinTable();
+        debugger.trace(this, "Creating SELECT snipped for join table %s with join conditions %s", joinTable.toString(),
+            joinTable.getJoinColumns());
         for (final JPAOnConditionItem jc : association.getJoinTable().getJoinColumns()) {
           final Path<?> path = root.get(jc.getRightPath().getLeaf().getInternalName());
           path.alias(association.getAlias() + ALIAS_SEPARATOR + jc.getLeftPath().getAlias());
@@ -140,7 +140,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
 
   LinkedList<JPAAbstractQuery> buildSubQueries(final JPAQueryPair queries) throws ODataException {
     final LinkedList<JPAAbstractQuery> hops = new LinkedList<>();
-    hops.push(queries.getInner());
+    hops.push(queries.inner());
     for (int i = navigationInfo.size() - 2; i >= 0; i--) {
       final JPANavigationPropertyInfo hop = navigationInfo.get(i);
       if (hop.getUriInfo() != null) {
@@ -155,25 +155,23 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
 
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "count");
-    try {
+
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "count")) {
       final JPAExpandSubCountQuery countQuery = new JPAExpandSubCountQuery(odata, requestContext, jpaEntity,
           association, navigationInfo);
       return countQuery.count();
     } catch (final ODataException e) {
       throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 
   Subquery<Object> linkSubQueries(final LinkedList<JPAAbstractQuery> hops) throws ODataApplicationException {
-    Subquery<Object> sq = null;
+    Subquery<Object> subQuery = null;
     while (!hops.isEmpty() && hops.getFirst() instanceof JPAAbstractSubQuery) {
       final JPAAbstractSubQuery hop = (JPAAbstractSubQuery) hops.pop();
-      sq = hop.getSubQuery(sq);
+      subQuery = hop.getSubQuery(subQuery, null);
     }
-    return sq;
+    return subQuery;
   }
 
   private Map<String, List<Tuple>> convertResult(final List<Tuple> intermediateResult)
@@ -200,11 +198,11 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
     return convertedResult;
   }
 
-  private Expression<Boolean> createExpandWhere(final JPANavigationPropertyInfo naviInfo)
+  private Expression<Boolean> createExpandWhere(final JPANavigationPropertyInfo navigationInfo)
       throws ODataApplicationException {
 
     try {
-      return naviInfo.getFilterCompiler().compile();
+      return navigationInfo.getFilterCompiler().compile();
     } catch (final ExpressionVisitException e) {
       throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, HttpStatusCode.BAD_REQUEST, e);
     }
@@ -212,12 +210,12 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
 
   private void createFromClauseJoinTable(final HashMap<String, From<?, ?>> joinTables) throws ODataJPAQueryException {
     if (association.hasJoinTable()) {
-      final JPAJoinTable jt = association.getJoinTable();
-      final JPAEntityType jtEt = Optional.ofNullable(jt.getEntityType())
+      final JPAJoinTable joinTable = association.getJoinTable();
+      final JPAEntityType joinTableEt = Optional.ofNullable(joinTable.getEntityType())
           .orElseThrow(() -> new ODataJPAQueryException(QUERY_PREPARATION_JOIN_TABLE_TYPE_MISSING,
-              INTERNAL_SERVER_ERROR, jt.getTableName()));
-      debugger.trace(this, "Join table found: %s, join will be created", jtEt.toString());
-      root = cq.from(jtEt.getTypeClass());
+              INTERNAL_SERVER_ERROR, joinTable.getTableName()));
+      debugger.trace(this, "Join table found: %s, join will be created", joinTableEt.toString());
+      root = cq.from(joinTableEt.getTypeClass());
       root.alias(association.getAlias());
       joinTables.put(association.getAlias(), target);
     }
@@ -240,8 +238,8 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
         final List<Order> orders = new ArrayList<>();
 
         for (final JPAOnConditionItem c : association.getJoinTable().getJoinColumns()) {
-          final Path<?> p = root.get(c.getLeftPath().getAlias());
-          orders.add(cb.asc(p));
+          final Path<?> path = root.get(c.getLeftPath().getAlias());
+          orders.add(cb.asc(path));
         }
         return orders;
       } catch (final ODataJPAModelException e) {
@@ -267,9 +265,9 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
       debugger.trace(this, "Row number required");
       final int lastIndex = navigationInfo.size() - 2;
       final JPAAssociationPath childAssociation = navigationInfo.get(lastIndex).getAssociationPath();
-      final JPARowNumberFilterQuery rq = new JPARowNumberFilterQuery(odata, requestContext, lastInfo,
+      final JPARowNumberFilterQuery rowNumberQuery = new JPARowNumberFilterQuery(odata, requestContext, lastInfo,
           this, association, childAssociation, selectionPath);
-      return new JPAQueryPair(rq, this);
+      return new JPAQueryPair(rowNumberQuery, this);
     } else {
       debugger.trace(this, "Row number not required");
       return new JPAQueryPair(this, this);
@@ -279,35 +277,36 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   private @Nonnull JPAQueryCreationResult createTupleQuery() throws JPANoSelectionException,
       ODataException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
-    final ProcessorCriteriaQuery<Tuple> tq = (ProcessorCriteriaQuery<Tuple>) cq;
-    final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
-    final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    final JPAQueryPair queries = createQueries(selectionPath);
-    addFilterCompiler(lastInfo);
-    final LinkedList<JPAAbstractQuery> hops = buildSubQueries(queries);
-    final Subquery<Object> sq = linkSubQueries(hops);
-    final Map<String, From<?, ?>> joinTables = createJoinTables(tq, selectionPath, orderByAttributes, sq);
-    tq.where(createWhere(sq, lastInfo));
-    tq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), groups));
-    tq.orderBy(createOrderBy(joinTables));
-    tq.distinct(orderByAttributes.isEmpty());
-    if (!orderByAttributes.isEmpty())
-      cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent()));
-    final TypedQuery<Tuple> query = em.createQuery(tq);
-
-    debugger.stopRuntimeMeasurement(handle);
-    return new JPAQueryCreationResult(query, selectionPath);
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createTupleQuery")) {
+      final ProcessorCriteriaQuery<Tuple> tupleQuery = (ProcessorCriteriaQuery<Tuple>) cq;
+      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(uriResource
+          .getOrderByOption());
+      final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
+      final JPAQueryPair queries = createQueries(selectionPath);
+      addFilterCompiler(lastInfo);
+      final LinkedList<JPAAbstractQuery> hops = buildSubQueries(queries);
+      final Subquery<Object> subQuery = linkSubQueries(hops);
+      final Map<String, From<?, ?>> joinTables = createJoinTables(tupleQuery, selectionPath, orderByAttributes,
+          subQuery);
+      tupleQuery.where(createWhere(subQuery, lastInfo));
+      tupleQuery.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), groups));
+      tupleQuery.orderBy(createOrderBy(joinTables));
+      tupleQuery.distinct(orderByAttributes.isEmpty());
+      if (!orderByAttributes.isEmpty())
+        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent()));
+      final TypedQuery<Tuple> query = em.createQuery(tupleQuery);
+      return new JPAQueryCreationResult(query, selectionPath);
+    }
   }
 
-  Map<String, From<?, ?>> createJoinTables(final ProcessorCriteriaQuery<Tuple> tq,
+  Map<String, From<?, ?>> createJoinTables(final ProcessorCriteriaQuery<Tuple> tupleQuery,
       final SelectionPathInfo<JPAPath> selectionPath, final List<JPAAssociationPath> orderByAttributes,
-      final Subquery<Object> sq) throws ODataApplicationException, JPANoSelectionException {
+      final Subquery<Object> subQuery) throws ODataApplicationException, JPANoSelectionException {
 
     Map<String, From<?, ?>> joinTables = new HashMap<>();
 
     if (hasRowLimit(lastInfo)) {
-      this.target = this.root = tq.from((ProcessorSubquery<?>) sq);
+      this.target = this.root = tupleQuery.from((ProcessorSubquery<?>) subQuery);
     } else {
       joinTables = createFromClause(emptyList(), selectionPath.joinedPersistent(), cq, lastInfo);
     }
@@ -315,28 +314,25 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
     return joinTables;
   }
 
-  private Expression<Boolean> createWhere(final Subquery<?> sq, final JPANavigationPropertyInfo naviInfo)
+  private Expression<Boolean> createWhere(final Subquery<?> subQuery, final JPANavigationPropertyInfo navigationInfo)
       throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
-    try {
+    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createWhere")) {
       if (hasRowLimit(lastInfo)) {
         return createWhereByRowNumber(target, lastInfo);
       }
-      javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
-      whereCondition = createWhereByKey(naviInfo);
+      whereCondition = createWhereByKey(navigationInfo);
       whereCondition = addWhereClause(whereCondition, createWhereTableJoin(root, target, association, true));
-      whereCondition = addWhereClause(whereCondition, createWhereKeyIn(this.association, root, sq));
-      whereCondition = addWhereClause(whereCondition, createExpandWhere(naviInfo));
+      whereCondition = addWhereClause(whereCondition, createWhereKeyIn(this.association, root, subQuery));
+      whereCondition = addWhereClause(whereCondition, createExpandWhere(navigationInfo));
       whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
-          root));
+          target));
       return whereCondition;
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 }

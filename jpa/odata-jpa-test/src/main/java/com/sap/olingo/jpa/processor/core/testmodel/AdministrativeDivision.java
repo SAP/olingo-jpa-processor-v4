@@ -3,18 +3,20 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.Table;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
@@ -75,7 +77,7 @@ public class AdministrativeDivision implements KeyAccess {
   @Id
   @Column(name = "\"DivisionCode\"", length = 10)
   private String divisionCode;
-
+  @Access(AccessType.FIELD)
   @Column(name = "\"CountryISOCode\"", length = 4)
   private String countryCode;
   @Column(name = "\"ParentCodeID\"", length = 10)
@@ -122,7 +124,7 @@ public class AdministrativeDivision implements KeyAccess {
   @PostPersist
   @PostUpdate
   public void adjustParent() {
-    for (AdministrativeDivision child : children) {
+    for (final AdministrativeDivision child : children) {
       child.setParent(this);
     }
   }
@@ -131,7 +133,7 @@ public class AdministrativeDivision implements KeyAccess {
     return alternativeCode;
   }
 
-  public int getArea() {
+  public Integer getArea() {
     return area;
   }
 
@@ -176,54 +178,54 @@ public class AdministrativeDivision implements KeyAccess {
     return population;
   }
 
-  public void setAlternativeCode(String alternativeCode) {
+  public void setAlternativeCode(final String alternativeCode) {
     this.alternativeCode = alternativeCode;
   }
 
-  public void setArea(int area) {
+  public void setArea(final int area) {
     this.area = area;
   }
 
-  public void setArea(Integer area) {
+  public void setArea(final Integer area) {
     this.area = area;
   }
 
-  public void setChildren(List<AdministrativeDivision> children) {
+  public void setChildren(final List<AdministrativeDivision> children) {
     this.children = children;
   }
 
-  public void setCodeID(String codeID) {
+  public void setCodeID(final String codeID) {
     this.codeID = codeID;
   }
 
-  public void setCodePublisher(String codePublisher) {
+  public void setCodePublisher(final String codePublisher) {
     this.codePublisher = codePublisher;
   }
 
-  public void setCountryCode(String countryCode) {
+  public void setCountryCode(final String countryCode) {
     this.countryCode = countryCode;
   }
 
-  public void setDivisionCode(String divisionCode) {
+  public void setDivisionCode(final String divisionCode) {
     this.divisionCode = divisionCode;
   }
 
-  public void setParent(AdministrativeDivision parent) {
+  public void setParent(final AdministrativeDivision parent) {
     this.parent = parent;
     this.parentCodeID = parent.getCodeID();
     this.parentDivisionCode = parent.getDivisionCode();
 
   }
 
-  public void setParentCodeID(String parentCodeID) {
+  public void setParentCodeID(final String parentCodeID) {
     this.parentCodeID = parentCodeID;
   }
 
-  public void setParentDivisionCode(String parentDivisionCode) {
+  public void setParentDivisionCode(final String parentDivisionCode) {
     this.parentDivisionCode = parentDivisionCode;
   }
 
-  public void setPopulation(long population) {
+  public void setPopulation(final long population) {
     this.population = population;
   }
 
@@ -238,20 +240,17 @@ public class AdministrativeDivision implements KeyAccess {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    AdministrativeDivision other = (AdministrativeDivision) obj;
-    if (codeID == null) {
-      if (other.codeID != null) return false;
-    } else if (!codeID.equals(other.codeID)) return false;
-    if (codePublisher == null) {
-      if (other.codePublisher != null) return false;
-    } else if (!codePublisher.equals(other.codePublisher)) return false;
-    if (divisionCode == null) {
-      if (other.divisionCode != null) return false;
-    } else if (!divisionCode.equals(other.divisionCode)) return false;
-    return true;
+    final AdministrativeDivision other = (AdministrativeDivision) obj;
+    return other.getKey().equals(getKey());
+  }
+
+  @Override
+  public String toString() {
+    return "AdministrativeDivision [codePublisher=" + codePublisher + ", codeID=" + codeID + ", divisionCode="
+        + divisionCode + "]";
   }
 }

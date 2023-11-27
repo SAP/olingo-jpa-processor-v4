@@ -9,6 +9,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -28,14 +29,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 
 class IntermediateServiceDocumentTest extends TestMappingRoot {
 
   private JPAServiceDocument cut;
+  private List<AnnotationProvider> annotationProvider;
 
   static Stream<Arguments> getEntityTypeByFqn() {
     return Stream.of(
@@ -47,6 +52,19 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   static Stream<Arguments> getEntityTypeByEsName() {
     return Stream.of(
         arguments("BusinessPartners", false),
+        arguments("Dummy", true));
+  }
+
+  static Stream<Arguments> getEntitySetByExternalName() {
+    return Stream.of(
+        arguments("BusinessPartners", false),
+        arguments("Dummy", true));
+  }
+
+  static Stream<Arguments> getTopLevelEntityByExternalName() {
+    return Stream.of(
+        arguments("BusinessPartners", false),
+        arguments("CurrentUser", false),
         arguments("Dummy", true));
   }
 
@@ -66,14 +84,15 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
+    annotationProvider = new ArrayList<>();
     cut = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider);
   }
 
   @Test
   void checkServiceDocumentCanBeCreated() throws ODataJPAModelException {
     assertNotNull(new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }));
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider));
   }
 
   @Test
@@ -117,7 +136,8 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     when(target.getEntityType()).thenReturn(et);
     when(et.getFullQualifiedName()).thenReturn(new FullQualifiedName(PUNIT_NAME, "Country"));
 
-    final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null,
+        annotationProvider);
     assertFalse(svc.hasETag(target));
   }
 
@@ -168,7 +188,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetEntityTypeByEdmTypeReturnNullOnUnkown() throws ODataJPAModelException {
+  void checkGetEntityTypeByEdmTypeReturnNullOnUnknown() throws ODataJPAModelException {
     final EdmEntityType type = mock(EdmEntityType.class);
     when(type.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(type.getName()).thenReturn("Unknown");
@@ -176,7 +196,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetEntityTypeByEdmTypeReturnNullOnUnkownSchema() throws ODataJPAModelException {
+  void checkGetEntityTypeByEdmTypeReturnNullOnUnknownSchema() throws ODataJPAModelException {
     final EdmEntityType type = mock(EdmEntityType.class);
     when(type.getNamespace()).thenReturn("Unknown");
     when(type.getName()).thenReturn("BoundNoImport");
@@ -192,7 +212,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetComplexTypeByEdmTypeReturnNullOnUnkown() throws ODataJPAModelException {
+  void checkGetComplexTypeByEdmTypeReturnNullOnUnknown() throws ODataJPAModelException {
     final EdmComplexType type = mock(EdmComplexType.class);
     when(type.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(type.getName()).thenReturn("Unknown");
@@ -200,7 +220,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetComplexTypeByEdmTypeReturnNullOnUnkownSchema() throws ODataJPAModelException {
+  void checkGetComplexTypeByEdmTypeReturnNullOnUnknownSchema() throws ODataJPAModelException {
     final EdmComplexType type = mock(EdmComplexType.class);
     when(type.getNamespace()).thenReturn("Unknown");
     when(type.getName()).thenReturn("BoundNoImport");
@@ -208,12 +228,36 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetAction() throws ODataJPAModelException {
+  void checkGetComplexTypeByClass() throws ODataJPAModelException {
+    assertNotNull(cut.getComplexType(AdministrativeDivisionDescriptionKey.class));
+  }
+
+  @Test
+  void checkGetComplexTypeByClassReturnNullOnUnknown() throws ODataJPAModelException {
+    assertNull(cut.getComplexType(AdministrativeDivisionKey.class));
+  }
+
+  @Test
+  void checkGetBoundAction() throws ODataJPAModelException {
     final EdmAction action = mock(EdmAction.class);
-    when(action.getNamespace()).thenReturn("com.sap.olingo.jpa");
+    when(action.getNamespace()).thenReturn(PUNIT_NAME);
     when(action.getName()).thenReturn("BoundNoImport");
+    when(action.getBindingParameterTypeFqn()).thenReturn(new FullQualifiedName(PUNIT_NAME, "Person"));
+    when(action.isBound()).thenReturn(true);
     final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" });
+        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider);
+    assertNotNull(svc.getAction(action));
+  }
+
+  @Test
+  void checkGetUnBoundAction() throws ODataJPAModelException {
+    final EdmAction action = mock(EdmAction.class);
+    when(action.getNamespace()).thenReturn(PUNIT_NAME);
+    when(action.getName()).thenReturn("WithImport");
+    when(action.getBindingParameterTypeFqn()).thenReturn(null);
+    when(action.isBound()).thenReturn(false);
+    final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider);
     assertNotNull(svc.getAction(action));
   }
 
@@ -244,7 +288,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetFunctionReturnNullOnUnkownFunction() throws ODataJPAModelException {
+  void checkGetFunctionReturnNullOnUnknownFunction() throws ODataJPAModelException {
     final EdmFunction function = mock(EdmFunction.class);
     when(function.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(function.getName()).thenReturn("Unknown");
@@ -252,7 +296,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetFunctionReturnNullOnUnkownSchema() throws ODataJPAModelException {
+  void checkGetFunctionReturnNullOnUnknownSchema() throws ODataJPAModelException {
     final EdmFunction function = mock(EdmFunction.class);
     when(function.getNamespace()).thenReturn("Unknown");
     when(function.getName()).thenReturn("BoundNoImport");
@@ -315,6 +359,9 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     final EdmAction action = mock(EdmAction.class);
     when(action.getNamespace()).thenReturn("test");
     when(action.getName()).thenReturn("O_BoundNoImport");
+    when(action.getBindingParameterTypeFqn()).thenReturn(new FullQualifiedName("test", "Person"));
+    when(action.isBound()).thenReturn(true);
+
     assertNotNull(cut.getAction(action));
   }
 
@@ -341,10 +388,28 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     assertNotNull(act);
   }
 
+  @ParameterizedTest
+  @MethodSource("getEntitySetByExternalName")
+  void checkGetEntitySetByExternalName(final String esName, final boolean isEmpty) throws ODataJPAModelException {
+    if (isEmpty)
+      assertFalse(cut.getEntitySet(esName).isPresent());
+    else
+      assertTrue(cut.getEntitySet(esName).isPresent());
+  }
+
+  @ParameterizedTest
+  @MethodSource("getTopLevelEntityByExternalName")
+  void checkGetTopLevelEntityByExternalName(final String esName, final boolean isEmpty) throws ODataJPAModelException {
+    if (isEmpty)
+      assertFalse(cut.getTopLevelEntity(esName).isPresent());
+    else
+      assertTrue(cut.getTopLevelEntity(esName).isPresent());
+  }
+
   private IntermediateServiceDocument createCutWithCustomNameBuilder() throws ODataJPAModelException {
     return new IntermediateServiceDocument(new CustomJPANameBuilder(), emf.getMetamodel(), null,
         new String[] { "com.sap.olingo.jpa.processor.core.testmodel",
-            "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" });
+            "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider);
   }
 
 }

@@ -11,45 +11,55 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.Column;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
@@ -60,8 +70,11 @@ import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorC
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorError;
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientKey;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
+import com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
@@ -270,12 +283,11 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
 
   @Test
   void checkGetPropertyMapperWithConverter() throws ODataJPAModelException {
-    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "birthDay");
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Collection.class), "localDateTime");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertNotNull(property.getEdmItem().getMapping());
-    assertEquals(Date.class, property.getEdmItem().getMapping().getMappedJavaClass());
+    assertEquals(java.util.Date.class, property.getEdmItem().getMapping().getMappedJavaClass());
   }
 
   @Test
@@ -301,8 +313,8 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
 
   @Test
   void checkPostProcessorAnnotationAdded() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateSimpleProperty.setPostProcessor(pPDouble);
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateSimpleProperty.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "customString1");
@@ -313,9 +325,9 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetConverterReturnedCOnvertionRequiered() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+  void checkGetConverterReturnedConversionRequired() throws ODataJPAModelException {
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "creationDateTime");
@@ -327,8 +339,8 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
 
   @Test
   void checkGetConverterNullNoConverterDefined() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "customString2");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -339,8 +351,8 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
 
   @Test
   void checkGetConverterNullDBTypeEqJavaType() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "customString1");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -350,9 +362,9 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetConverterNullConvertionNotRequired() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+  void checkGetConverterNullConversionNotRequired() throws ODataJPAModelException {
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(DummyToBeIgnored.class), "uuid");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -362,9 +374,9 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetRawConverterReturnedConvertionRequiered() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+  void checkGetRawConverterReturnedConversionRequired() throws ODataJPAModelException {
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "creationDateTime");
@@ -376,8 +388,8 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
 
   @Test
   void checkGetRawConverterNullNoConverterDefined() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "customString2");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -387,9 +399,9 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetRawConverterReturnsConvertionNotRequired() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+  void checkGetRawConverterReturnsConversionNotRequired() throws ODataJPAModelException {
+    final PostProcessorSetName postProcessorDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(postProcessorDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(DummyToBeIgnored.class), "uuid");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -408,7 +420,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPropertyDefaultValueIgnortOnAbstractClass() throws ODataJPAModelException {
+  void checkGetPropertyDefaultValueIgnoredOnAbstractClass() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "iD");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -460,7 +472,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPropertyGetCalculatorPersistantIsNull() throws ODataJPAModelException, NoSuchFieldException,
+  void checkGetPropertyGetCalculatorPersistentIsNull() throws ODataJPAModelException, NoSuchFieldException,
       SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
@@ -557,7 +569,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPropertyGetCalculatorNullOnPersistantProperty() throws ODataJPAModelException,
+  void checkGetPropertyGetCalculatorNullOnPersistentProperty() throws ODataJPAModelException,
       NoSuchFieldException,
       SecurityException {
 
@@ -599,6 +611,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertTrue(property.conversionRequired);
     assertEquals(Timestamp.class, property.getType());
     assertEquals(Timestamp.class, property.getDbType());
+    assertEquals(LocalDateTime.class, property.getJavaType());
   }
 
   @Test
@@ -611,6 +624,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertFalse(property.conversionRequired);
     assertEquals(LocalDate.class, property.getType());
     assertEquals(Date.class, property.getDbType());
+    assertEquals(LocalDate.class, property.getJavaType());
   }
 
   @Test
@@ -663,7 +677,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   @Test
   void checkGetPropertyHasProtectionTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
-        "username");
+        "userName");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     assertTrue(property.hasProtection());
@@ -672,7 +686,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   @Test
   void checkGetPropertyProtectionSupportsWildCardTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
-        "username");
+        "userName");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     assertTrue(property.protectionWithWildcard("UserId", String.class));
@@ -701,14 +715,14 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   @Test
   void checkGetPropertyProtectedAttributeClaimName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
-        "username");
+        "userName");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
     final List<String> actPath = property.getProtectionPath("UserId");
     assertEquals(1, actPath.size());
-    assertEquals("Username", actPath.get(0));
+    assertEquals("UserName", actPath.get(0));
   }
 
   @Test
@@ -811,10 +825,50 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertEquals("AdministrativeInformation/Created/At", actPath.get(0));
   }
 
-  @Disabled("Test for spatial data missing")
   @Test
-  void checkGetSRID() {
-    fail();
+  void checkGetSRIDDefaultValueGeography() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+    final EdmGeospatial geospatial = mock(EdmGeospatial.class);
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
+    when(((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmGeospatial.class)).thenReturn(geospatial);
+    when(geospatial.srid()).thenReturn("");
+    when(geospatial.dimension()).thenReturn(Dimension.GEOGRAPHY);
+
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final SRID act = cut.getSRID();
+    assertEquals("4326", act.toString());
+  }
+
+  @Test
+  void checkGetSRIDDefaultValueGeometry() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+    final EdmGeospatial geo = mock(EdmGeospatial.class);
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
+    when(((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmGeospatial.class)).thenReturn(geo);
+    when(geo.srid()).thenReturn("");
+    when(geo.dimension()).thenReturn(Dimension.GEOMETRY);
+
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final SRID act = cut.getSRID();
+    assertEquals("0", act.toString());
+  }
+
+  @Test
+  void checkGetSRIDExplicitValue() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+    final EdmGeospatial geospatial = mock(EdmGeospatial.class);
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
+    when(((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmGeospatial.class)).thenReturn(geospatial);
+    when(geospatial.srid()).thenReturn("31466");
+    when(geospatial.dimension()).thenReturn(Dimension.GEOGRAPHY);
+
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final SRID act = cut.getSRID();
+    assertEquals(Dimension.GEOGRAPHY, act.getDimension());
+    assertEquals("31466", act.toString());
   }
 
   @Test
@@ -859,19 +913,88 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   void checkGetPropertyPrecisionNullOnDecimalPrecision0() throws ODataJPAModelException {
     final Column jpaColumn = createDummyColumn();
     final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
-
-    when(jpaColumn.precision()).thenReturn(-1);
-    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return BigDecimal.class;
-      }
-    });
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     final CsdlProperty act = property.getEdmItem();
     assertNull(act.getPrecision());
+  }
 
+  @Test
+  void checkGetEdmType() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
+        "eTag");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    assertEquals(EdmPrimitiveTypeKind.Int64, property.getEdmType());
+  }
+
+  @Test
+  void checkIsSearchableTrue() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AdministrativeDivisionDescription.class), "name");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    assertTrue(property.isSearchable());
+  }
+
+  @Test
+  void checkIsSearchableFalse() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AdministrativeDivision.class), "codePublisher");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    assertFalse(property.isSearchable());
+  }
+
+  @Test
+  void checkGetAnnotationReturnsExistingAnnotation() throws ODataJPAModelException {
+    createAnnotation();
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AnnotationsParent.class), "area");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final CsdlAnnotation act = property.getAnnotation("Core", "ComputedDefaultValue");
+    assertNotNull(act);
+  }
+
+  @Test
+  void checkGetAnnotationReturnsNullAliasUnknown() throws ODataJPAModelException {
+    createAnnotation();
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AnnotationsParent.class), "area");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    assertNull(property.getAnnotation("Capability", "ComputedDefaultValue"));
+  }
+
+  @Test
+  void checkJavaAnnotationsOneAnnotation() throws ODataJPAModelException {
+    createAnnotation();
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AnnotationsParent.class), "area");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final Map<String, Annotation> act = property.javaAnnotations(Column.class.getPackage().getName());
+    assertEquals(1, act.size());
+    assertNotNull(act.get("Column"));
+  }
+
+  @Test
+  void checkJavaAnnotationsNoAnnotations() throws ODataJPAModelException {
+    createAnnotation();
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AnnotationsParent.class), "area");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final Map<String, Annotation> act = property.javaAnnotations(Test.class.getPackage().getName());
+    assertTrue(act.isEmpty());
+  }
+
+  private void createAnnotation() {
+    final AnnotationProvider annotationProvider = mock(AnnotationProvider.class);
+    final List<CsdlAnnotation> annotations = new ArrayList<>();
+    final CsdlAnnotation annotation = mock(CsdlAnnotation.class);
+    final JPAReferences reference = helper.annotationInfo.getReferences();
+    annotations.add(annotation);
+    when(reference.convertAlias("Core")).thenReturn("Org.OData.Core.V1");
+    when(annotation.getTerm()).thenReturn("Org.OData.Core.V1.ComputedDefaultValue");
+    helper.annotationInfo.getAnnotationProvider().add(annotationProvider);
+    when(annotationProvider.getAnnotations(eq(Applicability.PROPERTY), any(), any()))
+        .thenReturn(annotations);
   }
 
   private Attribute<?, ?> createDummyAttribute(final Column jpaColumn) {
@@ -904,7 +1027,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     return jpaColumn;
   }
 
-  private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
+  private class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
@@ -929,4 +1052,15 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     @Override
     public void processEntityType(final IntermediateEntityTypeAccess entity) {}
   }
+
+  private void addTypeBigDecimal(final Column jpaColumn, final Attribute<?, ?> jpaAttribute) {
+    when(jpaColumn.precision()).thenReturn(-1);
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return BigDecimal.class;
+      }
+    });
+  }
+
 }

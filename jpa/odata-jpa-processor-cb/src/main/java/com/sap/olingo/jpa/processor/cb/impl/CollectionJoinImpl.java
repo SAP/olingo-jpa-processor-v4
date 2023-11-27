@@ -3,31 +3,35 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
-import javax.persistence.metamodel.Attribute;
+import javax.annotation.Nullable;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.metamodel.Attribute;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
 class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
 
   private final JPACollectionAttribute attribute;
+  private final JoinType joinType;
 
   CollectionJoinImpl(@Nonnull final JPAPath path, @Nonnull final FromImpl<?, Z> parent,
-      @Nonnull final AliasBuilder aliasBuilder, @Nonnull final CriteriaBuilder cb) throws ODataJPAModelException {
+      @Nonnull final AliasBuilder aliasBuilder, @Nonnull final CriteriaBuilder cb,
+      @Nullable final JoinType joinType) throws ODataJPAModelException {
 
     super(determineEt(path, parent), parent, determinePath(path), aliasBuilder, cb);
     this.attribute = (JPACollectionAttribute) path.getLeaf();
+    this.joinType = joinType;
 
     createOn(attribute.asAssociation()
         .getJoinTable()
@@ -63,7 +67,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
               .getJoinTable()
               .getTableName());
 
-      tableAlias.ifPresent(p -> statement.append(" ").append(p));
+      tableAlias.ifPresent(alias -> statement.append(" ").append(alias));
       statement.append(" ON ");
       return ((SqlConvertible) on).asSQL(statement);
     } catch (final ODataJPAModelException e) {
@@ -102,8 +106,9 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
         final JPAPath path = source.getPath(this.alias.orElse(attribute.getExternalName()));
         pathList.add(path);
       } else {
-        pathList.addAll(attribute.getStructuredType().getPathList().stream().filter(p -> !p.ignore()).collect(Collectors
-            .toList()));
+        pathList.addAll(attribute.getStructuredType().getPathList().stream()
+            .filter(path -> !path.ignore())
+            .toList());
       }
     } catch (final ODataJPAModelException e) {
       throw new IllegalStateException(e);
@@ -122,7 +127,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
 
   @Override
   public JoinType getJoinType() {
-    return JoinType.INNER;
+    return joinType == null ? JoinType.INNER : joinType;
   }
 
   @Override
@@ -134,11 +139,11 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (!super.equals(obj)) return false;
-    if (getClass() != obj.getClass()) return false;
-    final CollectionJoinImpl<?, ?> other = (CollectionJoinImpl<?, ?>) obj;
+  public boolean equals(final Object object) {
+    if (this == object) return true;
+    if (!super.equals(object)) return false;
+    if (getClass() != object.getClass()) return false;
+    final CollectionJoinImpl<?, ?> other = (CollectionJoinImpl<?, ?>) object;
     if (attribute == null) {
       if (other.attribute != null) return false;
     } else if (!attribute.equals(other.attribute)) return false;

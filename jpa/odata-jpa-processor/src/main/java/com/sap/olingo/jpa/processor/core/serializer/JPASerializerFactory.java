@@ -93,16 +93,13 @@ public final class JPASerializerFactory {
       throws SerializerException, ODataJPASerializerException {
 
     switch (uriResourceKind) {
-      case entitySet:
-      case navigationProperty:
-      case singleton:
+      case entitySet, navigationProperty, singleton:
         return createSerializerCollectionRequest(responseFormat, uriInfo, isCollection, responseVersion);
       case complexProperty:
         return createSerializerComplexPropertyRequest(responseFormat, uriInfo, responseVersion);
       case primitiveProperty:
         return createSerializerPrimitivePropertyRequest(responseFormat, uriInfo, responseVersion);
-      case action:
-      case function:
+      case action, function:
         return new JPASerializeFunction(uriInfo, responseFormat, this, responseVersion);
       case count:
         return new JPASerializeCount(odata.createFixedFormatSerializer());
@@ -143,8 +140,8 @@ public final class JPASerializerFactory {
   }
 
   private boolean determineIsCollection(final UriResource lastItem) {
-    if (lastItem instanceof UriResourcePartTyped)
-      return ((UriResourcePartTyped) lastItem).isCollection();
+    if (lastItem instanceof final UriResourcePartTyped lastTyped)
+      return lastTyped.isCollection();
     return false;
   }
 }

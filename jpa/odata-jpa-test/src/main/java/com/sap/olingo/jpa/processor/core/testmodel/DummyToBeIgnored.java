@@ -1,20 +1,21 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import java.util.UUID;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 /**
  * Entity implementation class for Entity: DummyToBeIgnored
@@ -31,18 +32,22 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 })
 @Table(schema = "\"OLINGO\"", name = "\"DummyToBeIgnored\"")
 @EdmIgnore
-public class DummyToBeIgnored implements Serializable {
+public class DummyToBeIgnored {
 
   @Id
-  private String ID;
-  private static final long serialVersionUID = 1L;
+  @Column(name = "\"ID\"")
+  private String iD;
 
   @Convert(converter = ByteConverter.class)
   private byte uuid;
 
+  @Column(name = "\"GUID\"")
+  // @Convert(converter = UUIDToStringConverter.class)
+  private UUID guid;
+
   @EdmIgnore
   @OneToOne(optional = false, fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"ID\"", insertable = false, updatable = false)
+  @JoinColumn(name = "iD", insertable = false, updatable = false)
   private BusinessPartner businessPartner;
 
   public DummyToBeIgnored() {
@@ -50,30 +55,30 @@ public class DummyToBeIgnored implements Serializable {
   }
 
   public String getID() {
-    return this.ID;
+    return this.iD;
   }
 
-  public void setID(String iD) {
-    this.ID = iD;
+  public void setID(final String ID) {
+    this.iD = ID;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+    result = prime * result + ((iD == null) ? 0 : iD.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    DummyToBeIgnored other = (DummyToBeIgnored) obj;
-    if (ID == null) {
-      if (other.ID != null) return false;
-    } else if (!ID.equals(other.ID)) return false;
+    final DummyToBeIgnored other = (DummyToBeIgnored) obj;
+    if (iD == null) {
+      if (other.iD != null) return false;
+    } else if (!iD.equals(other.iD)) return false;
     return true;
   }
 

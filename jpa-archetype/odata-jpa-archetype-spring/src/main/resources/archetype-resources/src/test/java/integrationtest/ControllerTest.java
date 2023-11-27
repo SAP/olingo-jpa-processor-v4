@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.context.WebApplicationContext;
@@ -38,8 +37,6 @@ class ControllerTest {
 
   @Autowired
   private WebApplicationContext context;
-  @LocalServerPort
-  private int port;
 
   @BeforeEach
   void setup() {
@@ -106,7 +103,7 @@ class ControllerTest {
         .getResource("requests/CreateEntityViaBatch.txt").toURI();
 
     File myFile = new File(uri);
-    final String responce = given()
+    final String response = given()
         .contentType("multipart/mixed;boundary=abc")
         .body(myFile)
         .when()
@@ -123,7 +120,7 @@ class ControllerTest {
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
 
-    final String[] partResults = responce.split("--changeset");
+    final String[] partResults = response.split("--changeset");
     assertTrue(partResults[1].contains("HTTP/1.1 201"));
     assertTrue(partResults[2].contains("HTTP/1.1 400"));
   }
@@ -132,7 +129,7 @@ class ControllerTest {
   void  testCreateInstanceDeep() {
     given()
         .contentType(ContentType.JSON)
-        .accept(ContentType.JSON) 
+        .accept(ContentType.JSON)
         .body("{ \"Data\" : \"Hello World\", \"ValueObjects\" : [{\"Id\" : \"1\"}, {\"Id\" : \"2\"}] }")
         .when()
         .post("/${punit}/v1/${entity-table}s")
@@ -153,7 +150,7 @@ class ControllerTest {
         .accept(ContentType.JSON)
         .body("{ \"Data\" : \"Test\"}")
         .when()
-        .patch("/test/v1/ValueObjectTemplates(EntityId=1,Id='2')")
+        .patch("/${punit}/v1/${value-object-table}s(EntityId=1,Id='2')")
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
   }

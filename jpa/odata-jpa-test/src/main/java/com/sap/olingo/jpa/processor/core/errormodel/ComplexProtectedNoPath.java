@@ -1,11 +1,11 @@
 package com.sap.olingo.jpa.processor.core.errormodel;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 
@@ -23,7 +23,7 @@ public class ComplexProtectedNoPath {
 
   @Embedded
   @EdmProtectedBy(name = "UserId")
-  private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
+  private final AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   @Override
   public int hashCode() {
@@ -34,11 +34,11 @@ public class ComplexProtectedNoPath {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    ComplexProtectedNoPath other = (ComplexProtectedNoPath) obj;
+    final ComplexProtectedNoPath other = (ComplexProtectedNoPath) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;
@@ -49,15 +49,15 @@ public class ComplexProtectedNoPath {
     return iD;
   }
 
-  public long geteTag() {
+  public long getETag() {
     return eTag;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
-  public void seteTag(long eTag) {
+  public void setETag(final long eTag) {
     this.eTag = eTag;
   }
 

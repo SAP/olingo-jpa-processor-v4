@@ -23,7 +23,7 @@ final class JPASerializeFunction implements JPAOperationSerializer {
   private final JPAOperationSerializer serializer;
 
   public JPASerializeFunction(final UriInfo uriInfo, final ContentType responseFormat,
-      final JPASerializerFactory jpaSerializerFactory, Optional<List<String>> responseVersion)
+      final JPASerializerFactory jpaSerializerFactory, final Optional<List<String>> responseVersion)
       throws ODataJPASerializerException, SerializerException {
 
     this.serializer = (JPAOperationSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo,
@@ -58,8 +58,8 @@ final class JPASerializeFunction implements JPAOperationSerializer {
   }
 
   private EdmTypeKind determineReturnEdmTypeKind(final UriResourcePartTyped operation) {
-    if (operation instanceof UriResourceFunction)
-      return ((UriResourceFunction) operation).getFunction().getReturnType().getType().getKind();
+    if (operation instanceof final UriResourceFunction resourceFunction)
+      return resourceFunction.getFunction().getReturnType().getType().getKind();
     else
       return ((UriResourceAction) operation).getAction().getReturnType().getType().getKind();
   }

@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
@@ -34,45 +38,54 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 // TODO In case of second level $expand expandItem.getResourcePath() returns an empty UriInfoResource => Bug or
 // Feature?
-public final class JPAExpandLevelWrapper implements JPAExpandItem {
+final class JPAExpandLevelWrapper implements JPAExpandItem {
   private final ExpandOption option;
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
   private final LevelsExpandOption levelOptions;
+  private final EdmNavigationProperty navigationPath;
 
-  public JPAExpandLevelWrapper(final JPAServiceDocument sd, final ExpandOption option)
+  JPAExpandLevelWrapper(final JPAServiceDocument sd, final ExpandOption option, final ExpandItem item)
       throws ODataApplicationException {
 
     super();
     this.option = option;
-    this.item = option.getExpandItems().get(0);
-    this.levelOptions = determineLevel(item);
+    this.item = item;
+    this.levelOptions = determineLevel();
+    this.navigationPath = null;
     try {
-      this.jpaEntityType = sd.getEntity(Util.determineTargetEntityType(getUriResourceParts()));
-    } catch (ODataJPAModelException e) {
+      this.jpaEntityType = sd.getEntity(Utility.determineTargetEntityType(getUriResourceParts()));
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ENTITY_UNKNOWN,
-          HttpStatusCode.BAD_REQUEST, e, Util.determineTargetEntityType(getUriResourceParts()).getName());
+          HttpStatusCode.BAD_REQUEST, e, Utility.determineTargetEntityType(getUriResourceParts()).getName());
     }
   }
 
-  public JPAExpandLevelWrapper(final ExpandOption option, final JPAEntityType jpaEntityType) {
-
-    super();
+  /**
+   * Special constructor to handle ..?$expand=*($levels=2) requests. This request come with a problem. They do not have
+   * a resource list within the expand item. This needs to be build up from the path.
+   * @param option
+   * @param jpaEntityType
+   * @param edmNavigationProperty
+   */
+  JPAExpandLevelWrapper(final ExpandOption option, final JPAEntityType jpaEntityType,
+      final EdmNavigationProperty edmNavigationProperty, final ExpandItem item) {
     this.option = option;
-    this.item = option.getExpandItems().get(0);
-    this.levelOptions = determineLevel(item);
+    this.item = item;
+    this.levelOptions = determineLevel();
     this.jpaEntityType = jpaEntityType;
+    this.navigationPath = edmNavigationProperty;
   }
 
   @Override
   public List<CustomQueryOption> getCustomQueryOptions() {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public ExpandOption getExpandOption() {
     if (levelOptions.getValue() > 1 || levelOptions.isMax())
-      return new ExpandOptionWrapper(option);
+      return new ExpandOptionWrapper(option, this, item);
     else
       return null;
   }
@@ -129,7 +142,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   @Override
   public List<UriResource> getUriResourceParts() {
-    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : Collections.emptyList();
+    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : buildResourceList();
   }
 
   @Override
@@ -147,17 +160,29 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     return null;
   }
 
-  private LevelsExpandOption determineLevel(ExpandItem item2) {
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
+    return null;
+  }
+
+  private LevelsExpandOption determineLevel() {
     return item.getLevelsOption();
+  }
+
+  private List<UriResource> buildResourceList() {
+    if (navigationPath != null)
+      return Collections.singletonList(new UriResourceWrapper(navigationPath));
+    return Collections.emptyList();
   }
 
   private class ExpandOptionWrapper implements ExpandOption {
     private final List<ExpandItem> items;
     private final ExpandOption parentOptions;
 
-    private ExpandOptionWrapper(ExpandOption expandOption) {
+    private ExpandOptionWrapper(final ExpandOption expandOption, final UriInfoResource parentUriInfoResource,
+        final ExpandItem item) {
       this.items = new ArrayList<>();
-      this.items.add(new ExpandItemWrapper(expandOption.getExpandItems().get(0)));
+      this.items.add(new ExpandItemWrapper(item, parentUriInfoResource));
       this.parentOptions = expandOption;
       expandOption.getExpandItems().get(0).getLevelsOption();
     }
@@ -188,11 +213,13 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     private final ExpandItem parentItem;
     private ExpandOption expandOption;
     private final LevelsExpandOption levelOption;
+    private final UriInfoResource parentUriInfoResource;
 
-    private ExpandItemWrapper(ExpandItem parentItem) {
+    private ExpandItemWrapper(final ExpandItem parentItem, final UriInfoResource parentUriInfoResource) {
       this.parentItem = parentItem;
       this.levelOption = new LevelsExpandOptionWrapper(parentItem.getLevelsOption().isMax(),
           parentItem.getLevelsOption().getValue());
+      this.parentUriInfoResource = parentUriInfoResource;
     }
 
     @Override
@@ -238,13 +265,13 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     @Override
     public ExpandOption getExpandOption() {
       if (expandOption == null)
-        expandOption = new ExpandOptionWrapper(parentItem.getExpandOption());
+        expandOption = new ExpandOptionWrapper(parentItem.getExpandOption(), parentUriInfoResource, parentItem);
       return expandOption;
     }
 
     @Override
     public UriInfoResource getResourcePath() {
-      return parentItem.getResourcePath();
+      return parentItem.getResourcePath() != null ? parentItem.getResourcePath() : parentUriInfoResource;
     }
 
     @Override
@@ -277,7 +304,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     private final boolean isMax;
     private final int level;
 
-    private LevelsExpandOptionWrapper(boolean isMax, int parentLevel) {
+    private LevelsExpandOptionWrapper(final boolean isMax, final int parentLevel) {
       super();
       this.isMax = isMax;
       if (parentLevel != 0)
@@ -298,8 +325,63 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   }
 
-  @Override
-  public DeltaTokenOption getDeltaTokenOption() {
-    return null;
+  private static class UriResourceWrapper implements UriResourceNavigation {
+
+    private final EdmNavigationProperty path;
+
+    public UriResourceWrapper(final EdmNavigationProperty navigationPath) {
+      this.path = navigationPath;
+    }
+
+    @Override
+    public UriResourceKind getKind() {
+      return UriResourceKind.navigationProperty;
+    }
+
+    @Override
+    public String getSegmentValue() {
+      return null;
+    }
+
+    @Override
+    public EdmType getType() {
+      return path.getType();
+    }
+
+    @Override
+    public boolean isCollection() {
+      return path.isCollection();
+    }
+
+    @Override
+    public String getSegmentValue(final boolean includeFilters) {
+      return null;
+    }
+
+    @Override
+    public String toString(final boolean includeFilters) {
+      return null;
+    }
+
+    @Override
+    public EdmNavigationProperty getProperty() {
+      return path;
+    }
+
+    @Override
+    public List<UriParameter> getKeyPredicates() {
+      return Collections.emptyList();
+    }
+
+    @Override
+    public EdmType getTypeFilterOnCollection() {
+      return null;
+    }
+
+    @Override
+    public EdmType getTypeFilterOnEntry() {
+      return null;
+    }
+
   }
 }

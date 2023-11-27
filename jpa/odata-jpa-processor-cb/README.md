@@ -30,4 +30,4 @@ SELECT "CodePublisher", "CodeID", "DivisionCode", "CountryISOCode", "Area", "Pop
 
 are not supported. This type of queries are quite handy for client side or service driven paging.
 
-This project contains an implementation of a set of interfaces from `javax.persistence.criteria.*` to enable the creation queries like mentioned above. This implementation is used if it is part of the build path or in other words if it can be found by the class loader.
+This project contains an implementation of a set of interfaces from `jakarta.persistence.criteria.*` to enable the creation queries like mentioned above. This implementation is used if it is part of the build path or in other words if it can be found by the class loader.

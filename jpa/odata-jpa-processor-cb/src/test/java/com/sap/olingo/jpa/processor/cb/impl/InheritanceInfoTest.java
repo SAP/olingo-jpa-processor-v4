@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import javax.persistence.InheritanceType;
+import jakarta.persistence.InheritanceType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class InheritanceInfoTest {
   }
 
   @Test
-  void testDisciminatorColumn() {
+  void testDiscriminatorColumn() {
     doReturn(Organization.class).when(et).getTypeClass();
     cut = new InheritanceInfo(et);
     assertTrue(cut.getBaseClass().isPresent());

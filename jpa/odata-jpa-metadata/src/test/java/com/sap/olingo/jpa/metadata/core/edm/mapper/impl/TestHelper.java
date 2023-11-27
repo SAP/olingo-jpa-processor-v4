@@ -4,23 +4,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EmbeddableType;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.ManagedType;
-import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.Metamodel;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
 
 import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
@@ -29,14 +31,23 @@ import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 public class TestHelper {
   final private Metamodel jpaMetamodel;
   final public IntermediateSchema schema;
+  final IntermediateAnnotationInformation annotationInfo;
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
-    final Reflections r = mock(Reflections.class);
-    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(ABCClassification.class,
-        AccessRights.class)));
+    this(metamodel, namespace, new ArrayList<>());
+  }
+
+  public TestHelper(final Metamodel metamodel, final String namespace,
+      final List<AnnotationProvider> annotationProviderList) throws ODataJPAModelException {
+
+    final Reflections reflections = mock(Reflections.class);
+    when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
+        ABCClassification.class, AccessRights.class)));
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), mock(IntermediateReferences.class));
 
     this.jpaMetamodel = metamodel;
-    this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, r);
+    this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, reflections,
+        annotationInfo);
   }
 
   public Object findAttribute(final List<? extends JPAAttribute> attributes, final String searchItem) {

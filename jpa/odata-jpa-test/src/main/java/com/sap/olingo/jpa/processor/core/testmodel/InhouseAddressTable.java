@@ -1,9 +1,9 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
@@ -13,7 +13,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 public class InhouseAddressTable {
 
   @Id
-  @Column(name = "\"ID\"")
+  @Column(name = "\"ParentID\"")
   private String iD;
 
   @Column(name = "\"Task\"", length = 32, nullable = false) // Workaround Olingo problem
@@ -29,7 +29,7 @@ public class InhouseAddressTable {
     return building;
   }
 
-  public void setBuilding(String building) {
+  public void setBuilding(final String building) {
     this.building = building;
   }
 
@@ -37,7 +37,7 @@ public class InhouseAddressTable {
     return floor;
   }
 
-  public void setFloor(Short floor) {
+  public void setFloor(final Short floor) {
     this.floor = floor;
   }
 
@@ -45,7 +45,7 @@ public class InhouseAddressTable {
     return roomNumber;
   }
 
-  public void setRoomNumber(Integer roomNumber) {
+  public void setRoomNumber(final Integer roomNumber) {
     this.roomNumber = roomNumber;
   }
 
@@ -53,7 +53,7 @@ public class InhouseAddressTable {
     return taskID;
   }
 
-  public void setTaskID(String taskID) {
+  public void setTaskID(final String taskID) {
     this.taskID = taskID;
   }
 

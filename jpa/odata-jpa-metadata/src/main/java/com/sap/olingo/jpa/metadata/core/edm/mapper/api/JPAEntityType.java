@@ -6,14 +6,14 @@ import java.util.Optional;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAEntityType extends JPAStructuredType {
+public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
   /**
    * Searches for a Collection Property defined by the name used in the OData metadata in all the collection properties
    * that are available for this type via the OData service. That is:
    * <ul>
-   * <li> All not ignored collection properties of this type.
-   * <li> All not ignored collection properties from super types.
-   * <li> All not ignored collection properties from embedded types.
+   * <li>All not ignored collection properties of this type.
+   * <li>All not ignored collection properties from super types.
+   * <li>All not ignored collection properties from embedded types.
    * </ul>
    * @param externalName
    * @return
@@ -60,8 +60,7 @@ public interface JPAEntityType extends JPAStructuredType {
   public boolean hasCompoundKey();
 
   /**
-   *
-   * @return
+   * @return a list of JPAPath to attributes marked with EdmSearchable
    * @throws ODataJPAModelException
    */
   public List<JPAPath> getSearchablePath() throws ODataJPAModelException;
@@ -70,7 +69,7 @@ public interface JPAEntityType extends JPAStructuredType {
 
   /**
    *
-   * @return Name of the database table
+   * @return Name of the database table. The table name is composed from schema name and table name
    */
   public String getTableName();
 
@@ -80,6 +79,6 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
 
-  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException;
 }

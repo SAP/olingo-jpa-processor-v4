@@ -44,11 +44,11 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    final JPAPathImpl other = (JPAPathImpl) obj;
+  public boolean equals(final Object object) {
+    if (this == object) return true;
+    if (object == null) return false;
+    if (getClass() != object.getClass()) return false;
+    final JPAPathImpl other = (JPAPathImpl) object;
     if (alias == null) {
       if (other.alias != null) return false;
     } else if (!alias.equals(other.alias)) return false;
@@ -99,8 +99,8 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public boolean isTransient() {
-    return isTransient.orElseGet(this::determineIsTransient);
+  public String getPathAsString() {
+    return getAlias();
   }
 
   @Override
@@ -129,6 +129,11 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
+  public boolean isTransient() {
+    return isTransient.orElseGet(this::determineIsTransient);
+  }
+
+  @Override
   public String toString() {
     return "JPAPathImpl [alias=" + alias + ", pathElements=" + pathElements + ", dbFieldName=" + dbFieldName
         + ", ignore=" + ignore + ", fieldGroups=" + fieldGroups + "]";
@@ -141,9 +146,10 @@ final class JPAPathImpl implements JPAPath {
   private List<String> determineFieldGroups() throws ODataJPAModelException {
     List<String> groups = null;
     for (final JPAElement pathElement : pathElements) {
-      if (pathElement instanceof IntermediateProperty && ((IntermediateProperty) pathElement).isPartOfGroup()) {
+      if (pathElement instanceof final IntermediateProperty intermediateProperty
+          && intermediateProperty.isPartOfGroup()) {
         if (groups == null)
-          groups = ((IntermediateProperty) pathElement).getGroups();
+          groups = intermediateProperty.getGroups();
         else {
           final List<String> newGroups = ((IntermediateProperty) pathElement).getGroups();
           if (groups.size() != newGroups.size() || !groups.stream().allMatch(newGroups::contains))
@@ -152,6 +158,16 @@ final class JPAPathImpl implements JPAPath {
       }
     }
     return groups == null ? EMPTY_FILED_GROUPS : groups;
+  }
+
+  private Boolean determineIsTransient() {
+    isTransient = Optional.of(
+        pathElements.stream()
+            .filter(JPAAttribute.class::isInstance)
+            .map(JPAAttribute.class::cast)
+            .anyMatch(JPAAttribute::isTransient));
+    return isTransient.get();
+
   }
 
   /**
@@ -164,15 +180,5 @@ final class JPAPathImpl implements JPAPath {
         return true;
     }
     return false;
-  }
-
-  private Boolean determineIsTransient() {
-    isTransient = Optional.of(
-        pathElements.stream()
-            .filter(JPAAttribute.class::isInstance)
-            .map(JPAAttribute.class::cast)
-            .anyMatch(JPAAttribute::isTransient));
-    return isTransient.get();
-
   }
 }

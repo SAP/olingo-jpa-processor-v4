@@ -5,7 +5,8 @@ import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
+
+import jakarta.persistence.Tuple;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 

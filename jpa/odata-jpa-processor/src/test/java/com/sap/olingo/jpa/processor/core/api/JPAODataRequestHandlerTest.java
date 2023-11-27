@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,9 +11,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
+import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -43,7 +43,7 @@ class JPAODataRequestHandlerTest extends TestBase {
   @Test
   void testGetHandlerProvidingSessionContext() throws ODataException {
     final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .build();
     cut = new JPAODataRequestHandler(sessionContext);
@@ -54,7 +54,7 @@ class JPAODataRequestHandlerTest extends TestBase {
   void testPropertiesInstanceProvidingSessionContext() throws ODataException {
 
     final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
-        .setDataSource(ds).setPUnit(PUNIT_NAME).build();
+        .setDataSource(dataSource).setPUnit(PUNIT_NAME).build();
     cut = new JPAODataRequestHandler(context);
     assertNotNull(cut.odata);
   }
@@ -63,7 +63,7 @@ class JPAODataRequestHandlerTest extends TestBase {
   void testProcessOnlyProvidingSessionContext() throws ODataException {
 
     final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .build();
@@ -75,7 +75,7 @@ class JPAODataRequestHandlerTest extends TestBase {
   void testProcessWithEntityManagerProvidingSessionContext() throws ODataException {
 
     final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .build();
@@ -106,13 +106,13 @@ class JPAODataRequestHandlerTest extends TestBase {
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
     final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setRequestMappingPath("/test")
         .build();
     cut = new JPAODataRequestHandler(context, odata);
     cut.process(request, response);
-    verify(handler, times(1)).process(isA(HttpServletRequestWrapper.class), any());
+    verify(handler, times(1)).process(argThat(new WrappedHttpRequestMatcher()), any());
   }
 
   @Test
@@ -121,7 +121,7 @@ class JPAODataRequestHandlerTest extends TestBase {
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
     final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .build();
     cut = new JPAODataRequestHandler(context, odata);
@@ -135,7 +135,7 @@ class JPAODataRequestHandlerTest extends TestBase {
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
     final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setRequestMappingPath("")
         .build();
@@ -144,10 +144,25 @@ class JPAODataRequestHandlerTest extends TestBase {
     verify(handler, times(1)).process(argThat(new HttpRequestMatcher()), any());
   }
 
-  public static class HttpRequestMatcher implements ArgumentMatcher<HttpServletRequest> {
+  public static class HttpRequestMatcher implements ArgumentMatcher<javax.servlet.http.HttpServletRequest> {
     @Override
-    public boolean matches(final HttpServletRequest argument) {
-      return argument instanceof HttpServletRequest && !(argument instanceof HttpServletRequestWrapper);
+    public boolean matches(final javax.servlet.http.HttpServletRequest argument) {
+      if (argument instanceof JakartaRequestMapper) {
+        final HttpServletRequest wrapped = ((JakartaRequestMapper) argument).getWrapped();
+        return wrapped instanceof HttpServletRequest && !(wrapped instanceof HttpServletRequestWrapper);
+      } else
+        return false;
+    }
+  }
+
+  public static class WrappedHttpRequestMatcher implements ArgumentMatcher<javax.servlet.http.HttpServletRequest> {
+    @Override
+    public boolean matches(final javax.servlet.http.HttpServletRequest argument) {
+      if (argument instanceof JakartaRequestMapper) {
+        final HttpServletRequest wrapped = ((JakartaRequestMapper) argument).getWrapped();
+        return wrapped instanceof HttpServletRequestWrapper;
+      } else
+        return false;
     }
   }
 

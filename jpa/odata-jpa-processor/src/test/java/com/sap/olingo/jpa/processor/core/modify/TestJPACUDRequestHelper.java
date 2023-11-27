@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
@@ -218,7 +218,7 @@ class TestJPACUDRequestHelper {
   }
 
   @Test
-  void testConvertInputStreamEntitySetThrowsExceptioOnAnnotationMissmatch() throws UnsupportedEncodingException,
+  void testConvertInputStreamEntitySetThrowsExceptionOnAnnotationMismatch() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     prepareEntitySet();
@@ -233,7 +233,7 @@ class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testConvertInputStreamPrimitiveColectionProperty() throws UnsupportedEncodingException,
+  void testConvertInputStreamPrimitiveCollectionProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
@@ -330,7 +330,7 @@ class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testConvertPropertiesEmptyComplexCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesEmptyComplexCollectionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -364,7 +364,7 @@ class TestJPACUDRequestHelper {
   }
 
   @Test
-  void testConvertPropertiesEmptySimpleCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesEmptySimpleCollectionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -385,7 +385,7 @@ class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testConvertPropertiesOneComplexCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesOneComplexCollectionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -511,7 +511,7 @@ class TestJPACUDRequestHelper {
     assertNotNull(act);
     assertEquals(1, act.size());
     final AccessRights[] actProperty = (AccessRights[]) act.get("accessRights");
-    assertArrayEquals(new Object[] { AccessRights.Delete }, actProperty);
+    assertArrayEquals(new Object[] { AccessRights.DELETE }, actProperty);
   }
 
   @Test
@@ -585,7 +585,7 @@ class TestJPACUDRequestHelper {
   }
 
   @Test
-  void testConvertPropertiesOneSimpleCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesOneSimpleCollectionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -608,7 +608,7 @@ class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testConvertPropertiesTwoComplexCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesTwoComplexCollectionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -656,7 +656,7 @@ class TestJPACUDRequestHelper {
   }
 
   @Test
-  void testConvertPropertiesTwoSimpleCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesTwoSimpleCollectionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -748,7 +748,7 @@ class TestJPACUDRequestHelper {
     final Map<String, Object> exp = cut.buildGetterMap(role);
     final Map<String, Object> act = cut.buildGetterMap(role);
 
-    assertTrue(exp == act);
+    assertEquals(exp, act);
   }
 
   private JPAStructuredType createMetadataForSimpleProperty(final String externalName, final String internalName)

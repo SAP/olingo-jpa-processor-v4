@@ -11,7 +11,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Tuple;
+
+import jakarta.persistence.Tuple;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +44,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
- * Converts the query result based on Tuples from JPA format into Olingo format.<p>
+ * Converts the query result based on Tuples from JPA format into Olingo format.
+ * <p>
  * To reduce the memory footprint each converted row is set to null. This is done as currently the query result is
  * stored in an ArrayList and deleting a row, which is not the last row, leads to an array copy, which can consume a lot
  * of time. For the same reason no trimToSize() is called. As an alternative to an ArrayList also a simple linked list
@@ -53,6 +55,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 public class JPATupleChildConverter extends JPATupleResultConverter {
   private static final Log LOGGER = LogFactory.getLog(JPATupleChildConverter.class);
+
   public JPATupleChildConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
 
@@ -94,7 +97,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       }
       result.put(tuple.getKey(), entityCollection);
     }
-    childResult.replaceAll((k, v) -> null);
+    childResult.replaceAll((key, value) -> null);
     return result;
   }
 
@@ -189,17 +192,16 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       }
     }
     if (!found
-        && pathElement instanceof JPAAttribute
-        && ((JPAAttribute) pathElement).isComplex()
-        && !((JPAAttribute) pathElement).isCollection()) {
-      final JPAAttribute a = (JPAAttribute) pathElement;
-      final Property p = new Property(
-          a.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
-          a.getExternalName(),
+        && pathElement instanceof final JPAAttribute attribute
+        && attribute.isComplex()
+        && !attribute.isCollection()) {
+      final Property path = new Property(
+          attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
+          attribute.getExternalName(),
           ValueType.COMPLEX,
           new ComplexValue());
-      result.add(p);
-      result = ((ComplexValue) p.getValue()).getValue();
+      result.add(path);
+      result = ((ComplexValue) path.getValue()).getValue();
     }
     return result;
   }

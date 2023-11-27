@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -211,7 +211,7 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+  void testCallsValidateChangesOnSuccessfulProcessing() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
 
@@ -223,7 +223,7 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+  void testDoesNotCallsValidateChangesOnForeignTransaction() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
 

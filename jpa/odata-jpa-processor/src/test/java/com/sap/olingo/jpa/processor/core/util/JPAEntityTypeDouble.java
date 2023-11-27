@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
@@ -53,6 +54,12 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   @Override
   public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
     return base.getAttribute(internalName);
+  }
+
+  @Override
+  public Optional<JPAAttribute> getAttribute(final String internalName, final boolean respectIgnore)
+      throws ODataJPAModelException {
+    return base.getAttribute(internalName, respectIgnore);
   }
 
   @Override
@@ -212,8 +219,13 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException {
     return Optional.empty();
+  }
+
+  @Override
+  public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    return this.base.getAnnotation(alias, term);
   }
 }

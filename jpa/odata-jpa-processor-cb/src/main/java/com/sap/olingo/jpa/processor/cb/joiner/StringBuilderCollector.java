@@ -9,9 +9,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import javax.annotation.Nonnull;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Selection;
+
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Selection;
 
 public abstract class StringBuilderCollector<T> implements Collector<T, StringBuilderJoiner<T>, String> {
 
