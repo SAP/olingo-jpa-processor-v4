@@ -49,8 +49,10 @@ public class JPANavigationCountForInQuery extends JPANavigationCountQuery implem
 
     createSelectClauseJoin(query, queryRoot, determineAggregationRightColumns(), true);
     leftPaths = Optional.of(ExpressionUtility.convertToCriteriaPaths(from, determineAggregationLeftColumns()));
-    final Expression<Boolean> whereCondition = createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot);
-    query.where(applyAdditionalFilter(whereCondition));
+    Expression<Boolean> whereCondition = createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot);
+    whereCondition = applyAdditionalFilter(whereCondition);
+    if (whereCondition != null)
+      query.where(whereCondition);
     handleAggregation(query, queryRoot, determineAggregationRightColumns());
   }
 
@@ -82,7 +84,9 @@ public class JPANavigationCountForInQuery extends JPANavigationCountQuery implem
       Expression<Boolean> whereCondition = createWhereByAssociation(queryJoinTable, queryRoot, right);
       whereCondition = addWhereClause(whereCondition,
           createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot));
-      subQuery.where(applyAdditionalFilter(whereCondition));
+      whereCondition = applyAdditionalFilter(whereCondition);
+      if (whereCondition != null)
+        subQuery.where(whereCondition);
       createGroupBy(subQuery, queryJoinTable, left);
       createHaving(subQuery);
     } catch (final ODataJPAModelException e) {
