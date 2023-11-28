@@ -22,7 +22,7 @@
 		<jakarta.version>6.0.0</jakarta.version>
 		<javax.version>3.0.1</javax.version>
 		<jpa.version>3.1.0</jpa.version>
-        <processor.version>2.0.1-SNAPSHOT</processor.version>
+        <processor.version>${project.version}</processor.version>
 		<spring-jcl.version>6.0.14</spring-jcl.version>
 		<junit.version>5.10.1</junit.version>
 		<junit-platform.version>1.10.1</junit-platform.version>
