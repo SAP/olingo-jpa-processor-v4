@@ -2,14 +2,14 @@
 
 Sometimes you come across the need to find entries of a table that have a value in a column out of a list of provided values. SQL provides for this the option to use an IN expression within the WHERE condition. 
 
-Lets have a look at the following small example:
+Let's have a look at the following small example:
 
 [source,sql]
 ----
 CREATE TABLE "Product"(
 	"Id" INT NOT NULL,
 	"CategoryName" VARCHAR(250) NOT NULL,
-	"Color"  VARCHAR(250),
+	"Color" VARCHAR(250),
 	"Size" INT,
 	PRIMARY KEY ("Id"));
 	
@@ -20,7 +20,7 @@ INSERT INTO "Product" VALUES (4, 'Trousers', 'white', 2);
 INSERT INTO "Product" VALUES (5, 'Shirt', 'red', 1);
 ----
 
-So, there is a table "Product" with some columns, like the color of the product. Lets assume we like to read all the products that are either blue or white. The following SQL query would do the job:
+So, there is a table "Product" with some columns, like the color of the product. Let's assume we like to read all the products that are either blue or white. The following SQL query would do the job:
 
 [source,sql]
 ----
@@ -42,7 +42,7 @@ final List<Product> result = typedQuery.getResultList();
 <1> Definition of the query that shall return products.  
 <2> Definition of the IN clause. 
 
-Lets assume there is another table that is used to group similar products into categories:
+Let's assume there is another table that is used to group similar products into categories:
 
 [source,sql]
 ----
@@ -55,7 +55,7 @@ INSERT INTO "Category" VALUES (1, 'Shirt');
 INSERT INTO "Category" VALUES (2, 'Trousers');
 ----
 
-If we want to know what category contains red products, we can not directly use the given value, we have to use a sub-query for products to find the corresponding categories:
+If we want to know what category contains red products, we cannot directly use the given value, we must use a sub-query for products to find the corresponding categories:
 
 [source,sql]
 ----
@@ -84,10 +84,10 @@ final TypedQuery<Category> typedQuery = em.createQuery(query);
 final List<Category> result = typedQuery.getResultList();
 ----
 
-<1> Definition of the sub-query. It is important to notice the we have to give the "return type" of the sub-query here.
-<2> Definition of the IN clause. This time we provide the sub-query as value. The type of the attribute has to be the same as the one of the sub-query.
+<1> Definition of the sub-query. It is important to notice that we have to give the "return type" of the sub-query here.
+<2> Definition of the IN clause. This time we provide the sub-query as value. The type of the attribute must be the same as the type of the sub-query.
 
-Now we like to find all _blue shirts_ and _white trousers_. Unfortunately there is no IN, that takes a list of columns or to be more precise, it can take only one path. So we have to
+Now we like to find all _blue shirts_ and _white trousers_. Unfortunately, there is no IN, that takes a list of columns or to be more precise, it can take only one path. So, we must
 fallback to a small tick. The properties for Color and CategoryName become an embeddable:
 
 [source,java]
@@ -104,17 +104,16 @@ final List<Product> result = typedQuery.getResultList();
 
 [NOTE]
 ====
-This code provided work well with Hibernate 6.4.0.Final. EclipsLink, version 4.0.1, 
-only supports EmbeddedId in this case. At the time writing, OpenJPA has no version supporting 
-JPA 3.x.
+This code works well with Hibernate 6.4.0.Final. EclipsLink, version 4.0.1, 
+only supports EmbeddedId in this case. At the time writing, OpenJPA has no version supporting JPA 3.x.
 ====
 
 This solution has at least two drawbacks:
-. As the Subquery interface only supports select, but not multiselect, using sub-queries would require a corresponding embeddable there as well
-. Static criteria builder to generate queries e.g. basde on a REST call
+. As the Subquery interface only supports _select_, but not _multiselect_, using sub-queries would require a corresponding embeddable there as well.
+. The solution is static. During design time we must decide which combination of columns we support.
 
 So what options are left? For a given list of values we are at the end. The only thing that we can do is 
-to fallback to a long list of AND and OR conditions:
+to fallback to a (long) list of AND and OR conditions:
 [source,sql]
 ----
 SELECT * 
@@ -122,5 +121,75 @@ SELECT *
     WHERE ("Color" = 'blue' AND "CategoryName" = 'Shirt')
     OR    ("Color" =  'white' AND "CategoryName" = 'Trousers')  
 ----
-And what about using sub-queries? EXISTS helps. 
+And what about using sub-queries? EXISTS helps:
+
+[source,sql]
+----
+SELECT * 
+    FROM "Category" AS E0
+    WHERE EXISTS (
+        SELECT "CategoryName"
+            FROM "Product" AS E1
+            WHERE E0.”Name” = E1."CategoryName")
+----
+
+The WHERE expression represents a JOIN condition between the parent and the outer and the inner table. 
+This has no restriction for the number of columns used.
+
+[source,java]
+----
+final CriteriaQuery<Product> query = cb.createQuery(Product.class);
+final Root<Product> product = query.from(Product.class);
+query.select(product);
+query.where(cb.in(product.get("categorySize"))
+   .value(new CategorySize("Shirt","blue"))
+   .value(new CategorySize("Trousers","white")));
+final TypedQuery<Product> typedQuery = em.createQuery(query);
+final List<Product> result = typedQuery.getResultList();
+----
+
+Does the EXIST helps always? It depends. In case we want to get all the Categories with more than two 
+colors, we have to use an aggregation. In this case it depends on the number of rows in the table and 
+database used. The following example shall give an impression:
+
+The runtime of two queries was measured, that are semantically equal. On the one hand a variant using IN
+[source,sql]
+----
+SELECT COUNT(*)
+	FROM "AdministrativeDivision" t0
+	WHERE (t0."CodePublisher", t0."CodeID", t0."DivisionCode") IN (
+		SELECT t1."CodePublisher",t1."ParentCodeID", t1."ParentDivisionCode"
+		FROM "OLINGO"."AdministrativeDivision" t1
+		GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
+		HAVING (COUNT(t1."DivisionCode") >= 2))
+
+----
+
+On the other hand a variant using EXISTS
+[source,sql]
+----
+SELECT COUNT(*)
+	FROM "OLINGO"."AdministrativeDivision" t0
+	WHERE EXISTS (
+		SELECT t1."CodePublisher"
+		FROM "OLINGO"."AdministrativeDivision" t1
+		WHERE t0."CodePublisher" = "CodePublisher"
+		AND   t0."CodeID" = t1."ParentCodeID"
+		AND   t0."DivisionCode" = t1."ParentDivisionCode"
+		GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
+		HAVING (COUNT(t1."DivisionCode") >= 2))
+----
+ 
+The query should count the number of administrative divisions that have at least two subdivisions. 
+The following execution times could be measured:
+
+MariaDB   107    0.031 =>  514 of 24147
+PostgreSQL   40,2    0.008 => 477 of 21959
+SAP HANA   0.009    0.010 => 918 of 71481
+(+prep 21)
+
+This is not a scientific measurement but gives a good impression about the difference or the performance 
+increase an IN can give. So, in case such a query is required, and the relation comprises multiple columns, we
+cannot use the criteria builder, we have to generate a parameterized query. 
+
  
