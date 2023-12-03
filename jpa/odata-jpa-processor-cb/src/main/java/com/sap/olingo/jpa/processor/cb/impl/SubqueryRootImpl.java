@@ -87,11 +87,8 @@ class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
 
   @Override
   public boolean equals(final Object object) {
-    if (this == object) return true;
-    if (!super.equals(object)) return false;
-    if (getClass() != object.getClass()) return false;
-    @SuppressWarnings("unchecked")
-    final SubqueryRootImpl<X> other = (SubqueryRootImpl<X>) object;
-    return (query.equals(other.query));
+    return (object instanceof final SubqueryRootImpl<?> other)
+        && super.equals(other)
+        && query.equals(other.query);
   }
 }

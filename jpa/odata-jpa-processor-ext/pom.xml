@@ -12,14 +12,11 @@
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-metadata</artifactId>
-            <version>${project.version}</version>
         </dependency>     
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-test</artifactId>
             <scope>test</scope>
-            <version>${project.version}</version>
-        </dependency>        
-           
+        </dependency>    
     </dependencies>
 </project>
