@@ -26,7 +26,7 @@
 		<spring-jcl.version>6.0.14</spring-jcl.version>
 		<junit.version>5.10.1</junit.version>
 		<junit-platform.version>1.10.1</junit-platform.version>
-		<mockito.version>5.7.0</mockito.version>
+		<mockito.version>5.8.0</mockito.version>
 		<jacoco.version>0.8.11</jacoco.version>
         <sonar.organization>SAP</sonar.organization>
 		<sonar.coverage.jacoco.xmlReportPaths>
