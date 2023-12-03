@@ -23,13 +23,13 @@
 		<javax.version>3.0.1</javax.version>
 		<jpa.version>3.1.0</jpa.version>
 		<processor.version>${project.version}</processor.version>
-		<spring-jcl.version>6.0.14</spring-jcl.version>
+		<spring-jcl.version>6.1.1</spring-jcl.version>
 		<eclipseLink.version>4.0.2</eclipseLink.version>
 		<hibernate.version>6.4.0.Final</hibernate.version>
 		<openjpa.version>3.2.2</openjpa.version>
 		<junit.version>5.10.1</junit.version>
 		<junit-platform.version>1.10.1</junit-platform.version>
-		<mockito.version>5.7.0</mockito.version>
+		<mockito.version>5.8.0</mockito.version>
 		<jacoco.version>0.8.11</jacoco.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
