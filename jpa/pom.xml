@@ -20,7 +20,7 @@
 		<cf-logging.version>3.8.0</cf-logging.version>
 		<flyway.version>10.1.0</flyway.version>
 		<jakarta.version>6.0.0</jakarta.version>
-		<javax.version>3.0.1</javax.version>
+		<javax.version>4.0.1</javax.version>
 		<jpa.version>3.1.0</jpa.version>
         <processor.version>${project.version}</processor.version>
 		<spring-jcl.version>6.0.14</spring-jcl.version>
