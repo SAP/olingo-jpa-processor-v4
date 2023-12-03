@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/jpa"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "maven"
+    directory: "/jpa-archetype"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
