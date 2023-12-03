@@ -1,6 +1,6 @@
 = What is the problem with In and Exist clauses
 
-Sometimes you come across the need to find entries of a table that have a value in a column out of a list of provided values. SQL provides for this the option to use an IN expression within the WHERE condition. 
+Sometimes we come across the need to find entries of a table that have a value in a column out of a list of provided values. SQL provides for this the option to use an IN expression within the WHERE condition. 
 
 Let's have a look at the following small example:
 
@@ -20,7 +20,7 @@ INSERT INTO "Product" VALUES (4, 'Trousers', 'white', 2);
 INSERT INTO "Product" VALUES (5, 'Shirt', 'red', 1);
 ----
 
-So, there is a table "Product" with some columns, like the color of the product. Let's assume we like to read all the products that are either blue or white. The following SQL query would do the job:
+So, there is a table "Product" with some columns, like the color of the product. Let's assume we like to find all the products that are either blue or white. The following SQL query would do the job:
 
 [source,sql]
 ----
@@ -87,8 +87,26 @@ final List<Category> result = typedQuery.getResultList();
 <1> Definition of the sub-query. It is important to notice that we have to give the "return type" of the sub-query here.
 <2> Definition of the IN clause. This time we provide the sub-query as value. The type of the attribute must be the same as the type of the sub-query.
 
-Now we like to find all _blue shirts_ and _white trousers_. Unfortunately, there is no IN, that takes a list of columns or to be more precise, it can take only one path. So, we must
+Now we like to find all _blue shirts_ and _white trousers_. Unfortunately, the Criteria Builder has no IN method that takes a list of columns or to be more precise, the method takes only one path. So, we must
 fallback to a small tick. The properties for Color and CategoryName become an embeddable:
+
+[source,java]
+----
+@Embeddable
+public class CategorySize {
+
+  @Column(name = "\"CategoryName\"", length = 250)
+  private String categoryName;
+  
+  @Column(name = "\"Color\"", length = 250)
+  private String color;
+  
+  ...
+}  
+
+----
+
+Which is used in the product entity instead of the separate attributes. The embeddable can now be used to build the query:
 
 [source,java]
 ----
@@ -104,16 +122,18 @@ final List<Product> result = typedQuery.getResultList();
 
 [NOTE]
 ====
-This code works well with Hibernate 6.4.0.Final. EclipsLink, version 4.0.1, 
-only supports EmbeddedId in this case. At the time writing, OpenJPA has no version supporting JPA 3.x.
+This code works well with Hibernate 6.4.0.Final. EclipsLink, version 4.0.2, 
+only supports EmbeddedId in this case. At the time writing, OpenJPA has no version supporting JPA 3.x and therefore was not tested.
 ====
 
 This solution has at least two drawbacks:
+
 . As the Subquery interface only supports _select_, but not _multiselect_, using sub-queries would require a corresponding embeddable there as well.
 . The solution is static. During design time we must decide which combination of columns we support.
 
 So what options are left? For a given list of values we are at the end. The only thing that we can do is 
-to fallback to a (long) list of AND and OR conditions:
+to fallback to a (long) list of AND and OR expressions:
+
 [source,sql]
 ----
 SELECT * 
@@ -128,24 +148,31 @@ And what about using sub-queries? EXISTS helps:
 SELECT * 
     FROM "Category" AS E0
     WHERE EXISTS (
-        SELECT "CategoryName"
+    	SELECT "CategoryName"
             FROM "Product" AS E1
-            WHERE E0.”Name” = E1."CategoryName")
+            WHERE E0."Name" = E1."CategoryName")                	
 ----
 
-The WHERE expression represents a JOIN condition between the parent and the outer and the inner table. 
+The WHERE condition of the sub-query represents a JOIN condition between the outer and the inner table. 
 This has no restriction for the number of columns used.
 
 [source,java]
 ----
-final CriteriaQuery<Product> query = cb.createQuery(Product.class);
-final Root<Product> product = query.from(Product.class);
-query.select(product);
-query.where(cb.in(product.get("categorySize"))
-   .value(new CategorySize("Shirt","blue"))
-   .value(new CategorySize("Trousers","white")));
-final TypedQuery<Product> typedQuery = em.createQuery(query);
-final List<Product> result = typedQuery.getResultList();
+final CriteriaQuery<Category> query = cb.createQuery(Category.class);
+final Root<Category> category = query.from(Category.class);
+query.select(category);
+    
+final Subquery<String> subQuery = query.subquery(String.class);
+final Root<Product> product = subQuery.from(Product.class);
+subQuery.select(product.get("categoryName"));
+subQuery.where(cb.and(
+	cb.equal(product.get("categoryName"), category.get("name")),
+	cb.equal(product.get("color"), "red")));
+    
+query.where(cb.exists(subQuery));
+    
+final TypedQuery<Category> typedQuery = em.createQuery(query);
+final List<Category> result = typedQuery.getResultList();
 ----
 
 Does the EXIST helps always? It depends. In case we want to get all the Categories with more than two 
@@ -153,6 +180,7 @@ colors, we have to use an aggregation. In this case it depends on the number of 
 database used. The following example shall give an impression:
 
 The runtime of two queries was measured, that are semantically equal. On the one hand a variant using IN
+
 [source,sql]
 ----
 SELECT COUNT(*)
@@ -169,10 +197,10 @@ On the other hand a variant using EXISTS
 [source,sql]
 ----
 SELECT COUNT(*)
-	FROM "OLINGO"."AdministrativeDivision" t0
+	FROM "AdministrativeDivision" t0
 	WHERE EXISTS (
 		SELECT t1."CodePublisher"
-		FROM "OLINGO"."AdministrativeDivision" t1
+		FROM "AdministrativeDivision" t1
 		WHERE t0."CodePublisher" = "CodePublisher"
 		AND   t0."CodeID" = t1."ParentCodeID"
 		AND   t0."DivisionCode" = t1."ParentDivisionCode"
@@ -183,13 +211,15 @@ SELECT COUNT(*)
 The query should count the number of administrative divisions that have at least two subdivisions. 
 The following execution times could be measured:
 
-MariaDB   107    0.031 =>  514 of 24147
-PostgreSQL   40,2    0.008 => 477 of 21959
-SAP HANA   0.009    0.010 => 918 of 71481
-(+prep 21)
+[options="header"]
+|===
+|Database   |EXISTS [s]   |IN [s]   |Result (out of)  |Command  
+//----------------------------------------
+|MariaDB  |107    |0.031  |514 (24147)   | 
+|PostgreSQL   |40.2   |0.008   |477 (21959)  |   
+|SAP HANA  |0.009   |0.010   |918 (71481)   |When the prepare was not cached a the request took ~0.031 s    
+|===
 
-This is not a scientific measurement but gives a good impression about the difference or the performance 
-increase an IN can give. So, in case such a query is required, and the relation comprises multiple columns, we
-cannot use the criteria builder, we have to generate a parameterized query. 
-
- 
+This is not a scientific measurement, but gives a good impression about the difference or the performance 
+increase an IN can give. So, in case such a query is required and the relation comprises multiple columns, we
+cannot use the Criteria Builder, we have to generate a parameterized query. 
