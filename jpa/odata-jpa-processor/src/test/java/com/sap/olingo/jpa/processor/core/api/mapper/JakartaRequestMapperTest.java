@@ -170,7 +170,7 @@ class JakartaRequestMapperTest {
   @Test
   void testGetRequestedSessionId() {
     when(jakartaRequest.getRequestedSessionId()).thenReturn("123");
-    assertEquals("123", cut.getRequestedSessionId());
+    assertNull(cut.getRequestedSessionId());
   }
 
   @Test

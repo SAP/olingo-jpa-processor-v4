@@ -54,12 +54,8 @@ class JPAAttributeWrapperTest {
         arguments(c.getMethod("getEdmType")),
         arguments(c.getMethod("getProperty")),
         arguments(c.getMethod("getStructuredType")),
-<<<<<<< HEAD
-        arguments(c.getMethod("getCalculatorConstructor")));
-=======
         arguments(c.getMethod("getCalculatorConstructor")),
         arguments(c.getMethod("getJavaType")));
->>>>>>> odata-v4-jpa-processor/master
   }
 
   static Stream<Arguments> returnsFalse() throws NoSuchMethodException, SecurityException {
