@@ -64,11 +64,7 @@ public class DataSourceHelper {
 
     config.schemas(DB_SCHEMA);
     config.createSchemas(true);
-    final Flyway flyway = new Flyway(config);
-//    flyway.setDataSource(ds);
-//    flyway.setInitOnMigrate(true);
-//    flyway.setSchemas(DB_SCHEMA);
-    flyway.migrate();
+    new Flyway(config).migrate();
     return config.getDataSource();
   }
 }

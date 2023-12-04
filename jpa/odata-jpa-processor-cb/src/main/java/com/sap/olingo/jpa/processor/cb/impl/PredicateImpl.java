@@ -18,7 +18,6 @@ import jakarta.persistence.criteria.Subquery;
 
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
 /**
  *
@@ -193,7 +192,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     enum Operation {
       EQ("="), NE("<>"), GT(">"), GE(">="), LT("<"), LE("<=");
 
-      private String keyWord;
+      private final String keyWord;
 
       private Operation(final String keyWord) {
         this.keyWord = keyWord;
@@ -335,27 +334,31 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   }
 
   static class In<X> extends PredicateImpl implements CriteriaBuilder.In<X> {
-    private final List<Path<? extends X>> paths;
+    private Expression<? extends X> expression;
 
-    In(final List<Path<? extends X>> paths, final Subquery<?> subquery) {
-      super((SqlConvertible) Objects.requireNonNull(subquery));
-      this.paths = paths;
+    @SuppressWarnings("unchecked")
+    In(final List<Path<?>> paths, final Subquery<?> subquery) {
+      super(new CompoundPathImpl(paths.stream().map(path -> (Path<Comparable<?>>) path).toList()));
+      this.expression = (Expression<? extends X>) Objects.requireNonNull(subquery);
+    }
+
+    In(final List<Path<Comparable<?>>> paths) {
+      super(new CompoundPathImpl(paths));
+    }
+
+    @SuppressWarnings("unchecked")
+    In(final Path<?> path) {
+      super(new CompoundPathImpl(Collections.singletonList((Path<Comparable<?>>) path)));
     }
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
-      statement.append(OPENING_BRACKET);
-      statement.append(paths
-          .stream()
-          .map(p -> ((Expression<?>) p)) // NOSONAR
-          .collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
-      statement.append(CLOSING_BRACKET)
+      expressions.get(0).asSQL(statement)
           .append(" ")
           .append(SqlKeyWords.IN)
           .append(" ")
           .append(OPENING_BRACKET);
-      final SqlConvertible sub = expressions.get(0);
-      return sub.asSQL(statement).append(CLOSING_BRACKET);
+      return ((SqlConvertible) Objects.requireNonNull(expression)).asSQL(statement).append(CLOSING_BRACKET);
     }
 
     @Override
@@ -365,7 +368,10 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
 
     @Override
     public jakarta.persistence.criteria.CriteriaBuilder.In<X> value(final Expression<? extends X> value) {
-      throw new NotImplementedException();
+      if (this.expression != null)
+        throw new NotImplementedException();
+      this.expression = Objects.requireNonNull(value);
+      return this;
     }
 
     @Override
@@ -376,7 +382,8 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     @SuppressWarnings("unchecked")
     @Override
     public Expression<X> getExpression() {
-      return paths.isEmpty() ? null : (Expression<X>) paths.get(0);
+      final CompoundPath paths = ((CompoundPath) expressions.get(0));
+      return paths.isEmpty() ? null : (Expression<X>) paths.getFirst();
     }
 
   }

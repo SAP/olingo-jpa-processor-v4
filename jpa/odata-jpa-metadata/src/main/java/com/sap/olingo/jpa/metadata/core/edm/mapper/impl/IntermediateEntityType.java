@@ -16,6 +16,15 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
+import jakarta.persistence.metamodel.EmbeddableType;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.IdentifiableType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.MappedSuperclassType;
+import jakarta.persistence.metamodel.Type;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
@@ -36,15 +45,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
-
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
-import jakarta.persistence.metamodel.EmbeddableType;
-import jakarta.persistence.metamodel.EntityType;
-import jakarta.persistence.metamodel.IdentifiableType;
-import jakarta.persistence.metamodel.ManagedType;
-import jakarta.persistence.metamodel.MappedSuperclassType;
-import jakarta.persistence.metamodel.Type;
 
 /**
  * <a href=
@@ -293,7 +293,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
               && simpleProperty.isStream())) {
         if (element instanceof final IntermediateEmbeddedIdProperty embeddedId) {
           extractionTarget.addAll((Collection<? extends I>) resolveEmbeddedId(embeddedId));
-       } else {
+        } else {
           extractionTarget.add((I) element.getEdmItem());
         }
       }

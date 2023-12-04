@@ -7,8 +7,10 @@ import java.util.Optional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Subquery;
 
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -21,6 +23,8 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Utility;
@@ -52,10 +56,14 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
 
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
-    return converter.cb.exists(getExistsQuery());
+    try {
+      return converter.cb.exists(getExistsQuery().query());
+    } catch (final ODataJPAIllegalAccessException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  abstract <S> Subquery<S> getExistsQuery() throws ODataApplicationException;
+  abstract SubQueryItem getExistsQuery() throws ODataApplicationException, ODataJPAIllegalAccessException;
 
   protected List<JPANavigationPropertyInfo> determineAssociations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
@@ -119,4 +127,6 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
 
     return (resourcePart instanceof final UriResourceProperty resourceProperty && resourceProperty.isCollection());
   }
+
+  protected static record SubQueryItem(List<Path<Comparable<?>>> jpaPath, Subquery<List<Comparable<?>>> query) {}
 }

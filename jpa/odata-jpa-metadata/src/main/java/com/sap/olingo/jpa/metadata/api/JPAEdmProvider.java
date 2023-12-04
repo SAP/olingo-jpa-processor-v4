@@ -8,6 +8,9 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.metamodel.Metamodel;
+
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
@@ -34,9 +37,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocumentFactory;
-
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.metamodel.Metamodel;
 
 public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 

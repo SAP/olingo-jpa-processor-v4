@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -15,9 +18,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 
 class IntermediateJoinTable implements JPAJoinTable {
   private static final Log LOGGER = LogFactory.getLog(IntermediateJoinTable.class);

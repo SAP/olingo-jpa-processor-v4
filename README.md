@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Description
 
 [![Build Status](https://app.travis-ci.com/SAP/olingo-jpa-processor-v4.svg?branch=develop)](https://app.travis-ci.com/github/SAP/olingo-jpa-processor-v4)

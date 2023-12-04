@@ -106,17 +106,13 @@ class TypeConverter {
   private static LocalTime convertTemporalToLocalTime(final Object source, final Class<?> target) {
     if (source.getClass() == Time.class)
       return ((Time) source).toLocalTime();
-    if (source.getClass() == String.class)
-      return LocalTime.parse((String) source);
-    throw new IllegalArgumentException(createCastException(source, target));
+    return LocalTime.parse((String) source);
   }
 
   private static LocalDateTime convertTemporalToLocalDateTime(final Object source, final Class<?> target) {
     if (source.getClass() == Timestamp.class)
       return ((Timestamp) source).toLocalDateTime();
-    if (source.getClass() == String.class)
-      return LocalDateTime.parse((String) source);
-    throw new IllegalArgumentException(createCastException(source, target));
+    return LocalDateTime.parse((String) source);
   }
 
   private static LocalDate convertTemporalToLocalDate(final Object source, final Class<?> target) {
@@ -124,9 +120,7 @@ class TypeConverter {
       return ((Date) source).toLocalDate();
     if (source.getClass() == Timestamp.class)
       return ((Timestamp) source).toLocalDateTime().toLocalDate();
-    if (source.getClass() == String.class)
-      return LocalDate.parse((String) source);
-    throw new IllegalArgumentException(createCastException(source, target));
+    return LocalDate.parse((String) source);
   }
 
   private static Instant convertTemporalToInstant(final Object source, final Class<?> target) {
@@ -134,18 +128,14 @@ class TypeConverter {
       return Instant.ofEpochMilli(((Number) source).longValue());
     if (source.getClass() == String.class)
       return Instant.parse((String) source);
-    if (source.getClass() == Timestamp.class)
-      return ((Timestamp) source).toInstant();
-    throw new IllegalArgumentException(createCastException(source, target));
+    return ((Timestamp) source).toInstant();
   }
 
   private static OffsetDateTime convertTemporalToOffsetDateTime(final Object source, final Class<?> target) {
     if (source.getClass() == Timestamp.class) {
       return OffsetDateTime.ofInstant(((Timestamp) source).toInstant(), ZoneId.of("UTC"));
     }
-    if (source.getClass() == String.class)
-      return OffsetDateTime.parse((String) source);
-    throw new IllegalArgumentException(createCastException(source, target));
+    return OffsetDateTime.parse((String) source);
   }
 
   public static Class<?> boxed(final Class<?> javaType) {

@@ -65,6 +65,7 @@ class FromImplTest extends BuilderBaseTest {
         arguments(c.getMethod("join", ListAttribute.class, JoinType.class)),
         arguments(c.getMethod("join", CollectionAttribute.class)),
         arguments(c.getMethod("join", CollectionAttribute.class, JoinType.class)),
+        arguments(c.getMethod("join", SingularAttribute.class, JoinType.class)),
         arguments(c.getMethod("joinCollection", String.class)),
         arguments(c.getMethod("joinCollection", String.class, JoinType.class)),
         arguments(c.getMethod("joinSet", String.class)),

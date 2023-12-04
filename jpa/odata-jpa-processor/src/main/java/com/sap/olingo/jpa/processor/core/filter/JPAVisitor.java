@@ -173,8 +173,8 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitMember")) {
-      final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(), member,
-          jpaComplier.getAssociation());
+     final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(),
+          this.jpaComplier.getParent().getJpaEntity(), member, jpaComplier.getAssociation());
       checkTransient(attributePath);
       if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {
         return new JPALambdaAnyOperation(this.jpaComplier, member);
@@ -294,8 +294,8 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   }
 
   private @Nullable JPAPath determineAttributePath(@Nullable final JPAEntityType jpaEntityType,
-      @Nonnull final Member member, @Nullable final JPAAssociationPath jpaAssociationPath)
-      throws ODataApplicationException {
+      final JPAEntityType parentType, @Nonnull final Member member,
+      @Nullable final JPAAssociationPath jpaAssociationPath) throws ODataApplicationException {
 
     if (jpaEntityType == null)
       return null;
@@ -305,7 +305,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
     try {
       selectItemPath = jpaEntityType.getPath(attributePathName);
       if (selectItemPath == null && jpaAssociationPath != null) {
-        selectItemPath = jpaEntityType.getPath(attributePathName.isEmpty()
+        selectItemPath = jpaAssociationPath.getSourceType().getPath(attributePathName.isEmpty()
             ? jpaAssociationPath.getAlias()
             : (jpaAssociationPath.getAlias() + JPAPath.PATH_SEPARATOR + attributePathName));
       }

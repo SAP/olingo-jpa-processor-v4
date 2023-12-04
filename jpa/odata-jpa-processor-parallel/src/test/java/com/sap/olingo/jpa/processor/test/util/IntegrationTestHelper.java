@@ -34,6 +34,11 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+<<<<<<< HEAD
+=======
+import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
+import com.sap.olingo.jpa.processor.core.api.mapper.JakartaResponseMapper;
+>>>>>>> odata-v4-jpa-processor/master
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.util.HttpRequestHeaderDouble;
@@ -176,7 +181,11 @@ public class IntegrationTestHelper {
 
     public int getSize() {
       return buffer.size();
+<<<<<<< HEAD
     }
+=======
+    }
+>>>>>>> odata-v4-jpa-processor/master
 
     @Override
     public boolean isReady() {
@@ -186,7 +195,11 @@ public class IntegrationTestHelper {
     @Override
     public void setWriteListener(final WriteListener writeListener) {
 
+<<<<<<< HEAD
     }
+=======
+    }
+>>>>>>> odata-v4-jpa-processor/master
   }
 
   //

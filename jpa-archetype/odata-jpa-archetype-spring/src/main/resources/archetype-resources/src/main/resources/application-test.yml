@@ -5,7 +5,7 @@ logging:
     com:
       sap:
         olingo:
-          jpa: TRACE
+          jpa: TRACE      
 odata:
   jpa:
     punit_name: ${punit}

@@ -124,10 +124,10 @@ final class CompoundSelectionImpl<X> implements CompoundSelection<X>, SqlSelecti
   }
 
   private void addSelectionList(final AliasBuilder aliasBuilder, final List<Map.Entry<String, JPAPath>> resolved,
-      final List<JPAPath> selectionItems, String alias) {
-    for (final JPAPath p : selectionItems) {
-      resolved.add(new ProcessorSelection.SelectionItem(alias.isEmpty()
-          ? aliasBuilder.getNext() : (alias + "." + p.getAlias()), p));
+      final Selection<?> selection) {
+    for (final JPAPath p : ((PathImpl<?>) selection).getPathList()) {
+      resolved.add(new ProcessorSelection.SelectionItem(selection.getAlias().isEmpty()
+          ? aliasBuilder.getNext() : (selection.getAlias() + "." + p.getAlias()), p));
     }
   }
 
@@ -149,7 +149,7 @@ final class CompoundSelectionImpl<X> implements CompoundSelection<X>, SqlSelecti
       if (selectionItems.size() == 1) {
         addSingleSelectionItem(aliasBuilder, resolved, selection, selectionItems);
       } else {
-        addSelectionList(aliasBuilder, resolved, selectionItems, selection.getAlias());
+        addSelectionList(aliasBuilder, resolved, selection);
       }
     } else {
       resolved.add(new ProcessorSelection.SelectionItem(selection.getAlias().isEmpty()

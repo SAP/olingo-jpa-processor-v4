@@ -21,6 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+<<<<<<< HEAD
+=======
+import org.springframework.boot.web.server.LocalServerPort;
+>>>>>>> odata-v4-jpa-processor/master
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.context.WebApplicationContext;
@@ -37,6 +41,8 @@ class ControllerTest {
 
   @Autowired
   private WebApplicationContext context;
+  @LocalServerPort
+  private int port;
 
   @BeforeEach
   void setup() {

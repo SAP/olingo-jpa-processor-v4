@@ -41,6 +41,38 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasur
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
+/**
+ *
+ * Generates a query containing row_number selections like:
+ *
+ * <pre>
+ * {@code
+ * SELECT
+ *   ...
+ *   row_number() over(
+ *       partition by E1."CodePublisher", E1."ParentCodeID",E1."ParentDivisionCode"
+ *       order by E1."CodePublisher" asc, E1."CodeID" asc, E1."DivisionCode" asc) rowNumber
+ * }
+ * </pre>
+ *
+ * Example requests:
+ * <ul>
+ * <li>{@code
+ * AdministrativeDivisions?$filter=CodeID eq
+ * 'NUTS1'&$top=4&$skip=1&$expand=Children($top=2;$expand=Children($top=1;$skip=1))
+ * }</li>
+ * <li>{@code
+ * Organizations?$top=1&$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$top=1;$expand=SupportedOrganizations($top=1))
+ * }</li>
+ * </ul>
+ * <p>
+ * To filter on the provided row number a wrapping query is required.
+ * Such a queries are only triggered if <i>odata-jpa-processor-cb</i> is used.
+ * <p>
+ * Integration test: {@link com.sap.olingo.jpa.processor.core.query.TestJPAProcessorExpand}
+ * <p>
+ * @author Oliver Grande
+ */
 final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
 
   private final JPAFilterComplier filter;
@@ -80,7 +112,8 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
   @Nonnull
   @Override
   public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery,
-      @Nullable final VisitableExpression expression) throws ODataApplicationException {
+      @Nullable final VisitableExpression expression, final List<Path<Comparable<?>>> inPath)
+      throws ODataApplicationException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
@@ -135,7 +168,8 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
 
   private Expression<Long> createRowNumber(final boolean inverse) throws ODataApplicationException {
     try {
-      final List<Path<?>> pathList = createWhereKeyInPathList(
+      @SuppressWarnings("unchecked")
+      final List<Path<Comparable<?>>> pathList = (List<Path<Comparable<?>>>) createWhereKeyInPathList(
           inverse ? association : childAssociation
               .orElseThrow(() -> new ODataJPAQueryException(QUERY_PREPARATION_ERROR, INTERNAL_SERVER_ERROR)),
           queryJoinTable == null ? queryRoot : queryJoinTable);

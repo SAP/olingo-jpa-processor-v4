@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.metamodel.Attribute;
+
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation.valueAssignment;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -25,10 +29,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
-
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
-import jakarta.persistence.metamodel.Attribute;
 
 final class IntermediateDescriptionProperty extends IntermediateSimpleProperty implements JPADescriptionAttribute,
     JPAAssociationAttribute {

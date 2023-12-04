@@ -17,8 +17,9 @@
 	</parent>
 
 	<properties>
-		<processor.version>2.0.1-SNAPSHOT</processor.version>
+		<processor.version>2.0.1</processor.version>
 		<java.version>17</java.version>
+		<build.sourceEncoding>UTF-8</build.sourceEncoding>
 		<eclipselink.version>4.0.2</eclipselink.version>
 		<jpa.version>3.1.0</jpa.version>
 	</properties>
@@ -89,20 +90,15 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>2.2.224</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>10.1.0</version>
+			<version>8.4.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-database-hsqldb</artifactId>
-			<version>10.1.0</version>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.2.222</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>

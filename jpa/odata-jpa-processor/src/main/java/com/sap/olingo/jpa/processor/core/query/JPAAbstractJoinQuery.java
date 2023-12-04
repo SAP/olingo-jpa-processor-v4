@@ -318,8 +318,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected jakarta.persistence.criteria.Expression<Boolean> createWhere(final UriInfoResource uriInfo,
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createWhere")) {
-      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
+    try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "createWhere")) {
+     jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
@@ -402,7 +402,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * path to the collection property needs to be traversed
    */
   protected void generateCollectionAttributeJoin(final Map<String, From<?, ?>> joinTables,
-      final Collection<JPAPath> jpaPathList, final JPANavigationPropertyInfo lastInfo) throws JPANoSelectionException,
+      final Collection<JPAPath> jpaPathList, final JPANavigationPropertyInfoAccess lastInfo)
+      throws JPANoSelectionException,
       ODataJPAProcessorException {
 
     for (final JPAPath path : jpaPathList) {
@@ -629,8 +630,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
     Collections.reverse(keyElements);
     for (final JPAAttribute keyElement : keyElements) {
-      final Path<Y> keyPath = (Path<Y>) ExpressionUtility.convertToCriteriaPath(from, et.getPath(keyElement
-          .getExternalName())
+      final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from, et.getPath(
+          keyElement
+              .getExternalName())
           .getPath());
       final jakarta.persistence.criteria.Expression<Boolean> equalFragment = cb.equal(keyPath, jpaKeyPair.getMin().get(
           keyElement));
@@ -653,7 +655,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     for (int primaryIndex = 0; primaryIndex < keyElements.size(); primaryIndex++) {
       for (int secondaryIndex = primaryIndex; secondaryIndex < keyElements.size(); secondaryIndex++) {
         final JPAAttribute keyElement = keyElements.get(secondaryIndex);
-        final Path<Y> keyPath = (Path<Y>) ExpressionUtility.convertToCriteriaPath(from,
+        final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from,
             et.getPath(keyElement.getExternalName()).getPath());
         final Y lowerBoundary = jpaKeyPair.getMinElement(keyElement);
         final Y upperBoundary = jpaKeyPair.getMaxElement(keyElement);
@@ -780,7 +782,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
   }
 
-  private JPAElement findCollection(final JPANavigationPropertyInfo lastInfo, final JPAPath path)
+  private JPAElement findCollection(final JPANavigationPropertyInfoAccess lastInfo, final JPAPath path)
       throws ODataJPAProcessorException, JPANoSelectionException {
 
     JPAElement collection = null;
