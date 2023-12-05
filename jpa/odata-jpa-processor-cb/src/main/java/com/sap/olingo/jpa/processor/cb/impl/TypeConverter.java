@@ -79,22 +79,22 @@ class TypeConverter {
     if (temporalConversionAllowed(source.getClass(), target)) {
       try {
         if (target == Instant.class) {
-          return convertTemporalToInstant(source, target);
+          return convertTemporalToInstant(source);
         }
         if (target == LocalDate.class) {
-          return convertTemporalToLocalDate(source, target);
+          return convertTemporalToLocalDate(source);
         }
         if (target == LocalDateTime.class) {
-          return convertTemporalToLocalDateTime(source, target);
+          return convertTemporalToLocalDateTime(source);
         }
         if (target == LocalTime.class) {
-          return convertTemporalToLocalTime(source, target);
+          return convertTemporalToLocalTime(source);
         }
         if (target == OffsetTime.class) {
           return OffsetTime.parse((String) source);
         }
         if (target == OffsetDateTime.class) {
-          return convertTemporalToOffsetDateTime(source, target);
+          return convertTemporalToOffsetDateTime(source);
         }
       } catch (final DateTimeParseException e) {
         throw new IllegalArgumentException(e);
@@ -103,19 +103,19 @@ class TypeConverter {
     throw new IllegalArgumentException(createCastException(source, target));
   }
 
-  private static LocalTime convertTemporalToLocalTime(final Object source, final Class<?> target) {
+  private static LocalTime convertTemporalToLocalTime(final Object source) {
     if (source.getClass() == Time.class)
       return ((Time) source).toLocalTime();
     return LocalTime.parse((String) source);
   }
 
-  private static LocalDateTime convertTemporalToLocalDateTime(final Object source, final Class<?> target) {
+  private static LocalDateTime convertTemporalToLocalDateTime(final Object source) {
     if (source.getClass() == Timestamp.class)
       return ((Timestamp) source).toLocalDateTime();
     return LocalDateTime.parse((String) source);
   }
 
-  private static LocalDate convertTemporalToLocalDate(final Object source, final Class<?> target) {
+  private static LocalDate convertTemporalToLocalDate(final Object source) {
     if (source.getClass() == Date.class)
       return ((Date) source).toLocalDate();
     if (source.getClass() == Timestamp.class)
@@ -123,7 +123,7 @@ class TypeConverter {
     return LocalDate.parse((String) source);
   }
 
-  private static Instant convertTemporalToInstant(final Object source, final Class<?> target) {
+  private static Instant convertTemporalToInstant(final Object source) {
     if (source.getClass() == Long.class)
       return Instant.ofEpochMilli(((Number) source).longValue());
     if (source.getClass() == String.class)
@@ -131,7 +131,7 @@ class TypeConverter {
     return ((Timestamp) source).toInstant();
   }
 
-  private static OffsetDateTime convertTemporalToOffsetDateTime(final Object source, final Class<?> target) {
+  private static OffsetDateTime convertTemporalToOffsetDateTime(final Object source) {
     if (source.getClass() == Timestamp.class) {
       return OffsetDateTime.ofInstant(((Timestamp) source).toInstant(), ZoneId.of("UTC"));
     }

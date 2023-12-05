@@ -125,9 +125,15 @@ final class CompoundSelectionImpl<X> implements CompoundSelection<X>, SqlSelecti
 
   private void addSelectionList(final AliasBuilder aliasBuilder, final List<Map.Entry<String, JPAPath>> resolved,
       final Selection<?> selection) {
-    for (final JPAPath p : ((PathImpl<?>) selection).getPathList()) {
-      resolved.add(new ProcessorSelection.SelectionItem(selection.getAlias().isEmpty()
-          ? aliasBuilder.getNext() : (selection.getAlias() + "." + p.getAlias()), p));
+
+    if (selection instanceof final PathImpl<?> path) {
+      for (final JPAPath pathItem : path.getPathList()) {
+
+        resolved.add(new ProcessorSelection.SelectionItem(selection.getAlias().isEmpty()
+            ? aliasBuilder.getNext() : (selection.getAlias() + "." + pathItem.getAlias()), pathItem));
+      }
+    } else {
+      throw new IllegalArgumentException("Not a path: " + selection.toString());
     }
   }
 
