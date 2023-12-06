@@ -182,8 +182,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       if (!attribute.ignore())
         result.add(attribute);
     }
-    if (getBaseType() != null)
-      result.addAll(getBaseType().getAttributes());
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null)
+      result.addAll(baseType.getAttributes());
     return result;
   }
 
@@ -221,8 +222,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesMap.get(internalName));
-    if (!result.isPresent() && getBaseType() != null)
-      result = getBaseType().getDeclaredAttribute(internalName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (!result.isPresent() && baseType != null)
+      result = baseType.getDeclaredAttribute(internalName);
     return result;
   }
 
@@ -522,8 +524,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     IntermediateProperty result = declaredPropertiesMap.get(internalName);
-    if (result == null && getBaseType() != null)
-      result = getBaseType().getProperty(internalName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (result == null && baseType != null)
+      result = baseType.getProperty(internalName);
     return result;
   }
 
@@ -702,8 +705,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
         result.add((IntermediateSimpleProperty) property.getValue());
       }
     }
-    if (this.getBaseType() != null) {
-      final IntermediateSimpleProperty superResult = getBaseType().getStreamProperty();
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null) {
+      final IntermediateSimpleProperty superResult = baseType.getStreamProperty();
       if (superResult != null) {
         result.add(superResult);
       }
@@ -780,8 +784,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
         return property;
       }
     }
-    if (getBaseType() != null)
-      return getBaseType().getPropertyByDBField(dbFieldName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getPropertyByDBField(dbFieldName);
     return null;
   }
 
