@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.AbstractQuery;
@@ -746,12 +748,39 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
           .getPath(), target, JoinType.INNER);
       try {
         final JPAEntityType cast = this.navigationInfo.get(i + 1).getEntityType();
-        target = (From<?, ?>) target.as(cast.getTypeClass());
+        if (derivedTypeRequested(propertyInfo.getAssociationPath().getTargetType(), cast))
+          target = (From<?, ?>) target.as(cast.getTypeClass());
       } catch (final ODataJPAModelException e) {
         throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
       }
       joinTables.put(propertyInfo.getAssociationPath().getAlias(), target);
     }
+  }
+
+  /**
+   * Any resource path or path expression identifying a collection of entities or complex type instances can be appended
+   * with a path segment containing the qualified name of a type derived from the declared type of the collection.</br>
+   * The use of the unqualified name of a derived type is <b>not</b> supported.
+   * <p>
+   * See also:
+   * <a href="
+   * https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingDerivedTypes">
+   * 4.11 Addressing Derived Types
+   * </a>
+   * @param baseType
+   * @param potentialDerivedType
+   * @return true if potentialDerivedType is indeed a derived type of baseType
+   */
+
+  boolean derivedTypeRequested(@Nonnull final JPAStructuredType baseType,
+      @Nonnull final JPAStructuredType potentialDerivedType) {
+    JPAStructuredType type = potentialDerivedType;
+    while (type != null && type.getBaseType() != null) {
+      if (baseType.equals(type.getBaseType()))
+        return true;
+      type = type.getBaseType();
+    }
+    return false;
   }
 
   protected final void addFilterCompiler(final JPANavigationPropertyInfo navigationInfo) throws ODataJPAModelException,

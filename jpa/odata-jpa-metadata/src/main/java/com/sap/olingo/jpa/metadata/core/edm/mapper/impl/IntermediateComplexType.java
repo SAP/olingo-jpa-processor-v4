@@ -75,7 +75,7 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected IntermediateStructuredType<? super T> getBaseType() {
+  public IntermediateStructuredType<? super T> getBaseType() {
     final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
     if (baseType != null) {
       final IntermediateStructuredType<? super T> baseComplex = (IntermediateStructuredType<? super T>) schema
