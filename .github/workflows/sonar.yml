@@ -40,4 +40,4 @@ jobs:
           SONAR_PROJECT: ${{secrets.SONAR_PROJECT}}
           SONAR_ORG: ${{vars.SONAR_ORG}}
           SONAR_URL: https://sonarcloud.io
-        run: cd ./jpa && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=${SONAR_ORG} -Dsonar.projectKey=${SONAR_PROJECT} -Dsonar.host.url=${SONAR_URL} -Dsonar.projectKey=SAP_olingo-jpa-processor-v4 -Dsonar.login=${SONAR_TOKEN}
+        run: cd ./jpa && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=${SONAR_ORG} -Dsonar.projectKey=${SONAR_PROJECT} -Dsonar.host.url=${SONAR_URL} -Dsonar.projectKey=SAP_olingo-jpa-processor-v4 -Dsonar.token=${SONAR_TOKEN}
