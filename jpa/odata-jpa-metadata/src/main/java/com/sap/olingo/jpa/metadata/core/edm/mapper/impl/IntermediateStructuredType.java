@@ -371,11 +371,12 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   }
 
   /**
-   * Determines if the structured type has a super type, that will be part of OData metadata. That is the method will
+   * Determines if the structured type has a super type, that will be part of OData metadata. That is, the method will
    * return null in case the entity has a MappedSuperclass.
    * @return Determined super type or null
    */
-  protected IntermediateStructuredType<? super T> getBaseType() { // NOSONAR
+  @Override
+  public IntermediateStructuredType<? super T> getBaseType() { // NOSONAR
     final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
     if (baseType != null) {
       @SuppressWarnings("unchecked")

@@ -116,11 +116,9 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
        * See part 1:
        * -9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
        * successfully and the value of the resource is not null. In this case, the response body MUST contain the value
-       * of
-       * the resource specified in the request URL.
+       * of the resource specified in the request URL.
        * - 9.2.1 Response Code 404 Not Found: 404 Not Found indicates that the resource specified by the request URL
-       * does
-       * not exist. The response body MAY provide additional information.
+       * does not exist. The response body MAY provide additional information.
        * - 11.2.1 Requesting Individual Entities:
        * -- If no entity exists with the key values specified in the request URL, the service responds with 404 Not
        * Found.

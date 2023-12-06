@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -21,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
@@ -94,5 +97,52 @@ class JPAJoinQueryTest extends TestQueryBase {
     when(typedQuery.getSingleResult()).thenReturn(5L);
     final Long act = ((JPAJoinQuery) cut).countResults();
     assertEquals(5L, act);
+  }
+
+  @Test
+  void testDerivedTypeRequestedTrueTwoLevels() {
+
+    final JPAStructuredType rootType = mock(JPAStructuredType.class);
+    final JPAStructuredType baseType = mock(JPAStructuredType.class);
+    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+
+    when(potentialSubType.getBaseType()).thenReturn(baseType);
+    when(baseType.getBaseType()).thenReturn(rootType);
+
+    assertTrue(cut.derivedTypeRequested(rootType, potentialSubType));
+  }
+
+  @Test
+  void testDerivedTypeRequestedTrue() {
+
+    final JPAStructuredType baseType = mock(JPAStructuredType.class);
+    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+
+    when(potentialSubType.getBaseType()).thenReturn(baseType);
+
+    assertTrue(cut.derivedTypeRequested(baseType, potentialSubType));
+  }
+
+  @Test
+  void testDerivedTypeRequestedFalseNoBaseType() {
+
+    final JPAStructuredType baseType = mock(JPAStructuredType.class);
+    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+
+    when(potentialSubType.getBaseType()).thenReturn(null);
+
+    assertFalse(cut.derivedTypeRequested(baseType, potentialSubType));
+  }
+
+  @Test
+  void testDerivedTypeRequestedFalseOtherBaseType() {
+
+    final JPAStructuredType baseType = mock(JPAStructuredType.class);
+    final JPAStructuredType baseType2 = mock(JPAStructuredType.class);
+    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+
+    when(potentialSubType.getBaseType()).thenReturn(baseType2);
+
+    assertFalse(cut.derivedTypeRequested(baseType, potentialSubType));
   }
 }
