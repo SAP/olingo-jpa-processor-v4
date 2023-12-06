@@ -151,8 +151,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesMap.get(internalName));
-    if (!result.isPresent() && getBaseType() != null)
-      result = getBaseType().getAttribute(internalName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (!result.isPresent() && baseType != null)
+      result = baseType.getAttribute(internalName);
     else if (result.isPresent() && respectIgnore && ((IntermediateModelElement) result.get()).ignore())
       return Optional.empty();
     return result;
@@ -167,8 +168,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       if (property.getValue().getExternalName().equals(externalName))
         return Optional.of(property.getValue());
     }
-    if (getBaseType() != null)
-      return getBaseType().getAttribute(uriResourceItem);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getAttribute(uriResourceItem);
     return Optional.empty();
   }
 
