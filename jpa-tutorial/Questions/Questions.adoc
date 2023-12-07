@@ -9,3 +9,7 @@ Having done that, we are ready to go ahead:
 . xref:HowToUpgradeTo1.adoc[What needs to be done to come from 0.3.x to 1.x?]
 . xref:NameBuilding.adoc[How to get own names for the OData artifacts?]
 . xref:HowToMakeASingleton.adoc[How to create a Singleton?]
+
+Some things that are good to know:
+
+* xref:WhatIsTheProblemWithInAndExist.adoc[What is the problem with In and Exist clauses]
