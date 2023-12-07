@@ -12,4 +12,5 @@ Having done that, we are ready to go ahead:
 
 Some things that are good to know:
 
-* xref:WhatIsTheProblemWithInAndExist.adoc[What is the problem with In and Exist clauses]
+* xref:WhyGeZeroNotSupported.adoc[Why are navigation count queries using greater or equal not supported?]
+* xref:WhatIsTheProblemWithInAndExist.adoc[What is the problem with In and Exist clauses?]
