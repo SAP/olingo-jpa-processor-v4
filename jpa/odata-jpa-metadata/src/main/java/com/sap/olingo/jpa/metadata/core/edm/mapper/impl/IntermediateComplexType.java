@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import jakarta.persistence.metamodel.EmbeddableType;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-
-import jakarta.persistence.metamodel.EmbeddableType;
 
 /**
  * Complex Types are used to structure Entity Types by grouping properties that belong together. Complex Types can
@@ -75,7 +75,7 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected IntermediateStructuredType<? super T> getBaseType() {
+  public IntermediateStructuredType<? super T> getBaseType() {
     final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
     if (baseType != null) {
       final IntermediateStructuredType<? super T> baseComplex = (IntermediateStructuredType<? super T>) schema

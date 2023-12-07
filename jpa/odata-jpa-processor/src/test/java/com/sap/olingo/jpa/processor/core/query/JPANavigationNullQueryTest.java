@@ -20,7 +20,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -36,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
@@ -60,7 +60,7 @@ class JPANavigationNullQueryTest extends TestBase {
   private From<?, ?> from;
   private Root<BusinessPartnerProtected> queryRoot;
   private JPAODataClaimProvider claimsProvider;
-  private EdmEntityType edmEntityType;
+  private JPAEntityType jpaEntityType;
   @SuppressWarnings("rawtypes")
   private CriteriaQuery cq;
   private CriteriaBuilder cb;
@@ -77,7 +77,7 @@ class JPANavigationNullQueryTest extends TestBase {
     claimsProvider = mock(JPAODataClaimProvider.class);
     odata = OData.newInstance();
     uriResourceItem = mock(UriResourceNavigation.class);
-    edmEntityType = mock(EdmEntityType.class);
+    jpaEntityType = helper.getJPAEntityType(BusinessPartnerProtected.class);
     cq = mock(CriteriaQuery.class);
     cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
     subQuery = mock(Subquery.class);
@@ -88,10 +88,8 @@ class JPANavigationNullQueryTest extends TestBase {
     final UriParameter key = mock(UriParameter.class);
 
     when(em.getCriteriaBuilder()).thenReturn(cb);
-    when(uriResourceItem.getType()).thenReturn(edmEntityType);
+    // when(uriResourceItem.getType()).thenReturn(jpaEntityType);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
-    when(edmEntityType.getName()).thenReturn("BusinessPartnerProtected");
-    when(edmEntityType.getNamespace()).thenReturn(PUNIT_NAME);
     when(parent.getQuery()).thenReturn(cq);
     when(cq.subquery(any())).thenReturn(subQuery);
     when(subQuery.from(BusinessPartnerProtected.class)).thenReturn(queryRoot);
@@ -102,7 +100,7 @@ class JPANavigationNullQueryTest extends TestBase {
   @Test
   void testCutExists() throws ODataApplicationException {
 
-    cut = new JPANavigationNullQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional.of(
+    cut = new JPANavigationNullQuery(odata, helper.sd, jpaEntityType, em, parent, from, association, Optional.of(
         claimsProvider), Collections.emptyList());
     assertNotNull(cut);
   }
@@ -110,9 +108,9 @@ class JPANavigationNullQueryTest extends TestBase {
   @Test
   void testGetSubQueryThrowsExceptionWhenChildQueryProvided() throws ODataApplicationException {
 
-    cut = new JPANavigationNullQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional.of(
+    cut = new JPANavigationNullQuery(odata, helper.sd, jpaEntityType, em, parent, from, association, Optional.of(
         claimsProvider), Collections.emptyList());
-    assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null));
+    assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null, Collections.emptyList()));
   }
 
   @SuppressWarnings("unchecked")
@@ -142,11 +140,11 @@ class JPANavigationNullQueryTest extends TestBase {
     when(from.get("businessPartnerID")).thenReturn(idPath);
     when(cb.equal(idPath, idPath)).thenReturn(equalExpression1);
 
-    cut = new JPANavigationNullQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional.of(
+    cut = new JPANavigationNullQuery(odata, helper.sd, jpaEntityType, em, parent, from, association, Optional.of(
         claimsProvider), Collections.emptyList());
     cut.buildExpression(expression, Collections.emptyList());
 
-    cut.getSubQuery(null, null);
+    cut.getSubQuery(null, null, Collections.emptyList());
     assertNotNull(cut);
     verify(cb).equal(idPath, idPath);
     verify(cb).equal(userNamePath, "Willi");

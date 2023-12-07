@@ -19,6 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class JPAEntityTypeDouble implements JPAEntityType {
@@ -227,5 +228,10 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   @Override
   public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
     return this.base.getAnnotation(alias, term);
+  }
+
+  @Override
+  public JPAStructuredType getBaseType() {
+    return base.getBaseType();
   }
 }

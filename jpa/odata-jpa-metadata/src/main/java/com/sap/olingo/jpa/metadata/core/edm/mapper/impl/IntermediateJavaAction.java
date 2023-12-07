@@ -41,8 +41,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   private List<JPAParameter> parameterList;
 
   IntermediateJavaAction(final JPAEdmNameBuilder nameBuilder, final EdmAction jpaAction, final Method javaAction,
-      final IntermediateSchema schema)
-      throws ODataJPAModelException {
+      final IntermediateSchema schema) throws ODataJPAModelException {
 
     super(nameBuilder, InternalNameBuilder.buildActionName(jpaAction).isEmpty() ? javaAction.getName()
         : InternalNameBuilder.buildActionName(jpaAction), schema.getAnnotationInformation());
@@ -257,5 +256,11 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       this.position = position;
     }
 
+  }
+
+  @Override
+  public String toString() {
+    return "IntermediateJavaAction [jpaAction=" + jpaAction.name() + ", javaAction=" + javaAction
+        .getName() + ", javaConstructor=" + javaConstructor.getName() + ", parameterList=" + parameterList + "]";
   }
 }

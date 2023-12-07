@@ -257,24 +257,33 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     }
   }
 
-  private Expression<Boolean> createWhere() throws ODataApplicationException {
+  Expression<Boolean> createWhere() throws ODataApplicationException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createWhere")) {
       jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
       whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
-      for (final JPANavigationPropertyInfo info : this.navigationInfo) {
-        if (info.getFilterCompiler() != null) {
-          try {
-            whereCondition = addWhereClause(whereCondition, info.getFilterCompiler().compile());
-          } catch (final ExpressionVisitException e) {
-            throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, BAD_REQUEST, e);
-          }
-        }
-      }
+      whereCondition = addWhereClause(whereCondition, createCollectionWhere());
+      whereCondition = addWhereClause(whereCondition, createProtectionWhere(claimsProvider));
       return whereCondition;
     }
+  }
+
+  private jakarta.persistence.criteria.Expression<Boolean> createCollectionWhere()
+      throws ODataApplicationException {
+
+    jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
+    for (final JPANavigationPropertyInfo info : this.navigationInfo) {
+      if (info.getFilterCompiler() != null) {
+        try {
+          whereCondition = addWhereClause(whereCondition, info.getFilterCompiler().compile());
+        } catch (final ExpressionVisitException e) {
+          throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, BAD_REQUEST, e);
+        }
+      }
+    }
+    return whereCondition;
   }
 
   private From<?, ?> determineParentFrom() throws ODataJPAQueryException {

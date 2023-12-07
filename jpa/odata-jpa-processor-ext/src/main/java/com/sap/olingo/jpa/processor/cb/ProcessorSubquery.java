@@ -9,6 +9,10 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 
+/**
+ *
+ * @param <T> the type of the selection item.
+ */
 public interface ProcessorSubquery<T> extends Subquery<T>, ProcessorSubQueryProvider {
 
   @Override

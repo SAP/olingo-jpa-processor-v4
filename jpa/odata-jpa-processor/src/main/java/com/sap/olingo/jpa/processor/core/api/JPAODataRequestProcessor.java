@@ -380,6 +380,7 @@ public final class JPAODataRequestProcessor
       final UriInfo uriInfo) throws ODataApplicationException, ODataLibraryException {
     // Set NULL: .../Organizations('4')/Comment
     // See deletePrimitive
+
     performClearFieldsRequest(request, response, uriInfo);
   }
 

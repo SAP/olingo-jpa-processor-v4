@@ -30,12 +30,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 class TypeConverterTest {
 
   static Stream<Arguments> numericConversion() {
-    return Stream.of(
+    return Stream.of( // expected; source;target
+        arguments(Byte.valueOf("65"), "A".getBytes()[0], Byte.class),
+
         arguments(Short.valueOf((short) 5), Byte.valueOf("5"), Short.class),
         arguments(Short.valueOf((short) 5), Integer.valueOf(5), Short.class),
 
         arguments(Integer.valueOf(5), Byte.valueOf("5"), Integer.class),
         arguments(Integer.valueOf(5), Short.valueOf((short) 5), Integer.class),
+        arguments(Integer.valueOf(5), Long.valueOf(5), Integer.class),
 
         arguments(Long.valueOf(5), Byte.valueOf("5"), Long.class),
         arguments(Long.valueOf(5), Short.valueOf((short) 5), Long.class),
@@ -158,9 +161,12 @@ class TypeConverterTest {
         arguments(Duration.ofHours(3L), "PT3H", Duration.class));
   }
 
-  static Stream<Arguments> throwsExceptionConversion() {
+  static Stream<Arguments> temporalConversionNotSupported() {
     return Stream.of(
-        arguments(OffsetDateTime.parse("2007-12-03T10:15:30+01:00"), LocalDateTime.class));
+        arguments(OffsetDateTime.parse("2007-12-03T10:15:30+01:00"), LocalDateTime.class),
+        arguments(Integer.valueOf(10), LocalDateTime.class),
+        arguments("Test", LocalDateTime.class),
+        arguments(Integer.valueOf(10), LocalTime.class));
   }
 
   @Test
@@ -228,16 +234,23 @@ class TypeConverterTest {
     assertThrows(IllegalArgumentException.class, () -> convert("Test", Integer.class));
   }
 
-  @Test
-  void testConvertTemporalThrowsExceptionWrongString() {
+  @ParameterizedTest
+  @MethodSource("temporalConversionNotSupported")
+  void testConvertTemporalThrowsException(final Object source, final Class<?> targetType) {
 
-    assertThrows(IllegalArgumentException.class, () -> convert("Test", LocalTime.class));
+    assertThrows(IllegalArgumentException.class, () -> convert(source, targetType));
   }
 
   @Test
   void testConvertTemporalThrowsExceptionOnUnsupported() {
     final Timestamp timestamp = Timestamp.valueOf("2007-12-03 00:00:00");
     assertThrows(IllegalArgumentException.class, () -> convert(timestamp, ZonedDateTime.class));
+  }
+
+  @Test
+  void testConvertDurationThrowsExceptionOnUnsupported() {
+
+    assertThrows(IllegalArgumentException.class, () -> convert(Integer.valueOf(10), Duration.class));
   }
 
   @Test

@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -697,6 +698,23 @@ class TestJPAProcessorExpand extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$expand=Parent");
 
     helper.assertStatus(200);
+  }
+
+  @Test
+  void testExpandLevelAndRelated() throws IOException, ODataException {
+    // Expected result would be one division plus parent plus children plus parent of children
+    // As Olingo has a bug, the parent of children is missing
+    // see https://issues.apache.org/jira/browse/OLINGO-1608
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$top=1&$expand=Children($levels=1;$expand=Parent)&$filter=CodeID eq 'NUTS2'");
+
+    helper.assertStatus(200);
+    final ObjectNode division = helper.getValue();
+    assertNotNull(division.get("value").get(0).get("Children"));
+    final ArrayNode children = (ArrayNode) division.get("value").get(0).get("Children");
+    assertFalse(children.isEmpty());
+    assertNotNull(children.get(0).get("CodePublisher"));
+    assertNull(children.get(0).get("Parent"));
   }
 
   @Test

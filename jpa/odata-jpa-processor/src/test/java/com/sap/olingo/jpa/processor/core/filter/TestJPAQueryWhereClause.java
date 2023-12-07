@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
+import com.sap.olingo.jpa.processor.core.util.Assertions;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -161,14 +163,14 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("CountNavigationPropertyMultipleHopsNavigations zero",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 0", 0),
         arguments("CountNavigationPropertyJoinTable not zero", "JoinSources?$filter=OneToMany/$count eq 2", 1),
-        arguments("CountNavigationPropertyJoinTable zero", "JoinSources?$filter=OneToMany/$count eq 0", 1),
+        arguments("CountCollectionPropertyOne", "Organizations?$select=ID&$filter=Comment/$count ge 1", 2),
         // To one association null
         arguments("NavigationPropertyIsNull",
             "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),
         arguments("NavigationPropertyIsNull",
             "AssociationOneToOneSources?$format=json&$filter=ColumnTarget ne null", 3),
         arguments("NavigationPropertyIsNullOneHop",
-            "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 30),
+            "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 11),
         arguments("NavigationPropertyMixCountAndNull",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 and Parent/Parent/Parent eq null", 2),
         arguments("NavigationPropertyIsNullJoinTable", "JoinTargets?$filter=ManyToOne ne null", 2),
@@ -522,6 +524,7 @@ class TestJPAQueryWhereClause extends TestBase {
 
   };
 
+  @Tag(Assertions.CB_ONLY_TEST)
   @Test
   void testFilterNavigationPropertyViaJoinTableCount() throws IOException,
       ODataException {

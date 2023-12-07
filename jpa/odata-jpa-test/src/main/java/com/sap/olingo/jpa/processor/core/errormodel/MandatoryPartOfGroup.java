@@ -5,8 +5,6 @@ package com.sap.olingo.jpa.processor.core.errormodel;
 
 import java.util.List;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -14,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Version;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
 /**
  * @author Oliver Grande

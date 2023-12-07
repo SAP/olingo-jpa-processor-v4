@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.List;
 
 import jakarta.persistence.AssociationOverride;
-import jakarta.persistence.AssociationOverrides;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -96,15 +95,13 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   protected CommunicationData communicationData;
 
   @Embedded
-  @AssociationOverrides({
-      @AssociationOverride(name = "countryName",
-          joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\"")),
-      @AssociationOverride(name = "regionName",
-          joinColumns = {
-              @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
-              @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
-              @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
-  })
+  @AssociationOverride(name = "countryName",
+      joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\""))
+  @AssociationOverride(name = "regionName",
+      joinColumns = {
+          @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
+          @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
+          @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
   private final PostalAddressDataWithGroup address = new PostalAddressDataWithGroup();
 
   @Embedded

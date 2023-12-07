@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import jakarta.persistence.Tuple;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import jakarta.persistence.Tuple;
 
 /**
  * @author Oliver Grande

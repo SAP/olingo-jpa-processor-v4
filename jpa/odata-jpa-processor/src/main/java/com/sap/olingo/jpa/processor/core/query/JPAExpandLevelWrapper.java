@@ -86,6 +86,10 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
   public ExpandOption getExpandOption() {
     if (levelOptions.getValue() > 1 || levelOptions.isMax())
       return new ExpandOptionWrapper(option, this, item);
+    else if ((levelOptions.getValue() == 1
+        && item.getExpandOption() != null
+        && !item.getExpandOption().getExpandItems().isEmpty()))
+      return new ExpandOptionWrapper(option, this, item);
     else
       return null;
   }
@@ -182,9 +186,17 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
     private ExpandOptionWrapper(final ExpandOption expandOption, final UriInfoResource parentUriInfoResource,
         final ExpandItem item) {
       this.items = new ArrayList<>();
-      this.items.add(new ExpandItemWrapper(item, parentUriInfoResource));
+      if (item.getLevelsOption().getValue() > 1 || item.getLevelsOption().isMax())
+        this.items.add(new ExpandLevelItemWrapper(item, parentUriInfoResource));
+      if (item.getExpandOption() != null)
+        this.items.addAll(buildAdditionalExpandItems(item));
       this.parentOptions = expandOption;
-      expandOption.getExpandItems().get(0).getLevelsOption();
+    }
+
+    private List<? extends ExpandItem> buildAdditionalExpandItems(final ExpandItem item) {
+      return item.getExpandOption().getExpandItems().stream()
+          .filter(i -> i.getLevelsOption() == null)
+          .toList();
     }
 
     @Override
@@ -208,14 +220,14 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
     }
   }
 
-  private class ExpandItemWrapper implements ExpandItem {
+  private class ExpandLevelItemWrapper implements ExpandItem {
 
     private final ExpandItem parentItem;
     private ExpandOption expandOption;
     private final LevelsExpandOption levelOption;
     private final UriInfoResource parentUriInfoResource;
 
-    private ExpandItemWrapper(final ExpandItem parentItem, final UriInfoResource parentUriInfoResource) {
+    private ExpandLevelItemWrapper(final ExpandItem parentItem, final UriInfoResource parentUriInfoResource) {
       this.parentItem = parentItem;
       this.levelOption = new LevelsExpandOptionWrapper(parentItem.getLevelsOption().isMax(),
           parentItem.getLevelsOption().getValue());

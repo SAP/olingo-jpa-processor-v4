@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.eclipse.persistence.logging.SessionLog;
-import ${package}.model.EntityTemplate;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration;
@@ -28,6 +27,8 @@ import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
 import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+
+import ${package}.model.EntityTemplate;
 
 @Configuration
 public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
