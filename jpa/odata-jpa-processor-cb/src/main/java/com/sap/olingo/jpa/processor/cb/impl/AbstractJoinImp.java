@@ -109,8 +109,8 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    return super.equals(obj);
+  public boolean equals(final Object other) {
+    return super.equals(other);
   }
 
   protected void createOn(final List<JPAOnConditionItem> items, final JPAEntityType targetType) {

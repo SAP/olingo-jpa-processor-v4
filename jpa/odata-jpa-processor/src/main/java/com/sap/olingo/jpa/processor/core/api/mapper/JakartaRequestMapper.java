@@ -307,7 +307,7 @@ public class JakartaRequestMapper implements javax.servlet.http.HttpServletReque
 
   @Override
   public String getRequestedSessionId() {
-    //Fix sonar issue. OData does not care about session handling
+    // Fix sonar issue. OData does not care about session handling
     return null;
   }
 

@@ -10,6 +10,7 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -169,7 +170,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
     Subquery<Object> subQuery = null;
     while (!hops.isEmpty() && hops.getFirst() instanceof JPAAbstractSubQuery) {
       final JPAAbstractSubQuery hop = (JPAAbstractSubQuery) hops.pop();
-      subQuery = hop.getSubQuery(subQuery, null);
+      subQuery = hop.getSubQuery(subQuery, null, Collections.emptyList());
     }
     return subQuery;
   }

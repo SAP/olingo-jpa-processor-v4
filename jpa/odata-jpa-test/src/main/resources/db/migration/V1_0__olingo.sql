@@ -701,7 +701,8 @@ CREATE TABLE "Comment" (
 	 PRIMARY KEY ("BusinessPartnerID", "Order"));
 	 
 insert into "Comment" values( '1', 1, 'This is just a test');	
-insert into "Comment" values( '1', 3, 'This is another test');	
+insert into "Comment" values( '1', 3, 'This is another test');
+insert into "Comment" values( '7', 1, 'This is another test');	
 insert into "Comment" values( '501', 3, 'This is another test');	
 insert into "Comment" values( '502', 3, 'This is another test');
 insert into "Comment" values( '502', 4, 'This is also test');	
@@ -1003,4 +1004,3 @@ CREATE TABLE "DummyToBeIgnored" (
 --						AND  a."CodeID" = "ID"
 --						AND  a."DivisionCode" = "Division" )
 --				);
-	 

@@ -7,18 +7,19 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 public interface JPAJoinTable {
   /**
-   * Returns the name of the join table including the schema name, using the following pattern: {schema}.{table}
-   * @return
+   * @return Name of the join table including the schema name, using the following pattern: {schema}.{table}
    */
   public String getTableName();
 
+  /**
+   * @return Entity type of the join table
+   */
   public JPAEntityType getEntityType();
 
   public List<JPAOnConditionItem> getJoinColumns() throws ODataJPAModelException;
 
   /**
-   * Returns the list of inverse join columns with exchanged left/right order.
-   * @return
+   * @return List of inverse join columns with exchanged left/right order.
    * @throws ODataJPAModelException
    */
   public List<JPAOnConditionItem> getInverseJoinColumns() throws ODataJPAModelException;

@@ -538,8 +538,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    */
   @Override
   public <T> In<T> in(final Expression<? extends T> expression) {
-    // e.g.: return new Expressions.In<>(expression); //NOSONAR
-    throw new NotImplementedException();
+    return new PredicateImpl.In<>((Path<? extends T>) expression);
   }
 
   /**
@@ -549,8 +548,20 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    * @return in predicate
    */
   @Override
-  public <T> In<T> in(final List<Path<? extends T>> paths, final Subquery<?> subquery) {
-    return new PredicateImpl.In<>(paths, subquery);
+  public In<List<Comparable<?>>> in(final List<Path<Comparable<?>>> paths,
+      final Subquery<List<Comparable<?>>> subquery) {
+    return new PredicateImpl.In<List<Comparable<?>>>(paths).value(subquery);
+  }
+
+  /**
+   * Create predicate to test whether given expression
+   * is contained in a list of values.
+   * @param path to be tested against list of values
+   * @return in predicate
+   */
+  @Override
+  public <T> In<T> in(final Path<?> path) {
+    return new PredicateImpl.In<>(path);
   }
 
   /**

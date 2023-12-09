@@ -78,7 +78,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
    * (non-Javadoc)
    *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRightAsNumber(jakarta.persistence.criteria.
-   * CriteriaBuilder)
+   * CriteriaBuilder) 
    */
   @Override
   public Number getRightAsNumber(final CriteriaBuilder cb) throws ODataApplicationException {

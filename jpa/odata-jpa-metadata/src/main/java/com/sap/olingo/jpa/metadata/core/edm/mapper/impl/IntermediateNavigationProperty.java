@@ -15,6 +15,19 @@ import java.util.Set;
 
 import javax.annotation.CheckForNull;
 
+import jakarta.persistence.AssociationOverride;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.PluralAttribute;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
@@ -38,19 +51,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelIgnoreException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
-
-import jakarta.persistence.AssociationOverride;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
-import jakarta.persistence.metamodel.PluralAttribute;
 
 /**
  * A navigation property describes a relation of one entity type to another entity type and allows to navigate to it.

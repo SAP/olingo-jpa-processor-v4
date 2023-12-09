@@ -2,11 +2,11 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import javax.annotation.Nonnull;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
-
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EmbeddableType;
 import jakarta.persistence.metamodel.EntityType;
+
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
 public final record JPADefaultEdmNameBuilder(@Nonnull String namespace) implements JPAEdmNameBuilder {
   private static final int DISTANCE_NEXT_TO_LAST_CHAR = 2;
