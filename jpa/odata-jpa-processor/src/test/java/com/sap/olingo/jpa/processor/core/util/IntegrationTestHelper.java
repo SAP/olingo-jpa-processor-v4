@@ -56,8 +56,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaResponseMapper;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public class IntegrationTestHelper {
@@ -175,7 +173,7 @@ public class IntegrationTestHelper {
 
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
-    handler.process(new JakartaRequestMapper(request), new JakartaResponseMapper(response));
+    handler.process(request, response);
 
   }
 
@@ -367,8 +365,8 @@ public class IntegrationTestHelper {
     List<Integer> buffer = new ArrayList<>();
 
     @Override
-    public void write(final int b) throws IOException {
-      buffer.add(b);
+    public void write(final int nextByte) throws IOException {
+      buffer.add(nextByte);
     }
 
     public Iterator<Integer> getBuffer() {

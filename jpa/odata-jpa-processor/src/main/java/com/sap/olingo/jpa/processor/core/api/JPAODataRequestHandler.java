@@ -5,7 +5,6 @@ import java.util.Optional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -13,8 +12,6 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaResponseMapper;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public class JPAODataRequestHandler {
@@ -79,23 +76,12 @@ public class JPAODataRequestHandler {
     final JPAEdmProvider jpaEdm = requestContext.getEdmProvider();
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm, jpaEdm.getReferences()));
     serviceContext.getEdmProvider().setRequestLocales(request.getLocales());
-    final HttpServletRequest mappedRequest = prepareRequestMapping(request, serviceContext.getMappingPath());
     handler.register(requestContext.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(serviceContext, requestContext));
     handler.register(serviceContext.getBatchProcessorFactory().getBatchProcessor(serviceContext, requestContext));
     handler.register(serviceContext.getEdmProvider().getServiceDocument());
     handler.register(serviceContext.getErrorProcessor());
     handler.register(new JPAODataServiceDocumentProcessor(serviceContext));
-    handler.process(new JakartaRequestMapper(mappedRequest), new JakartaResponseMapper(response));
-  }
-
-  private HttpServletRequest prepareRequestMapping(final HttpServletRequest req, final String requestPath) {
-    if (requestPath != null && !requestPath.isEmpty()) {
-      final HttpServletRequestWrapper request = new HttpServletRequestWrapper(req);
-      request.setAttribute(REQUEST_MAPPING_ATTRIBUTE, requestPath);
-      return request;
-    } else {
-      return req;
-    }
+    handler.process(request, response);
   }
 }
