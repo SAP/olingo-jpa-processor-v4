@@ -238,7 +238,7 @@
 			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-codec-http</artifactId>
-				<version>4.1.101.Final</version>
+				<version>4.1.104.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>net.oneandone.reflections8</groupId>
