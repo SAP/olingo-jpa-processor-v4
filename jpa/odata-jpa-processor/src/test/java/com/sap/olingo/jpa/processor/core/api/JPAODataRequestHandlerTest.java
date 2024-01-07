@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -111,7 +112,7 @@ class JPAODataRequestHandlerTest extends TestBase {
         .build();
     cut = new JPAODataRequestHandler(context, odata);
     cut.process(request, response);
-    verify(handler, times(1)).process(argThat(new HttpRequestMatcher()), any());
+    verify(handler, times(1)).process(isA(HttpServletRequestWrapper.class), any());
   }
 
   @Test

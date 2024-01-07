@@ -5,6 +5,7 @@ import java.util.Optional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -76,12 +77,23 @@ public class JPAODataRequestHandler {
     final JPAEdmProvider jpaEdm = requestContext.getEdmProvider();
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm, jpaEdm.getReferences()));
     serviceContext.getEdmProvider().setRequestLocales(request.getLocales());
+    final HttpServletRequest mappedRequest = prepareRequestMapping(request, serviceContext.getMappingPath());
     handler.register(requestContext.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(serviceContext, requestContext));
     handler.register(serviceContext.getBatchProcessorFactory().getBatchProcessor(serviceContext, requestContext));
     handler.register(serviceContext.getEdmProvider().getServiceDocument());
     handler.register(serviceContext.getErrorProcessor());
     handler.register(new JPAODataServiceDocumentProcessor(serviceContext));
-    handler.process(request, response);
+    handler.process(mappedRequest, response);
+  }
+
+  private HttpServletRequest prepareRequestMapping(final HttpServletRequest request, final String requestPath) {
+    if (requestPath != null && !requestPath.isEmpty()) {
+      final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
+      wrappedRequest.setAttribute(REQUEST_MAPPING_ATTRIBUTE, requestPath);
+      return wrappedRequest;
+    } else {
+      return request;
+    }
   }
 }

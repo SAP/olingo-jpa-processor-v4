@@ -972,6 +972,18 @@ CREATE TABLE "TemporalWithValidityPeriod"(
  INSERT INTO "TemporalWithValidityPeriod" values ('98', '2022-01-01', '9999-12-31','Architect');
  
 --------------------------------------------
+ 
+-- CREATE TABLE "Pages"(
+--	"token" uuid NOT NULL,
+--	"skip" INTEGER NOT NULL,
+--	"top" INTEGER NOT NULL,
+--	"baseUri" VARCHAR(255),
+--	"oDataPath" VARCHAR(255),
+--	"queryPath" VARCHAR(255),	
+--	"fragments" VARCHAR(255),
+-- PRIMARY KEY ("ID", "StartDate"));
+ 
+--------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,

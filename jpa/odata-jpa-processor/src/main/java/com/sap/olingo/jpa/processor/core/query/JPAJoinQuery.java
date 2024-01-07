@@ -40,7 +40,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
   private static List<JPANavigationPropertyInfo> determineNavigationInfo(
-      final JPAServiceDocument sd, final UriInfoResource uriResource) throws ODataException {
+      final JPAServiceDocument sd, final UriInfoResource uriResource)
+      throws ODataException {
 
     return Utility.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriResource);
   }
@@ -78,6 +79,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
         requestContext, determineNavigationInfo(requestContext.getEdmProvider().getServiceDocument(), requestContext
             .getUriInfo()));
     entitySet = determineTargetEntitySet(requestContext);
+    lastInfo.setPage(requestContext.getPage());
   }
 
   /**
