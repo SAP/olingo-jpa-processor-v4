@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.AbstractQuery;
@@ -318,8 +320,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected jakarta.persistence.criteria.Expression<Boolean> createWhere(final UriInfoResource uriInfo,
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataApplicationException {
 
-    try (JPARuntimeMeasurement serializerMeassument = debugger.newMeasurement(this, "createWhere")) {
-      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
+    try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "createWhere")) {
+     jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
@@ -402,7 +404,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * path to the collection property needs to be traversed
    */
   protected void generateCollectionAttributeJoin(final Map<String, From<?, ?>> joinTables,
-      final Collection<JPAPath> jpaPathList, final JPANavigationPropertyInfo lastInfo) throws JPANoSelectionException,
+      final Collection<JPAPath> jpaPathList, final JPANavigationPropertyInfoAccess lastInfo)
+      throws JPANoSelectionException,
       ODataJPAProcessorException {
 
     for (final JPAPath path : jpaPathList) {
@@ -629,8 +632,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
     Collections.reverse(keyElements);
     for (final JPAAttribute keyElement : keyElements) {
-      final Path<Y> keyPath = (Path<Y>) ExpressionUtility.convertToCriteriaPath(from, et.getPath(keyElement
-          .getExternalName())
+      final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from, et.getPath(
+          keyElement
+              .getExternalName())
           .getPath());
       final jakarta.persistence.criteria.Expression<Boolean> equalFragment = cb.equal(keyPath, jpaKeyPair.getMin().get(
           keyElement));
@@ -653,7 +657,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     for (int primaryIndex = 0; primaryIndex < keyElements.size(); primaryIndex++) {
       for (int secondaryIndex = primaryIndex; secondaryIndex < keyElements.size(); secondaryIndex++) {
         final JPAAttribute keyElement = keyElements.get(secondaryIndex);
-        final Path<Y> keyPath = (Path<Y>) ExpressionUtility.convertToCriteriaPath(from,
+        final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from,
             et.getPath(keyElement.getExternalName()).getPath());
         final Y lowerBoundary = jpaKeyPair.getMinElement(keyElement);
         final Y upperBoundary = jpaKeyPair.getMaxElement(keyElement);
@@ -744,12 +748,39 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
           .getPath(), target, JoinType.INNER);
       try {
         final JPAEntityType cast = this.navigationInfo.get(i + 1).getEntityType();
-        target = (From<?, ?>) target.as(cast.getTypeClass());
+        if (derivedTypeRequested(propertyInfo.getAssociationPath().getTargetType(), cast))
+          target = (From<?, ?>) target.as(cast.getTypeClass());
       } catch (final ODataJPAModelException e) {
         throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
       }
       joinTables.put(propertyInfo.getAssociationPath().getAlias(), target);
     }
+  }
+
+  /**
+   * Any resource path or path expression identifying a collection of entities or complex type instances can be appended
+   * with a path segment containing the qualified name of a type derived from the declared type of the collection.</br>
+   * The use of the unqualified name of a derived type is <b>not</b> supported.
+   * <p>
+   * See also:
+   * <a href="
+   * https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingDerivedTypes">
+   * 4.11 Addressing Derived Types
+   * </a>
+   * @param baseType
+   * @param potentialDerivedType
+   * @return true if potentialDerivedType is indeed a derived type of baseType
+   */
+
+  boolean derivedTypeRequested(@Nonnull final JPAStructuredType baseType,
+      @Nonnull final JPAStructuredType potentialDerivedType) {
+    JPAStructuredType type = potentialDerivedType;
+    while (type != null && type.getBaseType() != null) {
+      if (baseType.equals(type.getBaseType()))
+        return true;
+      type = type.getBaseType();
+    }
+    return false;
   }
 
   protected final void addFilterCompiler(final JPANavigationPropertyInfo navigationInfo) throws ODataJPAModelException,
@@ -780,7 +811,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
   }
 
-  private JPAElement findCollection(final JPANavigationPropertyInfo lastInfo, final JPAPath path)
+  private JPAElement findCollection(final JPANavigationPropertyInfoAccess lastInfo, final JPAPath path)
       throws ODataJPAProcessorException, JPANoSelectionException {
 
     JPAElement collection = null;

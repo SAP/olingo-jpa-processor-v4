@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.TestActionCollection;
 
 class IntermediateOperationHelperTest {
+
   static Stream<Arguments> provideIsCollection() {
     return Stream.of(
         Arguments.of(ArrayList.class, true),

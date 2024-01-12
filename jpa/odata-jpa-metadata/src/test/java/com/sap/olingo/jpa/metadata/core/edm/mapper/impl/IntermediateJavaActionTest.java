@@ -171,7 +171,7 @@ class IntermediateJavaActionTest extends TestMappingRoot {
     final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnCollection");
 
     assertEquals("Edm.String", act.getEdmItem().getReturnType().getType());
-    assertTrue(act.getEdmItem().getReturnType().isCollection());
+    assertTrue(act.getEdmItem().getReturnType().isCollection(), act.toString() + " " + act.getResultParameter());
   }
 
   @Test

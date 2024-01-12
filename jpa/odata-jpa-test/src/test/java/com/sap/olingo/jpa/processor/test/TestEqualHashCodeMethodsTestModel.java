@@ -8,6 +8,9 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -17,9 +20,6 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.InstanceRestrictionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.MembershipKey;
 import com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey;
-
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 
 /**
  * @author Oliver Grande

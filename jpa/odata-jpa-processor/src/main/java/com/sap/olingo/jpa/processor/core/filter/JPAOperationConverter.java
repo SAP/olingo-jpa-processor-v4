@@ -20,7 +20,7 @@ public class JPAOperationConverter {
     super();
     this.cb = cb;
     this.dbConverter = converterExtension;
-    this.dbConverter.setCriterialBuilder(cb);
+    this.dbConverter.setCriteriaBuilder(cb);
   }
 
   public final Expression<Long> convert(final JPAAggregationOperationImp jpaOperator) throws ODataApplicationException {

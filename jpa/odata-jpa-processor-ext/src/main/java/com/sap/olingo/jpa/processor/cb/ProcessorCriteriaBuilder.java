@@ -28,7 +28,16 @@ public interface ProcessorCriteriaBuilder extends CriteriaBuilder {
    * @param list of path to be tested against list of values
    * @return in predicate
    */
-  public <T> In<T> in(final List<Path<? extends T>> expression, final Subquery<?> subquery);
+  public In<List<Comparable<?>>> in(final List<Path<Comparable<?>>> expression,
+      final Subquery<List<Comparable<?>>> subquery);
+
+  /**
+   * Create predicate to test whether given expression
+   * is contained in a list of values.
+   * @param path to be tested against list of values
+   * @return in predicate
+   */
+  public <T> In<T> in(final Path<?> path);
 
   public static interface WindowFunction<T> extends Expression<T> {
     /**
@@ -45,9 +54,9 @@ public interface ProcessorCriteriaBuilder extends CriteriaBuilder {
      * @param path
      * @return
      */
-    WindowFunction<T> partitionBy(final Path<?>... path);
+    WindowFunction<T> partitionBy(@SuppressWarnings("unchecked") final Path<Comparable<?>>... path);
 
-    WindowFunction<T> partitionBy(final List<Path<?>> path);
+    WindowFunction<T> partitionBy(final List<Path<Comparable<?>>> path);
 
     Path<T> asPath(final String tableAlias);
 

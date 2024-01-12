@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -16,8 +18,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-
-import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
 
 final class JPAAssociationPathImpl implements JPAAssociationPath {
   private final String alias;
@@ -79,13 +79,12 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    * @param joinColumns
    * @throws ODataJPAModelException
    */
-  public JPAAssociationPathImpl(final IntermediateCollectionProperty<?> collectionProperty,
-      final IntermediateStructuredType<?> source, final JPAPath path, final List<? extends JPAJoinColumn> joinColumns)
-      throws ODataJPAModelException {
+  public JPAAssociationPathImpl(final IntermediateCollectionProperty<?> collectionProperty, final JPAPath path,
+      final List<? extends JPAJoinColumn> joinColumns) throws ODataJPAModelException {
 
     alias = path.getAlias();
-    this.sourceType = source;
-    this.targetType = null;
+    this.sourceType = collectionProperty.getSourceType();
+    this.targetType = (IntermediateStructuredType<?>) collectionProperty.getTargetEntity();
     this.joinColumns = joinColumns;
     this.pathElements = path.getPath();
     this.cardinality = PersistentAttributeType.ONE_TO_MANY;

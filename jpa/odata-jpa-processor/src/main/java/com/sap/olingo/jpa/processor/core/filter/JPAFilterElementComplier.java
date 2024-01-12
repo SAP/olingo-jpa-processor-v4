@@ -37,6 +37,19 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   final JPAAbstractQuery parent;
   final List<String> groups;
 
+  /**
+   *
+   * @param odata
+   * @param sd
+   * @param em
+   * @param jpaEntityType
+   * @param converter
+   * @param uriResourceParts
+   * @param parent: Query a filter belongs to.
+   * @param expression
+   * @param association
+   * @param groups
+   */
   public JPAFilterElementComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, final VisitableExpression expression,

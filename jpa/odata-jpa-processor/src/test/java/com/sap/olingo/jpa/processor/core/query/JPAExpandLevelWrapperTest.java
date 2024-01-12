@@ -54,6 +54,7 @@ class JPAExpandLevelWrapperTest {
   private SkipOption skipOption;
   private TopOption topOption;
   private List<ExpandItem> itemList;
+  private ExpandOption expandOption;
 
   // return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : Collections.emptyList();
   @BeforeEach
@@ -69,6 +70,7 @@ class JPAExpandLevelWrapperTest {
     selectOption = mock(SelectOption.class);
     skipOption = mock(SkipOption.class);
     topOption = mock(TopOption.class);
+    expandOption = mock(ExpandOption.class);
     itemList = new ArrayList<>();
     item = buildItem(null);
     itemList.add(item);
@@ -88,6 +90,7 @@ class JPAExpandLevelWrapperTest {
     when(item.getSelectOption()).thenReturn(selectOption);
     when(item.getSkipOption()).thenReturn(skipOption);
     when(item.getTopOption()).thenReturn(topOption);
+    when(item.getExpandOption()).thenReturn(expandOption);
     return item;
   }
 
@@ -105,42 +108,23 @@ class JPAExpandLevelWrapperTest {
         dynamicTest("ApplyOption returns null", () -> assertNull(cut.getApplyOption())),
         dynamicTest("SkipTokenOption returns null", () -> assertNull(cut.getSkipTokenOption())),
         dynamicTest("DeltaTokenOption returns null", () -> assertNull(cut.getDeltaTokenOption())),
-        dynamicTest("CustomQueryOptions empty", () -> assertEquals(0, cut.getCustomQueryOptions().size())));
+        dynamicTest("CustomQueryOptions empty", () -> assertEquals(0, cut.getCustomQueryOptions().size())),
+        dynamicTest("ExpandOption returns null if level is < 2", () -> {
+          when(levelOption.getValue()).thenReturn(1);
+          assertNull(cut.getExpandOption());
+        }));
   }
 
-  @Test
-  void checkFilterOption() {
-    assertEquals(filterOption, cut.getFilterOption());
-  }
-
-  @Test
-  void checkCountOption() {
-    assertEquals(countOption, cut.getCountOption());
-  }
-
-  @Test
-  void checkOrderByOption() {
-    assertEquals(orderByOption, cut.getOrderByOption());
-  }
-
-  @Test
-  void checkSearchOption() {
-    assertEquals(searchOption, cut.getSearchOption());
-  }
-
-  @Test
-  void checkSelectOption() {
-    assertEquals(selectOption, cut.getSelectOption());
-  }
-
-  @Test
-  void checkSkipOption() {
-    assertEquals(skipOption, cut.getSkipOption());
-  }
-
-  @Test
-  void checkTopOption() {
-    assertEquals(topOption, cut.getTopOption());
+  @TestFactory
+  Iterable<DynamicTest> checkReturnsInputProperty() {
+    return Arrays.asList(
+        dynamicTest("FilterOption returned", () -> assertEquals(filterOption, cut.getFilterOption())),
+        dynamicTest("CountOption returned", () -> assertEquals(countOption, cut.getCountOption())),
+        dynamicTest("OrderByOption returned", () -> assertEquals(orderByOption, cut.getOrderByOption())),
+        dynamicTest("SearchOption returned", () -> assertEquals(searchOption, cut.getSearchOption())),
+        dynamicTest("SelectOption returned", () -> assertEquals(selectOption, cut.getSelectOption())),
+        dynamicTest("SkipOption returned", () -> assertEquals(skipOption, cut.getSkipOption())),
+        dynamicTest("TopOption returned", () -> assertEquals(topOption, cut.getTopOption())));
   }
 
   @Test
@@ -205,6 +189,14 @@ class JPAExpandLevelWrapperTest {
 
     assertEquals(1, act.getValue());
     assertTrue(act.isMax());
+  }
+
+  @Test
+  void checkExpandOptionContainsInnerExpandOption() {
+    when(levelOption.getValue()).thenReturn(2);
+
+    final ExpandOption act = cut.getExpandOption().getExpandItems().get(0).getExpandOption();
+    assertNotNull(act.getExpandItems().get(0).getExpandOption());
   }
 
   @Test

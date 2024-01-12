@@ -38,7 +38,7 @@ public @interface EdmEnumeration {
   /**
    * Converter to convert enumeration value into a number. If no converter is provided, the ordinal is taken.
    */
-  Class<? extends AttributeConverter<? extends Enum<?>[], ? extends Number>> converter() default DummyConverter.class;
+  Class<? extends AttributeConverter<? extends Enum<?>[], ? extends Number>> converter() default DummyConverter.class; // NOSONAR
 
   boolean isFlags() default false;
 
