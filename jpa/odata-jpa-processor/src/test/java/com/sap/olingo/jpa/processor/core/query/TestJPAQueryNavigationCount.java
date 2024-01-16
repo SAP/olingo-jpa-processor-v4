@@ -1,11 +1,16 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCapabilitiesAnnotationsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
@@ -13,43 +18,24 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 
 class TestJPAQueryNavigationCount extends TestBase {
 
-  @Test
-  void testEntitySetCount() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations/$count");
-    assertEquals(200, helper.getStatus());
-
-    assertEquals("10", helper.getRawResult());
+  static Stream<Arguments> provideCountQueries() {
+    return Stream.of(
+        arguments("EntitySetCount", "Organizations/$count", "10"),
+        arguments("EntityNavigateCount", "Organizations('3')/Roles/$count", "3"),
+        arguments("EntitySetCountWithFilterOn", "Organizations/$count?$filter=Address/HouseNumber gt '30'", "7"),
+        arguments("EntitySetCountWithFilterOnDescription", "Persons/$count?$filter=LocationName eq 'Deutschland'",
+            "2"));
   }
 
-  @Test
-  void testEntityNavigateCount() throws IOException, ODataException {
+  @ParameterizedTest
+  @MethodSource("provideCountQueries")
+  void testEntitySetCount(final String text, final String queryString, final String numberOfResults)
+      throws IOException, ODataException {
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/Roles/$count");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
     assertEquals(200, helper.getStatus());
 
-    assertEquals("3", helper.getRawResult());
-  }
-
-  @Test
-  void testEntitySetCountWithFilterOn() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations/$count?$filter=Address/HouseNumber gt '30'");
-
-    assertEquals(200, helper.getStatus());
-    assertEquals("7", helper.getRawResult());
-  }
-
-  @Test
-  void testEntitySetCountWithFilterOnDescription() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons/$count?$filter=LocationName eq 'Deutschland'",
-        new JavaBasedCapabilitiesAnnotationsProvider());
-
-    assertEquals(200, helper.getStatus());
-    assertEquals("2", helper.getRawResult());
+    assertEquals(numberOfResults, helper.getRawResult(), text);
   }
 
   @Test

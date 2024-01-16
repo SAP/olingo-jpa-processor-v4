@@ -25,6 +25,7 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.AbstractQuery;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
@@ -66,6 +67,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasur
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterRestrictionsWatchDog;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -328,8 +330,14 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094
       // https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt
       try {
-        whereCondition = addWhereClause(whereCondition, navigationInfo.get(navigationInfo.size() - 1)
-            .getFilterCompiler().compile());
+        final JPAFilterComplier compiler = navigationInfo.get(navigationInfo.size() - 1).getFilterCompiler();
+        final Expression<Boolean> filter = compiler.compile();
+        final Optional<JPAFilterRestrictionsWatchDog> watchDog = compiler.getWatchDog();
+        if (watchDog.isPresent()) {
+          watchDog.get().watch(filter);
+        }
+        whereCondition = addWhereClause(whereCondition, filter);
+
       } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
             HttpStatusCode.BAD_REQUEST, e);
@@ -698,13 +706,15 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
         final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(
-            ((JPAAssociationAttribute) element));
+            ((JPAAssociationAttribute) element), !lastInfo.getKeyPredicates().isEmpty());
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, targetEt, converter, this, path,
             lastInfo.getAssociationPath(), subContext, watchDog));
       } else {
+        lastInfo.getKeyPredicates();
         final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
-        final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(entitySet.orElse(null));
+        final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(entitySet.orElse(null),
+            !lastInfo.getKeyPredicates().isEmpty());
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, jpaEntity, converter, this, lastInfo
             .getAssociationPath(), subContext, watchDog));
       }

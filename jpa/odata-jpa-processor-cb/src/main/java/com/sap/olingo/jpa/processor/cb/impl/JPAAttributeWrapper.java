@@ -96,31 +96,6 @@ class JPAAttributeWrapper implements JPAAttribute {
   }
 
   @Override
-  public boolean isComplex() {
-    return false;
-  }
-
-  @Override
-  public boolean isEnum() {
-    return false;
-  }
-
-  @Override
-  public boolean isEtag() {
-    return false;
-  }
-
-  @Override
-  public boolean isKey() {
-    return false;
-  }
-
-  @Override
-  public boolean isSearchable() {
-    return false;
-  }
-
-  @Override
   public boolean hasProtection() {
     return false;
   }

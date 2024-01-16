@@ -145,7 +145,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(navigationInfo.getUriInfo(),
         requestContext);
 
-    final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(this.association.getLeaf());
+    final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(this.association.getLeaf(),
+        !navigationInfo.getKeyPredicates().isEmpty());
     return new JPAFilterCrossComplier(odata, sd, navigationInfo.getEntityType(), converter, this,
         navigationInfo.getFromClause(), null, subContext, watchDog);
   }

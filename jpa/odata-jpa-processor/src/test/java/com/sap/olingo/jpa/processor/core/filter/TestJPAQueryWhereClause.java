@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCapabilitiesAnnotationsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
@@ -192,7 +193,10 @@ class TestJPAQueryWhereClause extends TestBase {
             "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'&$select=ID", 1),
         arguments("SubstringStartEndIndexToLower",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
-            2));
+            2),
+        // IN expression
+        arguments("Simple IN", "AdministrativeDivisions?$filter=ParentDivisionCode in ('BE1', 'BE2')", 6),
+        arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 219));
   }
 
   @ParameterizedTest
@@ -732,4 +736,12 @@ class TestJPAQueryWhereClause extends TestBase {
         "BusinessPartnerProtecteds?$filter=RolesJoinProtected/all(d:d/RoleCategory eq 'B')", provided);
     helper.assertStatus(200);
   }
+
+  @Test
+  void testFilterRestrictionByAnnotation() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AnnotationsParents?$top=1", new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(400);
+  }
+
 }

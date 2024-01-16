@@ -37,7 +37,6 @@ public class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPACom
    *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#getOperator()
    */
-  @SuppressWarnings("unchecked")
   @Override
   public BinaryOperatorKind getOperator() {
     return operator;

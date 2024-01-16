@@ -21,7 +21,7 @@ import org.reflections8.Reflections;
 import org.reflections8.scanners.SubTypesScanner;
 import org.reflections8.util.ConfigurationBuilder;
 
-class TestJPALiteralOperator {
+class JPALiteralOperatorTest {
   private static OData odata = OData.newInstance();
 
   @TestFactory
@@ -30,16 +30,16 @@ class TestJPALiteralOperator {
     configBuilder.setScanners(new SubTypesScanner(false));
     configBuilder.forPackages(SingletonPrimitiveType.class.getPackage().getName());
 
-    final Reflections refection = new Reflections(configBuilder);
-    final Set<Class<? extends SingletonPrimitiveType>> edmPrimitiveTypes = refection.getSubTypesOf(
+    final Reflections reflection = new Reflections(configBuilder);
+    final Set<Class<? extends SingletonPrimitiveType>> edmPrimitiveTypes = reflection.getSubTypesOf(
         SingletonPrimitiveType.class);
 
     return edmPrimitiveTypes
         .stream()
-        .filter(t -> t.getSuperclass() == SingletonPrimitiveType.class)
-        .map(TestJPALiteralOperator::createEdmPrimitiveType)
+        .filter(type -> type.getSuperclass() == SingletonPrimitiveType.class)
+        .map(JPALiteralOperatorTest::createEdmPrimitiveType)
         .filter(i -> i != null)
-        .map(TestJPALiteralOperator::createLiteralOperator)
+        .map(JPALiteralOperatorTest::createLiteralOperator)
         .map(operator -> dynamicTest(operator.getLiteral().getType().getName(), () -> assertTypeConversion(operator)));
   }
 
@@ -52,8 +52,8 @@ class TestJPALiteralOperator {
   private static SingletonPrimitiveType createEdmPrimitiveType(
       final Class<? extends SingletonPrimitiveType> typeClass) {
     try {
-      final Method m = typeClass.getMethod("getInstance");
-      return (SingletonPrimitiveType) m.invoke(null);
+      final Method method = typeClass.getMethod("getInstance");
+      return (SingletonPrimitiveType) method.invoke(null);
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
         | SecurityException e) {
       return null;
@@ -61,11 +61,11 @@ class TestJPALiteralOperator {
   }
 
   private static JPALiteralOperator createLiteralOperator(final SingletonPrimitiveType typeInstance) {
-    final Literal l = mock(Literal.class);
-    when(l.getType()).thenReturn(typeInstance);
-    when(l.getText()).thenReturn(determineLiteral(typeInstance));
+    final Literal literal = mock(Literal.class);
+    when(literal.getType()).thenReturn(typeInstance);
+    when(literal.getText()).thenReturn(determineLiteral(typeInstance));
 
-    return new JPALiteralOperator(odata, l);
+    return new JPALiteralOperator(odata, literal);
   }
 
   private static String determineLiteral(final SingletonPrimitiveType typeInstance) {

@@ -76,4 +76,9 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   public List<AnnotationProvider> getAnnotationProvider() {
     return Collections.singletonList(annotationProvider);
   }
+
+  @Override
+  public JPAODataQueryDirectives getQueryDirectives() {
+    return null;
+  }
 }

@@ -122,8 +122,11 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
-      final List<JPAOperator> right)
-      throws ExpressionVisitException, ODataApplicationException {
+      final List<JPAOperator> right) throws ExpressionVisitException, ODataApplicationException {
+
+    if (operator == BinaryOperatorKind.IN)
+      return new JPAInOperatorImpl<>(this.jpaComplier.getConverter(), left, right);
+
     throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
   }
 

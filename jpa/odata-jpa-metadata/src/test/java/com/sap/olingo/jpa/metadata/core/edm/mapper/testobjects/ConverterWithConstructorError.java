@@ -21,4 +21,8 @@ public class ConverterWithConstructorError implements AttributeConverter<Enum<?>
     return null;
   }
 
+  public int getCounter() {
+    return counter;
+  }
+
 }

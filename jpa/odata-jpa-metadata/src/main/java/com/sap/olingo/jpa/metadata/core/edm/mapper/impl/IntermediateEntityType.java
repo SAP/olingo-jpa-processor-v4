@@ -480,8 +480,9 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
         extensionQueryProvider = Optional.of(Optional.of(new JPAQueryExtensionProvider<>(
             provider)));
     }
-    if (!extensionQueryProvider.get().isPresent() && getBaseType() != null)
-      extensionQueryProvider = Optional.ofNullable(((IntermediateEntityType<?>) getBaseType()).getQueryExtension());
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (!extensionQueryProvider.get().isPresent() && baseType != null)
+      extensionQueryProvider = Optional.ofNullable(((IntermediateEntityType<?>) baseType).getQueryExtension());
     return extensionQueryProvider.orElseGet(Optional::empty);
   }
 
@@ -491,8 +492,8 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
         etagPath = Optional.of(getPath(property.getValue().getExternalName(), false));
       }
     }
-    if (getBaseType() instanceof IntermediateEntityType)
-      etagPath = Optional.ofNullable(((IntermediateEntityType<?>) getBaseType()).getEtagPath());
+    if (getBaseType() instanceof final IntermediateEntityType<?> baseEntityType)
+      etagPath = Optional.ofNullable(baseEntityType.getEtagPath());
   }
 
   private <A extends Annotation> Optional<A> getAnnotation(final Class<?> annotated, final Class<A> type) {

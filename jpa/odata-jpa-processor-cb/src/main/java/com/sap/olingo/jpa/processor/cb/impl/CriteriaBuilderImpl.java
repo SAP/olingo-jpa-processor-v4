@@ -538,7 +538,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    */
   @Override
   public <T> In<T> in(final Expression<? extends T> expression) {
-    return new PredicateImpl.In<>((Path<? extends T>) expression);
+    return new PredicateImpl.In<>((Path<? extends T>) expression, parameter);
   }
 
   /**
@@ -550,7 +550,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
   @Override
   public In<List<Comparable<?>>> in(final List<Path<Comparable<?>>> paths,
       final Subquery<List<Comparable<?>>> subquery) {
-    return new PredicateImpl.In<List<Comparable<?>>>(paths).value(subquery);
+    return new PredicateImpl.In<List<Comparable<?>>>(paths, parameter).value(subquery);
   }
 
   /**
@@ -561,7 +561,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    */
   @Override
   public <T> In<T> in(final Path<?> path) {
-    return new PredicateImpl.In<>(path);
+    return new PredicateImpl.In<>(path, parameter);
   }
 
   /**
