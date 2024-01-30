@@ -19,7 +19,7 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceCount;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
@@ -53,7 +53,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
   @Override
   public Optional<JPAODataPage> getNextPage(@Nonnull final String skipToken, final OData odata,
       final ServiceMetadata serviceMetadata, final JPARequestParameterMap requestParameter, final EntityManager em) {
-    final CacheEntry previousPage = pageCache.get(skipToken.replace("'", ""));
+    final var previousPage = pageCache.get(skipToken.replace("'", ""));
     if (previousPage != null) {
       // Calculate next page
       final Integer skip = previousPage.page().skip() + previousPage.page().top();
@@ -61,9 +61,9 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
       String nextToken = null;
       if (skip + previousPage.page().top() < previousPage.maxTop())
         nextToken = UUID.randomUUID().toString();
-      final int top = (int) ((skip + previousPage.page().top()) < previousPage.maxTop() ? previousPage
+      final var top = (int) ((skip + previousPage.page().top()) < previousPage.maxTop() ? previousPage
           .page().top() : previousPage.maxTop() - skip);
-      final JPAODataPage page = new JPAODataPage(previousPage.page().uriInfo(), skip, top, nextToken);
+      final var page = new JPAODataPage(previousPage.page().uriInfo(), skip, top, nextToken);
       if (nextToken != null)
         addToCache(page, previousPage.maxTop());
       return Optional.of(page);
@@ -77,21 +77,26 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
       final JPAODataPathInformation pathInformation, final UriInfo uriInfo, @Nullable final Integer preferredPageSize,
       final JPACountQuery countQuery, final EntityManager em) throws ODataApplicationException {
 
-    final UriResource root = uriInfo.getUriResourceParts().get(0);
+    final var resourceParts = uriInfo.getUriResourceParts();
+
+    final var root = resourceParts.get(0);
+    final var leaf = resourceParts.get(resourceParts.size() - 1);
     // Paging will only be done for Entity Sets
-    if (root instanceof final UriResourceEntitySet entitySet) {
+    if (root instanceof final UriResourceEntitySet entitySet
+        && !(leaf instanceof UriResourceCount)) {
+      // Not last is count!!
       // Check if Entity Set shall be packaged
-      final Integer maxSize = maxPageSizes.get(entitySet.getEntitySet().getName());
+      final var maxSize = maxPageSizes.get(entitySet.getEntitySet().getName());
       if (maxSize != null) {
         // Read $top and $skip
         final Integer skipValue = uriInfo.getSkipOption() != null ? uriInfo.getSkipOption().getValue() : 0;
-        final Integer topValue = uriInfo.getTopOption() != null ? uriInfo.getTopOption().getValue() : null;
+        final var topValue = uriInfo.getTopOption() != null ? uriInfo.getTopOption().getValue() : null;
         // Determine page size
-        final Integer pageSize = preferredPageSize != null && preferredPageSize < maxSize ? preferredPageSize : maxSize;
+        final var pageSize = preferredPageSize != null && preferredPageSize < maxSize ? preferredPageSize : maxSize;
         if (topValue != null && topValue <= pageSize)
           return Optional.of(new JPAODataPage(uriInfo, skipValue, topValue, null));
         // Determine end of list
-        final Long maxResults = countQuery.countResults();
+        final var maxResults = countQuery.countResults();
         final Long count = topValue != null && (topValue + skipValue) < maxResults
             ? topValue.longValue() : maxResults - skipValue;
         final Long last = topValue != null && (topValue + skipValue) < maxResults
@@ -101,7 +106,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
         if (pageSize < count)
           skipToken = UUID.randomUUID().toString();
         // Create page information
-        final JPAODataPage page = new JPAODataPage(uriInfo, skipValue, pageSize, skipToken);
+        final var page = new JPAODataPage(uriInfo, skipValue, pageSize, skipToken);
         // Cache page to be able to fulfill next link based request
         if (skipToken != null)
           addToCache(page, last);

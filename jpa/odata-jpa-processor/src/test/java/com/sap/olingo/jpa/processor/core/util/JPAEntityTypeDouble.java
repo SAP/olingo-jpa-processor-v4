@@ -234,4 +234,10 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   public JPAStructuredType getBaseType() {
     return base.getBaseType();
   }
+
+  @Override
+  public Object getAnnotationValue(final String alias, final String term, final String property)
+      throws ODataJPAModelException {
+    return this.base.getAnnotationValue(alias, term, property);
+  }
 }

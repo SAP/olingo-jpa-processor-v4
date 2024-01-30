@@ -61,7 +61,7 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
 
-      final CsdlEntityType edmEt = determineEdmType();
+      final var edmEt = determineEdmType();
       edmEntitySet.setName(getExternalName());
       edmEntitySet.setType(buildFQN(edmEt.getName()));
 
