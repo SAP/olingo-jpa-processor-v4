@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
@@ -19,6 +20,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
@@ -28,8 +30,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameterFacet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.filter.JPAInvertibleVisitableExpression;
 
 public final class ExpressionUtility {
   public static final int CONTAINS_ONLY_LANGU = 1;
@@ -60,24 +64,25 @@ public final class ExpressionUtility {
   @SuppressWarnings("unchecked")
   public static <T> Path<T> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
       final List<JPAElement> jpaPath) {
-    Path<?> p = root;
+    Path<?> path = root;
     for (final JPAElement jpaPathElement : jpaPath)
       if (jpaPathElement instanceof final JPADescriptionAttribute descriptionAttribute) {
         final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
-        p = join.get(descriptionAttribute.getDescriptionAttribute().getInternalName());
+        path = join.get(descriptionAttribute.getDescriptionAttribute().getInternalName());
       } else if (jpaPathElement instanceof JPACollectionAttribute) {
-        p = joinTables.get(jpaPathElement.getExternalName());
+        path = joinTables.get(jpaPathElement.getExternalName());
       } else {
-        p = p.get(jpaPathElement.getInternalName());
+        path = path.get(jpaPathElement.getInternalName());
       }
-    return (Path<T>) p;
+    return (Path<T>) path;
   }
 
-  public static Path<?> convertToCriteriaPath(final From<?, ?> root, final List<JPAElement> jpaPath) {
-    Path<?> p = root;
+  @SuppressWarnings("unchecked")
+  public static <T> Path<T> convertToCriteriaPath(final From<?, ?> root, final List<JPAElement> jpaPath) {
+    Path<?> path = root;
     for (final JPAElement jpaPathElement : jpaPath)
-      p = p.get(jpaPathElement.getInternalName());
-    return p;
+      path = path.get(jpaPathElement.getInternalName());
+    return (Path<T>) path;
   }
 
   /**
@@ -95,8 +100,7 @@ public final class ExpressionUtility {
       final List<Path<Object>> result = new ArrayList<>(jpaAttributes.size());
       for (final JPAAttribute attribute : jpaAttributes) {
         final JPAPath path = et.getPath(attribute.getExternalName());
-        @SuppressWarnings("unchecked")
-        final Path<Object> p = (Path<Object>) convertToCriteriaPath(root, path.getPath());
+        final Path<Object> p = convertToCriteriaPath(root, path.getPath());
         p.alias(path.getAlias());
         result.add(p);
       }
@@ -104,6 +108,13 @@ public final class ExpressionUtility {
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  public static List<Path<Comparable<?>>> convertToCriteriaPaths(final From<?, ?> from, final List<JPAPath> jpaPaths) {
+    return jpaPaths.stream()
+        .map(jpaPath -> ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from, jpaPath.getPath()))
+        .toList();
+    // .collect(Collectors.toList());
   }
 
   public static Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value)
@@ -176,4 +187,25 @@ public final class ExpressionUtility {
     }
     return Locale.ENGLISH;
   }
+
+  public static Expression<Boolean> createSubQueryBasedExpression(final Subquery<List<Comparable<?>>> query,
+      final List<Path<Comparable<?>>> jpaPath, final CriteriaBuilder cb, final VisitableExpression expression) {
+    final Expression<Boolean> subQueryExpression;
+    if (!jpaPath.isEmpty()) {
+      if (jpaPath.size() == 1)
+        subQueryExpression = cb.<Object> in(jpaPath.get(0)).value(query);
+      else
+        subQueryExpression = ((ProcessorCriteriaBuilder) cb).in(jpaPath, query);
+    } else {
+      subQueryExpression = cb.exists(query);
+    }
+
+    if (expression instanceof final JPAInvertibleVisitableExpression visitableExpression
+        && visitableExpression.isInversionRequired()) {
+      visitableExpression.inversionPerformed();
+      return cb.not(subQueryExpression);
+    }
+    return subQueryExpression;
+  }
+
 }

@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
-public final class JPANavigationPropertyInfo {
+public final class JPANavigationPropertyInfo implements JPANavigationPropertyInfoAccess {
   private static final Log LOGGER = LogFactory.getLog(JPANavigationPropertyInfo.class);
   private final JPAServiceDocument sd;
   private final UriResourcePartTyped navigationTarget;
@@ -70,10 +70,12 @@ public final class JPANavigationPropertyInfo {
     this.sd = sd;
   }
 
+  @Override
   public JPAAssociationPath getAssociationPath() {
     return associationPath;
   }
 
+  @Override
   public UriResourcePartTyped getUriResource() {
     return navigationTarget;
   }
@@ -140,7 +142,8 @@ public final class JPANavigationPropertyInfo {
     return fromClause;
   }
 
-  List<UriParameter> getKeyPredicates() {
+  @Override
+  public List<UriParameter> getKeyPredicates() {
     return keyPredicates;
   }
 

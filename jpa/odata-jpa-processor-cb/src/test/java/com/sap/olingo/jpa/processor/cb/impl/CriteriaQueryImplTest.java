@@ -3,14 +3,15 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.stream.Stream;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -21,28 +22,18 @@ import jakarta.persistence.criteria.Selection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.provider.Arguments;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 class CriteriaQueryImplTest extends BuilderBaseTest {
   private CriteriaQueryImpl<Object> cut;
   private CriteriaBuilder cb;
-
-  static Stream<Arguments> notImplementedMethod() throws NoSuchMethodException, SecurityException {
-    @SuppressWarnings("rawtypes")
-    final Class<CriteriaQueryImpl> c = CriteriaQueryImpl.class;
-    final String dummy = "Test";
-    return Stream.of(
-        arguments(c.getMethod("ignore"), dummy, Boolean.FALSE),
-        arguments(c.getMethod("isPartOfGroups", List.class), new ArrayList<>(), Boolean.FALSE),
-        arguments(c.getMethod("isTransient"), dummy, Boolean.FALSE),
-        arguments(c.getMethod("createNamedQuery", String.class, Class.class), dummy, c));
-  }
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
@@ -64,34 +55,34 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
 
   @Test
   void testCreateSelectFromAttribute() {
-    final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
-    final CriteriaQuery<Object> act = cut.multiselect(adminDiv.get("codeID"));
+    final Root<?> adminDivision = cut.from(AdministrativeDivision.class);
+    final CriteriaQuery<Object> act = cut.multiselect(adminDivision.get("codeID"));
     assertNotNull(act);
   }
 
   @Test
   void testCreateOrderByWithArray() {
-    final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
-    final CriteriaQuery<Object> act = cut.orderBy(cb.desc(adminDiv.get("codeID")));
+    final Root<?> adminDivision = cut.from(AdministrativeDivision.class);
+    final CriteriaQuery<Object> act = cut.orderBy(cb.desc(adminDivision.get("codeID")));
     assertNotNull(act.getOrderList());
     assertEquals(1, act.getOrderList().size());
   }
 
   @Test
   void testCreateOrderByWithList() {
-    final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
-    final CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDiv.get("codeID")), cb.asc(adminDiv.get(
-        "divisionCode"))));
+    final Root<?> adminDivision = cut.from(AdministrativeDivision.class);
+    final CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDivision.get("codeID")), cb.asc(
+        adminDivision.get("divisionCode"))));
     assertNotNull(act.getOrderList());
     assertEquals(2, act.getOrderList().size());
   }
 
   @Test
   void testResetOrderByWithArray() {
-    final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
+    final Root<?> adminDivision = cut.from(AdministrativeDivision.class);
     final Order[] nullArray = null;
-    CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDiv.get("codeID")), cb.asc(adminDiv.get(
-        "divisionCode"))));
+    CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDivision.get("codeID")), cb.asc(adminDivision
+        .get("divisionCode"))));
     act = cut.orderBy(nullArray);
     assertNotNull(act.getOrderList());
     assertEquals(0, act.getOrderList().size());
@@ -99,10 +90,10 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
 
   @Test
   void testResetOrderByWithList() {
-    final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
+    final Root<?> adminDivision = cut.from(AdministrativeDivision.class);
     final List<Order> nullList = null;
-    CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDiv.get("codeID")), cb.asc(adminDiv.get(
-        "divisionCode"))));
+    CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDivision.get("codeID")), cb.asc(adminDivision
+        .get("divisionCode"))));
     act = cut.orderBy(nullList);
     assertNotNull(act.getOrderList());
     assertEquals(0, act.getOrderList().size());
@@ -165,6 +156,13 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     final Selection<Object> selection = cut.getSelection();
     final List<Entry<String, JPAPath>> resolvedSelections = ((ProcessorSelection<?>) selection).getResolvedSelection();
     assertNotNull(resolvedSelections.get(0).getValue());
+  }
 
+  @Test
+  void testFromRethrowsException() throws ODataJPAModelException {
+    final JPAServiceDocument serviceDocument = mock(JPAServiceDocument.class);
+    when(serviceDocument.getEntity(any(Class.class))).thenThrow(ODataJPAModelException.class);
+    cut = new CriteriaQueryImpl<>(Object.class, serviceDocument, cb);
+    assertThrows(InternalServerError.class, () -> cut.from(AdministrativeDivision.class));
   }
 }

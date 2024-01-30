@@ -120,13 +120,15 @@ public final class Utility {
       // Example5 : ?$expand=*/$ref,Parent
       // Example6 : ?$expand=Parent($levels=2)
       // Example7 : ?$expand=*($levels=2)
-      // Example8 : ?$expand=BusinessPartner/com.sap.olingo.jpa.Person
+      // Example8 : ?$expand=*($levels=2;$expand=Parent)
+      // Example9 : ?$expand=BusinessPartner/com.sap.olingo.jpa.Person
       for (final ExpandItem item : expandOption.getExpandItems()) {
         if (item.isStar()) {
           determineAssociationsStar(sd, startResourceList, expandOption, pathList, associationNamePrefix, item);
         } else {
           determineAssociations(sd, expandOption, pathList, associationNamePrefix, Objects.requireNonNull(
               startResourceItem), item);
+          // For example8 Olingo only provides one ExpandItem next level has to expand Parent
         }
       }
     }

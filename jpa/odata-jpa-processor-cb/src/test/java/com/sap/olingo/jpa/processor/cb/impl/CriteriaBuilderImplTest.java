@@ -82,7 +82,6 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
         arguments(c.getMethod("array", Selection[].class)),
         arguments(c.getMethod("tuple", Selection[].class)),
         arguments(c.getMethod("construct", Class.class, Selection[].class)),
-        arguments(c.getMethod("in", Expression.class)),
         arguments(c.getMethod("values", Map.class)),
         arguments(c.getMethod("keys", Map.class)),
         arguments(c.getMethod("treat", Root.class, Class.class)),
@@ -895,5 +894,11 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     }
     assertTrue(aFound);
     assertTrue(bFound);
+  }
+
+  @Test
+  void testInReturnsInExpression() {
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    assertNotNull(cut.in(administrativeDivision.get("codeID")));
   }
 }

@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
 @EdmIgnore
 @Entity(name = "ProtectionExample")

@@ -6,13 +6,13 @@ import java.util.Set;
 
 import javax.annotation.CheckForNull;
 
+import jakarta.persistence.AttributeConverter;
+
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-
-import jakarta.persistence.AttributeConverter;
 
 public interface JPAAttribute extends JPAElement, JPAAnnotatable {
   /**

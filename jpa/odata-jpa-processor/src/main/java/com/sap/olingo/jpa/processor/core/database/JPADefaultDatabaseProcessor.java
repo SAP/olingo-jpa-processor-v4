@@ -116,7 +116,7 @@ public class JPADefaultDatabaseProcessor extends JPAAbstractDatabaseProcessor im
   }
 
   @Override
-  public void setCriterialBuilder(final CriteriaBuilder cb) {
+  public void setCriteriaBuilder(final CriteriaBuilder cb) {
     this.cb = cb;
   }
 }
