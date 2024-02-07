@@ -1,0 +1,7 @@
+GET http://localhost:9010/bp/v1/$metadata
+
+GET http://localhost:9010/bp/v1/AdministrativeDivisions?$filter=Children/$count eq 0
+
+GET http://localhost:9010/bp/v1/AdministrativeDivisions?$filter=Parent eq null
+
+GET http://localhost:9010/bp/v1/BusinessPartners?$filter=Roles/$count eq 0
