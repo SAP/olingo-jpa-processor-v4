@@ -228,9 +228,7 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
     final List<Expression<?>> groupByList = new ArrayList<>();
     if (filterComplier != null && this.aggregationType != null) {
       for (final JPAPath onItem : groupByPath) {
-        Path<?> subPath = groupByRoot;
-        for (final JPAElement jpaPathElement : onItem.getPath())
-          subPath = subPath.get(jpaPathElement.getInternalName());
+        final var subPath = ExpressionUtility.convertToCriteriaPath(groupByRoot, onItem.getPath());
         groupByList.add(subPath);
       }
       subQuery.groupBy(groupByList);

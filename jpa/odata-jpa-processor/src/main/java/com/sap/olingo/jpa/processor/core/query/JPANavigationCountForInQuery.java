@@ -17,11 +17,13 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.filter.JPAInvertibleVisitableExpression;
 
 public class JPANavigationCountForInQuery extends JPANavigationCountQuery implements InExpressionValue {
   private Optional<List<Path<Comparable<?>>>> leftPaths;
@@ -47,13 +49,15 @@ public class JPANavigationCountForInQuery extends JPANavigationCountQuery implem
   @Override
   protected <T> void createSubQueryAggregation(final Subquery<T> query) throws ODataApplicationException {
 
-    createSelectClauseJoin(query, queryRoot, determineAggregationRightColumns(), true);
+    final var aggregationColumns = determineAggregationRightColumns();
+    createSelectClauseJoin(query, queryRoot, aggregationColumns, true);
     leftPaths = Optional.of(ExpressionUtility.convertToCriteriaPaths(from, determineAggregationLeftColumns()));
     Expression<Boolean> whereCondition = createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot);
+    whereCondition = addWhereClause(whereCondition, createNullCheck(queryRoot, aggregationColumns));
     whereCondition = applyAdditionalFilter(whereCondition);
     if (whereCondition != null)
       query.where(whereCondition);
-    handleAggregation(query, queryRoot, determineAggregationRightColumns());
+    handleAggregation(query, queryRoot, aggregationColumns);
   }
 
   /**
@@ -84,6 +88,7 @@ public class JPANavigationCountForInQuery extends JPANavigationCountQuery implem
       Expression<Boolean> whereCondition = createWhereByAssociation(queryJoinTable, queryRoot, right);
       whereCondition = addWhereClause(whereCondition,
           createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot));
+      whereCondition = addWhereClause(whereCondition, createNullCheckRight(queryJoinTable, left));
       whereCondition = applyAdditionalFilter(whereCondition);
       if (whereCondition != null)
         subQuery.where(whereCondition);
@@ -92,6 +97,31 @@ public class JPANavigationCountForInQuery extends JPANavigationCountQuery implem
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private Expression<Boolean> createNullCheckRight(final From<?, ?> joinTable,
+      final List<JPAOnConditionItem> conditionItems) {
+
+    Expression<Boolean> result = null;
+    for (final JPAOnConditionItem onCondition : conditionItems) {
+      final var subPath = ExpressionUtility.convertToCriteriaPath(joinTable, onCondition.getRightPath().getPath());
+      result = addWhereClause(result, cb.isNotNull(subPath));
+    }
+    return result;
+  }
+
+  private Expression<Boolean> createNullCheck(final From<?, ?> queryRoot, final List<JPAPath> aggregationColumns) {
+
+    Expression<Boolean> result = null;
+    if (filterComplier.getExpressionMember() instanceof final JPAInvertibleVisitableExpression visitableExpression
+        && visitableExpression.isInversionRequired()) {
+
+      for (final var column : aggregationColumns) {
+        final var subPath = ExpressionUtility.convertToCriteriaPath(queryRoot, column.getPath());
+        result = addWhereClause(result, cb.isNotNull(subPath));
+      }
+    }
+    return result;
   }
 
   private List<Path<Comparable<?>>> buildLeftPath(final From<?, ?> from,

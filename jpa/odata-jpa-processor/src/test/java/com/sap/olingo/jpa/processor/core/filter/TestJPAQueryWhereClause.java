@@ -155,6 +155,7 @@ class TestJPAQueryWhereClause extends TestBase {
             "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')", 1),
         // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
         // Example 43: return all Categories with less than 10 products
+        arguments("NoChildren", "AdministrativeDivisions?$filter=Children/$count eq 0", 220),
         arguments("CountNavigationPropertyTwo", "Organizations?$select=ID&$filter=Roles/$count eq 2", 1),
         arguments("CountNavigationPropertyZero", "Organizations?$select=ID&$filter=Roles/$count eq 0", 6),
         arguments("CountNavigationPropertyMultipleHops",

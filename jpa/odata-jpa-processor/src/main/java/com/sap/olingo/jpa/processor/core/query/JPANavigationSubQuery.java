@@ -22,7 +22,6 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -77,9 +76,7 @@ public abstract class JPANavigationSubQuery extends JPAAbstractSubQuery {
 
     final List<Expression<?>> groupByList = new ArrayList<>();
     for (final JPAOnConditionItem onCondition : conditionItems) {
-      Path<?> subPath = from;
-      for (final JPAElement jpaPathElement : onCondition.getRightPath().getPath())
-        subPath = subPath.get(jpaPathElement.getInternalName());
+      final var subPath = ExpressionUtility.convertToCriteriaPath(from, onCondition.getRightPath().getPath());
       groupByList.add(subPath);
     }
     subQuery.groupBy(groupByList);

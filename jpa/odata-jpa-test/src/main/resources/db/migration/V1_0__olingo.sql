@@ -435,7 +435,7 @@ CREATE TABLE "AdministrativeDivision"(
 	"ParentCodeID" VARCHAR(10),
 	"ParentDivisionCode" VARCHAR(10),
 	"AlternativeCode" VARCHAR(10),
-	"Area" int,  --DECIMAL(31,0),
+	"Area" BIGINT,  --DECIMAL(31,0),
 	"Population" BIGINT,
 	PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode"));
 	
