@@ -145,6 +145,18 @@ class JPACoreDebuggerTest {
     assertTrue(act.contains("Hallo"));
   }
 
+  @SuppressWarnings("resource")
+  @Test
+  void testMemoryConsumption() throws InterruptedException {
+    final JPARuntimeMeasurement act;
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+      act = measurement;
+    } finally {
+
+    }
+    assertTrue(act.getMemoryConsumption() < 10);
+  }
+
   private static class LogHandler extends Handler {
 
     private List<LogRecord> cache = new ArrayList<>();

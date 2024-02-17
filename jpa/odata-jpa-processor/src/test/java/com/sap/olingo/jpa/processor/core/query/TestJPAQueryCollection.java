@@ -78,7 +78,7 @@ class TestJPAQueryCollection extends TestBase {
   void testSelectWithNestedComplexCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Collections('504')?$select=Nested");
+        "Collections('503')?$select=Nested");
     helper.assertStatus(200);
 
     final ObjectNode collection = helper.getValue();

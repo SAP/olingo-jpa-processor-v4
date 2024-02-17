@@ -41,11 +41,21 @@ public abstract class JPANavigationSubQuery extends JPAAbstractSubQuery {
       final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
       final JPAAssociationPath association, final Optional<JPAODataClaimProvider> claimsProvider,
       final List<UriParameter> keyPredicates) throws ODataApplicationException {
+
     super(odata, sd, jpaEntity, em, parent, from, association, claimsProvider);
+
     this.keyPredicates = keyPredicates;
-    this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
+    this.subQuery = createSubQuery(parent);
     this.locale = parent.getLocale();
     createRoots(association);
+  }
+
+  Subquery<?> createSubQuery(final JPAAbstractQuery parent) {
+    // Null if there is no et for collection property
+    if (this.jpaEntity == null)
+      return parent.getQuery().subquery(((JPAEntityType) association.getSourceType()).getKeyType());
+    else
+      return parent.getQuery().subquery(this.jpaEntity.getKeyType());
   }
 
   final void buildExpression(final VisitableExpression expression, final List<String> groups)

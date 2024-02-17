@@ -37,6 +37,62 @@ public class JPANavigationCountForInQuery extends JPANavigationCountQuery implem
     leftPaths = Optional.empty();
   }
 
+  @Override
+  protected void createSubQueryCollectionProperty() throws ODataApplicationException {
+
+    if (association.getTargetType() == null) {
+      createSubQueryCollectionNoTargetType();
+    } else {
+      createSubQueryCollectionWithTargetType();
+    }
+  }
+
+  /**
+   * <pre>
+   * WHERE t0."ID" IN (
+   *    SELECT t5."ParentID"
+   *       FROM "OLINGO"."InhouseAddress" t5
+   *       WHERE (t5."ParentID" IS NOT NULL)
+   *       GROUP BY t5."ParentID"
+   *       HAVING (COUNT(t5."ParentID") = 2))
+   * </pre>
+   */
+  private void createSubQueryCollectionWithTargetType() throws ODataApplicationException {
+    try {
+      final var right = association.getJoinTable().getInverseJoinColumns();
+      createSelectClauseAggregation(subQuery, queryRoot, right, true);
+
+      leftPaths = Optional.of(ExpressionUtility.convertToCriteriaPaths(from, determineAggregationLeftColumns()));
+      Expression<Boolean> whereCondition = createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot);
+      whereCondition = addWhereClause(whereCondition, createNullCheckRight(queryRoot, right));
+      whereCondition = applyAdditionalFilter(whereCondition);
+      if (whereCondition != null)
+        subQuery.where(whereCondition);
+      createGroupBy(subQuery, queryRoot, right);
+      createHaving(subQuery);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private void createSubQueryCollectionNoTargetType() throws ODataApplicationException {
+    try {
+      final var left = association.getLeftColumnsList();
+      createSelectClauseJoin(subQuery, queryRoot, left, true);
+
+      leftPaths = Optional.of(ExpressionUtility.convertToCriteriaPaths(from, left));
+      Expression<Boolean> whereCondition = createProtectionWhereForEntityType(claimsProvider,
+          (JPAEntityType) association.getSourceType(), queryRoot);
+      whereCondition = addWhereClause(whereCondition, createNullCheck(queryRoot, left));
+      whereCondition = applyAdditionalFilter(whereCondition);
+      if (whereCondition != null)
+        subQuery.where(whereCondition);
+      handleAggregation(subQuery, queryRoot, left);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   /**
    * <pre>
    * WHERE (t0."CodePublisher", t0."CodeID", t0."DivisionCode") IN (

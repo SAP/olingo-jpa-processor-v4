@@ -5,3 +5,8 @@ GET http://localhost:9010/bp/v1/AdministrativeDivisions?$filter=Children/$count 
 GET http://localhost:9010/bp/v1/AdministrativeDivisions?$filter=Parent eq null
 
 GET http://localhost:9010/bp/v1/BusinessPartners?$filter=Roles/$count eq 0
+
+GET http://localhost:9010/bp/v1/JoinSources?$filter=OneToMany/$count eq 0
+
+GET http://localhost:9010/bp/v1/Persons?$filter=InhouseAddress/$count eq 1
+Authorization: Basic bWFydmluOjEyMzQ1Njc4
