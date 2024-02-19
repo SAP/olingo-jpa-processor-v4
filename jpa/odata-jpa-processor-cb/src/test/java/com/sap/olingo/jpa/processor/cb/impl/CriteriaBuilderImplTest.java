@@ -882,7 +882,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final StringBuilder builder = new StringBuilder();
     assertTrue(act instanceof ConcatExpression);
     assertEquals("CONCAT(?1, ?2)", ((ExpressionImpl<String>) act).asSQL(builder).toString());
-    final Map<Integer, ParameterExpression<?, ?>> actMap = cut.getParameter().getParameter();
+    final Map<Integer, ParameterExpression<Object, Object>> actMap = cut.getParameter().getParameter();
     assertEquals(2, actMap.size());
     boolean aFound = false;
     boolean bFound = false;

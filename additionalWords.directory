@@ -57,3 +57,5 @@ Jakarta
 CUD
 JPAO
 subquery
+skiptoken
+Redis

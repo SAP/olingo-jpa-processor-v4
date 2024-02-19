@@ -117,7 +117,7 @@ public final class JPANavigationNullQuery extends JPANavigationSubQuery implemen
    * </pre>
    */
   private void createSubQueryJoinTableNull() throws ODataApplicationException {
-   try {
+    try {
       final List<JPAOnConditionItem> left = association
           .getJoinTable()
           .getJoinColumns(); // Person -->

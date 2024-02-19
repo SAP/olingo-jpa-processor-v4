@@ -48,7 +48,10 @@ public abstract class JPANavigationCountQuery extends JPANavigationSubQuery {
       throw new ODataJPAQueryException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
     final Subquery<T> query = (Subquery<T>) this.subQuery;
     if (this.association.getJoinTable() != null) {
-      createSubQueryJoinTableAggregation();
+      if (isCollectionProperty)
+        createSubQueryCollectionProperty();
+      else
+        createSubQueryJoinTableAggregation();
     } else {
       createSubQueryAggregation(query);
     }
@@ -58,6 +61,8 @@ public abstract class JPANavigationCountQuery extends JPANavigationSubQuery {
   protected abstract <T> void createSubQueryAggregation(final Subquery<T> query) throws ODataApplicationException;
 
   protected abstract void createSubQueryJoinTableAggregation() throws ODataApplicationException;
+
+  protected abstract void createSubQueryCollectionProperty() throws ODataApplicationException;
 
   protected void createHaving(final Subquery<?> subQuery) throws ODataApplicationException {
     try {

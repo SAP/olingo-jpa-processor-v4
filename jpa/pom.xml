@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa</artifactId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.1.0</version>
 	<packaging>pom</packaging>
 	<name>odata-jpa</name>
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
@@ -13,17 +13,17 @@
 		<project.build.source>17</project.build.source>
 		<project.build.target>17</project.build.target>
 		<maven.compiler.version>3.11.0</maven.compiler.version>
-		<odata.version>4.10.0</odata.version>
+		<odata.version>5.0.0</odata.version>
 		<jackson.version>2.16.0</jackson.version>
 		<powermock.version>1.7.1</powermock.version>
 		<coveralls.version>4.3.0</coveralls.version>
 		<cf-logging.version>3.8.0</cf-logging.version>
-		<flyway.version>10.1.0</flyway.version>
+		<flyway.version>10.4.1</flyway.version>
 		<jakarta.version>6.0.0</jakarta.version>
-		<javax.version>3.0.1</javax.version>
+		<javax.version>4.0.1</javax.version>
 		<jpa.version>3.1.0</jpa.version>
 		<processor.version>${project.version}</processor.version>
-		<spring-jcl.version>6.1.1</spring-jcl.version>
+		<spring-jcl.version>6.1.3</spring-jcl.version>
 		<eclipseLink.version>4.0.2</eclipseLink.version>
 		<hibernate.version>6.4.0.Final</hibernate.version>
 		<openjpa.version>3.2.2</openjpa.version>
@@ -189,11 +189,6 @@
 				<version>${jakarta.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>${javax.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>jakarta.transaction</groupId>
 				<artifactId>jakarta.transaction-api</artifactId>
 				<version>2.0.1</version>
@@ -238,7 +233,7 @@
 			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-codec-http</artifactId>
-				<version>4.1.101.Final</version>
+				<version>4.1.106.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>net.oneandone.reflections8</groupId>
@@ -298,7 +293,7 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>LATEST</version>
+					<version>3.10.0.2594</version>
 				</plugin>
 				<plugin>
 					<groupId>org.basepom.maven</groupId>
@@ -366,5 +361,4 @@
 				</executions>
 			</plugin>
 		</plugins>
-	</build>
-</project>
+	</build></project>

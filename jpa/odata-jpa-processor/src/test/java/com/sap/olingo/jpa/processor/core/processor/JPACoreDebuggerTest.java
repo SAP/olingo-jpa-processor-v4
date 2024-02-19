@@ -67,20 +67,20 @@ class JPACoreDebuggerTest {
   }
 
   @Test
-  void testMeassumentCreated() throws Exception {
+  void testMeasurementCreated() throws Exception {
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
-  void testNoMeassumentDebugFalls() throws Exception {
+  void testNoMeasurementDebugFalls() throws Exception {
     cutDebugOn = new JPACoreDebugger(false);
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertTrue(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
-  void testMeassumentCreateMeassument() throws Exception {
+  void testMeasurementCreateMeassument() throws Exception {
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       TimeUnit.MILLISECONDS.sleep(100);
     }
@@ -143,6 +143,18 @@ class JPACoreDebuggerTest {
     assertTrue(StringUtils.isNotEmpty(act));
     assertTrue(act.contains("thread"));
     assertTrue(act.contains("Hallo"));
+  }
+
+  @SuppressWarnings("resource")
+  @Test
+  void testMemoryConsumption() throws InterruptedException {
+    final JPARuntimeMeasurement act;
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+      act = measurement;
+    } finally {
+
+    }
+    assertTrue(act.getMemoryConsumption() < 10);
   }
 
   private static class LogHandler extends Handler {

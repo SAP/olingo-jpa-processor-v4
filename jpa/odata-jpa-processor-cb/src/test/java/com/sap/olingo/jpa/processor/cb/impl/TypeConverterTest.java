@@ -249,8 +249,8 @@ class TypeConverterTest {
 
   @Test
   void testConvertDurationThrowsExceptionOnUnsupported() {
-
-    assertThrows(IllegalArgumentException.class, () -> convert(Integer.valueOf(10), Duration.class));
+    final Integer i = 10;
+    assertThrows(IllegalArgumentException.class, () -> convert(i, Duration.class));
   }
 
   @Test

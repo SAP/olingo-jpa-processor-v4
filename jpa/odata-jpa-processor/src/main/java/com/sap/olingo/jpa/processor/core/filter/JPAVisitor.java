@@ -122,8 +122,11 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
-      final List<JPAOperator> right)
-      throws ExpressionVisitException, ODataApplicationException {
+      final List<JPAOperator> right) throws ExpressionVisitException, ODataApplicationException {
+
+    if (operator == BinaryOperatorKind.IN)
+      return new JPAInOperatorImpl<>(this.jpaComplier.getConverter(), left, right);
+
     throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
   }
 
@@ -173,7 +176,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "visitMember")) {
-     final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(),
+      final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(),
           this.jpaComplier.getParent().getJpaEntity(), member, jpaComplier.getAssociation());
       checkTransient(attributePath);
       if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {

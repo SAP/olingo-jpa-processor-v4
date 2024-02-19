@@ -19,5 +19,7 @@ public interface JPAServiceDebugger {
   public static interface JPARuntimeMeasurement extends AutoCloseable {
     @Override
     void close();
+
+    long getMemoryConsumption();
   }
 }

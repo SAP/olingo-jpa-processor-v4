@@ -43,10 +43,9 @@ public abstract class AbstractGroup {
 
   @Override
   public boolean equals(final Object object) {
-    if (this == object) return true;
-    if (!(object instanceof AbstractGroup)) return false;
-    final AbstractGroup other = (AbstractGroup) object;
-    return Objects.equals(id, other.id);
+    if (object instanceof final AbstractGroup other)
+      return Objects.equals(id, other.id);
+    return false;
   }
 
 }

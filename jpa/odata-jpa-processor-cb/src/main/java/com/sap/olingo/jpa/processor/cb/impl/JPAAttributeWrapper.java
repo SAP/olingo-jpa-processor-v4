@@ -96,31 +96,6 @@ class JPAAttributeWrapper implements JPAAttribute {
   }
 
   @Override
-  public boolean isComplex() {
-    return false;
-  }
-
-  @Override
-  public boolean isEnum() {
-    return false;
-  }
-
-  @Override
-  public boolean isEtag() {
-    return false;
-  }
-
-  @Override
-  public boolean isKey() {
-    return false;
-  }
-
-  @Override
-  public boolean isSearchable() {
-    return false;
-  }
-
-  @Override
   public boolean hasProtection() {
     return false;
   }
@@ -147,6 +122,12 @@ class JPAAttributeWrapper implements JPAAttribute {
 
   @Override
   public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
+    return null;
+  }
+
+  @Override
+  public Object getAnnotationValue(final String alias, final String term, final String property)
+      throws ODataJPAModelException {
     return null;
   }
 }

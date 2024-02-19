@@ -41,6 +41,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -75,6 +76,7 @@ class JPAODataInternalRequestContextTest {
   private JPAODataDatabaseProcessor dbProcessor;
   private JPAEdmProvider edmProvider;
   private JPAODataDatabaseOperations operationConverter;
+  private JPAODataQueryDirectives queryDirectives;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -97,6 +99,7 @@ class JPAODataInternalRequestContextTest {
     dbProcessor = mock(JPAODataDatabaseProcessor.class);
     edmProvider = mock(JPAEdmProvider.class);
     operationConverter = mock(JPAODataDatabaseOperations.class);
+    queryDirectives = new JPAODataQueryDirectives.JPAODataQueryDirectivesImpl(0);
     page = new JPAODataPage(uriInfo, 0, 0, claims);
 
     when(contextAccess.getTransactionFactory()).thenReturn(transactionFactory);
@@ -106,6 +109,7 @@ class JPAODataInternalRequestContextTest {
     when(contextAccess.getGroupsProvider()).thenReturn(groups);
     when(contextAccess.getProvidedLocale()).thenReturn(locales);
     when(contextAccess.getDebugger()).thenReturn(debugger);
+    when(contextAccess.getQueryDirectives()).thenReturn(queryDirectives);
 
     when(requestContext.getClaimsProvider()).thenReturn(claims);
     when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
@@ -120,6 +124,7 @@ class JPAODataInternalRequestContextTest {
     when(sessionContext.getDatabaseProcessor()).thenReturn(dbProcessor);
     when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
     when(sessionContext.getOperationConverter()).thenReturn(operationConverter);
+    when(sessionContext.getQueryDirectives()).thenReturn(queryDirectives);
   }
 
   @Test
@@ -139,6 +144,7 @@ class JPAODataInternalRequestContextTest {
     assertEquals(locales, cut.getProvidedLocale());
     assertEquals(page, cut.getPage());
     assertEquals(uriInfo, cut.getUriInfo());
+    assertEquals(queryDirectives, cut.getQueryDirectives());
   }
 
   @Test
@@ -157,6 +163,7 @@ class JPAODataInternalRequestContextTest {
     assertTrue(cut.getDebugger() instanceof JPAEmptyDebugger);
     assertEquals(locales, cut.getProvidedLocale());
     assertNotNull(cut.getCUDRequestHandler());
+    assertEquals(queryDirectives, cut.getQueryDirectives());
   }
 
   @Test
@@ -176,6 +183,7 @@ class JPAODataInternalRequestContextTest {
     assertTrue(cut.getDebugger() instanceof JPAEmptyDebugger);
     assertEquals(locales, cut.getProvidedLocale());
     assertNotNull(cut.getCUDRequestHandler());
+    assertEquals(queryDirectives, cut.getQueryDirectives());
   }
 
   @Test
@@ -194,6 +202,7 @@ class JPAODataInternalRequestContextTest {
     assertTrue(cut.getDebugger() instanceof JPAEmptyDebugger);
     assertEquals(locales, cut.getProvidedLocale());
     assertNotNull(cut.getCUDRequestHandler());
+    assertEquals(queryDirectives, cut.getQueryDirectives());
   }
 
   @Test
@@ -209,6 +218,7 @@ class JPAODataInternalRequestContextTest {
     assertEquals(transactionFactory, cut.getTransactionFactory());
     assertEquals(locales, cut.getProvidedLocale());
     assertEquals(customParameter, cut.getRequestParameter());
+    assertEquals(queryDirectives, cut.getQueryDirectives());
   }
 
   @Test

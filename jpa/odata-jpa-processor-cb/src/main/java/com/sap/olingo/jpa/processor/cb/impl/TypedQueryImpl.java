@@ -297,7 +297,7 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
         .collect(Collectors.toMap(Entry::getKey, path -> count[0]++));
   }
 
-  private void copyParameter(final Map<Integer, ParameterExpression<?, ?>> map) {
+  private void copyParameter(final Map<Integer, ParameterExpression<Object, Object>> map) {
     map.entrySet().stream().forEach(es -> this.query.setParameter(es.getValue().getPosition(), es.getValue()
         .getValue()));
   }

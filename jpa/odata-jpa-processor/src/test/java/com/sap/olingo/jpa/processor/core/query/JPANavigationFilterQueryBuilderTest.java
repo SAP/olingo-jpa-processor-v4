@@ -41,8 +41,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
@@ -119,6 +121,7 @@ class JPANavigationFilterQueryBuilderTest {
   @Test
   void testCreatesFilterQuery() throws ODataApplicationException, ODataJPAModelException {
     final OData o = OData.newInstance();
+    buildAssoziationPath();
 
     cut.setOdata(o)
         .setServiceDocument(sd)
@@ -154,6 +157,8 @@ class JPANavigationFilterQueryBuilderTest {
   @MethodSource("provideCountExpressions")
   void testCreatesCountQuery(final VisitableExpression exp) throws ODataApplicationException, ODataJPAModelException {
     final OData o = OData.newInstance();
+    final var assoziationPath = buildAssoziationPath();
+    when(navigationInfo.getAssociationPath()).thenReturn(assoziationPath);
 
     cut.setOdata(o)
         .setServiceDocument(sd)
@@ -189,6 +194,8 @@ class JPANavigationFilterQueryBuilderTest {
   @MethodSource("provideNullExpressions")
   void testCreatesNullQuery(final VisitableExpression exp) throws ODataApplicationException, ODataJPAModelException {
     final OData o = OData.newInstance();
+    final var assoziationPath = buildAssoziationPath();
+    when(navigationInfo.getAssociationPath()).thenReturn(assoziationPath);
 
     cut.setOdata(o)
         .setServiceDocument(sd)
@@ -234,9 +241,11 @@ class JPANavigationFilterQueryBuilderTest {
   void testAsInQueryTrueForCriteriaBuilderAssociationOneAttribute() throws ODataJPAModelException,
       ODataJPAFilterException, ODataJPAQueryException {
 
+    final JPAPath leftPath = mock(JPAPath.class);
     final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
     final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
     when(associationPath.getJoinColumnsList()).thenReturn(Collections.singletonList(onCondition));
+    when(associationPath.getLeftColumnsList()).thenReturn(Collections.singletonList(leftPath));
     when(navigationInfo.getAssociationPath()).thenReturn(associationPath);
     cut.setNavigationInfo(navigationInfo);
     cut.setExpression(buildCountFromCountExpression());
@@ -246,11 +255,8 @@ class JPANavigationFilterQueryBuilderTest {
   @Test
   void testAsInQueryFalseForCriteriaBuilderAssociationTwoAttribute() throws ODataJPAModelException,
       ODataJPAFilterException, ODataJPAQueryException {
-
-    final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
-    final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
-    when(associationPath.getJoinColumnsList()).thenReturn(Arrays.asList(onCondition, onCondition));
-    when(navigationInfo.getAssociationPath()).thenReturn(associationPath);
+    final var assoziationPath = buildAssoziationPath();
+    when(navigationInfo.getAssociationPath()).thenReturn(assoziationPath);
     cut.setNavigationInfo(navigationInfo);
     cut.setExpression(buildCountFromCountExpression());
     assertFalse(cut.asInQuery());
@@ -260,10 +266,19 @@ class JPANavigationFilterQueryBuilderTest {
   void testAsInQueryRethrowsException() throws ODataJPAFilterException, ODataJPAModelException, ODataJPAQueryException {
 
     final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
+    when(associationPath.getLeftColumnsList()).thenThrow(ODataJPAModelException.class);
     when(associationPath.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
     when(navigationInfo.getAssociationPath()).thenReturn(associationPath);
     cut.setNavigationInfo(navigationInfo);
     assertThrows(ODataJPAFilterException.class, () -> cut.asInQuery());
+  }
+
+  private JPAAssociationPath buildAssoziationPath() throws ODataJPAModelException {
+    final JPAOnConditionItem onCondition = mock(JPAOnConditionItem.class);
+    final JPAElement pathItem = mock(JPAElement.class);
+    when(association.getJoinColumnsList()).thenReturn(Arrays.asList(onCondition, onCondition));
+    when(association.getPath()).thenReturn(Arrays.asList(pathItem));
+    return association;
   }
 
   private static VisitableExpression buildCountFromCountExpression() {

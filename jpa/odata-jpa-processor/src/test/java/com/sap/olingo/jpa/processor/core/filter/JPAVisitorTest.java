@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -88,9 +88,8 @@ class JPAVisitorTest {
   }
 
   @Test
-  void testVisitBinaryOperatorThrowsException() {
-    assertThrows(ODataJPAFilterException.class, () -> cut.visitBinaryOperator(BinaryOperatorKind.IN, null,
-        Collections.emptyList()));
+  void testVisitTypeLiteralThrowsException() {
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitTypeLiteral(null));
   }
 
   @Test
@@ -119,4 +118,16 @@ class JPAVisitorTest {
     assertTrue(cut.visitMember(member) instanceof JPADBFunctionOperator);
   }
 
+  @Test
+  void testVisitBinaryOperatorWithListThrowsExceptionNotIn() {
+    final List<JPAOperator> right = new ArrayList<>();
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitBinaryOperator(BinaryOperatorKind.HAS, null, right));
+  }
+
+  @Test
+  void testVisitBinaryOperatorWithListAllowsIn() throws ExpressionVisitException, ODataApplicationException {
+    final JPAOperator left = mock(JPAOperator.class);
+    final List<JPAOperator> right = new ArrayList<>();
+    assertNotNull(cut.visitBinaryOperator(BinaryOperatorKind.IN, left, right));
+  }
 }

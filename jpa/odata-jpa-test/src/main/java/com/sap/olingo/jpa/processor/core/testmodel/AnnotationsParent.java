@@ -18,7 +18,10 @@ import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.CountRestrictions
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.ExpandRestrictions;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.FilterRestrictions;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.SortRestrictions;
+import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateMethod;
+import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateRestrictions;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.ComputedDefaultValue;
+import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Example;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Immutable;
 
 @FilterRestrictions(requiresFilter = true, requiredProperties = { "parentCodeID", "parentDivisionCode" })
@@ -26,6 +29,8 @@ import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Immutable;
     nonSortableProperties = { "alternativeCode" })
 @ExpandRestrictions(maxLevels = 2, nonExpandableProperties = { "children" })
 @CountRestrictions(nonCountableNavigationProperties = { "children" })
+@UpdateRestrictions(updateMethod = UpdateMethod.PATCH, description = "Just to test")
+@Example(description = "Get the roots", externalValue = "../AnnotationsParent?$filter=Parent eq null")
 //@EdmEntityType(extensionProvider = LauFilter.class)
 @IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "AnnotationsParent")
@@ -78,6 +83,7 @@ public class AnnotationsParent {
       insertable = false, updatable = false)
   private AnnotationsParent actualParent;
 
+  @Example(description = "Get the leaves", externalValue = "../AnnotationsParent?$filter=Children/$count eq 0")
   @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private final List<AnnotationsParent> children = new ArrayList<>();
 
