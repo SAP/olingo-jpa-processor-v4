@@ -62,8 +62,8 @@ public class IntegrationTestHelper {
   public final HttpServletRequest request;
   public final HttpServletResponse response;
   private final ArgumentCaptor<Integer> captorStatus;
-  private static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
-  private static final String PUNIT_NAME = "com.sap.olingo.jpa";
+  public static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
+  public static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath) throws IOException,
       ODataException {
@@ -151,17 +151,27 @@ public class IntegrationTestHelper {
     this.response = getResponseMock();
     if (functionPackage != null)
       packages = ArrayUtils.add(packages, functionPackage);
-    final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages,
-        annotationsProvider == null ? Collections.emptyList() : Collections.singletonList(annotationsProvider));
 
-    final EntityManager em = createEmfWrapper(localEmf, edmProvider).createEntityManager();
-
+    final JPAEdmProvider edmProvider = buildEdmProvider(localEmf, annotationsProvider, packages);
     final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, dataSource,
         pagingProvider, annotationsProvider, functionPackage);
 
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
         new ArrayList<>()));
 
+    final JPAODataInternalRequestContext requestContext = buildRequestContext(localEmf, claims, groups, edmProvider,
+        sessionContext);
+
+    handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
+    handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
+    handler.process(request, response);
+
+  }
+
+  public JPAODataInternalRequestContext buildRequestContext(final EntityManagerFactory localEmf,
+      final JPAODataClaimsProvider claims, final JPAODataGroupProvider groups, final JPAEdmProvider edmProvider,
+      final JPAODataSessionContextAccess sessionContext) throws ODataException {
+    final EntityManager em = createEmfWrapper(localEmf, edmProvider).createEntityManager();
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(em);
     when(externalContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
@@ -170,11 +180,14 @@ public class IntegrationTestHelper {
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
         sessionContext);
+    return requestContext;
+  }
 
-    handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
-    handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
-    handler.process(request, response);
-
+  public JPAEdmProvider buildEdmProvider(final EntityManagerFactory localEmf,
+      final AnnotationProvider annotationsProvider, final String[] packages) throws ODataException {
+    final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages,
+        annotationsProvider == null ? Collections.emptyList() : Collections.singletonList(annotationsProvider));
+    return edmProvider;
   }
 
   public HttpServletResponse getResponse() {
@@ -361,7 +374,7 @@ public class IntegrationTestHelper {
     }
   }
 
-  private static class OutPutStream extends ServletOutputStream {
+  public static class OutPutStream extends ServletOutputStream {
     List<Integer> buffer = new ArrayList<>();
 
     @Override
@@ -389,7 +402,7 @@ public class IntegrationTestHelper {
   }
 
   //
-  class ResultStream extends InputStream {
+  public static class ResultStream extends InputStream {
     private final Iterator<Integer> bufferExcess;
     private final int size;
 
