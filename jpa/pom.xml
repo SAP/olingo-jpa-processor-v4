@@ -13,7 +13,7 @@
 		<project.build.source>17</project.build.source>
 		<project.build.target>17</project.build.target>
 		<maven.compiler.version>3.11.0</maven.compiler.version>
-		<odata.version>4.10.0</odata.version>
+		<odata.version>5.0.0</odata.version>
 		<jackson.version>2.16.0</jackson.version>
 		<powermock.version>1.7.1</powermock.version>
 		<coveralls.version>4.3.0</coveralls.version>
