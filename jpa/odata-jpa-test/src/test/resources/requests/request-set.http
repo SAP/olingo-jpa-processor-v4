@@ -1,5 +1,11 @@
 GET http://localhost:9010/bp/v1/$metadata
 
+GET http://localhost:9010/bp/v1/AdministrativeDivisions?$expand=Children&$top=100
+Accept: application/json
+
+GET http://localhost:9010/bp/v1/AdministrativeDivisions?$skiptoken='32544e87-f99a-48f7-8e3e-c41a907a2bf7'
+Accept: application/json
+
 GET http://localhost:9010/bp/v1/AdministrativeDivisions?$filter=Children/$count eq 0
 
 GET http://localhost:9010/bp/v1/AdministrativeDivisions?$filter=Parent eq null
@@ -8,5 +14,48 @@ GET http://localhost:9010/bp/v1/BusinessPartners?$filter=Roles/$count eq 0
 
 GET http://localhost:9010/bp/v1/JoinSources?$filter=OneToMany/$count eq 0
 
-GET http://localhost:9010/bp/v1/Persons?$filter=InhouseAddress/$count eq 1
-Authorization: Basic bWFydmluOjEyMzQ1Njc4
+GET http://localhost:9010/bp/v1/BusinessPartnerProtecteds?$format=json
+Authorization: Basic TWFydmluOjEyMzQ1Njc4
+
+GET http://localhost:9010/bp/v1/BusinessPartnerProtecteds?$select=ID&$expand=RolesProtected&$filter=RolesProtected/$count eq 1&$format=json
+Authorization: Basic TWFydmluOjEyMzQ1Njc4
+
+GET http://localhost:9010/bp/v1/BusinessPartnerProtecteds?$select=ID&$expand=Roles&$filter=Roles/$count eq 1&$format=json
+Authorization: Basic TWFydmluOjEyMzQ1Njc4
+
+GET http://localhost:9010/bp/v1/CollectionWithTwoKeys?$filter=Nested/$count eq 1
+
+GET http://localhost:9010/bp/v1/Organizations?$select=ID&$filter=Comment/$count ge 1
+
+GET http://localhost:8088/transportation/v1/Airports?$format=json
+Accept: application/json
+
+
+https://raw.githubusercontent.com/oasis-tcs/odata-vocabularies/main/vocabularies/Org.OData.Capabilities.V1.xml
+
+http://localhost:8080/open-resource-discovery-service/v0/systemInstances?$expand=consumptionBundles
+Accept: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnQiOiJ7XCJjb25zdW1lclRlbmFudFwiOiBcImJiYmJiYmJiLWJiYmItYmJiYi1iYmJiLWJiYmJiYmJiYmJiYlwiLFwicHJvdmlkZXJUZW5hbnRcIjogXCI0YzYzZTNiMi0zMzAxLTQ3OTYtYmM5NS05ZmI1YjI3ODAzNDJcIn0iLCJ0b2tlbkNsaWVudElEIjoiNDcxMSIsInJlZ2lvbiI6IjQ3MTEiLCJzY29wZXMiOiJpbnRlcm5hbF92aXNpYmlsaXR5OnJlYWQiLCJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+applicationTenantId: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+
+
+http://localhost:8080/open-resource-discovery-service/v0/systemInstances
+Accept: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnQiOiJ7XCJjb25zdW1lclRlbmFudFwiOiBcImJiYmJiYmJiLWJiYmItYmJiYi1iYmJiLWJiYmJiYmJiYmJiYlwiLFwicHJvdmlkZXJUZW5hbnRcIjogXCI0YzYzZTNiMi0zMzAxLTQ3OTYtYmM5NS05ZmI1YjI3ODAzNDJcIn0iLCJ0b2tlbkNsaWVudElEIjoiNDcxMSIsInJlZ2lvbiI6IjQ3MTEiLCJzY29wZXMiOiJpbnRlcm5hbF92aXNpYmlsaXR5OnJlYWQiLCJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+applicationTenantId: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+
+
+http://localhost:8080/open-resource-discovery-service/v0/$metadata
+
+
+POST http://localhost:9010/bp/v1/$batch
+Content-Type: multipart/mixed;boundary=batch123
+
+--batch123
+Content-Type: application/http
+ 
+GET BusinessPartners HTTP/1.1
+Accept: application/json 
+ 
+
+--batch123--

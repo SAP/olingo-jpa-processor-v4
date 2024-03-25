@@ -80,7 +80,7 @@ class JPACoreDebuggerTest {
   }
 
   @Test
-  void testMeasurementCreateMeassument() throws Exception {
+  void testMeasurementCreateMeasurement() throws Exception {
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       TimeUnit.MILLISECONDS.sleep(100);
     }
@@ -101,6 +101,18 @@ class JPACoreDebuggerTest {
     final String act = output.toString();
     assertTrue(cutDebugOff.getRuntimeInformation().isEmpty());
     assertTrue(StringUtils.isNotEmpty(act));
+  }
+
+  @SuppressWarnings("resource")
+  @Test
+  void testMemoryMeasurement() throws InterruptedException {
+    final JPARuntimeMeasurement measurement;
+    try (final JPARuntimeMeasurement m = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+      @SuppressWarnings("unused")
+      final String[] dummy = new String[100];
+      measurement = m;
+    }
+    assertTrue(measurement.getMemoryConsumption() > 0);
   }
 
   @Test

@@ -52,7 +52,7 @@ public interface JPAAnnotatable {
 
   /**
    * Returns the value of a given property of an annotation. E.g.,
-   * <code>getAnnotationValue("Capabilities", "FilterRestrictions", "filterable") </code>
+   * <code>getAnnotationValue("Capabilities", "FilterRestrictions", "filterable", Boolean.class) </code>
    * <p>
    * The value is returned as instance of corresponding type, with the following features
    * <ul>
@@ -78,7 +78,7 @@ public interface JPAAnnotatable {
 
   /**
    * Returns the value of a given property of an annotation. E.g.,
-   * <code>getAnnotationValue("Capabilities", "FilterRestrictions", "filterable") </code>
+   * <code>getAnnotationValue(Aliases.CAPABILITIES, Terms.FILTER_RESTRICTIONS, FilterRestrictionsProperties.FILTERABLE, Boolean.class) </code>
    * <p>
    * The value is returned as instance of corresponding type, with the following features
    * <ul>

@@ -278,6 +278,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
       case Bool -> Boolean.valueOf(expression.getValue());
       case Int -> Integer.valueOf(expression.getValue());
       case String -> expression.getValue();
+      case EnumMember -> expression.getValue();
       default -> throw new IllegalArgumentException("Unexpected value: " + expression.getType());
     };
   }
@@ -301,7 +302,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return result;
   }
 
-  protected Optional<CsdlExpression> findAnnotationPropertyValue(final String property, final CsdlDynamicExpression expression) {
+  protected Optional<CsdlExpression> findAnnotationPropertyValue(final String property,
+      final CsdlDynamicExpression expression) {
     return expression.asRecord()
         .getPropertyValues().stream()
         .filter(value -> property.equals(value.getProperty()))
