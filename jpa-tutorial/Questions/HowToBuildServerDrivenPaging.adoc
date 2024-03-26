@@ -543,7 +543,7 @@ Next, we need to make it available:
 
 [source,java]
 ----
-  JPAODataRequestContext requestContext() {
+  JPAODataRequestContext requestContext(@Autowired final JedisPool jedisPool) {
     return JPAODataRequestContext.with()
 	    ...
 	    .setParameter(REDIS, jedisPool) //<1>

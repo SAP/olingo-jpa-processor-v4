@@ -31,7 +31,7 @@
 		<junit-platform.version>1.10.1</junit-platform.version>
 		<mockito.version>5.8.0</mockito.version>
 		<jacoco.version>0.8.11</jacoco.version>
-		<netty.version>4.1.107.Final</netty.version>
+		<netty.version>4.1.108.Final</netty.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
 			${project.basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml
