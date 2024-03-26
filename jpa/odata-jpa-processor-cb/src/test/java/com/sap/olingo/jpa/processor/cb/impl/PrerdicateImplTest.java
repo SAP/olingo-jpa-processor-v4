@@ -224,7 +224,7 @@ class PredicateImplTest extends BuilderBaseTest {
     final In<String> in = new PredicateImpl.In<>(Collections.emptyList(), parameter);
     in.value("Test1").value("Test2").value("Test3");
     assertEquals(exp, ((PredicateImpl.In<String>) in).asSQL(statement).toString());
-    assertEquals(3, parameter.getParameter().size());
+    assertEquals(3, parameter.getParameters().size());
   }
 
   @Test

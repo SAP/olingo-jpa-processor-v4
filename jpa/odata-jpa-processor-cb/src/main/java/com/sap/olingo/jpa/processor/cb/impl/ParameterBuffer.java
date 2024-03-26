@@ -42,7 +42,7 @@ class ParameterBuffer {
     return param;
   }
 
-  Map<Integer, ParameterExpression<Object, Object>> getParameter() {
+  Map<Integer, ParameterExpression<Object, Object>> getParameters() {
     return parameterByHash;
   }
 }

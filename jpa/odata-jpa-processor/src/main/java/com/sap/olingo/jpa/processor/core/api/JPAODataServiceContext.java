@@ -204,6 +204,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
           LOGGER.trace("No batch-processor-factory provided, use default factory to create one");
           batchProcessorFactory = new JPADefaultBatchProcessorFactory();
         }
+        if (pagingProvider == null)
+          pagingProvider = new JPADefaultPagingProvider();
         if (queryDirectives == null)
           useQueryDirectives().build();
       } catch (SQLException | PersistenceException e) {

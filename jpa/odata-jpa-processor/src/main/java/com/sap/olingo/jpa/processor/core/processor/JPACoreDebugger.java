@@ -61,7 +61,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
   }
 
   public boolean hasMemoryInformation() {
-    return memoryReader.isSAPJvm;
+    return memoryReader.memoryConsumptionAvailable;
   }
 
   private Object[] composeArguments(final Long threadID, final Object... arguments) {
@@ -118,20 +118,20 @@ class JPACoreDebugger implements JPAServiceDebugger {
   }
 
   private static class MemoryReader {
-    private boolean isSAPJvm = true;
+    private boolean memoryConsumptionAvailable = true;
 
     public MemoryReader() {
       super();
     }
 
     long getCurrentThreadMemoryConsumption() {
-      if (!isSAPJvm) {
+      if (!memoryConsumptionAvailable) {
         return 0L;
       }
       try {
         return getMemoryConsumption();
       } catch (final Exception e) {
-        isSAPJvm = false;
+        memoryConsumptionAvailable = false;
       }
       return 0L;
     }

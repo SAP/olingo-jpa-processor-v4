@@ -4,6 +4,7 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.FORBIDDEN;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -128,6 +129,7 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("Contains", "AdministrativeDivisions?$filter=contains(CodeID,'166')", 110),
         arguments("Endswith", "AdministrativeDivisions?$filter=endswith(CodeID,'166-1')", 4),
         arguments("Startswith", "AdministrativeDivisions?$filter=startswith(DivisionCode,'DE-')", 16),
+        arguments("Not Startswith", "AdministrativeDivisions?$filter=not startswith(DivisionCode,'BE')", 176),
         arguments("IndexOf", "AdministrativeDivisions?$filter=indexof(DivisionCode,'3') eq 4", 7),
         arguments("SubstringStartIndex",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,6) eq 'Dakota'", 2),
@@ -763,4 +765,58 @@ class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(400);
   }
 
+  @Test
+  void testStartsWithCompleteness() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count");
+    final var all = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=not startswith(DivisionCode,'BE')");
+    final var notStarts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=startswith(DivisionCode,'BE')");
+    final var starts = helper.getSingleValue().asInt();
+
+    assertEquals(all, notStarts + starts);
+  }
+
+  @Test
+  void testStartsWithCompletenessContainingNull() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count");
+    final var all = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=not startswith(ParentDivisionCode,'BE')");
+    final var notStarts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=startswith(ParentDivisionCode,'BE')");
+    final var starts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=ParentDivisionCode eq null");
+    final var nullValues = helper.getSingleValue().asInt();
+    assertNotEquals(0, nullValues);
+    assertEquals(all, notStarts + starts + nullValues);
+  }
+
+  @Test
+  void testContainsCompleteness() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count");
+    final var all = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=not contains(DivisionCode,'14')");
+    final var notStarts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=contains(DivisionCode,'14')");
+    final var starts = helper.getSingleValue().asInt();
+
+    assertEquals(all, notStarts + starts);
+  }
 }
