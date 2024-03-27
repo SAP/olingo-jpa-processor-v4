@@ -142,10 +142,11 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     cut.groupBy(act.get("name2"));
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
     assertEquals(
-        "SELECT E0.\"ABCClass\" S0, E0.\"NameLine2\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 "
-            + "WHERE (E0.\"Type\" = ?2) "
-            + "GROUP BY E0.\"NameLine2\" "
-            + "HAVING (COUNT(E0.\"ID\") > ?1)",
+        """
+            SELECT E0."ABCClass" S0, E0."NameLine2" S1 FROM "OLINGO"."BusinessPartner" E0 \
+            WHERE (E0."Type" = ?2) \
+            GROUP BY E0."NameLine2" \
+            HAVING (COUNT(E0."ID") > ?1)""",
         cut.asSQL(statement).toString());
   }
 
@@ -164,5 +165,27 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     when(serviceDocument.getEntity(any(Class.class))).thenThrow(ODataJPAModelException.class);
     cut = new CriteriaQueryImpl<>(Object.class, serviceDocument, cb);
     assertThrows(InternalServerError.class, () -> cut.from(AdministrativeDivision.class));
+  }
+
+  @Test
+  void testGetFirstResultWhenNotSet() {
+    assertEquals(0, cut.getFirstResult());
+  }
+
+  @Test
+  void testGetFirstResultReturnsSetValue() {
+    cut.setFirstResult(122);
+    assertEquals(122, cut.getFirstResult());
+  }
+
+  @Test
+  void testGetMaxResultsWhenNotSet() {
+    assertEquals(Integer.MAX_VALUE, cut.getMaxResults());
+  }
+
+  @Test
+  void testGetMaxResultsReturnsSetValue() {
+    cut.setMaxResults(122);
+    assertEquals(122, cut.getMaxResults());
   }
 }

@@ -50,6 +50,8 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
   private Optional<List<Order>> orderList;
   private Optional<List<Expression<?>>> groupBy;
   private Optional<Expression<Boolean>> having;
+  private Optional<Integer> maxResults;
+  private Optional<Integer> firstResult;
   private final CriteriaBuilder cb;
 
   CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final AliasBuilder ab,
@@ -61,6 +63,8 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
     this.orderList = Optional.empty();
     this.groupBy = Optional.empty();
     this.having = Optional.empty();
+    this.firstResult = Optional.empty();
+    this.maxResults = Optional.empty();
     this.aliasBuilder = ab;
     this.cb = cb;
     this.selectAliasBuilder = new AliasBuilder("S");
@@ -107,6 +111,14 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
           .append(" ");
       ((SqlConvertible) e).asSQL(statement);
     });
+    maxResults.ifPresent(limit -> statement.append(" ")
+        .append(SqlPagingFunctions.LIMIT)
+        .append(" ")
+        .append(limit));
+    firstResult.ifPresent(offset -> statement.append(" ")
+        .append(SqlPagingFunctions.OFFSET)
+        .append(" ")
+        .append(offset));
     return statement;
   }
 
@@ -443,5 +455,39 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
     for (final Join<?, ?> join : from.getJoins()) {
       addInheritanceWhere((FromImpl<?, ?>) join, inheritanceWhere);
     }
+  }
+
+  /**
+   * The position of the first result the query object was set to
+   * retrieve. Returns 0 if <code>setFirstResult</code> was not applied to the
+   * query object.
+   * @return position of the first result
+   * @since 2.0
+   */
+  @Override
+  public int getFirstResult() {
+    return firstResult.orElse(0);
+  }
+
+  @Override
+  public void setFirstResult(final int startPosition) {
+    firstResult = Optional.of(startPosition);
+  }
+
+  /**
+   * The maximum number of results the query object was set to
+   * retrieve. Returns <code>Integer.MAX_VALUE</code> if <code>setMaxResults</code> was not
+   * applied to the query object.
+   * @return maximum number of results
+   * @since 2.0
+   */
+  @Override
+  public int getMaxResults() {
+    return maxResults.orElse(Integer.MAX_VALUE);
+  }
+
+  @Override
+  public void setMaxResults(final int maxResult) {
+    this.maxResults = Optional.of(maxResult);
   }
 }

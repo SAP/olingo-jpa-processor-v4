@@ -4,6 +4,7 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.FORBIDDEN;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -22,6 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCapabilitiesAnnotationsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
@@ -104,9 +106,10 @@ class TestJPAQueryWhereClause extends TestBase {
 
   static Stream<Arguments> getFilterQuery() {
     return Stream.of(
+        // Simple filter
         arguments("OneNotEqual", "Organizations?$filter=ID ne '3'", 9),
-        arguments("OneGreaterEquals", "Organizations?$filter=ID ge '5'", 5), // '10' is smaller than '5' when comparing
-                                                                             // strings!
+        // '10' is smaller than '5' when comparing strings!
+        arguments("OneGreaterEquals", "Organizations?$filter=ID ge '5'", 5),
         arguments("OneLowerThanTwo", "AdministrativeDivisions?$filter=DivisionCode lt CountryCode", 244),
         arguments("OneGreaterThan", "Organizations?$filter=ID gt '5'", 4),
         arguments("OneLowerThan", "Organizations?$filter=ID lt '5'", 5),
@@ -126,6 +129,7 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("Contains", "AdministrativeDivisions?$filter=contains(CodeID,'166')", 110),
         arguments("Endswith", "AdministrativeDivisions?$filter=endswith(CodeID,'166-1')", 4),
         arguments("Startswith", "AdministrativeDivisions?$filter=startswith(DivisionCode,'DE-')", 16),
+        arguments("Not Startswith", "AdministrativeDivisions?$filter=not startswith(DivisionCode,'BE')", 176),
         arguments("IndexOf", "AdministrativeDivisions?$filter=indexof(DivisionCode,'3') eq 4", 7),
         arguments("SubstringStartIndex",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,6) eq 'Dakota'", 2),
@@ -143,6 +147,13 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("OneHas", "Persons?$filter=AccessRights has com.sap.olingo.jpa.AccessRights'READ'", 1),
         arguments("OnNull", "AdministrativeDivisions?$filter=CodePublisher eq 'ISO' and ParentCodeID eq null", 4),
         arguments("OneEqualsTwoProperties", "AdministrativeDivisions?$filter=DivisionCode eq CountryCode", 4),
+        arguments("SubstringStartEndIndexToLower",
+            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
+            2),
+        // IN expression
+        arguments("Simple IN", "AdministrativeDivisions?$filter=ParentDivisionCode in ('BE1', 'BE2')", 6),
+        arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 219),
+        // Filter to many associations
         arguments("NavigationPropertyToManyValueAnyNoRestriction", "Organizations?$select=ID&$filter=Roles/any()", 4),
         arguments("NavigationPropertyToManyValueAnyMultiParameter",
             "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A' and d/BusinessPartnerID eq '1')", 1),
@@ -152,8 +163,21 @@ class TestJPAQueryWhereClause extends TestBase {
             "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A')", 3),
         arguments("NavigationPropertyToManyValueAll",
             "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')", 1),
+        arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll",
+            "Organizations?$filter=Address/RegionName eq 'Kalifornien'", 3),
+        arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectId",
+            "Organizations?$filter=Address/RegionName eq 'Kalifornien'&$select=ID", 3),
+        arguments("NavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect1",
+            "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'", 1),
+        arguments("NavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect2",
+            "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'&$select=ID", 1),
+        // Filter collection property
+        arguments("CountCollectionPropertyOne",
+            "Persons?$select=ID&$filter=InhouseAddress/any(d:d/Building eq '7')", 1),
         // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
         // Example 43: return all Categories with less than 10 products
+        // Filter to many associations count
+        arguments("NoChildren", "AdministrativeDivisions?$filter=Children/$count eq 0", 220),
         arguments("CountNavigationPropertyTwo", "Organizations?$select=ID&$filter=Roles/$count eq 2", 1),
         arguments("CountNavigationPropertyZero", "Organizations?$select=ID&$filter=Roles/$count eq 0", 6),
         arguments("CountNavigationPropertyMultipleHops",
@@ -163,7 +187,10 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("CountNavigationPropertyMultipleHopsNavigations zero",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 0", 0),
         arguments("CountNavigationPropertyJoinTable not zero", "JoinSources?$filter=OneToMany/$count eq 2", 1),
+        // Filter collection property count
         arguments("CountCollectionPropertyOne", "Organizations?$select=ID&$filter=Comment/$count ge 1", 2),
+        arguments("CountCollectionPropertyTwoJoinOne", "CollectionWithTwoKeys?$filter=Nested/$count eq 1", 1),
+        arguments("CountCollectionPropertyTwoJoinZero", "CollectionWithTwoKeys?$filter=Nested/$count eq 0", 3),
         // To one association null
         arguments("NavigationPropertyIsNull",
             "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),
@@ -174,29 +201,19 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("NavigationPropertyMixCountAndNull",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 and Parent/Parent/Parent eq null", 2),
         arguments("NavigationPropertyIsNullJoinTable", "JoinTargets?$filter=ManyToOne ne null", 2),
-
+        // Filter to one association
         arguments("NavigationPropertyToOneValue", "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1'", 11),
         arguments("NavigationPropertyToOneValueAndEquals",
             "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE34'", 1),
         arguments("NavigationPropertyToOneValueTwoHops",
             "AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'", 1),
         arguments("NavigationPropertyToOneValueViaComplexType",
-            "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'", 8),
-        arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll",
-            "Organizations?$filter=Address/RegionName eq 'Kalifornien'", 3),
-        arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectId",
-            "Organizations?$filter=Address/RegionName eq 'Kalifornien'&$select=ID", 3),
-        arguments("NavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect1",
-            "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'", 1),
-        arguments("NavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect2",
-            "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'&$select=ID", 1),
-        arguments("SubstringStartEndIndexToLower",
-            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
-            2));
+            "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'", 8));
   }
 
   @ParameterizedTest
   @MethodSource("getFilterQuery")
+  // @Tag(Assertions.CB_ONLY_TEST)
   void testFilterOne(final String text, final String queryString, final int numberOfResults)
       throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
@@ -638,12 +655,20 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterCollectionPropertyWithOutNavigationThrowsError() throws IOException, ODataException {
+  void testFilterCollectionPropertyWithoutNavigationThrowsError() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$select=ID&$filter=InhouseAddress/TaskID eq 'DEV'");
 
     helper.assertStatus(400); // The URI is malformed
+  }
+
+  @Test
+  void testFilterCollectionPropertyWithoutEntityTypeThrowsError() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionWithTwoKeys?$filter=Nested/any(d:d/Inner/Figure1 eq 1)");
+    helper.assertStatus(400);
   }
 
   @Test
@@ -731,5 +756,67 @@ class TestJPAQueryWhereClause extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$filter=RolesJoinProtected/all(d:d/RoleCategory eq 'B')", provided);
     helper.assertStatus(200);
+  }
+
+  @Test
+  void testFilterRestrictionByAnnotation() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AnnotationsParents?$top=1", new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(400);
+  }
+
+  @Test
+  void testStartsWithCompleteness() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count");
+    final var all = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=not startswith(DivisionCode,'BE')");
+    final var notStarts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=startswith(DivisionCode,'BE')");
+    final var starts = helper.getSingleValue().asInt();
+
+    assertEquals(all, notStarts + starts);
+  }
+
+  @Test
+  void testStartsWithCompletenessContainingNull() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count");
+    final var all = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=not startswith(ParentDivisionCode,'BE')");
+    final var notStarts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=startswith(ParentDivisionCode,'BE')");
+    final var starts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=ParentDivisionCode eq null");
+    final var nullValues = helper.getSingleValue().asInt();
+    assertNotEquals(0, nullValues);
+    assertEquals(all, notStarts + starts + nullValues);
+  }
+
+  @Test
+  void testContainsCompleteness() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count");
+    final var all = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=not contains(DivisionCode,'14')");
+    final var notStarts = helper.getSingleValue().asInt();
+
+    helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/$count?$filter=contains(DivisionCode,'14')");
+    final var starts = helper.getSingleValue().asInt();
+
+    assertEquals(all, notStarts + starts);
   }
 }

@@ -67,20 +67,20 @@ class JPACoreDebuggerTest {
   }
 
   @Test
-  void testMeassumentCreated() throws Exception {
+  void testMeasurementCreated() throws Exception {
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
-  void testNoMeassumentDebugFalls() throws Exception {
+  void testNoMeasurementDebugFalls() throws Exception {
     cutDebugOn = new JPACoreDebugger(false);
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertTrue(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
-  void testMeassumentCreateMeassument() throws Exception {
+  void testMeasurementCreateMeasurement() throws Exception {
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       TimeUnit.MILLISECONDS.sleep(100);
     }
@@ -101,6 +101,18 @@ class JPACoreDebuggerTest {
     final String act = output.toString();
     assertTrue(cutDebugOff.getRuntimeInformation().isEmpty());
     assertTrue(StringUtils.isNotEmpty(act));
+  }
+
+  @SuppressWarnings("resource")
+  @Test
+  void testMemoryMeasurement() throws InterruptedException {
+    final JPARuntimeMeasurement measurement;
+    try (final JPARuntimeMeasurement m = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+      @SuppressWarnings("unused")
+      final String[] dummy = new String[100];
+      measurement = m;
+    }
+    assertTrue(measurement.getMemoryConsumption() > 0);
   }
 
   @Test
@@ -143,6 +155,18 @@ class JPACoreDebuggerTest {
     assertTrue(StringUtils.isNotEmpty(act));
     assertTrue(act.contains("thread"));
     assertTrue(act.contains("Hallo"));
+  }
+
+  @SuppressWarnings("resource")
+  @Test
+  void testMemoryConsumption() throws InterruptedException {
+    final JPARuntimeMeasurement act;
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+      act = measurement;
+    } finally {
+
+    }
+    assertTrue(act.getMemoryConsumption() < 10);
   }
 
   private static class LogHandler extends Handler {

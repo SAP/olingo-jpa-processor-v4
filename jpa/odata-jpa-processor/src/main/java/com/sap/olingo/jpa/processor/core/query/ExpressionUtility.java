@@ -114,7 +114,6 @@ public final class ExpressionUtility {
     return jpaPaths.stream()
         .map(jpaPath -> ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from, jpaPath.getPath()))
         .toList();
-    // .collect(Collectors.toList());
   }
 
   public static Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value)

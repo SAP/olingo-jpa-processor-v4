@@ -4,12 +4,16 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Expression;
 
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
 public class JPAOperationConverter {
 
@@ -79,22 +83,19 @@ public class JPAOperationConverter {
   }
 
   @SuppressWarnings({ "unchecked" })
-  public final Expression<Boolean> convert(@SuppressWarnings("rawtypes") final JPAComparisonOperatorImp jpaOperator)
+  public final Expression<Boolean> convert(@SuppressWarnings("rawtypes") final JPAComparisonOperator jpaOperator)
       throws ODataApplicationException {
 
     switch (jpaOperator.getOperator()) {
       case EQ:
         return equalExpression((left, right) -> (cb.equal(left, right)), (left, right) -> (cb.equal(left, right)),
-            left -> (cb.isNull(left)),
-            jpaOperator);
+            left -> (cb.isNull(left)), jpaOperator);
       case NE:
         return equalExpression((left, right) -> (cb.notEqual(left, right)), (left, right) -> (cb.notEqual(left, right)),
-            left -> (cb.isNotNull(left)),
-            jpaOperator);
+            left -> (cb.isNotNull(left)), jpaOperator);
       case GE:
         return comparisonExpression((left, right) -> (cb.greaterThanOrEqualTo(left, right)), (left, right) -> (cb
-            .greaterThanOrEqualTo(left,
-                right)), jpaOperator);
+            .greaterThanOrEqualTo(left, right)), jpaOperator);
       case GT:
         return comparisonExpression((left, right) -> (cb.greaterThan(left, right)), (left, right) -> (cb.greaterThan(
             left, right)), jpaOperator);
@@ -103,12 +104,26 @@ public class JPAOperationConverter {
             right)), jpaOperator);
       case LE:
         return comparisonExpression((left, right) -> (cb.lessThanOrEqualTo(left, right)), (left, right) -> (cb
-            .lessThanOrEqualTo(left, right)),
-            jpaOperator);
+            .lessThanOrEqualTo(left, right)), jpaOperator);
       default:
         return dbConverter.convert(jpaOperator);
     }
 
+  }
+
+  @SuppressWarnings("unchecked")
+  public final <T, X extends JPAOperator> Expression<Boolean> convert(final JPAInOperator<T, X> jpaOperator)
+      throws ODataApplicationException {
+
+    if (BinaryOperatorKind.IN == jpaOperator.getOperator()) {
+      final In<T> in = cb.in(jpaOperator.getLeft());
+      for (final JPAOperator value : jpaOperator.getFixValues()) {
+        in.value((T) value.get());
+      }
+      return in;
+    }
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getName());
   }
 
   @SuppressWarnings("unchecked")

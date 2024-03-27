@@ -25,5 +25,10 @@ public final class JPAEmptyDebugger implements JPAServiceDebugger {
     public void close() {
       // DO Nothing
     }
+
+    @Override
+    public long getMemoryConsumption() {
+      return 0;
+    }
   }
 }
