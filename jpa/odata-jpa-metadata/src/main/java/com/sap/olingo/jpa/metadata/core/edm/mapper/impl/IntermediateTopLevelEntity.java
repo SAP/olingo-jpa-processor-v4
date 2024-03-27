@@ -6,21 +6,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlDynamicExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelInternalException;
 
 abstract class IntermediateTopLevelEntity extends IntermediateModelElement implements JPATopLevelEntity,
     ODataAnnotatable {
@@ -36,23 +37,23 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
 
   protected List<CsdlNavigationPropertyBinding> determinePropertyBinding() throws ODataJPAModelException {
     final List<CsdlNavigationPropertyBinding> navigationPropBindingList = new ArrayList<>();
-    final List<JPAAssociationPath> navigationPropertyList = entityType.getAssociationPathList();
+    final var navigationPropertyList = entityType.getAssociationPathList();
     if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
 
       for (final JPAAssociationPath navigationPropertyPath : navigationPropertyList) {
-        final JPAStructuredType targetType = navigationPropertyPath.getTargetType();
+        final var targetType = navigationPropertyPath.getTargetType();
         if (targetType instanceof IntermediateEntityType
             && !(((IntermediateEntityType<?>) targetType).asEntitySet() || ((IntermediateEntityType<?>) targetType)
                 .asSingleton())) {
           continue;
         }
-        final CsdlNavigationPropertyBinding navigationPropBinding = new CsdlNavigationPropertyBinding();
+        final var navigationPropBinding = new CsdlNavigationPropertyBinding();
 
         navigationPropBinding.setPath(navigationPropertyPath.getAlias());
 
         // TODO Check is FQN is better here
-        final JPAAssociationAttribute navigationProperty = navigationPropertyPath.getLeaf();
+        final var navigationProperty = navigationPropertyPath.getLeaf();
         navigationPropBinding.setTarget(nameBuilder.buildEntitySetName(navigationProperty.getTargetEntity()
             .getExternalName()));
         navigationPropBindingList.add(navigationPropBinding);
@@ -109,4 +110,43 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
   public Map<String, Annotation> javaAnnotations(final String packageName) {
     return entityType.javaAnnotations(packageName);
   }
+
+  @Override
+  public Object getAnnotationValue(final String alias, final String term, final String property)
+      throws ODataJPAModelException {
+
+    try {
+      return Optional.ofNullable(getAnnotation(alias, term))
+          .map(CsdlAnnotation::getExpression)
+          .map(expression -> getAnnotationValue(property, expression))
+          .orElse(null);
+    } catch (final ODataJPAModelInternalException e) {
+      throw e.rootCause;
+    }
+  }
+
+  @Override
+  protected Object getAnnotationDynamicValue(final String property, final CsdlDynamicExpression expression)
+      throws ODataJPAModelInternalException {
+    try {
+      if (expression.isRecord()) {
+        // This may create a problem if the property in question is a record itself. Currently non is supported in
+        // standard
+        final var propertyValue = findAnnotationPropertyValue(property, expression);
+        if (propertyValue.isPresent()) {
+          return getAnnotationValue(property, propertyValue.get());
+        }
+      } else if (expression.isCollection()) {
+        return getAnnotationCollectionValue(expression);
+      } else if (expression.isPropertyPath()) {
+        return getEntityType().getPath(expression.asPropertyPath().getValue());
+      } else if (expression.isNavigationPropertyPath()) {
+        return getEntityType().getAssociationPath(expression.asNavigationPropertyPath().getValue());
+      }
+      return null;
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAModelInternalException(e);
+    }
+  }
+
 }

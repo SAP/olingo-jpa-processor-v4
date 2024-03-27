@@ -8,12 +8,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlDynamicExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlPropertyValue;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
@@ -22,6 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelInternalException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateModelItemAccess;
 
 abstract class IntermediateModelElement implements IntermediateModelItemAccess {
@@ -97,8 +102,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     for (final IntermediateModelElement bufferItem : mappingBuffer.values()) {
 
       if (!bufferItem.toBeIgnored) { // NOSONAR
-        final IntermediateModelElement element = bufferItem;
-        final CsdlAbstractEdmItem edmItem = element.getEdmItem();
+        final var element = bufferItem;
+        final var edmItem = element.getEdmItem();
         if (!element.ignore())
           extractionTarget.add((T) edmItem);
       }
@@ -156,7 +161,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
    * @return
    */
   protected final String buildFQTableName(final String schema, final String name) {
-    final StringBuilder fqt = new StringBuilder();
+    final var fqt = new StringBuilder();
     if (schema != null && !schema.isEmpty()) {
       fqt.append(schema);
       fqt.append(".");
@@ -166,13 +171,12 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   }
 
   private void extractAnnotations(final List<CsdlAnnotation> edmAnnotations, final AnnotatedElement element,
-      final String internalName)
-      throws ODataJPAModelException {
-    final EdmAnnotation jpaAnnotation = element.getAnnotation(EdmAnnotation.class);
+      final String internalName) throws ODataJPAModelException {
+    final var jpaAnnotation = element.getAnnotation(EdmAnnotation.class);
 
     if (jpaAnnotation != null) {
-      final CsdlAnnotation edmAnnotation = new CsdlAnnotation();
-      final String qualifier = jpaAnnotation.qualifier();
+      final var edmAnnotation = new CsdlAnnotation();
+      final var qualifier = jpaAnnotation.qualifier();
       edmAnnotation.setTerm(jpaAnnotation.term());
       edmAnnotation.setQualifier(qualifier.isEmpty() ? null : qualifier);
       if (!(jpaAnnotation.constantExpression().type() == ConstantExpressionType.Int
@@ -244,7 +248,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   }
 
   protected CsdlAnnotation filterAnnotation(final String alias, final String term) {
-    final String annotationFqn = annotationInformation.getReferences().convertAlias(alias) + "." + term;
+    final var annotationFqn = annotationInformation.getReferences().convertAlias(alias) + "." + term;
     return edmAnnotations.stream()
         .filter(a -> annotationFqn.equals(a.getTerm()))
         .findFirst()
@@ -254,6 +258,29 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   protected void retrieveAnnotations(final ODataAnnotatable annotatable, final Applicability applicability) {
     for (final AnnotationProvider provider : annotationInformation.getAnnotationProvider())
       edmAnnotations.addAll(provider.getAnnotations(applicability, annotatable, annotationInformation.getReferences()));
+  }
+
+  protected Object getAnnotationValue(final String property, final CsdlExpression annotation)
+      throws ODataJPAModelInternalException {
+    if (annotation.isDynamic()) {
+      return getAnnotationDynamicValue(property, annotation.asDynamic());
+    }
+    return getAnnotationConstantValue(annotation.asConstant());
+  }
+
+  protected Object getAnnotationDynamicValue(final String property, final CsdlDynamicExpression expression)
+      throws ODataJPAModelInternalException {
+    return null;
+  }
+
+  protected Object getAnnotationConstantValue(final CsdlConstantExpression expression) {
+    return switch (expression.getType()) {
+      case Bool -> Boolean.valueOf(expression.getValue());
+      case Int -> Integer.valueOf(expression.getValue());
+      case String -> expression.getValue();
+      case EnumMember -> expression.getValue();
+      default -> throw new IllegalArgumentException("Unexpected value: " + expression.getType());
+    };
   }
 
   protected Map<String, Annotation> findJavaAnnotation(final String packageName, final Class<?> clazz) {
@@ -273,6 +300,23 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
       }
     }
     return result;
+  }
+
+  protected Optional<CsdlExpression> findAnnotationPropertyValue(final String property,
+      final CsdlDynamicExpression expression) {
+    return expression.asRecord()
+        .getPropertyValues().stream()
+        .filter(value -> property.equals(value.getProperty()))
+        .findFirst()
+        .map(CsdlPropertyValue::getValue);
+  }
+
+  protected Object getAnnotationCollectionValue(final CsdlDynamicExpression expression) {
+    final List<Object> parthList = new ArrayList<>();
+    for (final var item : expression.asCollection().getItems()) {
+      parthList.add(getAnnotationValue("", item));
+    }
+    return parthList;
   }
 
 }

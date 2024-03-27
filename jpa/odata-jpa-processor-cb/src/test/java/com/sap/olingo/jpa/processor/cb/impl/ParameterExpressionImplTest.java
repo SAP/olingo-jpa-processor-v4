@@ -2,7 +2,6 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
@@ -35,7 +34,7 @@ class ParameterExpressionImplTest {
 
   @Test
   void testGetNameReturnsNull() {
-    assertNull(cut.getName());
+    assertEquals("10", cut.getName());
   }
 
   @Test

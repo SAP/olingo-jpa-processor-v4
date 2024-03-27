@@ -371,7 +371,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
     @Override
     public String getName() {
-      return null;
+      return index.toString();
     }
 
     @Override

@@ -39,11 +39,10 @@ public class JoinPartnerRoleRelationKey implements Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof JoinPartnerRoleRelationKey)) return false;
-    final JoinPartnerRoleRelationKey other = (JoinPartnerRoleRelationKey) obj;
-    return Objects.equals(sourceID, other.sourceID) && Objects.equals(targetID, other.targetID);
+  public boolean equals(final Object object) {
+    if (object instanceof final JoinPartnerRoleRelationKey other)
+      return Objects.equals(sourceID, other.sourceID) && Objects.equals(targetID, other.targetID);
+    return false;
   }
 
 }

@@ -152,7 +152,7 @@ public class JPANavigationFilterQueryBuilder {
   boolean asInQuery() throws ODataJPAFilterException {
     try {
       return (cb instanceof ProcessorCriteriaBuilder
-          || association.getJoinColumnsList().size() == 1)
+          || association.getLeftColumnsList().size() == 1)
           && getAggregationType(expression) != null;
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);

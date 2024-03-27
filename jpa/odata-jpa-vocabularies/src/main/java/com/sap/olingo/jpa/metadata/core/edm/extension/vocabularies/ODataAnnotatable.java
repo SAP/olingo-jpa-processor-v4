@@ -13,7 +13,9 @@ public interface ODataAnnotatable {
    * @return
    * @throws ODataJPAModelException
    */
-  ODataPropertyPath convertStringToPath(final String internalPath) throws ODataPathNotFoundException;
+  default ODataPropertyPath convertStringToPath(final String internalPath) throws ODataPathNotFoundException {
+    return null;
+  }
 
   /**
    *
@@ -21,20 +23,28 @@ public interface ODataAnnotatable {
    * @return
    * @throws ODataJPAModelException
    */
-  ODataNavigationPath convertStringToNavigationPath(final String internalPath) throws ODataPathNotFoundException;
+  default ODataNavigationPath convertStringToNavigationPath(final String internalPath)
+      throws ODataPathNotFoundException {
+    return null;
+  }
 
   /**
-   * Searches to java annotation at an OData annotatable element. In case no annotation is found, Null is returned;
+   * Searches for a java annotation at an OData annotatable element. In case no annotation is found, Null is returned;
    * @param name of the annotation, as it would be returned by {@link Class#getName()}
+   * @deprecated Make use of {@link #javaAnnotations(String)} instead
    * @return
    */
+  @Deprecated(forRemoval = true, since = "2.1.0")
   @CheckForNull
-  Annotation javaAnnotation(String name);
+  default Annotation javaAnnotation(final String name) {
+    return null;
+  }
 
   /**
    * Provide all java annotation at the annotatable that come from the given package.
    * @param packageName
-   * @return A map with key simple name ( {@link Class#getSimpleName()}) of the annotation and value the annotation
+   * @return A map with <i>key</i> simple name {@link Class#getSimpleName()}) of the annotation and <i>value</i> the
+   * annotation
    * instance
    */
   Map<String, Annotation> javaAnnotations(String packageName);

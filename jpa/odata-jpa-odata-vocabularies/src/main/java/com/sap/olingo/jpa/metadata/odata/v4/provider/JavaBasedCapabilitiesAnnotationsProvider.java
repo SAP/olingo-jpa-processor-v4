@@ -37,7 +37,7 @@ public class JavaBasedCapabilitiesAnnotationsProvider extends JavaBasedODataAnno
   @Override
   URI getUri() throws URISyntaxException {
     return new URI(
-        "https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Capabilities.V1.xml");// NOSONAR
+        "https://raw.githubusercontent.com/oasis-tcs/odata-vocabularies/main/vocabularies/Org.OData.Capabilities.V1.xml");// NOSONAR
   }
 
 }

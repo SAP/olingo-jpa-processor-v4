@@ -6,7 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
 import jakarta.persistence.OneToMany;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
@@ -44,14 +43,12 @@ public class PostalAddressDataWithGroup {
 
   @EdmDescriptionAssociation(languageAttribute = "key/language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
-  @JoinColumns({
-      @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
-          insertable = false, updatable = false),
-      @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
-          updatable = false),
-      @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"", insertable = false,
-          updatable = false)
-  })
+  @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
+      insertable = false, updatable = false)
+  @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
+      updatable = false)
+  @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"", insertable = false,
+      updatable = false)
   private Collection<AdministrativeDivisionDescription> regionName;
 
   public String getStreetName() {

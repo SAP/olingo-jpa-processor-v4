@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.filter;
 import jakarta.persistence.criteria.Expression;
 
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
 public interface JPAComparisonOperator<T extends Comparable<T>> extends JPAExpressionOperator {
 
@@ -14,4 +15,7 @@ public interface JPAComparisonOperator<T extends Comparable<T>> extends JPAExpre
 
   Expression<T> getRightAsExpression() throws ODataApplicationException;
 
+  @SuppressWarnings("unchecked")
+  @Override
+  BinaryOperatorKind getOperator();
 }

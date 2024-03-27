@@ -66,11 +66,10 @@ public class TemporalWithValidityPeriod {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof TemporalWithValidityPeriod)) return false;
-    final TemporalWithValidityPeriod other = (TemporalWithValidityPeriod) obj;
-    return Objects.equals(id, other.id) && Objects.equals(validityStartDate, other.validityStartDate);
+  public boolean equals(final Object object) {
+    if (object instanceof final TemporalWithValidityPeriod other)
+      return Objects.equals(id, other.id) && Objects.equals(validityStartDate, other.validityStartDate);
+    return false;
   }
 
 }

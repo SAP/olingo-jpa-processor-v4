@@ -860,7 +860,7 @@ class TestJPAProcessorExpand extends TestBase {
       final ObjectNode organization = helper.getValue();
       final ObjectNode err = (ObjectNode) organization.get("error");
       final String msg = err.get("message").asText();
-      assertTrue(msg.contains("JoinHiddenRelation"));
+      assertTrue(msg.contains("JoinHiddenRelation"), msg);
     } else {
       helper.assertStatus(200);
 

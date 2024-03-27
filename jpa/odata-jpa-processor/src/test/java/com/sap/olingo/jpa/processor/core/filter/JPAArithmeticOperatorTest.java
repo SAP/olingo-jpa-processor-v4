@@ -20,7 +20,7 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 
-class TestJPAArithmeticOperator {
+class JPAArithmeticOperatorTest {
   private CriteriaBuilder cb;
 
   private JPAOperationConverter converter;

@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.persistence.criteria.Expression;
 
@@ -19,4 +20,5 @@ public interface JPAFilterComplier {
    */
   List<JPAPath> getMember() throws ODataApplicationException;
 
+  Optional<JPAFilterRestrictionsWatchDog> getWatchDog();
 }
