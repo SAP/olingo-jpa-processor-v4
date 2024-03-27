@@ -48,7 +48,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
 
-    super(odata, item.getEntityType(), requestContext, new ArrayList<>(item.getHops().subList(0,
+    super(odata, item.getEntityType(), requestContext, new ArrayList<>(item.getHops().subList(item.getHops().size() - 2,
         item.getHops().size() - 1)));
     this.association = item.getExpandAssociation();
     this.keyBoundary = keyBoundary;
