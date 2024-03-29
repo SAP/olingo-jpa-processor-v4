@@ -149,18 +149,18 @@ class IntermediateSimpleProperty extends IntermediateProperty {
         else
           constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
         final Object pojo = constructor.newInstance();
-        field.setAccessible(true);
-        final Object value = field.get(pojo);
-        if (value != null)
-          valueString = value.toString();
-      } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
-          | InvocationTargetException e) {
+        if (field.trySetAccessible()) {
+          final Object value = field.get(pojo);
+          if (value != null)
+            valueString = value.toString();
+        }
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
             jpaAttribute.getName());
-      } catch (final InstantiationException e) {
+      } catch (final InstantiationException | NoSuchMethodException e) {
         // Class could not be instantiated e.g. abstract class like
-        // Business Partner => default could not be determined
-        // and will be ignored
+        // Business Partner or missing parameter free constructor
+        // => default could not be determined and will be ignored
         LOGGER.debug("Default could not be determined: "
             + jpaAttribute.getDeclaringType().getJavaType().getName()
             + "#"

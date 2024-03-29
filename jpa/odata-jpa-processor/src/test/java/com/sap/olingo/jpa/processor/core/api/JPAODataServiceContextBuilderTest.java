@@ -108,6 +108,17 @@ class JPAODataServiceContextBuilderTest {
   }
 
   @Test
+  void checkReturnsDefaultProvidedPagingIfNotProvider() throws ODataException {
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setPagingProvider(null)
+        .build();
+
+    assertTrue(cut.getPagingProvider() instanceof JPADefaultPagingProvider);
+  }
+
+  @Test
   void checkEmptyListOnNoReferencesProvided() throws ODataException {
 
     cut = JPAODataServiceContext.with()

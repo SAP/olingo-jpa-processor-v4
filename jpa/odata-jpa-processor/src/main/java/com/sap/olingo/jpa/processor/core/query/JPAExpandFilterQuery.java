@@ -41,7 +41,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
@@ -146,7 +145,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(navigationInfo.getUriInfo(),
         requestContext);
 
-    final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(this.association.getLeaf());
+    final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(this.association.getLeaf(),
+        !navigationInfo.getKeyPredicates().isEmpty());
     return new JPAFilterCrossComplier(odata, sd, navigationInfo.getEntityType(), converter, this,
         navigationInfo.getFromClause(), null, subContext, watchDog);
   }
@@ -207,7 +207,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   private List<Order> createOrderBy(final Subquery<?> childQuery) throws ODataApplicationException {
     if (!hasRowLimit(childQuery)) {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), (JPAODataPage) null);
+      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage());
     }
     return emptyList();
   }
@@ -268,17 +268,19 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   }
 
   private Integer getSkipValue(@Nullable final Subquery<?> childQuery) {
+    if (navigationInfo.getPage() != null)
+      return navigationInfo.getPage().skip();
     if (navigationInfo.getUriInfo().getSkipOption() != null && childQuery == null)
       return navigationInfo.getUriInfo().getSkipOption().getValue();
-    else
-      return null;
+    return null;
   }
 
   private Integer getTopValue(@Nullable final Subquery<?> childQuery) {
+    if (navigationInfo.getPage() != null)
+      return navigationInfo.getPage().top();
     if (navigationInfo.getUriInfo().getTopOption() != null && childQuery == null)
       return navigationInfo.getUriInfo().getTopOption().getValue();
-    else
-      return null;
+    return null;
   }
 
   private boolean hasRowLimit(@Nullable final Subquery<?> childQuery) {

@@ -16,8 +16,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
-class TestJPAOperationConverter {
+class JPAOperationConverterTest {
   private CriteriaBuilder cb;
 
   private Expression<Number> expressionLeft;
@@ -165,6 +166,14 @@ class TestJPAOperationConverter {
     final ODataApplicationException act = assertThrows(ODataApplicationException.class, () -> cut.convert(operator));
 
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testConvertInOperatorNotInThrowsException() {
+    final JPAInOperator<String, JPAOperator> jpaOperator = mock(JPAInOperator.class);
+    when(jpaOperator.getOperator()).thenReturn(BinaryOperatorKind.HAS);
+    assertThrows(ODataJPAFilterException.class, () -> cut.convert(jpaOperator));
   }
 }
 

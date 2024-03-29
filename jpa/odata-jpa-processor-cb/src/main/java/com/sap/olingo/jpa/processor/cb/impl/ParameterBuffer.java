@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 class ParameterBuffer {
   private static final Log LOG = LogFactory.getLog(ParameterBuffer.class);
   private int index = 1;
-  private final Map<Integer, ParameterExpression<?, ?>> parameterByHash;
+  private final Map<Integer, ParameterExpression<Object, Object>> parameterByHash;
 
   ParameterBuffer() {
     super();
@@ -32,7 +32,7 @@ class ParameterBuffer {
 
     ParameterExpression<T, S> param = new ParameterExpression<>(index, Objects.requireNonNull(value), expression);
     if (!parameterByHash.containsKey(param.hashCode())) {
-      parameterByHash.put(param.hashCode(), param);
+      parameterByHash.put(param.hashCode(), (ParameterExpression<Object, Object>) param);
       index++;
     } else {
       // Hibernate does not allow provisioning of parameter that are not used in a query
@@ -42,7 +42,7 @@ class ParameterBuffer {
     return param;
   }
 
-  Map<Integer, ParameterExpression<?, ?>> getParameter() {
+  Map<Integer, ParameterExpression<Object, Object>> getParameters() {
     return parameterByHash;
   }
 }

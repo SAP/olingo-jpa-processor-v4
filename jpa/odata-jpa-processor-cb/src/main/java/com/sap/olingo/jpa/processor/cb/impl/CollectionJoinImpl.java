@@ -139,10 +139,8 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
 
   @Override
   public boolean equals(final Object object) {
-    if (this == object) return true;
-    if (!super.equals(object)) return false;
-    if (!(object instanceof CollectionJoinImpl)) return false;
-    final CollectionJoinImpl<?, ?> other = (CollectionJoinImpl<?, ?>) object;
-    return Objects.equals(attribute, other.attribute);
+    if (object instanceof final CollectionJoinImpl other)// NOSONAR
+      return Objects.equals(attribute, other.attribute);
+    return false;
   }
 }

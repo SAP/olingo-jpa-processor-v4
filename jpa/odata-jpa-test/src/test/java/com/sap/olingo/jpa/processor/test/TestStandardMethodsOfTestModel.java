@@ -48,6 +48,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionWithTwoKey;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.Country;
@@ -121,6 +122,7 @@ class TestStandardMethodsOfTestModel {
         arguments(CollectionDeep.class),
         arguments(CollectionFirstLevelComplex.class),
         arguments(CollectionSecondLevelComplex.class),
+        arguments(CollectionWithTwoKey.class),
         arguments(Comment.class),
         arguments(Country.class),
         arguments(CountryKey.class),

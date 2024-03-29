@@ -69,4 +69,6 @@ public interface JPAODataRequestContextAccess {
    * @return list of locale provided for this request
    */
   public List<Locale> getProvidedLocale();
+
+  JPAODataQueryDirectives getQueryDirectives();
 }

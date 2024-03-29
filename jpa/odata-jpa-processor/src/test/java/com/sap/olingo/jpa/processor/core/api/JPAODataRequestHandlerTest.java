@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -112,7 +112,7 @@ class JPAODataRequestHandlerTest extends TestBase {
         .build();
     cut = new JPAODataRequestHandler(context, odata);
     cut.process(request, response);
-    verify(handler, times(1)).process(argThat(new WrappedHttpRequestMatcher()), any());
+    verify(handler, times(1)).process(isA(HttpServletRequestWrapper.class), any());
   }
 
   @Test
@@ -144,31 +144,16 @@ class JPAODataRequestHandlerTest extends TestBase {
     verify(handler, times(1)).process(argThat(new HttpRequestMatcher()), any());
   }
 
-  public static class HttpRequestMatcher implements ArgumentMatcher<javax.servlet.http.HttpServletRequest> {
+  public static class HttpRequestMatcher implements ArgumentMatcher<HttpServletRequest> {
     @Override
-    public boolean matches(final javax.servlet.http.HttpServletRequest argument) {
-      if (argument instanceof JakartaRequestMapper) {
-        final HttpServletRequest wrapped = ((JakartaRequestMapper) argument).getWrapped();
-        return wrapped instanceof HttpServletRequest && !(wrapped instanceof HttpServletRequestWrapper);
-      } else
-        return false;
-    }
-  }
-
-  public static class WrappedHttpRequestMatcher implements ArgumentMatcher<javax.servlet.http.HttpServletRequest> {
-    @Override
-    public boolean matches(final javax.servlet.http.HttpServletRequest argument) {
-      if (argument instanceof JakartaRequestMapper) {
-        final HttpServletRequest wrapped = ((JakartaRequestMapper) argument).getWrapped();
-        return wrapped instanceof HttpServletRequestWrapper;
-      } else
-        return false;
+    public boolean matches(final HttpServletRequest argument) {
+      return argument instanceof HttpServletRequest && !(argument instanceof HttpServletRequestWrapper);
     }
   }
 
   public int getStatus() {
-    final ArgumentCaptor<Integer> acStatus = ArgumentCaptor.forClass(Integer.class);
-    verify(response).setStatus(acStatus.capture());
-    return acStatus.getValue();
+    final ArgumentCaptor<Integer> status = ArgumentCaptor.forClass(Integer.class);
+    verify(response).setStatus(status.capture());
+    return status.getValue();
   }
 }

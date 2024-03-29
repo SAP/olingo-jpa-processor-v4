@@ -12,6 +12,7 @@ local.properties
 .loadpath
 
 # Eclipse Core
+
 # External tool builders
 .externalToolBuilders/
 
@@ -65,3 +66,4 @@ hs_err_pid*
 # --- Derby stuff
 **/jpa-processor/test/**
 /.vscode/
+/.idea/

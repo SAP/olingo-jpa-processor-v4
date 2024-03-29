@@ -12,12 +12,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.0</version>
+		<version>3.2.3</version>
 		<relativePath />
 	</parent>
 
 	<properties>
-		<processor.version>2.0.2</processor.version>
+		<processor.version>2.1.0-SNAPSHOT</processor.version>
 		<java.version>17</java.version>
 		<build.sourceEncoding>UTF-8</build.sourceEncoding>
 		<eclipselink.version>4.0.2</eclipselink.version>

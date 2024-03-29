@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.annotation.CheckForNull;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.FlushModeType;
@@ -34,88 +38,223 @@ import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 
 class TypedQueryImpl<T> implements TypedQuery<T> {
 
+  private static final String SET_A_PARAMETER_EXCEPTION =
+      "Set a parameter is not supported. Parameter have to be forwarded from criteria query";
   private final CriteriaQueryImpl<T> parent;
-  private final Query query;
   private final ProcessorSelection<T> selection;
+  private final ParameterBuffer parameterBuffer;
+  private final EntityManager em;
+  private Optional<LockModeType> lockMode;
+  private final Map<String, Object> hints;
+  private Optional<FlushModeType> flushMode;
 
   TypedQueryImpl(final CriteriaQuery<T> criteriaQuery, final EntityManager em,
       final ParameterBuffer parameterBuffer) {
-    final StringBuilder sql = new StringBuilder();
+
     this.parent = (CriteriaQueryImpl<T>) criteriaQuery;
     this.parent.getResultType();
     this.selection = (ProcessorSelection<T>) parent.getSelection();
-    this.query = em.createNativeQuery(parent.asSQL(sql).toString());
-    copyParameter(parameterBuffer.getParameter());
+    this.parameterBuffer = parameterBuffer;
+    this.em = em;
+    this.hints = new HashMap<>();
+    this.lockMode = Optional.empty();
+    this.flushMode = Optional.empty();
   }
 
   @Override
   public int executeUpdate() {
-    return query.executeUpdate();
+    return createNativeQuery().executeUpdate();
   }
 
   @Override
   public int getFirstResult() {
-    return query.getFirstResult();
+    return parent.getFirstResult();
   }
 
+  @CheckForNull
   @Override
   public FlushModeType getFlushMode() {
-    return query.getFlushMode();
+    return flushMode.orElse(null);
   }
 
   @Override
   public Map<String, Object> getHints() {
-    return query.getHints();
+    return this.hints;
   }
 
+  @CheckForNull
   @Override
   public LockModeType getLockMode() {
-    return query.getLockMode();
+    return lockMode.orElse(null);
   }
 
   @Override
   public int getMaxResults() {
-    return query.getMaxResults();
+    return parent.getMaxResults();
   }
 
+  /**
+   * Get the parameter object corresponding to the declared
+   * positional parameter with the given position.
+   * This method is not required to be supported for native
+   * queries.
+   * @param position position
+   * @return parameter object
+   * @throws IllegalArgumentException if the parameter with the
+   * specified position does not exist
+   * @throws IllegalStateException if invoked on a native
+   * query when the implementation does not support
+   * this use
+   * @since 2.0
+   */
   @Override
   public Parameter<?> getParameter(final int position) {
-    return query.getParameter(position);
+    final Optional<?> parameter = parameterBuffer
+        .getParameters()
+        .values()
+        .stream()
+        .filter(p -> p.getPosition().equals(position))
+        .findFirst();
+    return (Parameter<?>) parameter
+        .orElseThrow(() -> new IllegalArgumentException("No parameter with index " + position));
   }
 
+  /**
+   * Get the parameter object corresponding to the declared
+   * positional parameter with the given position and type.
+   * This method is not required to be supported by the provider.
+   * @param position position
+   * @param type type
+   * @return parameter object
+   * @throws IllegalArgumentException if the parameter with the
+   * specified position does not exist or is not assignable
+   * to the type
+   * @throws IllegalStateException if invoked on a native
+   * query or Jakarta Persistence query language query when
+   * the implementation does not support this use
+   * @since 2.0
+   */
+  @SuppressWarnings("unchecked")
   @Override
   public <X> Parameter<X> getParameter(final int position, final Class<X> type) {
-    return query.getParameter(position, type);
+    final var parameter = getParameter(position);
+    if (parameter.getParameterType() != null && type != null && !type.isAssignableFrom(parameter.getParameterType()))
+      throw new IllegalArgumentException("Parameter at " + position + " has different type");
+    return (Parameter<X>) parameter;
   }
 
+  /**
+   * Get the parameter object corresponding to the declared
+   * parameter of the given name.
+   * This method is not required to be supported for native
+   * queries.
+   * @param name parameter name
+   * @return parameter object
+   * @throws IllegalArgumentException if the parameter of the
+   * specified name does not exist
+   * @throws IllegalStateException if invoked on a native
+   * query when the implementation does not support
+   * this use
+   * @since 2.0
+   */
   @Override
   public Parameter<?> getParameter(final String name) {
-    return query.getParameter(name);
+    final var position = Integer.valueOf(name);
+    return getParameter(position);
   }
 
+  /**
+   * Get the parameter object corresponding to the declared
+   * parameter of the given name and type.
+   * This method is required to be supported for criteria queries
+   * only.
+   * @param name parameter name
+   * @param type type
+   * @return parameter object
+   * @throws IllegalArgumentException if the parameter of the
+   * specified name does not exist or is not assignable
+   * to the type
+   * @throws IllegalStateException if invoked on a native
+   * query or Jakarta Persistence query language query when
+   * the implementation does not support this use
+   * @since 2.0
+   */
+  @SuppressWarnings("unchecked")
   @Override
   public <X> Parameter<X> getParameter(final String name, final Class<X> type) {
-    return query.getParameter(name, type);
+    final var parameter = getParameter(name);
+    if (parameter.getParameterType() != null && type != null && !type.isAssignableFrom(parameter.getParameterType()))
+      throw new IllegalArgumentException("Parameter with name " + name + " has different type");
+    return (Parameter<X>) parameter;
   }
 
+  /**
+   * Get the parameter objects corresponding to the declared
+   * parameters of the query.
+   * Returns empty set if the query has no parameters.
+   * This method is not required to be supported for native
+   * queries.
+   * @return set of the parameter objects
+   * @throws IllegalStateException if invoked on a native
+   * query when the implementation does not support
+   * this use
+   * @since 2.0
+   */
   @Override
   public Set<Parameter<?>> getParameters() {
-    return query.getParameters();
+    return parameterBuffer.getParameters()
+        .values().stream().collect(Collectors.toSet());
   }
 
+  /**
+   * Return the input value bound to the positional parameter.
+   * (Note that OUT parameters are unbound.)
+   * @param position position
+   * @return parameter value
+   * @throws IllegalStateException if the parameter has not been
+   * been bound
+   * @throws IllegalArgumentException if the parameter with the
+   * specified position does not exist
+   * @since 2.0
+   */
   @Override
   public Object getParameterValue(final int position) {
-    return query.getParameterValue(position);
+    final Optional<?> parameter = parameterBuffer
+        .getParameters()
+        .values()
+        .stream()
+        .filter(p -> p.getPosition().equals(position))
+        .findFirst();
+    return parameter.orElseThrow(() -> new IllegalArgumentException("No parameter with index " + position));
   }
 
+  /**
+   * Return the input value bound to the parameter.
+   * (Note that OUT parameters are unbound.)
+   * @param param parameter object
+   * @return parameter value
+   * @throws IllegalArgumentException if the parameter is not
+   * a parameter of the query
+   * @throws IllegalStateException if the parameter has not been
+   * been bound
+   * @since 2.0
+   */
+  @SuppressWarnings("unchecked")
   @Override
   public <X> X getParameterValue(final Parameter<X> param) {
-    return query.getParameterValue(param);
+    final Optional<ParameterExpression<Object, Object>> parameter = parameterBuffer.getParameters().values()
+        .stream()
+        .filter(p -> p.equals(param))
+        .findFirst();
+
+    return (X) parameter.map(ParameterExpression::getValue)
+        .orElseThrow(() -> new IllegalArgumentException("Parameter unknown " + param));
   }
 
   @Override
   public Object getParameterValue(final String name) {
-    return query.getParameterValue(name);
+    final ParameterExpression<?, ?> parameter = (ParameterExpression<?, ?>) getParameter(name);
+    return parameter.getValue();
   }
 
   /**
@@ -141,8 +280,7 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
   @SuppressWarnings("unchecked")
   @Override
   public List<T> getResultList() {
-
-    final List<?> result = query.getResultList();
+    final List<?> result = createNativeQuery().getResultList();
     if (parent.getResultType().isAssignableFrom(Tuple.class)) {
       if (result.isEmpty())
         return Collections.emptyList();
@@ -192,98 +330,99 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
 
   @Override
   public boolean isBound(final Parameter<?> param) {
-    return query.isBound(param);
+    return parameterBuffer.getParameters().containsValue(param);
   }
 
   @Override
   public TypedQuery<T> setFirstResult(final int startPosition) {
-
-    query.setFirstResult(startPosition);
+    parent.setFirstResult(startPosition);
     return this;
   }
 
   @Override
   public TypedQuery<T> setFlushMode(final FlushModeType flushMode) {
-    query.setFlushMode(flushMode);
+    this.flushMode = Optional.ofNullable(flushMode);
     return this;
   }
 
   @Override
   public TypedQuery<T> setHint(final String hintName, final Object value) {
-    query.setHint(hintName, value);
+    this.hints.put(hintName, value);
     return this;
   }
 
   @Override
   public TypedQuery<T> setLockMode(final LockModeType lockMode) {
-    query.setLockMode(lockMode);
+    this.lockMode = Optional.ofNullable(lockMode);
     return this;
   }
 
   @Override
   public TypedQuery<T> setMaxResults(final int maxResult) {
-    query.setMaxResults(maxResult);
+    this.parent.setMaxResults(maxResult);
     return this;
   }
 
+  /**
+   * Bind an instance of <code>java.util.Calendar</code> to a positional parameter.
+   * @throws IllegalStateException Setting parameter is not supported
+   */
   @Override
   public TypedQuery<T> setParameter(final int position, final Calendar value, final TemporalType temporalType) {
-    query.setParameter(position, value, temporalType);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public TypedQuery<T> setParameter(final int position, final Date value, final TemporalType temporalType) {
-    query.setParameter(position, value, temporalType);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public TypedQuery<T> setParameter(final int position, final Object value) {
-    query.setParameter(position, value);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public TypedQuery<T> setParameter(final Parameter<Calendar> param, final Calendar value,
       final TemporalType temporalType) {
-    query.setParameter(param, value, temporalType);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public TypedQuery<T> setParameter(final Parameter<Date> param, final Date value, final TemporalType temporalType) {
-    query.setParameter(param, value, temporalType);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public <X> TypedQuery<T> setParameter(final Parameter<X> param, final X value) {
-    query.setParameter(param, value);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public TypedQuery<T> setParameter(final String name, final Calendar value, final TemporalType temporalType) {
-    query.setParameter(name, value, temporalType);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public TypedQuery<T> setParameter(final String name, final Date value, final TemporalType temporalType) {
-    query.setParameter(name, value, temporalType);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
   @Override
   public TypedQuery<T> setParameter(final String name, final Object value) {
-    query.setParameter(name, value);
-    return this;
+    throw new IllegalStateException(SET_A_PARAMETER_EXCEPTION);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <X> X unwrap(final Class<X> clazz) {
-    return query.unwrap(clazz);
+    if (clazz.isAssignableFrom(this.getClass())) {
+      return (X) this;
+    }
+    if (clazz.isAssignableFrom(parent.getClass())) {
+      return (X) parent;
+    }
+    throw new PersistenceException("Unable to unwrap " + clazz.getName());
   }
 
   private List<Entry<String, JPAPath>> buildSelection() {
@@ -297,9 +436,9 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
         .collect(Collectors.toMap(Entry::getKey, path -> count[0]++));
   }
 
-  private void copyParameter(final Map<Integer, ParameterExpression<?, ?>> map) {
-    map.entrySet().stream().forEach(es -> this.query.setParameter(es.getValue().getPosition(), es.getValue()
-        .getValue()));
+  private void copyParameter(final Query query, final Map<Integer, ParameterExpression<Object, Object>> map) {
+    map.entrySet().stream().forEach(entry -> query.setParameter(entry.getValue().getPosition(),
+        entry.getValue().getValue()));
   }
 
   private List<Entry<String, JPAAttribute>> toAttributeList(final List<Entry<String, JPAPath>> selectionPath) {
@@ -310,4 +449,11 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
     return result;
   }
 
+  private Query createNativeQuery() {
+    final StringBuilder sql = new StringBuilder();
+    final Query query = em.createNativeQuery(parent.asSQL(sql).toString());
+    query.setHint("eclipselink.cursor.scrollable", false); // https://wiki.eclipse.org/EclipseLink/Examples/JPA/Pagination#How_to_use_EclipseLink_Pagination
+    copyParameter(query, parameterBuffer.getParameters());
+    return query;
+  }
 }

@@ -47,8 +47,10 @@ public class JPAFilterRestrictionsWatchDog extends AbstractWatchDog {
   private final Map<String, CsdlExpression> properties;
   private final String externalName;
   private final Set<String> requiredPropertyPath;
+  private boolean singleEntityRequested;
 
-  public JPAFilterRestrictionsWatchDog(final JPAAnnotatable annotatable) throws ODataJPAQueryException {
+  public JPAFilterRestrictionsWatchDog(final JPAAnnotatable annotatable, final boolean singleEntityRequested)
+      throws ODataJPAQueryException {
     try {
       if (annotatable != null) {
         externalName = annotatable.getExternalName();
@@ -61,6 +63,7 @@ public class JPAFilterRestrictionsWatchDog extends AbstractWatchDog {
         properties = Collections.emptyMap();
         requiredPropertyPath = Collections.emptySet();
       }
+      this.singleEntityRequested = singleEntityRequested;
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
@@ -101,18 +104,19 @@ public class JPAFilterRestrictionsWatchDog extends AbstractWatchDog {
 
   private boolean filteringIsAllowed() {
     final CsdlExpression filterable = properties.get(FILTERABLE);
-    return filterable != null
-        && !Boolean.valueOf(filterable.asConstant().getValue());
+    return filterable == null
+        || (Boolean.valueOf(filterable.asConstant().getValue()));
   }
 
   private boolean filterIsRequired() {
     final CsdlExpression requiresFilter = properties.get(REQUIRES_FILTER);
     return requiresFilter != null
-        && Boolean.valueOf(requiresFilter.asConstant().getValue());
+        && Boolean.valueOf(requiresFilter.asConstant().getValue())
+        && !singleEntityRequested;
   }
 
   private void watchFilterable(final Expression<Boolean> filter) throws ODataJPAFilterException {
-    if (filteringIsAllowed()
+    if (!filteringIsAllowed()
         && filter != null)
       throw new ODataJPAFilterException(FILTERING_NOT_SUPPORTED, HttpStatusCode.BAD_REQUEST,
           externalName);
