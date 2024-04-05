@@ -88,7 +88,8 @@ public class ODataJPAModelException extends ODataJPAException {
     PATH_ELEMENT_NOT_EMBEDDABLE,
     DB_TYPE_NOT_DETERMINED,
     FILE_NOT_FOUND,
-    MISSING_ONE_TO_ONE_ANNOTATION;
+    MISSING_ONE_TO_ONE_ANNOTATION,
+    ENTITY_TYPE_NOT_FOUND;
 
     @Override
     public String getKey() {

@@ -19,6 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
 public final class JPANavigationPropertyInfo implements JPANavigationPropertyInfoAccess {
@@ -31,6 +32,7 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
   private final UriInfoResource uriInfo;
   private JPAEntityType et = null;
   private JPAFilterComplier filterCompiler = null;
+  private JPAODataPage page = null;
 
   /**
    *
@@ -46,6 +48,7 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
     this.uriInfo = original.getUriInfo();
     this.sd = original.getServiceDocument();
     this.et = this.uriInfo instanceof JPAExpandItem ? ((JPAExpandItem) uriInfo).getEntityType() : null;
+    this.page = original.getPage();
   }
 
   public JPANavigationPropertyInfo(final JPAServiceDocument sd, final JPAAssociationPath associationPath,
@@ -165,6 +168,14 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
     fromClause = from;
   }
 
+  JPAODataPage getPage() {
+    return page;
+  }
+
+  void setPage(final JPAODataPage page) {
+    this.page = page;
+  }
+
   private JPAServiceDocument getServiceDocument() {
     return sd;
   }
@@ -180,4 +191,5 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
       return super.toString();
     }
   }
+
 }

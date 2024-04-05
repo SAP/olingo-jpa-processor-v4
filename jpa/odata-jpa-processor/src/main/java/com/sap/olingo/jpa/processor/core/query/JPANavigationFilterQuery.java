@@ -24,6 +24,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 
 public class JPANavigationFilterQuery extends JPANavigationSubQuery implements ExistsExpressionValue {
 
@@ -55,21 +56,54 @@ public class JPANavigationFilterQuery extends JPANavigationSubQuery implements E
       final VisitableExpression expression, final List<Path<Comparable<?>>> inPath) throws ODataApplicationException {
 
     if (this.association.getJoinTable() != null) {
-      createSubQueryJoinTable();
+      if (isCollectionProperty)
+        createSubQueryCollectionProperty(childQuery, expression, inPath);
+      else
+        createSubQueryJoinTable();
     } else {
       createSubQuery(childQuery, expression, inPath);
     }
     return (Subquery<T>) this.subQuery;
   }
 
+  protected <T> void createSubQueryCollectionProperty(final Subquery<T> childQuery,
+      @Nullable final VisitableExpression expression, final List<Path<Comparable<?>>> inPath)
+      throws ODataApplicationException {
+
+    if (association.getTargetType() == null) {
+      createSubQueryCollectionNoTargetType();
+    } else {
+      createSubQueryCollectionWithTargetType(childQuery, expression, inPath);
+    }
+  }
+
+  private void createSubQueryCollectionNoTargetType() throws ODataApplicationException {
+    debugger.debug(this,
+        "Collection property without entity type: queries using such properties in the filter are not supported");
+    throw new ODataJPAQueryException(
+        MessageKeys.QUERY_PREPARATION_COLLECTION_PROPERTY_NOT_SUPPORTED, HttpStatusCode.BAD_REQUEST);
+  }
+
+  /**
+   * <pre>
+   * SELECT E0."ID" S0, E0."ETag" S1
+   *     FROM "OLINGO"."BusinessPartner" E0
+   *     WHERE EXISTS (
+   *         SELECT E2."BusinessPartnerID" S0
+   *             FROM "OLINGO"."Comment" E2
+   *             WHERE (E2."BusinessPartnerID" = E0."ID"
+   *             AND (E2."Text" LIKE '%just%')))
+   * </pre>
+   *
+   * @throws ODataApplicationException
+   */
   @SuppressWarnings("unchecked")
-  protected <T> void createSubQuery(final Subquery<T> childQuery,
+  private <T> void createSubQueryCollectionWithTargetType(final Subquery<T> childQuery,
       @Nullable final VisitableExpression expression, final List<Path<Comparable<?>>> inPath)
       throws ODataApplicationException {
 
     createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns(), false);
-    Expression<Boolean> whereCondition = null;
-    whereCondition = addWhereClause(
+    Expression<Boolean> whereCondition = addWhereClause(
         createWhereByAssociation(from, queryRoot, determineJoinColumns()),
         createWhereByKey(queryRoot, this.keyPredicates, jpaEntity));
     if (childQuery != null) {
@@ -79,6 +113,27 @@ public class JPANavigationFilterQuery extends JPANavigationSubQuery implements E
     }
     whereCondition = addWhereClause(whereCondition,
         createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot));
+
+    subQuery.where(applyAdditionalFilter(whereCondition));
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> void createSubQuery(final Subquery<T> childQuery,
+      @Nullable final VisitableExpression expression, final List<Path<Comparable<?>>> inPath)
+      throws ODataApplicationException {
+
+    createSelectClauseJoin(subQuery, queryRoot, determineAggregationRightColumns(), false);
+    Expression<Boolean> whereCondition = addWhereClause(
+        createWhereByAssociation(from, queryRoot, determineJoinColumns()),
+        createWhereByKey(queryRoot, this.keyPredicates, jpaEntity));
+    if (childQuery != null) {
+      whereCondition = cb.and(whereCondition,
+          ExpressionUtility.createSubQueryBasedExpression((Subquery<List<Comparable<?>>>) childQuery, inPath, cb,
+              expression));
+    }
+    whereCondition = addWhereClause(whereCondition,
+        createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot));
+
     subQuery.where(applyAdditionalFilter(whereCondition));
   }
 

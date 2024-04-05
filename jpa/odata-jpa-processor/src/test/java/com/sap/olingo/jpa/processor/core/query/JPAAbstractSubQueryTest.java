@@ -1,6 +1,9 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -27,14 +30,17 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
@@ -175,6 +181,20 @@ class JPAAbstractSubQueryTest extends TestBase {
 
     assertThrows(IllegalStateException.class,
         () -> cut.createSelectClauseAggregation(subQuery, from, conditionItems, true));
+  }
+
+  @Test
+  void isCollectionPropertyReturnsFalseForNavigation() {
+    assertFalse(cut.toCollectionProperty());
+  }
+
+  @Test
+  void isCollectionPropertyReturnsTrueForCollection() throws ODataJPAModelException {
+    final var attribute = helper.getJPAAttribute(Organization.class, "comment")
+        .map(a -> (JPACollectionAttribute) a)
+        .orElseGet(() -> fail());
+    cut = new JPASubQuery(odata, null, null, em, parent, from, attribute.asAssociation());
+    assertTrue(cut.toCollectionProperty());
   }
 
   private JPAPath createJpaPath(final String attribute) {

@@ -265,7 +265,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Predicate act = (Predicate) m.invoke(cut, params);
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(0, cut.getParameter().getParameter().size());
+    assertEquals(0, cut.getParameter().getParameters().size());
   }
 
   @ParameterizedTest
@@ -280,8 +280,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(1, cut.getParameter().getParameter().size());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+    assertEquals(1, cut.getParameter().getParameters().size());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals("NUTS2", parameter.getValue());
     }
@@ -297,7 +297,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(0, cut.getParameter().getParameter().size());
+    assertEquals(0, cut.getParameter().getParameters().size());
   }
 
   @ParameterizedTest
@@ -311,8 +311,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(1, cut.getParameter().getParameter().size());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+    assertEquals(1, cut.getParameter().getParameters().size());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals(1000, parameter.getValue());
     }
@@ -330,8 +330,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(1, cut.getParameter().getParameter().size());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+    assertEquals(1, cut.getParameter().getParameters().size());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals(1000, parameter.getValue());
     }
@@ -399,7 +399,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals("(E0.\"Area\" >= E0.\"Population\")", ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(0, cut.getParameter().getParameter().size());
+    assertEquals(0, cut.getParameter().getParameters().size());
   }
 
   @Test
@@ -494,7 +494,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<LocalDate> act = cut.literal(LocalDate.now());
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
     assertNotNull(cut.getParameter());
-    assertEquals(1, cut.getParameter().getParameter().size());
+    assertEquals(1, cut.getParameter().getParameters().size());
   }
 
   @Test
@@ -777,7 +777,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), rights);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals((short) 9, parameter.getValue());
     }
@@ -792,7 +792,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), cut.literal(rights));
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals((short) 9, parameter.getValue());
     }
@@ -882,7 +882,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final StringBuilder builder = new StringBuilder();
     assertTrue(act instanceof ConcatExpression);
     assertEquals("CONCAT(?1, ?2)", ((ExpressionImpl<String>) act).asSQL(builder).toString());
-    final Map<Integer, ParameterExpression<?, ?>> actMap = cut.getParameter().getParameter();
+    final Map<Integer, ParameterExpression<Object, Object>> actMap = cut.getParameter().getParameters();
     assertEquals(2, actMap.size());
     boolean aFound = false;
     boolean bFound = false;
