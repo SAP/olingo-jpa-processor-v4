@@ -34,8 +34,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaResponseMapper;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.util.HttpRequestHeaderDouble;
@@ -71,7 +69,7 @@ public class IntegrationTestHelper {
         sessionContext);
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
-    handler.process(new JakartaRequestMapper(req), new JakartaResponseMapper(resp));
+    handler.process(req, resp);
   }
 
   public List<String> getRawBatchResult() throws IOException {

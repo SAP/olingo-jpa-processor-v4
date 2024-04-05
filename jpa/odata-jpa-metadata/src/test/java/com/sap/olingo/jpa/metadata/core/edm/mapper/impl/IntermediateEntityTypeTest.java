@@ -8,8 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +24,7 @@ import jakarta.persistence.metamodel.EntityType;
 
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
@@ -37,7 +36,6 @@ import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
-import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
@@ -55,6 +53,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.util.AnnotationTestHelper;
+import com.sap.olingo.jpa.metadata.odata.v4.core.terms.ExampleProperties;
+import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Terms;
+import com.sap.olingo.jpa.metadata.odata.v4.general.Aliases;
+import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCoreAnnotationsProvider;
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -991,7 +994,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     createAnnotation();
     final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
-    final CsdlAnnotation act = et.getAnnotation("Capabilities", "FilterRestrictions");
+    final CsdlAnnotation act = et.getAnnotation("Core", "Example");
     assertNotNull(act);
   }
 
@@ -1000,7 +1003,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     createAnnotation();
     final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
-    assertNull(et.getAnnotation("Capability", "FilterRestrictions"));
+    assertNull(et.getAnnotation("Capability", "Example"));
   }
 
   @Test
@@ -1008,7 +1011,26 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     createAnnotation();
     final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
-    assertNull(et.getAnnotation("Capabilities", "Filter"));
+    assertNull(et.getAnnotation("Core", "Filter"));
+  }
+
+  @Test
+  void checkGetAnnotationValueNavigationProperty() throws ODataJPAModelException {
+    createAnnotation();
+    final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
+    final var act = et.getAnnotationValue(Aliases.CORE, Terms.EXAMPLE, ExampleProperties.EXTERNAL_VALUE, String.class);
+    assertNotNull(act);
+    assertEquals("../AnnotationsParent?$filter=Parent eq null", act);
+  }
+
+  @Test
+  void checkGetAnnotationValueReturnsNullAliasUnknown() throws ODataJPAModelException {
+    createAnnotation();
+    final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
+    assertNull(et.getAnnotationValue(Aliases.CAPABILITIES.alias(), Terms.EXAMPLE.term(),
+        ExampleProperties.EXTERNAL_VALUE.property()));
   }
 
   @Test
@@ -1086,15 +1108,23 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   private void createAnnotation() {
-    final AnnotationProvider annotationProvider = mock(AnnotationProvider.class);
+    final var reference = annotationInfo.getReferences();
+    final var annotationProvider = new JavaBasedCoreAnnotationsProvider();
     final List<CsdlAnnotation> annotations = new ArrayList<>();
-    final CsdlAnnotation annotation = mock(CsdlAnnotation.class);
-    annotations.add(annotation);
-    when(references.convertAlias("Capabilities")).thenReturn("Org.OData.Capabilities.V1");
-    when(annotation.getTerm()).thenReturn("Org.OData.Capabilities.V1.FilterRestrictions");
+    final List<CsdlProperty> properties = new ArrayList<>();
+
+    properties.add(AnnotationTestHelper.createTermProperty("Description", "Edm.String"));
+    properties.add(AnnotationTestHelper.createTermProperty("ExternalValue", "Edm.String"));
+    annotations.add(AnnotationTestHelper.createCoreAnnotation("Example"));
+
+    final var terms = AnnotationTestHelper.addTermToCoreReferences(reference, "Example", "ExternalExampleValue",
+        properties);
+
+    when(reference.convertAlias("Core")).thenReturn("Org.OData.Core.V1");
+    when(reference.getTerms("Core", Applicability.ENTITY_TYPE))
+        .thenReturn(Arrays.asList(terms));
+
     annotationInfo.getAnnotationProvider().add(annotationProvider);
-    when(annotationProvider.getAnnotations(eq(Applicability.ENTITY_TYPE), any(), any()))
-        .thenReturn(annotations);
   }
 
   private void assertInherited(final List<JPAProtectionInfo> act) {

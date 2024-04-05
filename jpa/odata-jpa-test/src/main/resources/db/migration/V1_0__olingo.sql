@@ -435,7 +435,7 @@ CREATE TABLE "AdministrativeDivision"(
 	"ParentCodeID" VARCHAR(10),
 	"ParentDivisionCode" VARCHAR(10),
 	"AlternativeCode" VARCHAR(10),
-	"Area" int,  --DECIMAL(31,0),
+	"Area" BIGINT,  --DECIMAL(31,0),
 	"Population" BIGINT,
 	PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode"));
 	
@@ -746,7 +746,7 @@ insert into "NestedComplex" values('501',1, 1, 1, 1);
 insert into "NestedComplex" values('501',3, 1, 1, 1);   
 insert into "NestedComplex" values('503',1, 4, 5, 6);   
 insert into "NestedComplex" values('504',1, 1, 3, 6);   
-   
+insert into "NestedComplex" values('504',3, 1, 1, 7);     
 
 CREATE TABLE "CollectionsDeep" (
 	"ID" VARCHAR(32) NOT NULL ,
@@ -972,6 +972,18 @@ CREATE TABLE "TemporalWithValidityPeriod"(
  INSERT INTO "TemporalWithValidityPeriod" values ('98', '2022-01-01', '9999-12-31','Architect');
  
 --------------------------------------------
+ 
+-- CREATE TABLE "Pages"(
+--	"token" uuid NOT NULL,
+--	"skip" INTEGER NOT NULL,
+--	"top" INTEGER NOT NULL,
+--	"baseUri" VARCHAR(255),
+--	"oDataPath" VARCHAR(255),
+--	"queryPath" VARCHAR(255),	
+--	"fragments" VARCHAR(255),
+-- PRIMARY KEY ("ID", "StartDate"));
+ 
+--------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,
@@ -1004,3 +1016,4 @@ CREATE TABLE "DummyToBeIgnored" (
 --						AND  a."CodeID" = "ID"
 --						AND  a."DivisionCode" = "Division" )
 --				);
+	 

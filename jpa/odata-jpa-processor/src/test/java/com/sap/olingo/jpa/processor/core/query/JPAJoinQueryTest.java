@@ -1,22 +1,16 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -71,40 +65,12 @@ class JPAJoinQueryTest extends TestQueryBase {
     cut = new JPAJoinQuery(null, localContext);
   }
 
-  @SuppressWarnings("unchecked")
-  @Test
-  void testCountResultsIsInteger() throws ODataApplicationException {
-    final TypedQuery<Integer> typedQuery = mock(TypedQuery.class);
-    final Expression<Long> countExpression = mock(Expression.class);
-    when(cb.createQuery(any())).thenReturn(cq);
-    doReturn(countExpression).when(cb).countDistinct(any());
-    doReturn(countExpression).when(cb).count(any());
-    when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
-    when(typedQuery.getSingleResult()).thenReturn(5);
-    final Long act = ((JPAJoinQuery) cut).countResults();
-    assertEquals(5L, act);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  void testCountResultsIsLong() throws ODataApplicationException {
-    final TypedQuery<Long> typedQuery = mock(TypedQuery.class);
-    final Expression<Long> countExpression = mock(Expression.class);
-    when(cb.createQuery(any())).thenReturn(cq);
-    doReturn(countExpression).when(cb).countDistinct(any());
-    doReturn(countExpression).when(cb).count(any());
-    when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
-    when(typedQuery.getSingleResult()).thenReturn(5L);
-    final Long act = ((JPAJoinQuery) cut).countResults();
-    assertEquals(5L, act);
-  }
-
   @Test
   void testDerivedTypeRequestedTrueTwoLevels() {
 
-    final JPAStructuredType rootType = mock(JPAStructuredType.class);
-    final JPAStructuredType baseType = mock(JPAStructuredType.class);
-    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+    final var rootType = mock(JPAStructuredType.class);
+    final var baseType = mock(JPAStructuredType.class);
+    final var potentialSubType = mock(JPAStructuredType.class);
 
     when(potentialSubType.getBaseType()).thenReturn(baseType);
     when(baseType.getBaseType()).thenReturn(rootType);
@@ -115,8 +81,8 @@ class JPAJoinQueryTest extends TestQueryBase {
   @Test
   void testDerivedTypeRequestedTrue() {
 
-    final JPAStructuredType baseType = mock(JPAStructuredType.class);
-    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+    final var baseType = mock(JPAStructuredType.class);
+    final var potentialSubType = mock(JPAStructuredType.class);
 
     when(potentialSubType.getBaseType()).thenReturn(baseType);
 
@@ -126,8 +92,8 @@ class JPAJoinQueryTest extends TestQueryBase {
   @Test
   void testDerivedTypeRequestedFalseNoBaseType() {
 
-    final JPAStructuredType baseType = mock(JPAStructuredType.class);
-    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+    final var baseType = mock(JPAStructuredType.class);
+    final var potentialSubType = mock(JPAStructuredType.class);
 
     when(potentialSubType.getBaseType()).thenReturn(null);
 
@@ -137,9 +103,9 @@ class JPAJoinQueryTest extends TestQueryBase {
   @Test
   void testDerivedTypeRequestedFalseOtherBaseType() {
 
-    final JPAStructuredType baseType = mock(JPAStructuredType.class);
-    final JPAStructuredType baseType2 = mock(JPAStructuredType.class);
-    final JPAStructuredType potentialSubType = mock(JPAStructuredType.class);
+    final var baseType = mock(JPAStructuredType.class);
+    final var baseType2 = mock(JPAStructuredType.class);
+    final var potentialSubType = mock(JPAStructuredType.class);
 
     when(potentialSubType.getBaseType()).thenReturn(baseType2);
 

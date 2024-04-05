@@ -114,6 +114,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
 
   @Test
   void testCutExists() throws ODataApplicationException, ODataJPAModelException {
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
     createEdmEntityType(BusinessPartnerRoleProtected.class);
     cut = createCut();
     assertNotNull(cut);
@@ -123,7 +124,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
 
   @Test
   void testGetSubQueryThrowsExceptionWhenChildQueryProvided() throws ODataApplicationException, ODataJPAModelException {
-
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
     createEdmEntityType(BusinessPartnerRoleProtected.class);
     cut = createCut();
     assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null, Collections.emptyList()));
@@ -236,6 +237,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
   @Test
   void testGetLeftOnEarlyAccess() throws ODataApplicationException, ODataJPAIllegalAccessException,
       ODataJPAModelException {
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
     createEdmEntityType(BusinessPartnerRoleProtected.class);
     cut = createCut();
     assertLeftEarlyAccess();

@@ -1,0 +1,694 @@
+= How to build server driven paging?
+
+== Introduction
+
+OData describes that a server can restrict the number of returned records e.g., to prevent DoS attacks or
+ to prevent that the server dies with an OutOfMemory exception. Implementing this so called 
+http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398310[Server-Driven Paging] 
+requires the knowledge about a couple of details such as:
+
+- Heap Size of the web service
+- Width respectively memory consumption of an instance of an entity
+- Expected number of results of a $expand
+- Expected number of parallel processed requests on a service instance
+- ...
+
+This makes a general implementation impossible. Instead the JPA Processor provides a hook to calculate the pages of a request. 
+This hook must implement interface https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPagingProvider.java[`JPAODataPagingProvider`], 
+which contains two methods `getFirstPage` and `getNextPage`. `getFirstPage` is called in case a query does not contain a `$skiptoken`. 
+It either returns an instance of https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPage.java[`JPAODataPage`], 
+which describes the subset of the requested entities that shall be returned or null, so all entities are returned. 
+If a request has a `$skiptoken` method `getNextPage` is called. In case this method does not return a `JPAODataPage` instance, which describes the next page to be retrieved, a _http 410, "Gone"_, exception is raised.
+
+As a paging provider connects to multiple requests, it is put to the session context:
+
+[source,java]
+----
+  @Bean
+  public JPAODataSessionContextAccess sessionContext(@Autowired final EntityManagerFactory emf) 
+	  throws ODataException {
+	  
+    return JPAODataServiceContext.with()
+	  ...
+	  .setPagingProvider(new PagingProvider(buildPagingProvider()))//<1>
+	  ...
+  }
+
+  private PagingProvider buildPagingProvider() { //<2>
+    final Map<String, Integer> pageSizes = new HashMap<>();
+    pageSizes.put("People", 10);
+
+    return new PagingProvider(pageSizes);
+  }
+----
+
+<1> An instance of the paging provider set in the session context.
+<2> Creation of a Map containing a page size for each relevant entity set.
+
+Depending on the usage of the service, three cases can be distinguished, which have an increasing complexity. 
+They are discussed below. Even so the first scenario (one service instance using one thread) is not very likely, 
+it is worth to read the chapter, as it contains some general hints.
+
+== Single service instance single thread
+
+Implementing server driven paging, we must answer some questions. The first, general question, is how the skip-token should look like. 
+There are two obvious options: 
+
+. The skip-token is a string that contains all the information needed to build the next page and to determine the last page.
+. The skip-token is a random key.
+
+Both have drawbacks. If we provide a string, the client can manipulate it, so the server must check e.g., that the client does not request to many entities. 
+If a random skip-token is used, the server must store information about the query.
+
+For this tutorial we use the second option, as it seams to be easier to implement. So, lets have a look at the next questions that need to be answered:
+
+. How to store the necessary information to build a query from the skip-token?
+. How to prevent to many open skip-token and create a memory leak?
+. Can skip-token be used multiple times?
+. What page sizes should be used?
+
+For this case, single service instance and just one thread, we can cache the necessary information in a `Map` with the skip-token as key. 
+To limit the memory consumption, we add a `Queue` that gives the skip-token an order. This enable us to remove the oldest entry, if the 
+cache limit is reached. 
+
+[NOTE]
+====
+The example is guided by https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/example/JPAExamplePagingProvider.java[JPAExamplePagingProvider],
+which is part of `odata-jpa-processor`
+====
+
+The frame of out paging provider will look as follows:
+
+[source,java]
+----
+public class PagingProvider implements JPAODataPagingProvider {
+
+  private static final int BUFFER_SIZE = 500; //<1>
+  private final Map<String, CacheEntry> pageCache; //<2>
+  private final Queue<String> index; //<3>
+  private final Map<String, Integer> maxPageSizes; //<4>
+  
+  public PagingProvider(final Map<String, Integer> pageSizes) { //<4>
+    maxPageSizes = Collections.unmodifiableMap(pageSizes);
+    pageCache = new HashMap<>(BUFFER_SIZE);
+    index = new LinkedList<>();
+  }
+  
+  ... 
+}
+----
+<1> Definition of the size of the cache. So, we wont have more then 500 skip-token in the cache.
+<2> Map to cache the query information.
+<3> Queue to control the cache limit.
+<4> Map to store the page sizes per entity type, which is provided when an instance of the paging provider is created.
+
+If we look carefully at the first part of the implementation, we see that we need a class that takes the information 
+needed to create the next page:
+
+[source,java]
+----
+  private static record CacheEntry(Long last, //<1>
+  		JPAODataPage page) {} //<2>
+----
+<1> The last index to be returned for the request. 
+<2> The page provided.
+
+[NOTE]
+====
+If the cache stores to last top value, it could happen that entries are missed in case they are created while a 
+client retrieves page by page. Nevertheless, as determine the last top include a count query, so a round trip to the database,
+this information is not calculated again.
+====
+
+Having done this preparation, we can start to implement `getFirstPage` and `getNextPage`. 
+
+[WARNING]
+====
+With 2.1.0 `JPAODataPagingProvider` got a new set of methods. Do not implement the old, deprecated once.
+
+====
+
+First things first. Let's implement `getFirstPage`:
+
+[source,java]
+----
+  @Override
+  public Optional<JPAODataPage> getFirstPage(
+      final JPARequestParameterMap requestParameter,
+      final JPAODataPathInformation pathInformation, 
+      final UriInfo uriInfo, //<1>
+      @Nullable final Integer preferredPageSize,
+      final JPACountQuery countQuery, 
+      final EntityManager em) throws ODataApplicationException {
+
+    final UriResource root = uriInfo.getUriResourceParts().get(0); //<1>
+    // Paging will only be done for Entity Sets. It may also be needed for functions
+    if (root instanceof final UriResourceEntitySet entitySet) {
+      // Check if Entity Set shall be packaged
+      final Integer maxSize = maxPageSizes.get(entitySet.getEntitySet().getName());
+      if (maxSize != null) {
+        // Read $top and $skip
+        final Integer skipValue = uriInfo.getSkipOption() != null ? uriInfo.getSkipOption().getValue() : 0;
+        final Integer topValue = uriInfo.getTopOption() != null ? uriInfo.getTopOption().getValue() : null;
+        // Determine page size
+        final Integer pageSize = preferredPageSize != null && preferredPageSize < maxSize ? preferredPageSize : maxSize; //<2>
+        if (topValue != null && topValue <= pageSize) //<3> 
+          return Optional.of(new JPAODataPage(uriInfo, skipValue, topValue, null));
+        // Determine end of list
+        final Long maxResults = countQuery.countResults(); //<4>
+        final Long count = topValue != null && (topValue + skipValue) < maxResults
+            ? topValue.longValue() : maxResults - skipValue; //<5>
+        final Long last = topValue != null && (topValue + skipValue) < maxResults
+            ? (topValue + skipValue) : maxResults; //<6>
+        // Create a unique skip token if needed
+        String skipToken = null;
+        if (pageSize < count)
+          skipToken = UUID.randomUUID().toString(); //<7>
+        // Create page information
+        final JPAODataPage page = new JPAODataPage(uriInfo, skipValue, pageSize, skipToken);
+        // Cache page to be able to fulfill next link based request
+        if (skipToken != null)
+          addToCache(page, last); //<8>
+        return Optional.of(page);
+      }
+    }
+    return Optional.empty();
+  }
+----
+
+<1> UriInfo is a class provided by Olingo. It contains the parsed request information. The implementation looks at 
+the root of the request to decide if paging shall be considered. This may not always be the right thing, as 
+for chains of navigations the last part is retrieved from the database and will get the page limitation, based on the root.
+<2> A client can ask for certain page size by using `odata.maxpagesize` preference header. The paging provider shall respect this as
+long as the value is lower the maximum supported.
+<3> Skip further processing if no paging is required.
+<4> Determine maximum number of results that can be expected.
+<5> Determine requested number of results. Needed to decide if paging is needed.
+<6> Determine the last result requested. Needed to be able to stop the paging.
+<7> If paging is required, create a random skip-token.
+<8> Add the page to the cache.
+
+Now we must implement method `addToCache`, which is responsible to organize it:
+
+[source, java]
+----
+  private void addToCache(final JPAODataPage page, final Long count) {
+    if (pageCache.size() == BUFFER_SIZE) //<1>
+      pageCache.remove(index.poll());
+
+    pageCache.put((String) page.skipToken(), new CacheEntry(count, page));
+    index.add((String) page.skipToken());
+  }
+----
+
+<1> If the cache is full, the oldest is removed.
+
+With the implementation we already have, plus an empty one for `getNextPage`, we can test the paging and see 
+if the skip-token is provided in the response of the request.
+
+Last step is to implement `getNextPage`:
+
+[source, java]
+----
+  @Override
+  public Optional<JPAODataPage> getNextPage(
+      @Nonnull final String skipToken, 
+      final OData odata,
+      final ServiceMetadata serviceMetadata, 
+      final JPARequestParameterMap requestParameter, 
+      final EntityManager em) {
+    final CacheEntry previousPage = pageCache.get(skipToken.replace("'", "")); //<1>
+    if (previousPage != null) {
+      // Calculate next page
+      final Integer skip = previousPage.page().skip() + previousPage.page().top();
+      // Create a new skip token, if next page is not the last one
+      String nextToken = null;
+      if (skip + previousPage.page().top() < previousPage.last()) //<2>
+        nextToken = UUID.randomUUID().toString();
+      final int top = (int) ((skip + previousPage.page().top()) < previousPage.last()
+          ? previousPage.page().top() : previousPage.last() - skip); //<3>
+      final JPAODataPage page = new JPAODataPage(previousPage.page().uriInfo(), skip, top, nextToken);
+      if (nextToken != null)
+        addToCache(page, previousPage.last());
+      return Optional.of(page);
+    }
+    // skip token not found => let JPA Processor handle this by return http.gone
+    return Optional.empty();
+  }
+----
+
+<1> Look for query information in the cache.
+<2> Check if this is the last page.
+<3> Calculate the value of $top, which may be different for the last page.
+
+We are done and can test our complete server driven paging.
+
+== Single service instance multiple threads
+
+The main difference, when we go from a single thread to multiple threads, is that we get a race condition in the cache handling. 
+This becomes harder as we have two collections, which must be kept in sync. We can solve this by synchronizing the cache accesses:
+
+[source,java]
+----
+public class JPAExamplePagingProvider implements JPAODataPagingProvider {
+
+  private static final Object lock = new Object(); //<1>
+  
+  ...
+  
+
+  private void addToCache(final JPAODataPage page, final Long count) {
+
+    synchronized (lock) { //<2>
+      if (pageCache.size() == cacheSize)
+        pageCache.remove(index.poll());
+        
+      pageCache.put((String) page.skipToken(), new CacheEntry(count, page));
+      index.add((String) page.skipToken());
+    }
+  }  
+  
+  ...
+}
+  
+----
+<1> Introduction of a lock object needed for the synchronization.
+<2> Synchronization of the cache access.
+
+== Multiple service instances
+In case we have multiple instances of our service, the standard situation for microservices, we usually do not know which instance
+will handle a request. It may or may not be the same that has handled the request before. This holds also true for server driven paging.
+Therefore, we need to make the query information available for all instances, which requires a central backing service 
+that can be reached from each instance of our service. Two options will be described below.
+
+One remark needs to be given up front. The processing of an OData request requires an instance of interface _UriInfo_. 
+Unfortunately, _UriInfoImpl_ is not serializable. Instead of that we will store the URL 
+and make use of Olingo's URL parser to get the _UriInfo_ back.
+
+
+=== Use the database
+We have already a backing service in place, the database. To store the pages, we must create a corresponding table:
+
+[source,sql]
+----
+CREATE TABLE "Trippin"."Pages" (
+	"token" varchar(255) NOT NULL,
+	"skip" int4 NOT NULL,
+	"top" int4 NOT NULL,
+	"count" int4 NOT NULL,
+	"baseUri" varchar(1000) NULL,
+	"oDataPath" varchar(1000) NULL,
+	"queryPath" varchar(1000) NULL,
+	"fragments" varchar(1000) NULL,
+	CONSTRAINT "Pages_pkey" PRIMARY KEY (token)
+);
+----
+
+To access the table, we create the corresponding entity:
+
+[source,java]
+----
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+
+@EdmIgnore
+@Entity
+@Table(schema = "\"Trippin\"", name = "\"Pages\"")
+public class Pages {
+
+  @Id
+  @Column(name = "\"token\"")
+  private String token;
+
+  @Column(name = "\"skip\"")
+  private Integer skip;
+
+  @Column(name = "\"top\"")
+  private Integer top;
+
+  @Column(name = "\"last\"")
+  private Integer last;
+
+  @Column(name = "\"baseUri\"")
+  private String baseUri;
+
+  @Column(name = "\"oDataPath\"")
+  private String oDataPath;
+
+  @Column(name = "\"queryPath\"")
+  private String queryPath;
+
+  @Column(name = "\"fragments\"")
+  private String fragments;
+
+  public Pages() {
+    // Needed for JPA
+  }
+
+  public Pages(final String token, final Integer skip, final Integer top, final Integer last, final String baseUri,
+      final String oDataPath, final String queryPath, final String fragments) {
+    super();
+    this.token = token;
+    this.skip = skip;
+    this.top = top;
+    this.last = last;
+    this.baseUri = baseUri;
+    this.oDataPath = oDataPath;
+    this.queryPath = queryPath;
+    this.fragments = fragments;
+  }
+
+  public Pages(final Pages previousPage, final int skip, final String token) {
+    super();
+    this.token = token;
+    this.skip = skip;
+    this.top = previousPage.top;
+    this.last = previousPage.last;
+    this.baseUri = previousPage.baseUri;
+    this.oDataPath = previousPage.oDataPath;
+    this.queryPath = previousPage.queryPath;
+    this.fragments = previousPage.fragments;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public Integer getSkip() {
+    return skip;
+  }
+
+  public Integer getTop() {
+    return top;
+  }
+
+  public String getBaseUri() {
+    return baseUri;
+  }
+
+  public String getODataPath() {
+    return oDataPath;
+  }
+
+  public String getQueryPath() {
+    return queryPath;
+  }
+
+  public String getFragments() {
+    return fragments;
+  }
+
+  public Integer getLast() {
+    return last;
+  }
+}
+----
+
+To store the page information on the database we need to replace the call of `addToCache`
+from above by calling a method to insert a new row:
+
+[source,java]
+----
+  @Override
+  public Optional<JPAODataPage> getFirstPage(
+      final JPARequestParameterMap requestParameter,
+      final JPAODataPathInformation pathInformation, 
+      final UriInfo uriInfo,
+      @Nullable final Integer preferredPageSize,
+      final JPACountQuery countQuery, 
+      final EntityManager em) throws ODataApplicationException {
+      
+	...
+    if(skipToken != null)
+      savePage(pathInformation, em, last, page); //<1>
+    ...
+  }
+
+----
+<1> Calling method to save a page on the database.
+
+The `savePage` looks as follows: 
+
+[source,java]
+----
+  private void savePage(final JPAODataPathInformation pathInformation, final EntityManager em, final Long last,
+      final JPAODataPage page) {
+
+    if (page.skipToken() != null) {
+      final Pages pagesItem = new Pages((String) page.skipToken(), page.skip(), page.top(), last > Integer.MAX_VALUE
+            ? Integer.MAX_VALUE : last.intValue(),
+            pathInformation.baseUri(), pathInformation.oDataPath(), pathInformation.queryPath(),
+            pathInformation.fragments());
+      em.getTransaction().begin();
+      em.persist(pagesItem);
+      em.getTransaction().commit();
+    }
+  }
+----
+
+Having done that, we have to go ahead and handle the retrieval of the next page: 
+
+[source,java]
+----
+  @Override
+  public Optional<JPAODataPage> getNextPage(@Nonnull final String skipToken, final OData odata,
+      final ServiceMetadata serviceMetadata, final JPARequestParameterMap requestParameter, final EntityManager em) {
+    final Pages previousPage = em.find(Pages.class, skipToken.replace("'", "")); //<1>
+    if (previousPage != null) {
+      try {
+        final UriInfo uriInfo = new Parser(serviceMetadata.getEdm(), odata)
+            .parseUri(previousPage.getODataPath(), previousPage.getQueryPath(), previousPage.getFragments(),
+                previousPage.getBaseUri()); //<2>
+        final Integer skipValue = previousPage.getSkip() + previousPage.getTop();
+        final Integer topValue = skipValue + previousPage.getTop() > previousPage.getLast()
+            ? previousPage.getLast() - skipValue : previousPage.getTop();
+        final String newToken = skipValue + topValue < previousPage.getLast() ? UUID.randomUUID().toString() : null;
+        final JPAODataPage nextPage = new JPAODataPage(uriInfo, skipValue, topValue, newToken);
+        replacePage(previousPage, nextPage, em); //<3>
+        return Optional.of(nextPage);
+      } catch (final ODataException e) {
+        return Optional.empty();
+      }
+    }
+    return Optional.empty();
+  }
+----
+<1> Reading the previous page.
+<2> Calling Olingo's URI parser to get a UriInfo.
+<3> Save the next page on the database.
+
+For this variant we want to remove the already processed page on the database be the new page. This is the reason why we cannot use `savePage` here: 
+
+[source,java]
+----
+  private void replacePage(final Pages previousPage, final JPAODataPage newPage, final EntityManager em) {
+
+    em.getTransaction().begin();
+    em.remove(previousPage);
+    if (newPage.skipToken() != null) {
+      final Pages pagesItem = new Pages(previousPage, newPage.skip(), (String) newPage.skipToken());
+      em.persist(pagesItem);
+    }
+    em.getTransaction().commit();
+  }
+----
+
+[WARNING]
+====
+We cannot force the client to read all pages. That is, we must take into account that over the time the Page table
+get bigger and bigger, filled with garbage. To get rid of it, we have to have a clean-up job, removing old entries.
+
+====
+
+
+=== Use an external cache
+As an alternative we can use an external cache that offers a lifetime for its entries. There might be other option, but
+for this tutorial, we use Redis. It will not be described how to set it up. There are a lot of tutorial out there that handle this topic.  
+For the tutorial we assume Redis it is available. +
+Even so Spring offers an encapsulation to access Redis, we use Jedis as Java API. We get it by adding the following dependency to our POM:
+
+[source,XML]
+----
+<dependency>
+  <groupId>redis.clients</groupId>
+  <artifactId>jedis</artifactId>
+</dependency>
+----
+
+To be able to use Jedis within our paging provider we first must create a JedisPool. We
+extend class ProcessorConfiguration for this:
+
+[source, java]
+----
+public class ProcessorConfiguration {
+  public static final String REQUEST_ID = "RequestId";
+  public static final String REDIS = "Redis"; //<1>
+
+  @Bean
+  JedisPool jedisPool() {
+    final JedisPoolConfig poolConfig = new JedisPoolConfig();
+    poolConfig.setJmxEnabled(false);
+    return new JedisPool(poolConfig, "localhost", 6379); //<2>
+  }
+----
+
+<1> Constant used as identifier for the JedisPool in the request context.
+<2> Creation of the JedisPool with host and port.
+
+Next, we need to make it available:
+
+[source,java]
+----
+  JPAODataRequestContext requestContext(@Autowired final JedisPool jedisPool) {
+    return JPAODataRequestContext.with()
+	    ...
+	    .setParameter(REDIS, jedisPool) //<1>
+	    ...
+        .build();
+  }
+	    
+----
+<1> Add JedisPool instance as a parameter to the request context
+
+We store the page information as key - value pairs. We start with a set of constants containing the keys. We also have to adopt 
+the interface of `savePage`
+
+[source,java]
+----
+  private static final int EXPIRES_AFTER = 300; // <1>
+  private static final int MAX_SIZE = 50; // Page size
+  private static final String FRAGMENTS = "fragments";
+  private static final String QUERY_PATH = "queryPath";
+  private static final String O_DATA_PATH = "oDataPath";
+  private static final String BASE_URI = "baseUri";
+  private static final String LAST = "last";
+  private static final String TOP = "top";
+  private static final String SKIP = "skip";
+
+  ...
+
+  @Override
+  public Optional<JPAODataPage> getFirstPage(
+      final JPARequestParameterMap requestParameter,
+      final JPAODataPathInformation pathInformation, 
+      final UriInfo uriInfo,
+      @Nullable final Integer preferredPageSize,
+      final JPACountQuery countQuery, 
+      final EntityManager em) throws ODataApplicationException {
+      
+	...
+    if(skipToken != null)
+      savePage(pathInformation, last, page, requestParameter.get(ProcessorConfiguration.REDIS));//<2>
+    ...
+  }
+
+----
+<1> Lifetime in seconds.
+<2> Using the new interface of `savePage`.
+
+[source,java]
+----
+  private void savePage(final JPAODataPathInformation pathInformation, final Long last,
+      final JPAODataPage page, final Object pool) {
+
+    if (page.skipToken() != null
+        && pool instanceof final JedisPool jedisPool) {
+      try (var jedis = jedisPool.getResource()) {
+        final Map<String, String> values = new HashMap<>();
+        putIfNotNull(values, SKIP, page.skip());
+        putIfNotNull(values, TOP, page.top());
+        putIfNotNull(values, LAST, last > Integer.MAX_VALUE ? Integer.MAX_VALUE : last.intValue());
+        putIfNotNull(values, BASE_URI, pathInformation.baseUri());
+        putIfNotNull(values, O_DATA_PATH, pathInformation.oDataPath());
+        putIfNotNull(values, QUERY_PATH, pathInformation.queryPath());
+        putIfNotNull(values, FRAGMENTS, pathInformation.fragments());
+
+        final Pipeline pipeline = jedis.pipelined();
+        pipeline.hset((String) page.skipToken(), values);
+        pipeline.expire((String) page.skipToken(), EXPIRES_AFTER);
+        pipeline.sync();
+      } catch (final JedisConnectionException e) {
+        log.error("Redis exception", e);
+        throw e;
+      }      
+    }    
+  }
+
+  private void putIfNotNull(@Nonnull final Map<String, String> values, @Nonnull final String name,
+      @Nullable final Integer value) {
+    if (value != null)
+      values.put(name, Integer.toString(value));
+
+  }
+
+  private void putIfNotNull(@Nonnull final Map<String, String> values, @Nonnull final String name,
+      @Nullable final String value) {
+    if (value != null)
+      values.put(name, value);
+  }  
+----
+
+Also `getNextPage` has to be adopted:
+
+[source, java]
+----
+  @Override
+  public Optional<JPAODataPage> getNextPage(@Nonnull final String skipToken, final OData odata,
+      final ServiceMetadata serviceMetadata, final JPARequestParameterMap requestParameter, final EntityManager em) {
+    final Map<String, String> previousPage = getPreviousPage(skipToken, requestParameter.get(
+        ProcessorConfiguration.REDIS)); //<1>
+    if (previousPage.size() > 0) {
+      try {
+        final UriInfo uriInfo = new Parser(serviceMetadata.getEdm(), odata)
+            .parseUri(getString(previousPage, O_DATA_PATH), getString(previousPage, QUERY_PATH), getString(previousPage,
+                FRAGMENTS), getString(previousPage, BASE_URI));
+        final Integer skipValue = getInteger(previousPage, SKIP) + getInteger(previousPage, TOP);
+        final Integer topValue = skipValue + getInteger(previousPage, TOP) > getInteger(previousPage, LAST)
+            ? getInteger(previousPage, LAST) - skipValue : getInteger(previousPage, TOP);
+        final String newToken = skipValue + topValue < getInteger(previousPage, LAST) ? UUID.randomUUID().toString()
+            : null;
+        final JPAODataPage nextPage = new JPAODataPage(uriInfo, skipValue, topValue, newToken);
+        replacePage(previousPage, nextPage, requestParameter.get(ProcessorConfiguration.REDIS)); //<2>
+        return Optional.of(nextPage);
+      } catch (final ODataException e) {
+        Optional.empty();
+      }
+    }
+    return Optional.empty();
+  }
+  
+  private Map<String, String> getPreviousPage(final String skipToken, final Object pool) {
+    if (skipToken != null
+        && pool instanceof final JedisPool jedisPool) {
+      try (var jedis = jedisPool.getResource()) {
+        final Map<String, String> values = jedis.hgetAll(skipToken.replace("'", ""));
+        if (values != null)
+          return values;
+      }
+    }
+    return Collections.emptyMap();
+  }
+
+  @CheckForNull
+  private String getString(@Nonnull final Map<String, String> values, @Nonnull final String name) {
+    return values.get(name);
+  }
+
+  @Nonnull
+  private Integer getInteger(@Nonnull final Map<String, String> values, @Nonnull final String name) {
+    return Integer.valueOf(Objects.requireNonNull(values.get(name), "Missing value for " + name));
+  }  
+----
+
+<1> Retrieval of previous page.
+<2> Writing the next page.
+
+[WARNING]
+====
+Using Redis helps us to keep our cache clean, but, as usual, we do not get this for free. We have to operate another component.
+
+====

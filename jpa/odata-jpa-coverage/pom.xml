@@ -35,6 +35,7 @@
         <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-test</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>

@@ -13,7 +13,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
@@ -22,14 +21,11 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
  *
  */
 @Entity
-@EdmFunctions({
-    @EdmFunction(
-        name = "IsOdd",
-        functionName = "IS_ODD",
-        returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = { @EdmParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
-
-})
+@EdmFunction(
+    name = "IsOdd",
+    functionName = "IS_ODD",
+    returnType = @EdmFunction.ReturnType(isCollection = true),
+    parameter = { @EdmParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) })
 @Table(schema = "\"OLINGO\"", name = "\"DummyToBeIgnored\"")
 @EdmIgnore
 public class DummyToBeIgnored {

@@ -1,6 +1,9 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,6 +18,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.Parameter;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TemporalType;
 
@@ -49,139 +53,166 @@ class TypedQueryImplTest extends BuilderBaseTest {
   @Test
   void testGetFirstResult() {
     cut.getFirstResult();
-    verify(q).getFirstResult();
-  }
-
-  @Test
-  void testGetFlushMode() {
-    cut.getFlushMode();
-    verify(q).getFlushMode();
-  }
-
-  @Test
-  void testGetHints() {
-    cut.getHints();
-    verify(q).getHints();
-  }
-
-  @Test
-  void testGetLockMode() {
-    cut.getLockMode();
-    verify(q).getLockMode();
-  }
-
-  @Test
-  void testGetMaxResults() {
-    cut.getMaxResults();
-    verify(q).getMaxResults();
+    verify(cq).getFirstResult();
   }
 
   @Test
   void testGetParameterByPosition() {
-    cut.getParameter(1);
-    verify(q).getParameter(1);
+    final var exp = parameterBuffer.addValue("Test");
+    final var act = cut.getParameter(1);
+    assertEquals(exp, act);
+  }
+
+  @Test
+  void testGetParameterByPositionThrowsIfNoParameterAtPosition() {
+    parameterBuffer.addValue("Test");
+    assertThrows(IllegalArgumentException.class, () -> cut.getParameter(2));
   }
 
   @Test
   void testGetParameterByPositionType() {
-    cut.getParameter(1, Integer.class);
-    verify(q).getParameter(1, Integer.class);
+    final var exp = parameterBuffer.addValue(Integer.valueOf(100));
+    final var act = cut.getParameter(1, Integer.class);
+    assertEquals(exp, act);
+  }
+
+  @Test
+  void testGetParameterByPositionTypeThrowsIfNoParameterAtPosition() {
+    parameterBuffer.addValue(Integer.valueOf(100));
+    assertThrows(IllegalArgumentException.class, () -> cut.getParameter(2, Integer.class));
+  }
+
+  @Test
+  void testGetParameterByPositionTypeThrowsWrongType() {
+    parameterBuffer.addValue(Integer.valueOf(100));
+    assertThrows(IllegalArgumentException.class, () -> cut.getParameter(1, String.class));
   }
 
   @Test
   void testGetParameterByName() {
-    cut.getParameter("Test");
-    verify(q).getParameter("Test");
+    final var exp = parameterBuffer.addValue(Integer.valueOf(100));
+    assertEquals(exp, cut.getParameter("1"));
+  }
+
+  @Test
+  void testGetParameterByNameThrowsIfNameNotANumber() {
+    parameterBuffer.addValue(Integer.valueOf(100));
+    assertThrows(IllegalArgumentException.class, () -> cut.getParameter("1.2"));
   }
 
   @Test
   void testGetParameterByNameType() {
-    cut.getParameter("Test", String.class);
-    verify(q).getParameter("Test", String.class);
+    final var exp = parameterBuffer.addValue(Integer.valueOf(100));
+    assertEquals(exp, cut.getParameter("1", Integer.class));
+  }
+
+  @Test
+  void testGetParameterByNameTypeThrowsWrongType() {
+    parameterBuffer.addValue(Integer.valueOf(100));
+    assertThrows(IllegalArgumentException.class, () -> cut.getParameter("1", String.class));
   }
 
   @Test
   void testGetParameters() {
-    cut.getParameters();
-    verify(q).getParameters();
+    final var exp = parameterBuffer.addValue(Integer.valueOf(100));
+    final var act = cut.getParameters();
+    assertEquals(1, act.size());
+    assertTrue(act.contains(exp));
   }
 
   @Test
   void testGetParameterValueByPosition() {
-    cut.getParameterValue(1);
-    verify(q).getParameterValue(1);
+    final var exp = parameterBuffer.addValue("Test");
+    final var act = cut.getParameterValue(1);
+    assertEquals(exp, act);
+  }
+
+  @Test
+  void testGetParameterValueByPositionFails() {
+    parameterBuffer.addValue("Test");
+    assertThrows(IllegalArgumentException.class, () -> cut.getParameterValue(2));
   }
 
   @Test
   void testGetParameterValueByParameter() {
-    @SuppressWarnings("unchecked")
-    final Parameter<Long> param = mock(Parameter.class);
-    cut.getParameterValue(param);
-    verify(q).getParameterValue(param);
+    final var exp = parameterBuffer.addValue("Test");
+    parameterBuffer.addValue(Integer.valueOf(100));
+    assertEquals("Test", cut.getParameterValue(exp));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testGetParameterValueByParameterThrowsIfParameterNotExists() {
+    final var dummy = mock(Parameter.class);
+    parameterBuffer.addValue(Integer.valueOf(100));
+    assertThrows(IllegalArgumentException.class, () -> cut.getParameterValue(dummy));
   }
 
   @Test
   void testGetParameterValueByName() {
-    cut.getParameterValue("Test");
-    verify(q).getParameterValue("Test");
+    parameterBuffer.addValue(Integer.valueOf(100));
+    assertEquals(100, cut.getParameterValue("1"));
   }
 
   @Test
   void testIsBound() {
-    @SuppressWarnings("unchecked")
-    final Parameter<Long> param = mock(Parameter.class);
-    cut.isBound(param);
-    verify(q).isBound(param);
+    final var act = parameterBuffer.addValue(Integer.valueOf(10));
+    assertTrue(cut.isBound(act));
   }
 
   @Test
   void testSetFirstResult() {
     assertEquals(cut, cut.setFirstResult(1));
-    verify(q).setFirstResult(1);
+    verify(cq).setFirstResult(1);
   }
 
   @Test
-  void testSetFlushMode() {
+  void testSetGetFlushMode() {
     assertEquals(cut, cut.setFlushMode(FlushModeType.AUTO));
-    verify(q).setFlushMode(FlushModeType.AUTO);
+    assertEquals(FlushModeType.AUTO, cut.getFlushMode());
   }
 
   @Test
-  void testSetHint() {
+  void testSetGetHint() {
     assertEquals(cut, cut.setHint("Test", "Test"));
-    verify(q).setHint("Test", "Test");
+    final var act = cut.getHints();
+    assertEquals(1, act.size());
+    assertEquals("Test", act.get("Test"));
   }
 
   @Test
-  void testSetLockMode() {
+  void testSetGetLockMode() {
     assertEquals(cut, cut.setLockMode(LockModeType.OPTIMISTIC));
-    verify(q).setLockMode(LockModeType.OPTIMISTIC);
+    assertEquals(LockModeType.OPTIMISTIC, cut.getLockMode());
   }
 
   @Test
   void testSetMaxResults() {
     assertEquals(cut, cut.setMaxResults(1));
-    verify(q).setMaxResults(1);
+    verify(cq).setMaxResults(1);
+  }
+
+  @Test
+  void testGetMaxResults() {
+    cut.getMaxResults();
+    verify(cq).getMaxResults();
   }
 
   @Test
   void testSetParameterTemporalByPosition() {
     final Calendar value = new GregorianCalendar();
-    assertEquals(cut, cut.setParameter(1, value, TemporalType.TIMESTAMP));
-    verify(q).setParameter(1, value, TemporalType.TIMESTAMP);
+    assertThrows(IllegalStateException.class, () -> cut.setParameter(1, value, TemporalType.TIMESTAMP));
   }
 
   @Test
   void testSetParameterTemporalDateByPosition() {
     final Date value = Date.valueOf(LocalDate.now());
-    assertEquals(cut, cut.setParameter(2, value, TemporalType.DATE));
-    verify(q).setParameter(2, value, TemporalType.DATE);
+    assertThrows(IllegalStateException.class, () -> cut.setParameter(2, value, TemporalType.DATE));
   }
 
   @Test
   void testSetParameterPosition() {
-    assertEquals(cut, cut.setParameter(1, "Test"));
-    verify(q).setParameter(1, "Test");
+    assertThrows(IllegalStateException.class, () -> cut.setParameter(1, "Test"));
   }
 
   @Test
@@ -189,8 +220,7 @@ class TypedQueryImplTest extends BuilderBaseTest {
     @SuppressWarnings("unchecked")
     final Parameter<Calendar> param = mock(Parameter.class);
     final Calendar value = new GregorianCalendar();
-    assertEquals(cut, cut.setParameter(param, value, TemporalType.TIMESTAMP));
-    verify(q).setParameter(param, value, TemporalType.TIMESTAMP);
+    assertThrows(IllegalStateException.class, () -> cut.setParameter(param, value, TemporalType.TIMESTAMP));
   }
 
   @Test
@@ -198,41 +228,40 @@ class TypedQueryImplTest extends BuilderBaseTest {
     @SuppressWarnings("unchecked")
     final Parameter<java.util.Date> param = mock(Parameter.class);
     final Date value = Date.valueOf(LocalDate.now());
-    assertEquals(cut, cut.setParameter(param, value, TemporalType.DATE));
-    verify(q).setParameter(param, value, TemporalType.DATE);
+    assertThrows(IllegalStateException.class, () -> cut.setParameter(param, value, TemporalType.DATE));
   }
 
   @Test
   void testSetParameterByValue() {
     @SuppressWarnings("unchecked")
     final Parameter<Integer> param = mock(Parameter.class);
-    assertEquals(cut, cut.setParameter(param, 1));
-    verify(q).setParameter(param, 1);
+    assertThrows(IllegalStateException.class, () -> cut.setParameter(param, 1));
   }
 
   @Test
   void testSetParameterByTemporalCalendarByName() {
     final Calendar value = new GregorianCalendar();
-    assertEquals(cut, cut.setParameter("Test", value, TemporalType.TIME));
-    verify(q).setParameter("Test", value, TemporalType.TIME);
+    assertThrows(IllegalStateException.class, () -> cut.setParameter("Test", value, TemporalType.TIME));
   }
 
   @Test
   void testSetParameterByTemporalDateByName() {
     final Date value = Date.valueOf(LocalDate.now());
-    assertEquals(cut, cut.setParameter("Test", value, TemporalType.DATE));
-    verify(q).setParameter("Test", value, TemporalType.DATE);
+    assertThrows(IllegalStateException.class, () -> cut.setParameter("Test", value, TemporalType.DATE));
   }
 
   @Test
   void testSetParameterByName() {
-    assertEquals(cut, cut.setParameter("Test", "Test"));
-    verify(q).setParameter("Test", "Test");
+    assertThrows(IllegalStateException.class, () -> cut.setParameter("Test", "Test"));
+  }
+
+  @Test
+  void testUnwrapThrowsException() {
+    assertThrows(PersistenceException.class, () -> cut.unwrap(String.class));
   }
 
   @Test
   void testUnwrap() {
-    cut.unwrap(String.class);
-    verify(q).unwrap(String.class);
+    assertNotNull(cut.unwrap(Query.class));
   }
 }

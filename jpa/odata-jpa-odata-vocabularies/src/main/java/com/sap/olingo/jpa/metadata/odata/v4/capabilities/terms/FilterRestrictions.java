@@ -41,7 +41,7 @@ public @interface FilterRestrictions {
    * Optional: These properties must be specified in the $filter clause (properties of derived types are not allowed
    * here)
    * <p>
-   * The properties are given as an array attributes path. In case the path
+   * The properties are given as an array of attributes path. In case the path
    * is composed, path segments joined together by forward slashes (/) e.g <i>address/cityName</i>.
    */
   String[] requiredProperties() default {};
