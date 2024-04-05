@@ -67,4 +67,3 @@ class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionRe
   }
 
 }
-

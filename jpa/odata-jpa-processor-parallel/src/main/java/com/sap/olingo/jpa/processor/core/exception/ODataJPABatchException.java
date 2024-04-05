@@ -6,10 +6,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
 
 public class ODataJPABatchException extends ODataJPAProcessException { // NOSONAR
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 8492368933922574285L;
-  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "batch-parallel-exceptions-i18n";
 
   public enum MessageKeys implements ODataJPAMessageKey {
     UNSUPPORTED_BATCH_PARTS;

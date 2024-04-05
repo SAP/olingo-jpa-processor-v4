@@ -1,11 +1,14 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,6 +17,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
@@ -71,6 +75,13 @@ public class BusinessPartnerProtected {
           @JoinColumn(name = "\"TargetID\"", referencedColumnName = "\"BusinessPartnerRole\"")
       })
   private List<BusinessPartnerRoleProtected> rolesJoinProtected;
+
+  @ElementCollection(fetch = FetchType.LAZY)
+  @OrderColumn(name = "\"Order\"")
+  @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
+      joinColumns = @JoinColumn(name = "\"BusinessPartnerID\""))
+  @Column(name = "\"Text\"")
+  private final List<String> comment = new ArrayList<>();
 
   @Override
   public int hashCode() {

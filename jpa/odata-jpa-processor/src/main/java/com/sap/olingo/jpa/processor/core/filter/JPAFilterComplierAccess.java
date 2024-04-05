@@ -18,6 +18,9 @@ import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 interface JPAFilterComplierAccess {
 
+  /**
+   * @return Query a filter belongs to.
+   */
   JPAAbstractQuery getParent();
 
   List<UriResource> getUriResourceParts();
@@ -32,6 +35,12 @@ interface JPAFilterComplierAccess {
 
   JPAOperationConverter getConverter();
 
+  /**
+   * Root of the query the filter belongs to.
+   * @param <S>
+   * @param <T>
+   * @return
+   */
   <S, T> From<S, T> getRoot();
 
   JPAServiceDebugger getDebugger();

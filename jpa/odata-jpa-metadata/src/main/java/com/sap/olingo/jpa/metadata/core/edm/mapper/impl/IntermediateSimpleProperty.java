@@ -9,6 +9,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Version;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.SingularAttribute;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -16,12 +22,6 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Version;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
-import jakarta.persistence.metamodel.SingularAttribute;
 
 /**
  * A Property is described on the one hand by its Name and Type and on the other
@@ -149,18 +149,18 @@ class IntermediateSimpleProperty extends IntermediateProperty {
         else
           constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
         final Object pojo = constructor.newInstance();
-        field.setAccessible(true);
-        final Object value = field.get(pojo);
-        if (value != null)
-          valueString = value.toString();
-      } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
-          | InvocationTargetException e) {
+        if (field.trySetAccessible()) {
+          final Object value = field.get(pojo);
+          if (value != null)
+            valueString = value.toString();
+        }
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
         throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
             jpaAttribute.getName());
-      } catch (final InstantiationException e) {
+      } catch (final InstantiationException | NoSuchMethodException e) {
         // Class could not be instantiated e.g. abstract class like
-        // Business Partner => default could not be determined
-        // and will be ignored
+        // Business Partner or missing parameter free constructor
+        // => default could not be determined and will be ignored
         LOGGER.debug("Default could not be determined: "
             + jpaAttribute.getDeclaringType().getJavaType().getName()
             + "#"

@@ -16,7 +16,6 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -26,32 +25,27 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.query.JPAAbstractExpandQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
-import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryFactory;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
+import com.sap.olingo.jpa.processor.core.query.JPAJoinCountQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAKeyBoundary;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
@@ -68,7 +62,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     super(odata, requestContext);
     this.serviceMetadata = serviceMetadata;
-    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    final var resourceParts = uriInfo.getUriResourceParts();
     this.lastItem = resourceParts.get(resourceParts.size() - 1);
     this.page = requestContext.getPage();
   }
@@ -77,7 +71,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   public <K extends Comparable<K>> void retrieveData(final ODataRequest request, final ODataResponse response,
       final ContentType responseFormat) throws ODataException {
 
-    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "retrieveData")) {
+    try (var measurement = debugger.newMeasurement(this, "retrieveData")) {
 
       checkRequestSupported();
       // Create a JPQL Query and execute it
@@ -88,17 +82,17 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
 
-      final JPAConvertibleResult result = query.execute();
+      final var result = query.execute();
       // Read Expand and Collection
-      final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(),
+      final var keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(),
           page);
-      final JPAExpandWatchDog watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
+      final var watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
       watchDog.watch(uriInfo.getExpandOption(), uriInfo.getUriResourceParts());
       result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary,
           watchDog));
       // Convert tuple result into an OData Result
       EntityCollection entityCollection;
-      try (JPARuntimeMeasurement converterMeasurement = debugger.newMeasurement(this, "convertResult")) {
+      try (var converterMeasurement = debugger.newMeasurement(this, "convertResult")) {
         entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
             serviceMetadata, requestContext)).get(ROOT_RESULT_KEY);
       } catch (final ODataApplicationException e) {
@@ -107,20 +101,18 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       // Set Next Link
       entityCollection.setNext(buildNextLink(page));
       // Count results if requested
-      final CountOption countOption = uriInfo.getCountOption();
+      final var countOption = uriInfo.getCountOption();
       if (countOption != null && countOption.getValue())
-        entityCollection.setCount(new JPAJoinQuery(odata, requestContext)
+        entityCollection.setCount(new JPAJoinCountQuery(odata, requestContext)
             .countResults().intValue());
 
       /*
        * See part 1:
-       * -9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
+       * - 9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
        * successfully and the value of the resource is not null. In this case, the response body MUST contain the value
-       * of
-       * the resource specified in the request URL.
+       * of the resource specified in the request URL.
        * - 9.2.1 Response Code 404 Not Found: 404 Not Found indicates that the resource specified by the request URL
-       * does
-       * not exist. The response body MAY provide additional information.
+       * does not exist. The response body MAY provide additional information.
        * - 11.2.1 Requesting Individual Entities:
        * -- If no entity exists with the key values specified in the request URL, the service responds with 404 Not
        * Found.
@@ -146,8 +138,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
       // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
       else if (entityCollection.getEntities() != null) {
-        try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "serialize")) {
-          final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
+        try (var serializerMeasurement = debugger.newMeasurement(this, "serialize")) {
+          final var serializerResult = serializer.serialize(request, entityCollection);
           createSuccessResponse(response, responseFormat, serializerResult);
         }
       } else {
@@ -184,7 +176,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     if (entities.isEmpty())
       return false;
     name = Utility.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
-    final Property property = entities.get(0).getProperty(name);
+    final var property = entities.get(0).getProperty(name);
     if (property != null) {
       for (final Property p : ((ComplexValue) property.getValue()).getValue()) {
         if (p.getValue() != null) {
@@ -234,7 +226,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     if (entities.isEmpty())
       return false;
     name = Utility.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
-    final Property property = entities.get(0).getProperty(name);
+    final var property = entities.get(0).getProperty(name);
     return (property != null && property.getValue() == null);
   }
 
@@ -275,9 +267,9 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final List<JPANavigationPropertyInfo> parentHops, final UriInfoResource uriResourceInfo,
       final Optional<JPAKeyBoundary> keyBoundary, final JPAExpandWatchDog watchDog) throws ODataException {
 
-    try (JPARuntimeMeasurement expandMeasurement = debugger.newMeasurement(this, "readExpandEntities")) {
+    try (var expandMeasurement = debugger.newMeasurement(this, "readExpandEntities")) {
 
-      final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, requestContext, cb);
+      final var factory = new JPAExpandQueryFactory(odata, requestContext, cb);
       final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();
       if (watchDog.getRemainingLevels() > 0) {
         // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
@@ -291,11 +283,11 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         // sub-query used within EXISTS.
         // Solution: Forward the highest and lowest key from the root and create a "between" those.
 
-        final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
+        final var itemInfoList = new JPAExpandItemInfoFactory()
             .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
         for (final JPAExpandItemInfo item : watchDog.filter(itemInfoList)) {
-          final JPAAbstractExpandQuery expandQuery = factory.createQuery(item, keyBoundary);
-          final JPAExpandQueryResult expandResult = expandQuery.execute();
+          final var expandQuery = factory.createQuery(item, keyBoundary);
+          final var expandResult = expandQuery.execute();
           if (expandResult.getNoResults() > 0)
             // Only go to the next hop if the current one has a result
             expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), keyBoundary,
@@ -305,10 +297,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         watchDog.levelProcessed();
       }
       // process collection attributes
-      final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
+      final var collectionInfoList = new JPAExpandItemInfoFactory()
           .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
       for (final JPACollectionItemInfo item : collectionInfoList) {
-        final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, item,
+        final var collectionQuery = new JPACollectionJoinQuery(odata, item,
             new JPAODataInternalRequestContext(item.getUriInfo(), requestContext, headers), keyBoundary);
         final JPAExpandResult expandResult = collectionQuery.execute();
         allExpResults.put(item.getExpandAssociation(), expandResult);
@@ -320,7 +312,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private static Optional<JPAAnnotatable> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
-    final EdmBindingTarget bindingTarget = Utility.determineBindingTarget(requestContext.getUriInfo()
+    final var bindingTarget = Utility.determineBindingTarget(requestContext.getUriInfo()
         .getUriResourceParts());
     if (bindingTarget instanceof EdmEntitySet)
       return requestContext.getEdmProvider().getServiceDocument().getEntitySet(bindingTarget.getName())

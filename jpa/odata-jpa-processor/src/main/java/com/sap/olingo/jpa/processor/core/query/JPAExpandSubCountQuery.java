@@ -6,6 +6,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -125,7 +126,7 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
         Subquery<Object> subQuery = null;
         while (!hops.isEmpty() && hops.getFirst() instanceof JPAAbstractSubQuery) {
           final JPAAbstractSubQuery hop = (JPAAbstractSubQuery) hops.pop();
-          subQuery = hop.getSubQuery(subQuery, null);
+          subQuery = hop.getSubQuery(subQuery, null, Collections.emptyList());
         }
         createFromClause(emptyList(), emptyList(), tupleQuery, lastInfo);
         final List<Selection<?>> selectionPath = buildExpandJoinPath(root);

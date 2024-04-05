@@ -1,15 +1,16 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -20,9 +21,9 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -40,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
@@ -48,31 +50,35 @@ import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinPartnerRoleRelation;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-class JPANavigationCountQueryTest extends TestBase {
-  private JPANavigationSubQuery cut;
-  private TestHelper helper;
-  private EntityManager em;
-  private OData odata;
-  private UriResourceNavigation uriResourceItem;
-  private JPAAbstractQuery parent;
-  private JPAAssociationPath association;
-  private From<?, ?> from;
-  private Root<JoinPartnerRoleRelation> queryJoinTable;
-  private Root<BusinessPartnerRoleProtected> queryRoot;
-  private Root<BusinessPartnerProtected> parentRoot;
-  private JPAODataClaimProvider claimsProvider;
-  private EdmEntityType edmEntityType;
+abstract class JPANavigationCountQueryTest extends TestBase {
+
+  protected JPANavigationSubQuery cut;
+  protected TestHelper helper;
+  protected EntityManager em;
+  protected OData odata;
+  protected UriResourceNavigation uriResourceItem;
+  protected JPAAbstractQuery parent;
+  protected JPAAssociationPath association;
+  protected From<?, ?> from;
+
+  protected JPAODataClaimProvider claimsProvider;
+  protected JPAEntityType jpaEntityType;
   @SuppressWarnings("rawtypes")
-  private CriteriaQuery cq;
-  private CriteriaBuilder cb;
-  private Subquery<Object> subQuery;
-  private JPAODataRequestContextAccess requestContext;
+  protected CriteriaQuery cq;
+  protected CriteriaBuilder cb;
+  protected Subquery<Comparable<?>> subQuery;
+  protected JPAODataRequestContextAccess requestContext;
+
+  public JPANavigationCountQueryTest() {
+    super();
+  }
 
   @SuppressWarnings("unchecked")
   @BeforeEach
@@ -80,61 +86,64 @@ class JPANavigationCountQueryTest extends TestBase {
     helper = getHelper();
     em = mock(EntityManager.class);
     parent = mock(JPAAbstractQuery.class);
-    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesJoinProtected");
+
     claimsProvider = mock(JPAODataClaimProvider.class);
     odata = OData.newInstance();
     uriResourceItem = mock(UriResourceNavigation.class);
-    edmEntityType = mock(EdmEntityType.class);
     cq = mock(CriteriaQuery.class);
     cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
-    subQuery = mock(Subquery.class);
-    queryJoinTable = mock(Root.class);
-    queryRoot = mock(Root.class);
-    parentRoot = mock(Root.class);
+    subQuery = createSubQuery();
     from = mock(From.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
 
     final UriParameter key = mock(UriParameter.class);
 
     when(em.getCriteriaBuilder()).thenReturn(cb);
-    when(uriResourceItem.getType()).thenReturn(edmEntityType);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
-    when(edmEntityType.getName()).thenReturn("BusinessPartnerRoleProtected");
-    when(edmEntityType.getNamespace()).thenReturn(PUNIT_NAME);
     when(parent.getQuery()).thenReturn(cq);
-    when(cq.subquery(any())).thenReturn(subQuery);
-    when(subQuery.from(JoinPartnerRoleRelation.class)).thenReturn(queryJoinTable);
-    when(subQuery.from(BusinessPartnerRoleProtected.class)).thenReturn(queryRoot);
+    when(cq.<Comparable<?>> subquery(any())).thenReturn(subQuery);
     when(claimsProvider.get("RoleCategory")).thenReturn(Collections.singletonList(new JPAClaimsPair<>("A")));
     doReturn(BusinessPartnerProtected.class).when(from).getJavaType();
   }
 
-  @Test
-  void testCutExists() throws ODataApplicationException {
+  protected void createEdmEntityType(final Class<?> clazz) throws ODataJPAModelException {
+    jpaEntityType = helper.getJPAEntityType(clazz);
+  }
 
-    cut = new JPANavigationCountQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional.of(
-        claimsProvider), Collections.emptyList());
+  protected abstract Subquery<Comparable<?>> createSubQuery();
+
+  @Test
+  void testCutExists() throws ODataApplicationException, ODataJPAModelException {
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
+    cut = createCut();
     assertNotNull(cut);
   }
 
-  @Test
-  void testGetSubQueryThrowsExceptionWhenChildQueryProvided() throws ODataApplicationException {
+  protected abstract JPANavigationSubQuery createCut() throws ODataApplicationException;
 
-    cut = new JPANavigationCountQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional.of(
-        claimsProvider), Collections.emptyList());
-    assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null));
+  @Test
+  void testGetSubQueryThrowsExceptionWhenChildQueryProvided() throws ODataApplicationException, ODataJPAModelException {
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
+    cut = createCut();
+    assertThrows(ODataJPAQueryException.class, () -> cut.getSubQuery(subQuery, null, Collections.emptyList()));
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  void testJoinQueryAggregateWithClaim() throws ODataApplicationException, ODataJPAModelException,
-      EdmPrimitiveTypeException {
-    final Member member = mock(Member.class);
-    final UriInfoResource uriInfoResource = mock(UriInfoResource.class);
-    final UriResource uriResource = mock(UriResource.class);
-    final Literal literal = mock(Literal.class);
-    final EdmPrimitiveType edmType = mock(EdmPrimitiveType.class);
-    final JPAFilterExpression expression = new JPAFilterExpression(member, literal, BinaryOperatorKind.EQ);
+  void testQueryWithJoinTableAggregateWithClaim() throws ODataApplicationException, ODataJPAModelException,
+      EdmPrimitiveTypeException, ODataJPAIllegalAccessException {
+
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesJoinProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
+    final Root<JoinPartnerRoleRelation> queryJoinTable = mock(Root.class);
+    final Root<BusinessPartnerRoleProtected> queryRoot = mock(Root.class);
+    final Root<BusinessPartnerProtected> parentRoot = mock(Root.class);
+    when(subQuery.from(JoinPartnerRoleRelation.class)).thenReturn(queryJoinTable);
+    when(subQuery.from(BusinessPartnerRoleProtected.class)).thenReturn(queryRoot);
+
+    final JPAFilterExpression expression = createCountFilter();
     final JPAODataDatabaseOperations converterExtension = mock(JPAODataDatabaseOperations.class);
     final Join<Object, Object> innerJoin = mock(Join.class);
     final Path<Object> roleCategoryPath = mock(Path.class);
@@ -145,16 +154,10 @@ class JPANavigationCountQueryTest extends TestBase {
     when(parent.getContext()).thenReturn(requestContext);
     when(parent.getJpaEntity()).thenReturn(helper.getJPAEntityType(BusinessPartnerProtected.class));
     when(requestContext.getOperationConverter()).thenReturn(converterExtension);
-    when(member.getResourcePath()).thenReturn(uriInfoResource);
-    when(uriInfoResource.getUriResourceParts()).thenReturn(Collections.singletonList(uriResource));
-    when(uriResource.getKind()).thenReturn(UriResourceKind.count);
+    when(idPath.getAlias()).thenReturn("iD");
 
     when(subQuery.from(BusinessPartnerProtected.class)).thenReturn(parentRoot);
     when(parentRoot.join("rolesJoinProtected", JoinType.LEFT)).thenReturn(innerJoin);
-
-    when(literal.getText()).thenReturn("1");
-    when(literal.getType()).thenReturn(edmType);
-    when(edmType.valueOfString(any(), any(), any(), any(), any(), any(), any())).thenReturn(Integer.valueOf(1));
 
     when(queryRoot.get("roleCategory")).thenReturn(roleCategoryPath);
     when(queryJoinTable.get("key")).thenReturn(keyPath);
@@ -165,13 +168,125 @@ class JPANavigationCountQueryTest extends TestBase {
 
     when(innerJoin.get("roleCategory")).thenReturn(roleCategoryPath);
 
-    cut = new JPANavigationCountQuery(odata, helper.sd, edmEntityType, em, parent, from, association, Optional.of(
-        claimsProvider), Collections.emptyList());
+    cut = createCut();
     cut.buildExpression(expression, Collections.emptyList());
 
-    cut.getSubQuery(null, null);
-    assertNotNull(cut);
-    verify(cb).equal(sourceIdPath, idPath);
-    verify(cb).equal(roleCategoryPath, "A");
+    cut.getSubQuery(null, null, Collections.emptyList());
+    assertAggregateClaims(roleCategoryPath, idPath, sourceIdPath, cut.getLeftPaths());
   }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testQueryMultipleJoinColumns() throws ODataApplicationException, ODataJPAModelException,
+      EdmPrimitiveTypeException, ODataJPAIllegalAccessException {
+
+    association = helper.getJPAAssociationPath(AdministrativeDivision.class, "Children");
+    createEdmEntityType(AdministrativeDivision.class);
+
+    final Root<AdministrativeDivision> queryRoot = mock(Root.class);
+    when(subQuery.from(AdministrativeDivision.class)).thenReturn(queryRoot);
+
+    final JPAODataDatabaseOperations converterExtension = mock(JPAODataDatabaseOperations.class);
+    when(parent.getContext()).thenReturn(requestContext);
+    when(parent.getJpaEntity()).thenReturn(helper.getJPAEntityType(AdministrativeDivision.class));
+    when(requestContext.getOperationConverter()).thenReturn(converterExtension);
+
+    final JPAFilterExpression expression = createCountFilter();
+    createAttributePath(queryRoot, "codePublisher", "codeID", "divisionCode", "parentCodeID", "parentDivisionCode");
+    createAttributePath(from, "codePublisher", "codeID", "divisionCode", "parentCodeID", "parentDivisionCode");
+
+    cut = createCut();
+    cut.buildExpression(expression, Collections.emptyList());
+    cut.getSubQuery(null, null, Collections.emptyList());
+
+    assertNotNull(cut);
+    assertMultipleJoinColumns(subQuery, cut.getLeftPaths());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testQueryOneJoinColumnsWithClaims() throws ODataApplicationException, ODataJPAModelException,
+      EdmPrimitiveTypeException, ODataJPAIllegalAccessException {
+
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
+
+    final Path<Object> roleCategoryPath = mock(Path.class);
+    final Root<BusinessPartnerRoleProtected> queryRoot = mock(Root.class);
+    when(subQuery.from(BusinessPartnerRoleProtected.class)).thenReturn(queryRoot);
+    when(queryRoot.get("roleCategory")).thenReturn(roleCategoryPath);
+
+    final JPAODataDatabaseOperations converterExtension = mock(JPAODataDatabaseOperations.class);
+    when(parent.getContext()).thenReturn(requestContext);
+    when(parent.getJpaEntity()).thenReturn(helper.getJPAEntityType(BusinessPartnerProtected.class));
+    when(requestContext.getOperationConverter()).thenReturn(converterExtension);
+
+    final JPAFilterExpression expression = createCountFilter();
+    createAttributePath(queryRoot, "businessPartnerID");
+    final Predicate equalExpression1 = mock(Predicate.class);
+    when(cb.equal(roleCategoryPath, "A")).thenReturn(equalExpression1);
+    createAttributePath(from, "iD");
+    cut = createCut();
+    cut.buildExpression(expression, Collections.emptyList());
+    cut.getSubQuery(null, null, Collections.emptyList());
+
+    assertNotNull(cut);
+    assertOneJoinColumnsWithClaims(subQuery, equalExpression1, cut.getLeftPaths());
+  }
+
+  @Test
+  void testGetLeftOnEarlyAccess() throws ODataApplicationException, ODataJPAIllegalAccessException,
+      ODataJPAModelException {
+    association = helper.getJPAAssociationPath(BusinessPartnerProtected.class, "RolesProtected");
+    createEdmEntityType(BusinessPartnerRoleProtected.class);
+    cut = createCut();
+    assertLeftEarlyAccess();
+  }
+
+  protected abstract void assertLeftEarlyAccess() throws ODataJPAIllegalAccessException;
+
+  protected abstract void assertOneJoinColumnsWithClaims(final Subquery<Comparable<?>> subQuery,
+      final Predicate equalExpression, final List<Path<Comparable<?>>> paths);
+
+  protected abstract void assertMultipleJoinColumns(final Subquery<Comparable<?>> subQuery,
+      final List<Path<Comparable<?>>> paths);
+
+  protected abstract void assertAggregateClaims(final Path<Object> roleCategoryPath, final Path<Object> idPath,
+      final Path<Object> sourceIdPath, final List<Path<Comparable<?>>> paths);
+
+  protected JPAFilterExpression createCountFilter()
+      throws EdmPrimitiveTypeException {
+
+    final Literal literal = mock(Literal.class);
+    final EdmPrimitiveType edmType = mock(EdmPrimitiveType.class);
+    final UriInfoResource uriInfoResource = mock(UriInfoResource.class);
+    final UriResource uriResource = mock(UriResource.class);
+    final Member member = mock(Member.class);
+    final JPAFilterExpression expression = new JPAFilterExpression(member, literal, BinaryOperatorKind.EQ);
+    when(uriInfoResource.getUriResourceParts()).thenReturn(Collections.singletonList(uriResource));
+    when(uriResource.getKind()).thenReturn(UriResourceKind.count);
+    when(member.getResourcePath()).thenReturn(uriInfoResource);
+    when(literal.getText()).thenReturn("1");
+    when(literal.getType()).thenReturn(edmType);
+    when(edmType.valueOfString(any(), any(), any(), any(), any(), any(), any())).thenReturn(Integer.valueOf(1));
+    return expression;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected void createAttributePath(final From<?, ?> from, final String... names) {
+    for (final String name : names) {
+      final Path<Object> path = mock(jakarta.persistence.criteria.Path.class);
+      when(from.get(name)).thenReturn(path);
+      when(path.getAlias()).thenReturn(name);
+    }
+  }
+
+  protected void assertContainsPath(final List<?> pathList, final int expSize, final String... names) {
+    final List<String> selections = pathList.stream().map(path -> ((Selection<?>) path).getAlias()).toList();
+    assertEquals(expSize, pathList.size());
+    for (final String name : names) {
+      assertTrue(selections.contains(name));
+    }
+  }
+
 }

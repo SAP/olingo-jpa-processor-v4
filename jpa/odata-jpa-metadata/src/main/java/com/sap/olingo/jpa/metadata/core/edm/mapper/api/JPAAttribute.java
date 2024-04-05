@@ -6,13 +6,13 @@ import java.util.Set;
 
 import javax.annotation.CheckForNull;
 
+import jakarta.persistence.AttributeConverter;
+
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-
-import jakarta.persistence.AttributeConverter;
 
 public interface JPAAttribute extends JPAElement, JPAAnnotatable {
   /**
@@ -86,19 +86,29 @@ public interface JPAAttribute extends JPAElement, JPAAnnotatable {
    */
   public boolean isCollection();
 
-  public boolean isComplex();
+  public default boolean isComplex() {
+    return false;
+  }
 
   /**
    * True if the property has an enum as type
    * @return
    */
-  public boolean isEnum();
+  public default boolean isEnum() {
+    return false;
+  }
 
-  public boolean isEtag();
+  public default boolean isEtag() {
+    return false;
+  }
 
-  public boolean isKey();
+  public default boolean isKey() {
+    return false;
+  }
 
-  public boolean isSearchable();
+  public default boolean isSearchable() {
+    return false;
+  }
 
   public boolean hasProtection();
 

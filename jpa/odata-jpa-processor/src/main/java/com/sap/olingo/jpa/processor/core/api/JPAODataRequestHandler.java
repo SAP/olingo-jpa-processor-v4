@@ -13,8 +13,6 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaRequestMapper;
-import com.sap.olingo.jpa.processor.core.api.mapper.JakartaResponseMapper;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public class JPAODataRequestHandler {
@@ -86,16 +84,16 @@ public class JPAODataRequestHandler {
     handler.register(serviceContext.getEdmProvider().getServiceDocument());
     handler.register(serviceContext.getErrorProcessor());
     handler.register(new JPAODataServiceDocumentProcessor(serviceContext));
-    handler.process(new JakartaRequestMapper(mappedRequest), new JakartaResponseMapper(response));
+    handler.process(mappedRequest, response);
   }
 
-  private HttpServletRequest prepareRequestMapping(final HttpServletRequest req, final String requestPath) {
+  private HttpServletRequest prepareRequestMapping(final HttpServletRequest request, final String requestPath) {
     if (requestPath != null && !requestPath.isEmpty()) {
-      final HttpServletRequestWrapper request = new HttpServletRequestWrapper(req);
-      request.setAttribute(REQUEST_MAPPING_ATTRIBUTE, requestPath);
-      return request;
+      final HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request);
+      wrappedRequest.setAttribute(REQUEST_MAPPING_ATTRIBUTE, requestPath);
+      return wrappedRequest;
     } else {
-      return req;
+      return request;
     }
   }
 }

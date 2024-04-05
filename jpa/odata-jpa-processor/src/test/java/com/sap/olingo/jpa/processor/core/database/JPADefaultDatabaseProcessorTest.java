@@ -108,7 +108,7 @@ class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
     });
     when(cb.mod(cbResult, 2)).thenReturn(cbResult);
     when(cb.equal(cbResult, 1)).thenReturn(cbPredicate);
-    ((JPAODataDatabaseOperations) cut).setCriterialBuilder(cb);
+    ((JPAODataDatabaseOperations) cut).setCriteriaBuilder(cb);
     final Expression<Boolean> act = ((JPAODataDatabaseOperations) cut).convert(operator);
     assertNotNull(act);
   }

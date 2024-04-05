@@ -47,7 +47,7 @@ class JPAFilterRestrictionsWatchDogTest {
   void setup() throws ODataJPAQueryException {
     annotatable = mock(JPAAnnotatable.class);
     annotation = mock(CsdlAnnotation.class);
-    cut = new JPAFilterRestrictionsWatchDog(annotatable);
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, false);
   }
 
   private static Stream<Arguments> provideFilteringIsSupported() {
@@ -68,7 +68,7 @@ class JPAFilterRestrictionsWatchDogTest {
     when(filterable.getValue()).thenReturn(Boolean.toString(annotatedValue));
     // when(filterRequired.getValue()).thenReturn(Boolean.toString(false));
 
-    cut = new JPAFilterRestrictionsWatchDog(annotatable);
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, false);
 
     assertShallThrow(throwsException, filter);
   }
@@ -88,7 +88,7 @@ class JPAFilterRestrictionsWatchDogTest {
     setAnnotation(isAnnotated);
     when(filterRequired.getValue()).thenReturn(Boolean.toString(annotatedValue));
 
-    cut = new JPAFilterRestrictionsWatchDog(annotatable);
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, false);
 
     assertShallThrow(throwsException, null);
   }
@@ -98,7 +98,7 @@ class JPAFilterRestrictionsWatchDogTest {
     setAnnotation(true);
     requiredProperties.add(createAnnotationPath("AlternativeCode"));
     requiredProperties.add(createAnnotationPath("AlternativeId"));
-    cut = new JPAFilterRestrictionsWatchDog(annotatable);
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, false);
     assertEquals(2, cut.getRequiredPropertyPath().size());
   }
 
@@ -107,7 +107,7 @@ class JPAFilterRestrictionsWatchDogTest {
     setAnnotation(true);
     requiredProperties.add(createAnnotationPath("AlternativeCode"));
     requiredProperties.add(createAnnotationPath("AlternativeId"));
-    cut = new JPAFilterRestrictionsWatchDog(annotatable);
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, false);
 
     final JPAPath firstPath = mock(JPAPath.class);
     when(firstPath.getAlias()).thenReturn("AlternativeCode");
@@ -134,7 +134,7 @@ class JPAFilterRestrictionsWatchDogTest {
     when(filterable.getValue()).thenReturn(Boolean.toString(true));
     when(filterRequired.getValue()).thenReturn(Boolean.toString(true));
 
-    cut = new JPAFilterRestrictionsWatchDog(annotatable);
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, false);
 
     assertThrows(ODataJPAFilterException.class, () -> cut.watch(filter));
   }
@@ -148,12 +148,23 @@ class JPAFilterRestrictionsWatchDogTest {
     when(filterable.getValue()).thenReturn(Boolean.toString(true));
     when(filterRequired.getValue()).thenReturn(Boolean.toString(false));
 
-    cut = new JPAFilterRestrictionsWatchDog(annotatable);
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, false);
 
     assertDoesNotThrow(() -> cut.watch(filter));
   }
 
   // Filter not required but required properties
+
+  @Test
+  void testHandleFilterIsRequiredAndKeyRequested() throws ODataJPAModelException, ODataJPAQueryException {
+
+    setAnnotation(true);
+    when(filterRequired.getValue()).thenReturn(Boolean.toString(true));
+
+    cut = new JPAFilterRestrictionsWatchDog(annotatable, true);
+
+    assertDoesNotThrow(() -> cut.watch((Expression<Boolean>) null));
+  }
 
   private void assertShallThrow(final boolean throwsException, final Expression<Boolean> filter) {
     if (throwsException)
@@ -165,12 +176,14 @@ class JPAFilterRestrictionsWatchDogTest {
   private void setAnnotation(final boolean isAnnotated) throws ODataJPAModelException {
     initAnnotation();
 
-    if(isAnnotated)
-      when(annotatable.getAnnotation(JPAFilterRestrictionsWatchDog.VOCABULARY_ALIAS, JPAFilterRestrictionsWatchDog.TERM))
-        .thenReturn(annotation);
+    if (isAnnotated)
+      when(annotatable.getAnnotation(JPAFilterRestrictionsWatchDog.VOCABULARY_ALIAS,
+          JPAFilterRestrictionsWatchDog.TERM))
+              .thenReturn(annotation);
     else
-      when(annotatable.getAnnotation(JPAFilterRestrictionsWatchDog.VOCABULARY_ALIAS, JPAFilterRestrictionsWatchDog.TERM))
-        .thenReturn(null);
+      when(annotatable.getAnnotation(JPAFilterRestrictionsWatchDog.VOCABULARY_ALIAS,
+          JPAFilterRestrictionsWatchDog.TERM))
+              .thenReturn(null);
   }
 
   private CsdlPropertyPath createAnnotationPath(final String pathString) {

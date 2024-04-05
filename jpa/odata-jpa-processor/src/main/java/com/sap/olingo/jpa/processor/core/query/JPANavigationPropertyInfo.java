@@ -19,9 +19,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
-public final class JPANavigationPropertyInfo {
+public final class JPANavigationPropertyInfo implements JPANavigationPropertyInfoAccess {
   private static final Log LOGGER = LogFactory.getLog(JPANavigationPropertyInfo.class);
   private final JPAServiceDocument sd;
   private final UriResourcePartTyped navigationTarget;
@@ -31,6 +32,7 @@ public final class JPANavigationPropertyInfo {
   private final UriInfoResource uriInfo;
   private JPAEntityType et = null;
   private JPAFilterComplier filterCompiler = null;
+  private JPAODataPage page = null;
 
   /**
    *
@@ -46,6 +48,7 @@ public final class JPANavigationPropertyInfo {
     this.uriInfo = original.getUriInfo();
     this.sd = original.getServiceDocument();
     this.et = this.uriInfo instanceof JPAExpandItem ? ((JPAExpandItem) uriInfo).getEntityType() : null;
+    this.page = original.getPage();
   }
 
   public JPANavigationPropertyInfo(final JPAServiceDocument sd, final JPAAssociationPath associationPath,
@@ -70,10 +73,12 @@ public final class JPANavigationPropertyInfo {
     this.sd = sd;
   }
 
+  @Override
   public JPAAssociationPath getAssociationPath() {
     return associationPath;
   }
 
+  @Override
   public UriResourcePartTyped getUriResource() {
     return navigationTarget;
   }
@@ -140,7 +145,8 @@ public final class JPANavigationPropertyInfo {
     return fromClause;
   }
 
-  List<UriParameter> getKeyPredicates() {
+  @Override
+  public List<UriParameter> getKeyPredicates() {
     return keyPredicates;
   }
 
@@ -162,6 +168,14 @@ public final class JPANavigationPropertyInfo {
     fromClause = from;
   }
 
+  JPAODataPage getPage() {
+    return page;
+  }
+
+  void setPage(final JPAODataPage page) {
+    this.page = page;
+  }
+
   private JPAServiceDocument getServiceDocument() {
     return sd;
   }
@@ -177,4 +191,5 @@ public final class JPANavigationPropertyInfo {
       return super.toString();
     }
   }
+
 }

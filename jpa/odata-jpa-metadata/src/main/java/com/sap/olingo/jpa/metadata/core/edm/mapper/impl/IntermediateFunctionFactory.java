@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.persistence.metamodel.EntityType;
+
 import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -12,8 +14,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
-
-import jakarta.persistence.metamodel.EntityType;
 
 final class IntermediateFunctionFactory<F extends IntermediateFunction> implements IntermediateOperationFactory<F> {
 

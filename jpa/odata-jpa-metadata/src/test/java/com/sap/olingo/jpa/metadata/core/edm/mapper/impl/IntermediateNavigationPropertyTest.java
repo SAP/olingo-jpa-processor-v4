@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EmbeddableType;
 import jakarta.persistence.metamodel.EntityType;
@@ -28,6 +29,7 @@ import jakarta.persistence.metamodel.ManagedType;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
@@ -43,6 +45,7 @@ import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
@@ -53,9 +56,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.util.AnnotationTestHelper;
+import com.sap.olingo.jpa.metadata.odata.v4.core.terms.ExampleProperties;
+import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Terms;
+import com.sap.olingo.jpa.metadata.odata.v4.general.Aliases;
+import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCoreAnnotationsProvider;
 import com.sap.olingo.jpa.processor.core.errormodel.MissingCardinalityAnnotation;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManyTarget;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneTarget;
@@ -80,11 +89,13 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   private IntermediateSchema errorSchema;
   private JPAEdmMetadataPostProcessor processor;
   private IntermediateAnnotationInformation annotationInfo;
+  private IntermediateReferences reference;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
     final Reflections reflections = mock(Reflections.class);
-    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
+    reference = mock(IntermediateReferences.class);
+    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), reference);
     when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
 
@@ -911,11 +922,75 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   void checkMissingCardinalityAnnotationThrowsError() throws ODataJPAModelException {
     final EntityType<MissingCardinalityAnnotation> et = errorHelper.getEntityType(MissingCardinalityAnnotation.class);
     final Attribute<?, ?> jpaAttribute = errorHelper.getDeclaredAttribute(et, "oneTeam");
-//    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(errorNameBuilder,
-//        errorSchema.getEntityType(et.getJavaType()), jpaAttribute, schema);
 
     assertThrows(ODataJPAModelException.class, () -> new IntermediateNavigationProperty<>(
         errorNameBuilder, errorSchema.getEntityType(et.getJavaType()), jpaAttribute, schema));
+  }
+
+  @Test
+  void checkGetAnnotationVaueReturnsNullAliasUnknown() throws ODataJPAModelException {
+    createAnnotation();
+    final EntityType<?> et = helper.getEntityType(AnnotationsParent.class);
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "children");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(nameBuilder, schema
+        .getEntityType(et.getJavaType()), jpaAttribute, schema);
+    assertNull(cut.getAnnotationValue(Aliases.CAPABILITIES.alias(), Terms.EXAMPLE.term(),
+        ExampleProperties.EXTERNAL_VALUE.property()));
+  }
+
+  @Test
+  void checkGetAnnotationValueNavigationProperty() throws ODataJPAModelException {
+    createAnnotation();
+    final EntityType<?> et = helper.getEntityType(AnnotationsParent.class);
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "children");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(nameBuilder, schema
+        .getEntityType(et.getJavaType()), jpaAttribute, schema);
+    final var act = cut.getAnnotationValue(Aliases.CORE, Terms.EXAMPLE, ExampleProperties.EXTERNAL_VALUE, String.class);
+    assertNotNull(act);
+    assertEquals("../AnnotationsParent?$filter=Children/$count eq 0", act);
+  }
+
+  @Test
+  void checkJavaAnnotationsOneAnnotation() throws ODataJPAModelException {
+    createAnnotation();
+    final EntityType<?> et = helper.getEntityType(AnnotationsParent.class);
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "children");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(nameBuilder, schema
+        .getEntityType(et.getJavaType()), jpaAttribute, schema);
+    final var act = cut.javaAnnotations(OneToMany.class.getPackage().getName());
+    assertEquals(1, act.size());
+    assertNotNull(act.get("OneToMany"));
+  }
+
+  @Test
+  void checkJavaAnnotationsNoAnnotations() throws ODataJPAModelException {
+    createAnnotation();
+    final EntityType<?> et = helper.getEntityType(AnnotationsParent.class);
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "children");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(nameBuilder, schema
+        .getEntityType(et.getJavaType()), jpaAttribute, schema);
+    final var act = cut.javaAnnotations(Test.class.getPackage().getName());
+    assertTrue(act.isEmpty());
+  }
+
+  private void createAnnotation() {
+    final var reference = annotationInfo.getReferences();
+    final var annotationProvider = new JavaBasedCoreAnnotationsProvider();
+    final List<CsdlAnnotation> annotations = new ArrayList<>();
+    final List<CsdlProperty> properties = new ArrayList<>();
+
+    properties.add(AnnotationTestHelper.createTermProperty("Description", "Edm.String"));
+    properties.add(AnnotationTestHelper.createTermProperty("ExternalValue", "Edm.String"));
+    annotations.add(AnnotationTestHelper.createCoreAnnotation("Example"));
+
+    final var terms = AnnotationTestHelper.addTermToCoreReferences(reference, "Example", "ExternalExampleValue",
+        properties);
+
+    when(reference.convertAlias("Core")).thenReturn("Org.OData.Core.V1");
+    when(reference.getTerms("Core", Applicability.NAVIGATION_PROPERTY))
+        .thenReturn(Arrays.asList(terms));
+
+    annotationInfo.getAnnotationProvider().add(annotationProvider);
   }
 
   private Attribute<?, ?> createDummyAttribute() {

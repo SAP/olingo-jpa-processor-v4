@@ -34,6 +34,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
@@ -66,6 +67,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private JPAODataDatabaseProcessor dbProcessor;
   private Optional<JPAEdmProvider> edmProvider;
   private JPAODataDatabaseOperations operationConverter;
+  private JPAODataQueryDirectives queryDirectives;
 
   public JPAODataInternalRequestContext(@Nonnull final JPAODataRequestContext requestContext,
       @Nonnull final JPAODataSessionContextAccess sessionContext) {
@@ -254,6 +256,11 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     return operationConverter;
   }
 
+  @Override
+  public JPAODataQueryDirectives getQueryDirectives() {
+    return queryDirectives;
+  }
+
   private void copyContextValues(final JPAODataRequestContextAccess context)
       throws ODataJPAProcessorException {
     this.em = context.getEntityManager();
@@ -267,6 +274,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     this.dbProcessor = context.getDatabaseProcessor();
     this.edmProvider = Optional.ofNullable(context.getEdmProvider());
     this.operationConverter = context.getOperationConverter();
+    this.queryDirectives = context.getQueryDirectives();
   }
 
   private void copyRequestContext(@Nonnull final JPAODataRequestContext requestContext,
@@ -285,6 +293,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     dbProcessor = sessionContext.getDatabaseProcessor();
     operationConverter = sessionContext.getOperationConverter();
     edmProvider = determineEdmProvider(sessionContext, em);
+    queryDirectives = sessionContext.getQueryDirectives();
   }
 
   private Optional<JPAEdmProvider> determineEdmProvider(final JPAODataSessionContextAccess sessionContext,

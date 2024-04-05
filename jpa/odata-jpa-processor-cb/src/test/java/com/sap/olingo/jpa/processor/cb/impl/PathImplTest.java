@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -126,7 +127,7 @@ class PathImplTest extends BuilderBaseTest {
   }
 
   @Test
-  void testGetReturnsResolvedEmendedId() throws ODataJPAModelException {
+  void testGetReturnsResolvedEmbeddedId() throws ODataJPAModelException {
     et = sd.getEntity("AdministrativeDivisions");
     root = new FromImpl<>(et, ab, mock(CriteriaBuilder.class));
     final Path<Object> act = root.get("codePublisher");
@@ -146,5 +147,27 @@ class PathImplTest extends BuilderBaseTest {
     et = sd.getEntity("AdministrativeDivisions");
     root = new FromImpl<>(et, ab, mock(CriteriaBuilder.class));
     assertThrows(IllegalArgumentException.class, () -> root.get("unknown"));
+  }
+
+  @Test
+  void testEquals() throws ODataJPAModelException {
+    final JPAPath equalPath = et.getPath("Address/StreetName");
+    final JPAPath notEqualPath = et.getPath("Address/HouseNumber");
+    final PathImpl<Organization> other1 = new PathImpl<>(Optional.empty(), Optional.empty(), et, Optional.empty());
+    final PathImpl<Organization> other2 = new PathImpl<>(notEqualPath, Optional.empty(), et, Optional.empty());
+    final PathImpl<Organization> other3 = new PathImpl<>(equalPath, Optional.of((PathImpl<?>) root), et, Optional
+        .empty());
+    final PathImpl<Organization> other4 = new PathImpl<>(equalPath, Optional.empty(), et, Optional.of("E2"));
+    final PathImpl<Organization> other5 = new PathImpl<>(equalPath, Optional.empty(), et, Optional.empty());
+
+    assertFalse(cut.equals("Test")); // NOSONAR
+    assertNotEquals(other1, cut);
+    assertNotEquals(cut, other1);
+    assertNotEquals(other2, cut);
+    assertNotEquals(other4, cut);
+    assertNotEquals(other5, cut);
+    assertEquals(other1, other1);
+    assertEquals(cut, cut);
+    assertEquals(other3, cut);
   }
 }

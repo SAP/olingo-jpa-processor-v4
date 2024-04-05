@@ -51,11 +51,10 @@ public class TemporalWithValidityPeriodKey implements Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof TemporalWithValidityPeriodKey)) return false;
-    final TemporalWithValidityPeriodKey other = (TemporalWithValidityPeriodKey) obj;
-    return Objects.equals(id, other.id) && Objects.equals(validityStartDate, other.validityStartDate);
+  public boolean equals(final Object object) {
+    if (object instanceof final TemporalWithValidityPeriodKey other)
+      return Objects.equals(id, other.id) && Objects.equals(validityStartDate, other.validityStartDate);
+    return false;
   }
 
 }

@@ -30,11 +30,11 @@ class TupleImpl implements Tuple {
     this(new Object[] { value }, selection, selectionIndex);
   }
 
-  TupleImpl(final Object[] values, final List<Entry<String, JPAAttribute>> selPath,
+  TupleImpl(final Object[] values, final List<Entry<String, JPAAttribute>> selection,
       final Map<String, Integer> selectionIndex) {
     super();
     this.values = values;
-    this.selection = selPath;
+    this.selection = selection;
     this.selectionIndex = selectionIndex;
     this.tupleElements = Optional.empty();
   }

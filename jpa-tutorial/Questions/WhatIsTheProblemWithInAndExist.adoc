@@ -20,7 +20,7 @@ INSERT INTO "Product" VALUES (4, 'Trousers', 'white', 2);
 INSERT INTO "Product" VALUES (5, 'Shirt', 'red', 1);
 ----
 
-So, there is a table "Product" with some columns, like the color of the product. Let's assume we like to find all the products that are either blue or white. The following SQL query would do the job:
+So, there is a table "Product" with some columns, like the color of the product. Let's assume we like to find all the products that are either _blue_ or _white_. The following SQL query would do the job:
 
 [source,sql]
 ----
@@ -187,9 +187,9 @@ SELECT COUNT(*)
 	FROM "AdministrativeDivision" t0
 	WHERE (t0."CodePublisher", t0."CodeID", t0."DivisionCode") IN (
 		SELECT t1."CodePublisher",t1."ParentCodeID", t1."ParentDivisionCode"
-		FROM "OLINGO"."AdministrativeDivision" t1
-		GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
-		HAVING (COUNT(t1."DivisionCode") >= 2))
+			FROM "OLINGO"."AdministrativeDivision" t1
+			GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
+			HAVING (COUNT(t1."DivisionCode") >= 2))
 
 ----
 
@@ -200,12 +200,12 @@ SELECT COUNT(*)
 	FROM "AdministrativeDivision" t0
 	WHERE EXISTS (
 		SELECT t1."CodePublisher"
-		FROM "AdministrativeDivision" t1
-		WHERE t0."CodePublisher" = "CodePublisher"
-		AND   t0."CodeID" = t1."ParentCodeID"
-		AND   t0."DivisionCode" = t1."ParentDivisionCode"
-		GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
-		HAVING (COUNT(t1."DivisionCode") >= 2))
+			FROM "AdministrativeDivision" t1
+			WHERE t0."CodePublisher" = "CodePublisher"
+			AND   t0."CodeID" = t1."ParentCodeID"
+			AND   t0."DivisionCode" = t1."ParentDivisionCode"
+			GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
+			HAVING (COUNT(t1."DivisionCode") >= 2))
 ----
  
 The query should count the number of administrative divisions that have at least two subdivisions. 
@@ -223,3 +223,21 @@ The following execution times could be measured:
 This is not a scientific measurement, but gives a good impression about the difference or the performance 
 increase an IN can give. So, in case such a query is required and the relation comprises multiple columns, we
 cannot use the Criteria Builder, we have to generate a parameterized query. 
+
+One last remark: In case we look for result that do not match in the results of the sub-query, we have to use NOT IN or 
+NOT EXISTS, respectively. The variant behave a bit different, if the result set of the sub-query contains Null values.
+NOT EXISTS behaves as expected, but NOT IN will not return a result or create an error. So, for NOT IN we have to add 
+Null check e.g., to find all the administrative divisions that have no subdivisions:
+[source,sql]
+----
+SELECT count(*)
+	FROM "AdministrativeDivision" t0
+	WHERE (t0."CodePublisher", t0."CodeID", t0."DivisionCode") NOT IN (
+		SELECT t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
+			FROM "AdministrativeDivision" t1
+			WHERE t1."CodePublisher" IS NOT NULL
+			AND t1."ParentCodeID" IS NOT NULL
+			AND t1."ParentDivisionCode" IS NOT NULL
+			GROUP BY t1."CodePublisher", t1."ParentCodeID", t1."ParentDivisionCode"
+			HAVING (COUNT(t1."CodePublisher") <> 0))
+----

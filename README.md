@@ -34,7 +34,7 @@ There is no further development for this major version.
 
 ### 2.x.x
 
-The current version is based on [Jakarta 10](https://projects.eclipse.org/releases/jakarta-10), so [JPA 3.1.0](https://projects.eclipse.org/projects/ee4j.jpa/releases/3.1) or [Jakarta Persistence Specification](https://github.com/jakartaee/persistence), receptively and [Jakarta Servlet 6.0](https://projects.eclipse.org/projects/ee4j.servlet/releases/6.0). Test are performed using [Eclipselink 4.0.2](https://projects.eclipse.org/projects/ee4j.eclipselink/releases/4.0.2), but there is no real dependency to a JPA implementation. This version requires Java [17](https://sap.github.io/SapMachine/#download).
+The current version, [2.0.2](https://github.com/SAP/olingo-jpa-processor-v4/releases/tag/2.0.2), is based on [Jakarta 10](https://projects.eclipse.org/releases/jakarta-10), so [JPA 3.1.0](https://projects.eclipse.org/projects/ee4j.jpa/releases/3.1) or [Jakarta Persistence Specification](https://github.com/jakartaee/persistence), receptively and [Jakarta Servlet 6.0](https://projects.eclipse.org/projects/ee4j.servlet/releases/6.0). Test are performed using [Eclipselink 4.0.2](https://projects.eclipse.org/projects/ee4j.eclipselink/releases/4.0.2), but there is no real dependency to a JPA implementation. This version requires Java [17](https://sap.github.io/SapMachine/#download).
 
 The current version comes with [Olingo 4.10.0](https://github.com/apache/olingo-odata4), which does not support Jakarta. Till Olingo supports Jakarta, requests get mapped by the JPA Processor.
 
@@ -47,7 +47,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -99,3 +99,4 @@ Detailed information including third-party components and their licensing/copyri
 |1.0.9| - Update Olingo dependency to 4.9.0<br> - Solutions for issues [#164](https://github.com/SAP/olingo-jpa-processor-v4/issues/164), [#155](https://github.com/SAP/olingo-jpa-processor-v4/issues/155), [#191](https://github.com/SAP/olingo-jpa-processor-v4/issues/191), [#156](https://github.com/SAP/olingo-jpa-processor-v4/issues/156)<br>                                                                                                                                                             |No|
 |1.1.1| - Enable action overload<br> - Basic support of OData annotations<br>- Solution of issues [#207](https://github.com/SAP/olingo-jpa-processor-v4/issues/207), [#211](https://github.com/SAP/olingo-jpa-processor-v4/issues/211), [#212](https://github.com/SAP/olingo-jpa-processor-v4/issues/212), [#213](https://github.com/SAP/olingo-jpa-processor-v4/issues/213), [#214](https://github.com/SAP/olingo-jpa-processor-v4/issues/214),[#218](https://github.com/SAP/olingo-jpa-processor-v4/issues/218) |No|
 |2.0.0| - Minimum Java release now 17<br>- Switch to Jakarta Persistence<br> - Support of Spring Boot 3.x<br> - JPAEdmMetadataPostProcessor became an interface                                                                                                                                                                                                                                                                                                                                                   |Yes|
+|2.0.2| - Solution for issue [#239](https://github.com/SAP/olingo-jpa-processor-v4/issues/239)<br> - Partial solution for issue [#226](https://github.com/SAP/olingo-jpa-processor-v4/issues/226)<br> - Solution for issue [#238](https://github.com/SAP/olingo-jpa-processor-v4/issues/238) and [#236](https://github.com/SAP/olingo-jpa-processor-v4/issues/236)|No|

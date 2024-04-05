@@ -52,10 +52,7 @@ class TestJPAQueryNavigation extends TestBase {
         Arguments.of("Organizations('3')/AdministrativeInformation/Created/User", "99", "ID",
             "NavigationViaComplexType"),
         Arguments.of("Organizations('3')/AdministrativeInformation/Created/User/Address/AdministrativeDivision",
-            "3166-1", "ParentCodeID", "NavigationViaComplexTypeTwoHops"),
-        Arguments.of(
-            "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person",
-            "Doe", "LastName", "NavigationWithCast"));
+            "3166-1", "ParentCodeID", "NavigationViaComplexTypeTwoHops"));
   }
 
   @ParameterizedTest
@@ -68,6 +65,41 @@ class TestJPAQueryNavigation extends TestBase {
 
     final ObjectNode created = helper.getValue();
     assertEquals(exp, created.get(propertyName).asText(), message);
+  }
+
+  private static Stream<Arguments> provideNavigationDerived() {
+    return Stream.of(
+        Arguments.of("BusinessPartners/com.sap.olingo.jpa.Person",
+            null, null, 3, 200, "NavigationToDerivedType"),
+        Arguments.of("BusinessPartners('99')/com.sap.olingo.jpa.Person",
+            "Mustermann", "LastName", 1, 200, "NavigationToDerivedTypeWithId1"),
+        Arguments.of("BusinessPartners/com.sap.olingo.jpa.Person('99')",
+            "Mustermann", "LastName", 1, 200, "NavigationToDerivedTypeWithId2"),
+        Arguments.of("BusinessPartners('1')/com.sap.olingo.jpa.Person",
+            null, null, 0, 404, "NavigationToWrongDerivedTypeWithId1"),
+        Arguments.of(
+            "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person",
+            "Doe", "LastName", 1, 200, "NavigationWithCast"),
+        Arguments.of(
+            // maybe the expected status is wrong, but it is hard to implement an 404
+            "BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')/BusinessPartner/com.sap.olingo.jpa.Person",
+            null, null, 0, 204, "NavigationWithCastWrongDerivedType"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideNavigationDerived")
+  void testNavigationToDerivedType(final String url, final String exp, final String propertyName, final int noResults,
+      final int status, final String message) throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, url);
+    helper.assertStatus(status);
+    if (noResults == 1) {
+      final ObjectNode created = helper.getValue();
+      assertEquals(exp, created.get(propertyName).asText(), message);
+    } else if (noResults > 1) {
+      final ArrayNode created = helper.getValues();
+      assertEquals(noResults, created.size());
+    }
   }
 
   @Test

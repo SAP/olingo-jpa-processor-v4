@@ -235,19 +235,12 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     return result;
   }
 
-  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(final Object object) {
-    if (this == object) return true;
-    if (object == null) return false;
-    if (getClass() != object.getClass()) return false;
-    final PathImpl other = (PathImpl) object;
-    if (!path.isPresent()) {
-      if (other.path.isPresent()) return false;
-    } else if (!path.equals(other.path)) return false;
-    if (!tableAlias.isPresent()) {
-      if (other.tableAlias.isPresent()) return false;
-    } else if (!tableAlias.equals(other.tableAlias)) return false;
-    return true;
+    return (object instanceof final PathImpl<?> otherPath)
+        && (path.isEmpty() && otherPath.path.isEmpty()
+            || path.isPresent() && path.equals(otherPath.path))
+        && (tableAlias.isEmpty() && otherPath.tableAlias.isEmpty()
+            || tableAlias.isPresent() && tableAlias.equals(otherPath.tableAlias));
   }
 }

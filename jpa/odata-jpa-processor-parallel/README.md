@@ -8,4 +8,4 @@ This project contains JPA Processor enhancements to process OData requests in pa
 .setBatchProcessorFactory(new JPAODataParallelBatchProcessorFactory())
 ```
 
-It shall be mentioned that the OData specification would allow a parallel processing only if the clients sends a `` header, seeter
+It shall be mentioned that the OData specification would allow a parallel processing only if the clients sends a `continue-on-error` header, see

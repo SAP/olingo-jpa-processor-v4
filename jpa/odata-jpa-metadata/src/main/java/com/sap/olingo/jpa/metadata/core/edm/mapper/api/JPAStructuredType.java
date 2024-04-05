@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.apache.olingo.server.api.uri.UriResourceProperty;
@@ -144,4 +145,12 @@ public interface JPAStructuredType extends JPAElement {
   public Class<?> getTypeClass();
 
   public boolean isAbstract();
+
+  /**
+   * Determines if the structured type has a super type, that will be part of OData metadata. That is, the method will
+   * return null in case the entity has a MappedSuperclass.
+   * @return Determined super type or null
+   */
+  @CheckForNull
+  public JPAStructuredType getBaseType();
 }

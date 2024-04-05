@@ -98,6 +98,8 @@ class JPAODataParallelBatchProcessorTest {
     final ODataJPABatchException act = Assertions.assertThrows(ODataJPABatchException.class, () -> cut.buildGroups(
         requests));
     Assertions.assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
+    Assertions.assertNotNull(act.getMessage());
+    Assertions.assertFalse(act.getMessage().contains("No message text found"));
   }
 
   @Test

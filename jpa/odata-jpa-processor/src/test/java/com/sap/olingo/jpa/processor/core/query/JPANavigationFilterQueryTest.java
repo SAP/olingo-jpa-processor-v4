@@ -19,7 +19,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
@@ -39,22 +39,22 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 class JPANavigationFilterQueryTest extends TestBase {
-  private JPAAbstractSubQuery cut;
-  private TestHelper helper;
-  private EntityManager em;
-  private OData odata;
-  private UriResourceNavigation uriResourceItem;
-  private JPAAbstractQuery parent;
-  private JPAAssociationPath association;
-  private From<?, ?> from;
-  private Root<JoinPartnerRoleRelation> queryJoinTable;
-  private Root<BusinessPartnerRoleProtected> queryRoot;
-  private JPAODataClaimProvider claimsProvider;
-  private EdmEntityType edmEntityType;
+  protected JPAAbstractSubQuery cut;
+  protected TestHelper helper;
+  protected EntityManager em;
+  protected OData odata;
+  protected UriResourceNavigation uriResourceItem;
+  protected JPAAbstractQuery parent;
+  protected JPAAssociationPath association;
+  protected From<?, ?> from;
+  protected Root<JoinPartnerRoleRelation> queryJoinTable;
+  protected Root<BusinessPartnerRoleProtected> queryRoot;
+  protected JPAODataClaimProvider claimsProvider;
+  protected JPAEntityType jpaEntityType;
   @SuppressWarnings("rawtypes")
-  private CriteriaQuery cq;
-  private CriteriaBuilder cb;
-  private Subquery<Object> subQuery;
+  protected CriteriaQuery cq;
+  protected CriteriaBuilder cb;
+  protected Subquery<Object> subQuery;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
@@ -66,7 +66,7 @@ class JPANavigationFilterQueryTest extends TestBase {
     claimsProvider = mock(JPAODataClaimProvider.class);
     odata = OData.newInstance();
     uriResourceItem = mock(UriResourceNavigation.class);
-    edmEntityType = mock(EdmEntityType.class);
+    jpaEntityType = helper.getJPAEntityType(BusinessPartnerRoleProtected.class);
     cq = mock(CriteriaQuery.class);
     cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
     subQuery = mock(Subquery.class);
@@ -77,10 +77,7 @@ class JPANavigationFilterQueryTest extends TestBase {
     final UriParameter key = mock(UriParameter.class);
 
     when(em.getCriteriaBuilder()).thenReturn(cb);
-    when(uriResourceItem.getType()).thenReturn(edmEntityType);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
-    when(edmEntityType.getName()).thenReturn("BusinessPartnerRoleProtected");
-    when(edmEntityType.getNamespace()).thenReturn(PUNIT_NAME);
     when(parent.getQuery()).thenReturn(cq);
     when(cq.subquery(any())).thenReturn(subQuery);
     when(subQuery.from(JoinPartnerRoleRelation.class)).thenReturn(queryJoinTable);
@@ -89,10 +86,14 @@ class JPANavigationFilterQueryTest extends TestBase {
     doReturn(BusinessPartnerProtected.class).when(from).getJavaType();
   }
 
+  protected JPAAbstractSubQuery createCut() throws ODataApplicationException {
+    return new JPANavigationFilterQuery(odata, helper.sd, jpaEntityType,
+        parent, em, association, from, Optional.of(claimsProvider), Collections.emptyList());
+  }
+
   @Test
   void testCutExists() throws ODataApplicationException {
-    cut = new JPANavigationFilterQuery(odata, helper.sd, uriResourceItem,
-        parent, em, association, from, Optional.of(claimsProvider));
+    cut = createCut();
     assertNotNull(cut);
   }
 
@@ -130,10 +131,9 @@ class JPANavigationFilterQueryTest extends TestBase {
     when(cb.and(equalExpression2, equalExpression3)).thenReturn(andExpression1);
     when(cb.and(equalExpression1, andExpression1)).thenReturn(andExpression2);
 
-    cut = new JPANavigationFilterQuery(odata, helper.sd, uriResourceItem,
-        parent, em, association, from, Optional.of(claimsProvider));
+    cut = createCut();
     @SuppressWarnings("unused")
-    final Subquery<Object> act = cut.getSubQuery(subQuery, null);
+    final Subquery<Object> act = cut.getSubQuery(subQuery, null, Collections.emptyList());
     verify(subQuery).select(roleIdPath);
     verify(subQuery).where(andExpression2);
     verify(cb).equal(roleCategoryPath, targetPath);
