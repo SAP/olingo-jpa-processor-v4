@@ -703,7 +703,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         }
         joinTables.put(lastInfo.getAssociationPath().getAlias(), path);
         final JPAEntityType targetEt = (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(); // NOSONAR
-        final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
+        final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter(),
+            requestContext.getQueryDirectives());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
         final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(
             ((JPAAssociationAttribute) element), !lastInfo.getKeyPredicates().isEmpty());
@@ -711,7 +712,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
             lastInfo.getAssociationPath(), subContext, watchDog));
       } else {
         lastInfo.getKeyPredicates();
-        final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
+        final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter(),
+            requestContext.getQueryDirectives());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
         final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(entitySet.orElse(null),
             !lastInfo.getKeyPredicates().isEmpty());
@@ -796,7 +798,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected final void addFilterCompiler(final JPANavigationPropertyInfo navigationInfo) throws ODataJPAModelException,
       ODataJPAProcessorException {
 
-    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
+    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter(),
+        requestContext.getQueryDirectives());
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(navigationInfo.getUriInfo(),
         requestContext);
     navigationInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, navigationInfo.getEntityType(), converter,

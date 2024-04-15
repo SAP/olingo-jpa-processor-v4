@@ -49,11 +49,11 @@ class JPAODataServiceContextBuilderTest {
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
 
   private JPAODataSessionContextAccess cut;
-  private static DataSource ds;
+  private static DataSource dataSource;
 
   @BeforeAll
   public static void classSetup() {
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
+    dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
   }
 
   @Test
@@ -62,9 +62,9 @@ class JPAODataServiceContextBuilderTest {
   }
 
   @Test
-  void checkSetDatasourceAndPUnit() throws ODataException {
+  void checkSetDataSourceAndPUnit() throws ODataException {
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .build();
 
@@ -74,7 +74,7 @@ class JPAODataServiceContextBuilderTest {
   @Test
   void checkEmptyArrayOnNoPackagesProvided() throws ODataException {
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .build();
 
@@ -85,7 +85,7 @@ class JPAODataServiceContextBuilderTest {
   @Test
   void checkArrayOnProvidedPackages() throws ODataException {
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setTypePackage("org.apache.olingo.jpa.bl", "com.sap.olingo.jpa.processor.core.testmodel")
         .build();
@@ -98,7 +98,7 @@ class JPAODataServiceContextBuilderTest {
   void checkReturnsProvidedPagingProvider() throws ODataException {
     final JPAODataPagingProvider provider = new JPAExamplePagingProvider(Collections.emptyMap());
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setPagingProvider(provider)
         .build();
@@ -110,7 +110,7 @@ class JPAODataServiceContextBuilderTest {
   @Test
   void checkReturnsDefaultProvidedPagingIfNotProvider() throws ODataException {
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setPagingProvider(null)
         .build();
@@ -122,7 +122,7 @@ class JPAODataServiceContextBuilderTest {
   void checkEmptyListOnNoReferencesProvided() throws ODataException {
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .build();
 
@@ -136,7 +136,7 @@ class JPAODataServiceContextBuilderTest {
     final List<EdmxReference> references = new ArrayList<>(1);
     references.add(new EdmxReference(new URI("http://exapmle.com/odata4/v1")));
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setReferences(references)
         .build();
@@ -149,7 +149,7 @@ class JPAODataServiceContextBuilderTest {
 
     final JPAODataDatabaseOperations operations = new JPADefaultDatabaseProcessor();
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setOperationConverter(operations)
         .build();
@@ -163,7 +163,7 @@ class JPAODataServiceContextBuilderTest {
 
     final JPAODataDatabaseProcessor processor = new JPADefaultDatabaseProcessor();
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setDatabaseProcessor(processor)
         .build();
@@ -177,7 +177,7 @@ class JPAODataServiceContextBuilderTest {
 
     final JPAEdmMetadataPostProcessor processor = new TestEdmPostProcessor();
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .setMetadataPostProcessor(processor)
@@ -192,7 +192,7 @@ class JPAODataServiceContextBuilderTest {
   void checkReturnsErrorProcessor() throws ODataException {
     final ErrorProcessor processor = new JPADefaultErrorProcessor();
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setErrorProcessor(processor)
         .build();
@@ -203,10 +203,10 @@ class JPAODataServiceContextBuilderTest {
 
   @Test
   void checkThrowsExceptionOnDBConnectionProblem() throws ODataException, SQLException {
-    final DataSource dsSpy = spy(ds);
-    when(dsSpy.getConnection()).thenThrow(SQLException.class);
+    final DataSource dataSourceSpy = spy(dataSource);
+    when(dataSourceSpy.getConnection()).thenThrow(SQLException.class);
     assertThrows(ODataException.class, () -> JPAODataServiceContext.with()
-        .setDataSource(dsSpy)
+        .setDataSource(dataSourceSpy)
         .setPUnit(PUNIT_NAME)
         .build());
 
@@ -216,7 +216,7 @@ class JPAODataServiceContextBuilderTest {
   void checkJPAEdmContainsDefaultNameBuilder() throws ODataException, SQLException {
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .build();
@@ -232,7 +232,7 @@ class JPAODataServiceContextBuilderTest {
     final JPAEdmNameBuilder nameBuilder = mock(JPAEdmNameBuilder.class);
     when(nameBuilder.getNamespace()).thenReturn("unit.test");
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .setEdmNameBuilder(nameBuilder)
@@ -248,7 +248,7 @@ class JPAODataServiceContextBuilderTest {
     final String exp = "test/v1";
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setRequestMappingPath(exp)
         .build();
@@ -261,7 +261,7 @@ class JPAODataServiceContextBuilderTest {
     final TestBatchProcessorFactory exp = new TestBatchProcessorFactory();
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setBatchProcessorFactory(exp)
         .build();
@@ -273,7 +273,7 @@ class JPAODataServiceContextBuilderTest {
   void checkReturnsDefaultBatchProcessorFactoryIfNotProvided() throws ODataException {
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .build();
 
@@ -284,7 +284,7 @@ class JPAODataServiceContextBuilderTest {
   void checkReturnsFalseAsDefaultForUseAbsoluteContextURL() throws ODataException {
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .build();
 
@@ -295,7 +295,7 @@ class JPAODataServiceContextBuilderTest {
   void checkReturnsTrueForUseAbsoluteContextURLIfSet() throws ODataException {
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setUseAbsoluteContextURL(true)
         .build();
@@ -307,7 +307,7 @@ class JPAODataServiceContextBuilderTest {
   void checkReturnsFalseForUseAbsoluteContextURLIfSet() throws ODataException {
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setUseAbsoluteContextURL(false)
         .build();
@@ -319,7 +319,7 @@ class JPAODataServiceContextBuilderTest {
   void checkReturnsEmptyAnnotationProviderList() throws ODataException {
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setUseAbsoluteContextURL(false)
         .build();
@@ -334,7 +334,7 @@ class JPAODataServiceContextBuilderTest {
     final AnnotationProvider provider2 = mock(AnnotationProvider.class);
 
     cut = JPAODataServiceContext.with()
-        .setDataSource(ds)
+        .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
         .setUseAbsoluteContextURL(false)
         .setAnnotationProvider(provider1, provider2)

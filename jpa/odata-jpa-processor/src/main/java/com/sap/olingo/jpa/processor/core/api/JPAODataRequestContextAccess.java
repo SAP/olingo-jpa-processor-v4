@@ -70,5 +70,5 @@ public interface JPAODataRequestContextAccess {
    */
   public List<Locale> getProvidedLocale();
 
-  JPAODataQueryDirectives getQueryDirectives();
+  public JPAODataQueryDirectives getQueryDirectives();
 }

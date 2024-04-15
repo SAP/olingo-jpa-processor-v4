@@ -3,6 +3,8 @@ package com.sap.olingo.jpa.processor.core.filter;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
+
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Expression;
@@ -12,6 +14,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
@@ -19,12 +22,15 @@ public class JPAOperationConverter {
 
   protected final CriteriaBuilder cb;
   private final JPAODataDatabaseOperations dbConverter;
+  private final JPAODataQueryDirectives directives;
 
-  public JPAOperationConverter(final CriteriaBuilder cb, final JPAODataDatabaseOperations converterExtension) {
+  public JPAOperationConverter(final CriteriaBuilder cb, final JPAODataDatabaseOperations converterExtension,
+      @Nonnull final JPAODataQueryDirectives directives) {
     super();
     this.cb = cb;
     this.dbConverter = converterExtension;
     this.dbConverter.setCriteriaBuilder(cb);
+    this.directives = directives;
   }
 
   public final Expression<Long> convert(final JPAAggregationOperationImp jpaOperator) throws ODataApplicationException {
@@ -36,7 +42,7 @@ public class JPAOperationConverter {
   }
 
   @SuppressWarnings("unchecked")
-  public final <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
+  public final <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator) // NOSONAR
       throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
       case ADD:
@@ -115,15 +121,19 @@ public class JPAOperationConverter {
   public final <T, X extends JPAOperator> Expression<Boolean> convert(final JPAInOperator<T, X> jpaOperator)
       throws ODataApplicationException {
 
-    if (BinaryOperatorKind.IN == jpaOperator.getOperator()) {
+    if (BinaryOperatorKind.IN == jpaOperator.getOperator() && directives.getMaxValuesInInClause() > 0) {
       final In<T> in = cb.in(jpaOperator.getLeft());
+      if (directives.getMaxValuesInInClause() < jpaOperator.getFixValues().size())
+        throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NO_VALUES_OUT_OF_LIMIT,
+            HttpStatusCode.BAD_REQUEST, String.valueOf(directives.getMaxValuesInInClause()),
+            String.valueOf(jpaOperator.getFixValues().size()));
       for (final JPAOperator value : jpaOperator.getFixValues()) {
         in.value((T) value.get());
       }
       return in;
     }
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getName());
+        HttpStatusCode.BAD_REQUEST, jpaOperator.getName());
   }
 
   @SuppressWarnings("unchecked")

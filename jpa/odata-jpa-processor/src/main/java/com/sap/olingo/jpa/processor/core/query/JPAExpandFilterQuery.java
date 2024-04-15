@@ -141,7 +141,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   protected final JPAFilterCrossComplier addFilterCompiler(final JPANavigationPropertyInfo navigationInfo)
       throws ODataJPAModelException, ODataJPAProcessorException, ODataJPAQueryException {
 
-    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
+    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter(),
+        requestContext.getQueryDirectives());
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(navigationInfo.getUriInfo(),
         requestContext);
 
