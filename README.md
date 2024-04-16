@@ -24,11 +24,11 @@ __Pull Request__:
 
 __Master__: 
 
-[![Build Status](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-linuxx86_64-linuxx86_64//badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-linuxx86_64-linuxx86_64//) 
+[![Build Status](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-SP-MS-common/badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-SP-MS-common/) 
 
 __Sonar__:
 
-[![Sonar build Status](https://prod-build10200.wdf.sap.corp:443/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-sonar-sonar/badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp:443/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-sonar-sonar/)
+[![Sonar build Status](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-PR-linuxx86_64-sonar/badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-PR-linuxx86_64-sonar/)
 
 [![Lines of Code](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=ncloc&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
 [![Coverage](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=coverage&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
