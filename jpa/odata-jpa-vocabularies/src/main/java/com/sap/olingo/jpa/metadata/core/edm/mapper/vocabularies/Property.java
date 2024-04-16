@@ -71,4 +71,9 @@ public class Property extends CsdlProperty {
     Objects.requireNonNull(srid);
     super.setSrid(SRID.valueOf(srid));
   }
+
+  @Override
+  public String toString() {
+    return "Property [name=" + getName() + ", type=" + getType() + "]";
+  }
 }

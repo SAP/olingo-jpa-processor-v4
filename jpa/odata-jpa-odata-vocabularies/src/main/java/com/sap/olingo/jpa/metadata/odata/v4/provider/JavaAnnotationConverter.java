@@ -40,6 +40,7 @@ class JavaAnnotationConverter {
   private static final Log LOGGER = LogFactory.getLog(JavaAnnotationConverter.class);
   static final String EDM_NAMESPACE = "Edm";
   static final String IS_COLLECTION_TERM = "Collection";
+  static final String NULL = "null";
 
   JavaAnnotationConverter() {
     super();
@@ -113,7 +114,8 @@ class JavaAnnotationConverter {
 
     final var enumType = propertyType.asEnumeration();
     final var enumMember = enumType.getMember(propertyValue.toString());
-    return new CsdlConstantExpression(ConstantExpressionType.EnumMember, enumMember.getName());
+    return new CsdlConstantExpression(ConstantExpressionType.EnumMember,
+        enumMember == null ? NULL : enumMember.getName());
   }
 
   private ConstantExpressionType asExpressionType(final AnnotationType annotation) {

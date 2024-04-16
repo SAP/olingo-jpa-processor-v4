@@ -137,6 +137,20 @@ class JavaAnnotationConverterTest {
   }
 
   @Test
+  void checkAnnotationWithRecordContainingEnumNullValue() {
+
+    final UpdateRestrictions updateRestrictions = JavaBasedODataAnnotationsProviderTest.class.getAnnotation(
+        UpdateRestrictions.class);
+    final Optional<CsdlAnnotation> act = cut.convert(references, updateRestrictions, annotatable);
+    assertTrue(act.isPresent());
+    final List<CsdlPropertyValue> actValues = act.get().getExpression().asDynamic().asRecord().getPropertyValues();
+    final Optional<CsdlPropertyValue> updateMethod = actValues.stream()
+        .filter(p -> p.getProperty().equals("UpdateMethod")).findFirst();
+    assertTrue(updateMethod.isPresent());
+    assertEquals("null", updateMethod.get().getValue().asConstant().getValue());
+  }
+
+  @Test
   void checkAnnotationWithRecordContainingCollection() throws ODataPathNotFoundException {
 
     buildToPathResult();
