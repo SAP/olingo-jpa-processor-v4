@@ -15,6 +15,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -28,6 +29,8 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
@@ -44,9 +47,14 @@ class JPAVisitorTest {
   private JPAOperationConverter converter;
 
   @BeforeEach
-  public void setUp() {
+  public void setUp() throws ODataException {
+    final JPAODataQueryDirectives directives = JPAODataServiceContext.with()
+        .useQueryDirectives()
+        .build()
+        .build()
+        .getQueryDirectives();
     extension = mock(JPAODataDatabaseOperations.class);
-    converter = new JPAOperationConverter(mock(CriteriaBuilder.class), extension);
+    converter = new JPAOperationConverter(mock(CriteriaBuilder.class), extension, directives);
     compiler = mock(JPAFilterComplierAccess.class);
     query = mock(JPAAbstractQuery.class);
     from = mock(From.class);

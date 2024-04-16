@@ -61,7 +61,8 @@ public abstract class JPANavigationSubQuery extends JPAAbstractSubQuery {
   final void buildExpression(final VisitableExpression expression, final List<String> groups)
       throws ODataApplicationException {
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-        getContext().getOperationConverter()), null, this, expression, association, groups);
+        getContext().getOperationConverter(), getContext().getQueryDirectives()), null, this, expression, association,
+        groups);
     createDescriptionJoin();
   }
 

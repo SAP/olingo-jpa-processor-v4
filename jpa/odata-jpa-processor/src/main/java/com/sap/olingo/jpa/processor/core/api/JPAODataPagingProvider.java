@@ -29,6 +29,9 @@ public interface JPAODataPagingProvider {
    * If the skiptoken is not known the method must return null.
    * @param skipToken
    * @return Next page. If the page is null, an exception
+   * @deprecated implement
+   * {@link #getNextPage(String, OData, ServiceMetadata, JPARequestParameterMap, EntityManager)}
+   * instead
    */
   @Deprecated(since = "2.1.0", forRemoval = true)
   default JPAODataPage getNextPage(@Nonnull final String skipToken) {
@@ -58,6 +61,9 @@ public interface JPAODataPagingProvider {
    * @param em
    * @return
    * @throws ODataApplicationException
+   * @deprecated implement
+   * {@link #getFirstPage(JPARequestParameterMap, JPAODataPathInformation, UriInfo, Integer, JPACountQuery, EntityManager)}
+   * instead *
    */
   @Deprecated(since = "2.1.0", forRemoval = true)
   default JPAODataPage getFirstPage(final UriInfo uriInfo, @Nullable final Integer preferredPageSize,

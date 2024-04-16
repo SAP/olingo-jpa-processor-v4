@@ -164,7 +164,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     private ErrorProcessor errorProcessor;
     private JPAODataPagingProvider pagingProvider;
     private Optional<? extends EntityManagerFactory> emf = Optional.empty();
-    private DataSource ds;
+    private DataSource dataSource;
     private JPAEdmProvider jpaEdm;
     private JPAEdmNameBuilder nameBuilder;
     private String mappingPath;
@@ -190,15 +190,15 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
         }
         if (packageName == null)
           packageName = new String[0];
-        if (!emf.isPresent() && ds != null && namespace != null)
-          emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, ds));
+        if (!emf.isPresent() && dataSource != null && namespace != null)
+          emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, dataSource));
         createEmfWrapper();
         if (emf.isPresent() && jpaEdm == null)
           jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays.asList(
               annotationProvider));
         if (databaseProcessor == null) {
           LOGGER.trace("No database-processor provided, use JPAODataDatabaseProcessorFactory to create one");
-          databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
+          databaseProcessor = new JPAODataDatabaseProcessorFactory().create(dataSource);
         }
         if (batchProcessorFactory == null) {
           LOGGER.trace("No batch-processor-factory provided, use default factory to create one");
@@ -233,12 +233,12 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * {@link Builder#setEntityManagerFactory(EntityManagerFactory)}, and to determine the type of
      * database used to select an integrated database processor, in case the database processor was not set via
      * {@link Builder#setDatabaseProcessor(JPAODataDatabaseProcessor)}}.
-     * @param ds
+     * @param dataSource
      * @return
      */
     @Override
-    public JPAODataServiceContextBuilder setDataSource(final DataSource ds) {
-      this.ds = ds;
+    public JPAODataServiceContextBuilder setDataSource(final DataSource dataSource) {
+      this.dataSource = dataSource;
       return this;
     }
 
@@ -417,10 +417,9 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
       return JPAODataQueryDirectives.with(this);
     }
 
-    JPAODataServiceContextBuilder setQueryDirectives(final JPAODataQueryDirectivesImpl queryDirectives) {
+    public JPAODataServiceContextBuilder setQueryDirectives(final JPAODataQueryDirectivesImpl queryDirectives) {
       this.queryDirectives = queryDirectives;
       return this;
     }
   }
-
 }
