@@ -33,6 +33,24 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import jakarta.persistence.AssociationOverride;
+import jakarta.persistence.AssociationOverrides;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Version;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
+import jakarta.persistence.metamodel.IdentifiableType;
+import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.metamodel.MappedSuperclassType;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.SingularAttribute;
+import jakarta.persistence.metamodel.Type;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -57,24 +75,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-
-import jakarta.persistence.AssociationOverride;
-import jakarta.persistence.AssociationOverrides;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Version;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
-import jakarta.persistence.metamodel.IdentifiableType;
-import jakarta.persistence.metamodel.ManagedType;
-import jakarta.persistence.metamodel.MappedSuperclassType;
-import jakarta.persistence.metamodel.PluralAttribute;
-import jakarta.persistence.metamodel.SingularAttribute;
-import jakarta.persistence.metamodel.Type;
 
 abstract class IntermediateStructuredType<T> extends IntermediateModelElement implements JPAStructuredType,
     ODataAnnotatable {
@@ -151,8 +151,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesMap.get(internalName));
-    if (!result.isPresent() && getBaseType() != null)
-      result = getBaseType().getAttribute(internalName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (!result.isPresent() && baseType != null)
+      result = baseType.getAttribute(internalName);
     else if (result.isPresent() && respectIgnore && ((IntermediateModelElement) result.get()).ignore())
       return Optional.empty();
     return result;
@@ -167,8 +168,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       if (property.getValue().getExternalName().equals(externalName))
         return Optional.of(property.getValue());
     }
-    if (getBaseType() != null)
-      return getBaseType().getAttribute(uriResourceItem);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getAttribute(uriResourceItem);
     return Optional.empty();
   }
 
@@ -182,8 +184,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       if (!attribute.ignore())
         result.add(attribute);
     }
-    if (getBaseType() != null)
-      result.addAll(getBaseType().getAttributes());
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null)
+      result.addAll(baseType.getAttributes());
     return result;
   }
 
@@ -221,8 +224,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesMap.get(internalName));
-    if (!result.isPresent() && getBaseType() != null)
-      result = getBaseType().getDeclaredAttribute(internalName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (!result.isPresent() && baseType != null)
+      result = baseType.getDeclaredAttribute(internalName);
     return result;
   }
 
@@ -371,11 +375,12 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   }
 
   /**
-   * Determines if the structured type has a super type, that will be part of OData metadata. That is the method will
+   * Determines if the structured type has a super type, that will be part of OData metadata. That is, the method will
    * return null in case the entity has a MappedSuperclass.
    * @return Determined super type or null
    */
-  protected IntermediateStructuredType<? super T> getBaseType() { // NOSONAR
+  @Override
+  public IntermediateStructuredType<? super T> getBaseType() { // NOSONAR
     final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
     if (baseType != null) {
       @SuppressWarnings("unchecked")
@@ -521,8 +526,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     IntermediateProperty result = declaredPropertiesMap.get(internalName);
-    if (result == null && getBaseType() != null)
-      result = getBaseType().getProperty(internalName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (result == null && baseType != null)
+      result = baseType.getProperty(internalName);
     return result;
   }
 
@@ -701,8 +707,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
         result.add((IntermediateSimpleProperty) property.getValue());
       }
     }
-    if (this.getBaseType() != null) {
-      final IntermediateSimpleProperty superResult = getBaseType().getStreamProperty();
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null) {
+      final IntermediateSimpleProperty superResult = baseType.getStreamProperty();
       if (superResult != null) {
         result.add(superResult);
       }
@@ -779,8 +786,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
         return property;
       }
     }
-    if (getBaseType() != null)
-      return getBaseType().getPropertyByDBField(dbFieldName);
+    final IntermediateStructuredType<?> baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getPropertyByDBField(dbFieldName);
     return null;
   }
 

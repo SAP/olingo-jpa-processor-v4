@@ -21,7 +21,9 @@ public class ODataJPAFilterException extends ODataJPAProcessException {
 
     FILTERING_REQUIRED,
     FILTERING_NOT_SUPPORTED,
-    FILTERING_MISSING_PROPERTIES;
+    FILTERING_MISSING_PROPERTIES,
+
+    NO_VALUES_OUT_OF_LIMIT;
 
     @Override
     public String getKey() {

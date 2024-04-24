@@ -29,6 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationPro
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.JPAODataQueryDirectivesImpl;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
@@ -53,8 +54,9 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
   private final JPAODataBatchProcessorFactory<JPAODataBatchProcessor> batchProcessorFactory;
   private final boolean useAbsoluteContextURL;
   private final List<AnnotationProvider> annotationProvider;
+  private final JPAODataQueryDirectives queryDirectives;
 
-  public static Builder with() {
+  public static JPAODataServiceContextBuilder with() {
     return new Builder();
   }
 
@@ -75,6 +77,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     batchProcessorFactory = (JPAODataBatchProcessorFactory<JPAODataBatchProcessor>) builder.batchProcessorFactory;
     useAbsoluteContextURL = builder.useAbsoluteContextURL;
     annotationProvider = Arrays.asList(builder.annotationProvider);
+    queryDirectives = builder.queryDirectives;
   }
 
   @Override
@@ -145,7 +148,12 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     return annotationProvider;
   }
 
-  public static class Builder {
+  @Override
+  public JPAODataQueryDirectives getQueryDirectives() {
+    return queryDirectives;
+  }
+
+  static class Builder implements JPAODataServiceContextBuilder {
 
     private String namespace;
     private List<EdmxReference> references = new ArrayList<>();
@@ -156,18 +164,20 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     private ErrorProcessor errorProcessor;
     private JPAODataPagingProvider pagingProvider;
     private Optional<? extends EntityManagerFactory> emf = Optional.empty();
-    private DataSource ds;
+    private DataSource dataSource;
     private JPAEdmProvider jpaEdm;
     private JPAEdmNameBuilder nameBuilder;
     private String mappingPath;
     private JPAODataBatchProcessorFactory<?> batchProcessorFactory;
     private boolean useAbsoluteContextURL = false;
     private AnnotationProvider[] annotationProvider;
+    private JPAODataQueryDirectivesImpl queryDirectives;
 
     private Builder() {
       super();
     }
 
+    @Override
     public JPAODataSessionContextAccess build() throws ODataException {
       try {
         if (nameBuilder == null) {
@@ -180,20 +190,24 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
         }
         if (packageName == null)
           packageName = new String[0];
-        if (!emf.isPresent() && ds != null && namespace != null)
-          emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, ds));
+        if (!emf.isPresent() && dataSource != null && namespace != null)
+          emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, dataSource));
         createEmfWrapper();
         if (emf.isPresent() && jpaEdm == null)
           jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays.asList(
               annotationProvider));
         if (databaseProcessor == null) {
           LOGGER.trace("No database-processor provided, use JPAODataDatabaseProcessorFactory to create one");
-          databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
+          databaseProcessor = new JPAODataDatabaseProcessorFactory().create(dataSource);
         }
         if (batchProcessorFactory == null) {
           LOGGER.trace("No batch-processor-factory provided, use default factory to create one");
           batchProcessorFactory = new JPADefaultBatchProcessorFactory();
         }
+        if (pagingProvider == null)
+          pagingProvider = new JPADefaultPagingProvider();
+        if (queryDirectives == null)
+          useQueryDirectives().build();
       } catch (SQLException | PersistenceException e) {
         throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
@@ -208,7 +222,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param databaseProcessor
      * @return
      */
-    public Builder setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor) {
+    @Override
+    public JPAODataServiceContextBuilder setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor) {
       this.databaseProcessor = databaseProcessor;
       return this;
     }
@@ -218,11 +233,12 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * {@link Builder#setEntityManagerFactory(EntityManagerFactory)}, and to determine the type of
      * database used to select an integrated database processor, in case the database processor was not set via
      * {@link Builder#setDatabaseProcessor(JPAODataDatabaseProcessor)}}.
-     * @param ds
+     * @param dataSource
      * @return
      */
-    public Builder setDataSource(final DataSource ds) {
-      this.ds = ds;
+    @Override
+    public JPAODataServiceContextBuilder setDataSource(final DataSource dataSource) {
+      this.dataSource = dataSource;
       return this;
     }
 
@@ -238,7 +254,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * Error Response</a>.
      * @param errorProcessor
      */
-    public Builder setErrorProcessor(final ErrorProcessor errorProcessor) {
+    @Override
+    public JPAODataServiceContextBuilder setErrorProcessor(final ErrorProcessor errorProcessor) {
       this.errorProcessor = errorProcessor;
       return this;
     }
@@ -248,7 +265,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param postProcessor
      * @return
      */
-    public Builder setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) {
+    @Override
+    public JPAODataServiceContextBuilder setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) {
       this.postProcessor = postProcessor;
       return this;
     }
@@ -258,7 +276,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param jpaOperationConverter
      * @return
      */
-    public Builder setOperationConverter(final JPAODataDatabaseOperations jpaOperationConverter) {
+    @Override
+    public JPAODataServiceContextBuilder setOperationConverter(final JPAODataDatabaseOperations jpaOperationConverter) {
       this.operationConverter = jpaOperationConverter;
       return this;
     }
@@ -268,7 +287,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * the requested results as well as a $skiptoken.
      * @param provider
      */
-    public Builder setPagingProvider(final JPAODataPagingProvider provider) {
+    @Override
+    public JPAODataServiceContextBuilder setPagingProvider(final JPAODataPagingProvider provider) {
       this.pagingProvider = provider;
       return this;
     }
@@ -280,7 +300,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param pUnit
      * @return
      */
-    public Builder setPUnit(final String pUnit) {
+    @Override
+    public JPAODataServiceContextBuilder setPUnit(final String pUnit) {
       this.namespace = pUnit;
       return this;
     }
@@ -290,7 +311,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param references
      * @return
      */
-    public Builder setReferences(final List<EdmxReference> references) {
+    @Override
+    public JPAODataServiceContextBuilder setReferences(final List<EdmxReference> references) {
       this.references = references;
       return this;
     }
@@ -303,12 +325,14 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * </ul>
      * @param packageName
      */
-    public Builder setTypePackage(final String... packageName) {
+    @Override
+    public JPAODataServiceContextBuilder setTypePackage(final String... packageName) {
       this.packageName = packageName;
       return this;
     }
 
-    public Builder setRequestMappingPath(final String mappingPath) {
+    @Override
+    public JPAODataServiceContextBuilder setRequestMappingPath(final String mappingPath) {
       this.mappingPath = mappingPath;
       return this;
     }
@@ -319,7 +343,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param emf
      * @return
      */
-    public Builder setEntityManagerFactory(final EntityManagerFactory emf) {
+    @Override
+    public JPAODataServiceContextBuilder setEntityManagerFactory(final EntityManagerFactory emf) {
       this.emf = Optional.of(emf);
       return this;
     }
@@ -331,12 +356,14 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param nameBuilder
      * @return
      */
-    public Builder setEdmNameBuilder(final JPAEdmNameBuilder nameBuilder) {
+    @Override
+    public JPAODataServiceContextBuilder setEdmNameBuilder(final JPAEdmNameBuilder nameBuilder) {
       this.nameBuilder = nameBuilder;
       return this;
     }
 
-    public <T extends JPAODataBatchProcessor> Builder setBatchProcessorFactory(
+    @Override
+    public <T extends JPAODataBatchProcessor> JPAODataServiceContextBuilder setBatchProcessorFactory(
         final JPAODataBatchProcessorFactory<T> batchProcessorFactory) {
       this.batchProcessorFactory = batchProcessorFactory;
       return this;
@@ -349,12 +376,14 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      * @param useAbsoluteContextURL
      * @return
      */
-    public Builder setUseAbsoluteContextURL(final boolean useAbsoluteContextURL) {
+    @Override
+    public JPAODataServiceContextBuilder setUseAbsoluteContextURL(final boolean useAbsoluteContextURL) {
       this.useAbsoluteContextURL = useAbsoluteContextURL;
       return this;
     }
 
-    public Builder setAnnotationProvider(final AnnotationProvider... annotationProvider) {
+    @Override
+    public JPAODataServiceContextBuilder setAnnotationProvider(final AnnotationProvider... annotationProvider) {
       this.annotationProvider = annotationProvider;
       return this;
     }
@@ -381,6 +410,16 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
           LOGGER.debug("Exception thrown while trying to create EdmProvider", e);
         }
       }
+    }
+
+    @Override
+    public JPAODataQueryDirectivesBuilder useQueryDirectives() {
+      return JPAODataQueryDirectives.with(this);
+    }
+
+    public JPAODataServiceContextBuilder setQueryDirectives(final JPAODataQueryDirectivesImpl queryDirectives) {
+      this.queryDirectives = queryDirectives;
+      return this;
     }
   }
 }

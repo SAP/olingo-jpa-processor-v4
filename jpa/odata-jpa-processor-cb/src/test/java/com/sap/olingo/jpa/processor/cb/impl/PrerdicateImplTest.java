@@ -43,19 +43,19 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 
 class PredicateImplTest extends BuilderBaseTest {
   private PredicateImpl cut;
-  private StringBuilder stmt;
-  private CriteriaQuery<Tuple> q;
+  private StringBuilder statement;
+  private CriteriaQuery<Tuple> query;
 
   static Stream<Arguments> notImplemented() throws NoSuchMethodException, SecurityException {
-    final Class<PredicateImpl> c = PredicateImpl.class;
+    final Class<PredicateImpl> clazz = PredicateImpl.class;
     return Stream.of(
-        arguments(c.getMethod("in", Expression.class)),
-        arguments(c.getMethod("in", Collection.class)),
-        arguments(c.getMethod("in", Expression[].class)),
-        arguments(c.getMethod("in", Object[].class)),
-        arguments(c.getMethod("getCompoundSelectionItems")),
-        arguments(c.getMethod("getJavaType")),
-        arguments(c.getMethod("as", Class.class)));
+        arguments(clazz.getMethod("in", Expression.class)),
+        arguments(clazz.getMethod("in", Collection.class)),
+        arguments(clazz.getMethod("in", Expression[].class)),
+        arguments(clazz.getMethod("in", Object[].class)),
+        arguments(clazz.getMethod("getCompoundSelectionItems")),
+        arguments(clazz.getMethod("getJavaType")),
+        arguments(clazz.getMethod("as", Class.class)));
   }
 
   @BeforeEach
@@ -63,15 +63,15 @@ class PredicateImplTest extends BuilderBaseTest {
     cut = new PredicateImpl.NotPredicate(mock(SqlConvertible.class));
 
     final CriteriaBuilder cb = new CriteriaBuilderImpl(sd, new ParameterBuffer());
-    stmt = new StringBuilder();
-    q = cb.createTupleQuery();
+    statement = new StringBuilder();
+    query = cb.createTupleQuery();
   }
 
   @ParameterizedTest
   @MethodSource("notImplemented")
-  void testThrowsNotImplemented(final Method m) throws IllegalAccessException, IllegalArgumentException {
+  void testThrowsNotImplemented(final Method method) throws IllegalAccessException, IllegalArgumentException {
 
-    testNotImplemented(m, cut);
+    testNotImplemented(method, cut);
   }
 
   @Test
@@ -96,16 +96,10 @@ class PredicateImplTest extends BuilderBaseTest {
   }
 
   @Test
-  void testInCreatedRequiresSubquery() {
-
-    assertThrows(NullPointerException.class, () -> new PredicateImpl.In<>(Collections.emptyList(), null));
-  }
-
-  @Test
   void testInGetExpressionReturnsFirstPath() {
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final List<Path<?>> paths = Arrays.asList(adminDiv.get("codeID"), adminDiv.get("parentCodeID"));
+    final Root<?> adminDivision = query.from(AdministrativeDivision.class);
+    final List<Path<?>> paths = Arrays.asList(adminDivision.get("codeID"), adminDivision.get("parentCodeID"));
     @SuppressWarnings("unchecked")
     final Subquery<Long> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
     final In<?> act = new PredicateImpl.In<>(paths, subQuery);
@@ -119,29 +113,27 @@ class PredicateImplTest extends BuilderBaseTest {
 
     final Subquery<Long> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
     final In<Integer> act = new PredicateImpl.In<>(Collections.emptyList(), subQuery);
-
-    assertThrows(NotImplementedException.class, () -> act.value(Integer.valueOf(5)));
     assertThrows(NotImplementedException.class, () -> act.value(mock(Expression.class)));
   }
 
   @Test
   void testInAsSqlGeneratePath() {
     final String exp = ("(E0.\"CodeID\", E0.\"CodePublisher\") IN ()");
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
-    final List<Path<?>> paths = Arrays.asList(adminDiv.get("codeID"), adminDiv.get("codePublisher"));
+    final Root<?> adminDivision = query.from(AdministrativeDivision.class);
+    final List<Path<?>> paths = Arrays.asList(adminDivision.get("codeID"), adminDivision.get("codePublisher"));
     @SuppressWarnings("unchecked")
     final Subquery<Long> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
-    when(((SqlConvertible) subQuery).asSQL(stmt)).thenAnswer(new Answer<StringBuilder>() {
+    when(((SqlConvertible) subQuery).asSQL(statement)).thenAnswer(new Answer<StringBuilder>() {
       @Override
       public StringBuilder answer(final InvocationOnMock invocation) throws Throwable {
-        final StringBuilder stmt = ((StringBuilder) invocation.getArgument(0));
-        stmt.append("");
-        return stmt;
+        final StringBuilder statement = ((StringBuilder) invocation.getArgument(0));
+        statement.append("");
+        return statement;
       }
     });
     final In<?> act = new PredicateImpl.In<>(paths, subQuery);
 
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
 
   @SuppressWarnings("unchecked")
@@ -149,17 +141,90 @@ class PredicateImplTest extends BuilderBaseTest {
   void testInAsSqlGenerateSubQuery() {
     final String exp = ("() IN (Test)");
     final Subquery<Long> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
-    when(((SqlConvertible) subQuery).asSQL(stmt)).thenAnswer(new Answer<StringBuilder>() {
+    when(((SqlConvertible) subQuery).asSQL(statement)).thenAnswer(new Answer<StringBuilder>() {
 
       @Override
       public StringBuilder answer(final InvocationOnMock invocation) throws Throwable {
-        final StringBuilder stmt = ((StringBuilder) invocation.getArgument(0));
-        stmt.append("Test");
-        return stmt;
+        final StringBuilder statement = ((StringBuilder) invocation.getArgument(0));
+        statement.append("Test");
+        return statement;
       }
     });
     final In<?> act = new PredicateImpl.In<>(Collections.emptyList(), subQuery);
-    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+  }
+
+  @Test
+  void testInCreatedFromExpression() {
+    @SuppressWarnings("unchecked")
+    final Path<String> path = mock(Path.class);
+    final Predicate in = new PredicateImpl.In<>(path, null);
+    assertNotNull(in);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testInAddExpressionValue() {
+    final Path<String> path = mock(Path.class);
+    final Subquery<String> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
+    final In<String> in = new PredicateImpl.In<>(path, null);
+    assertNotNull(in.value(subQuery));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testInThrowsExceptionOnMultipleAddExpressionValue() {
+    final Path<String> path = mock(Path.class);
+    final Subquery<String> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
+    final In<String> in = new PredicateImpl.In<>(path, null);
+    in.value(subQuery);
+    assertThrows(NotImplementedException.class, () -> in.value(subQuery));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testInAddFixValue() {
+    final Path<String> path = mock(Path.class);
+    final In<String> in = new PredicateImpl.In<>(path, new ParameterBuffer());
+    assertNotNull(in.value("Test"));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testInAddMultipleFixValue() {
+    final Path<String> path = mock(Path.class);
+    final In<String> in = new PredicateImpl.In<>(path, new ParameterBuffer());
+    assertNotNull(in.value("Test1").value("Test2").value("Test3"));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testInThrowsExceptionOnAddExpressionIfFixValueExists() {
+    final Path<String> path = mock(Path.class);
+    final Subquery<String> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
+    final In<String> in = new PredicateImpl.In<>(path, new ParameterBuffer());
+    in.value("Test1");
+    assertThrows(IllegalStateException.class, () -> in.value(subQuery));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testInThrowsExceptionOnAddFixValueIfExpressionExists() {
+    final Path<String> path = mock(Path.class);
+    final Subquery<String> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
+    final In<String> in = new PredicateImpl.In<>(path, new ParameterBuffer());
+    in.value(subQuery);
+    assertThrows(IllegalStateException.class, () -> in.value("Test1"));
+  }
+
+  @Test
+  void testInAddMultipleFixValueAsSQL() {
+    final String exp = ("() IN (?1, ?2, ?3)");
+    final ParameterBuffer parameter = new ParameterBuffer();
+    final In<String> in = new PredicateImpl.In<>(Collections.emptyList(), parameter);
+    in.value("Test1").value("Test2").value("Test3");
+    assertEquals(exp, ((PredicateImpl.In<String>) in).asSQL(statement).toString());
+    assertEquals(3, parameter.getParameters().size());
   }
 
   @Test
@@ -173,7 +238,7 @@ class PredicateImplTest extends BuilderBaseTest {
   }
 
   @Test
-  void testGetExpressionsReturnsEmptyLIst() {
+  void testGetExpressionsReturnsEmptyList() {
     assertTrue(cut.getExpressions().isEmpty());
   }
 

@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
@@ -8,13 +9,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -28,6 +29,8 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
@@ -44,9 +47,14 @@ class JPAVisitorTest {
   private JPAOperationConverter converter;
 
   @BeforeEach
-  public void setUp() {
+  public void setUp() throws ODataException {
+    final JPAODataQueryDirectives directives = JPAODataServiceContext.with()
+        .useQueryDirectives()
+        .build()
+        .build()
+        .getQueryDirectives();
     extension = mock(JPAODataDatabaseOperations.class);
-    converter = new JPAOperationConverter(mock(CriteriaBuilder.class), extension);
+    converter = new JPAOperationConverter(mock(CriteriaBuilder.class), extension, directives);
     compiler = mock(JPAFilterComplierAccess.class);
     query = mock(JPAAbstractQuery.class);
     from = mock(From.class);
@@ -88,9 +96,8 @@ class JPAVisitorTest {
   }
 
   @Test
-  void testVisitBinaryOperatorThrowsException() {
-    assertThrows(ODataJPAFilterException.class, () -> cut.visitBinaryOperator(BinaryOperatorKind.IN, null,
-        Collections.emptyList()));
+  void testVisitTypeLiteralThrowsException() {
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitTypeLiteral(null));
   }
 
   @Test
@@ -119,4 +126,16 @@ class JPAVisitorTest {
     assertTrue(cut.visitMember(member) instanceof JPADBFunctionOperator);
   }
 
+  @Test
+  void testVisitBinaryOperatorWithListThrowsExceptionNotIn() {
+    final List<JPAOperator> right = new ArrayList<>();
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitBinaryOperator(BinaryOperatorKind.HAS, null, right));
+  }
+
+  @Test
+  void testVisitBinaryOperatorWithListAllowsIn() throws ExpressionVisitException, ODataApplicationException {
+    final JPAOperator left = mock(JPAOperator.class);
+    final List<JPAOperator> right = new ArrayList<>();
+    assertNotNull(cut.visitBinaryOperator(BinaryOperatorKind.IN, left, right));
+  }
 }

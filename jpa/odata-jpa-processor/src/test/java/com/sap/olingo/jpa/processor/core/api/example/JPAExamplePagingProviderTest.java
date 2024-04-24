@@ -110,12 +110,25 @@ class JPAExamplePagingProviderTest {
   }
 
   @Test
-  void testReturnRespectMaxPageSizeHeader() throws ODataApplicationException {
+  void testReturnGetFirstPageRespectMaxPageSizeHeader() throws ODataApplicationException {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrganizationCut(5);
     final JPAODataPage act = cut.getFirstPage(info, 3, countQuery, null);
 
     assertEquals(0, act.skip());
+    assertEquals(3, act.top());
+    assertNotNull(toODataString((String) act.skipToken()));
+    assertEquals(info, act.uriInfo());
+  }
+
+  @Test
+  void testReturnGetNextPageRespectMaxPageSizeHeader() throws ODataApplicationException {
+    final UriInfo info = buildUriInfo();
+    final JPAExamplePagingProvider cut = createOrganizationCut(5);
+    JPAODataPage act = cut.getFirstPage(info, 3, countQuery, null);
+    act = cut.getNextPage(toODataString((String) act.skipToken()));
+
+    assertEquals(3, act.skip());
     assertEquals(3, act.top());
     assertNotNull(toODataString((String) act.skipToken()));
     assertEquals(info, act.uriInfo());
@@ -196,7 +209,18 @@ class JPAExamplePagingProviderTest {
   }
 
   @Test
-  void testBufferFilled() throws ODataApplicationException {
+  void testNoSkipTokenIfRealNoReturnedLowerPage() throws ODataApplicationException {
+    final UriInfo info = buildUriInfo();
+    addTopSkipToUri(info, 8, 10);
+    final JPAExamplePagingProvider cut = createOrganizationCut(5);
+    final JPAODataPage act = cut.getFirstPage(info, null, countQuery, null);
+
+    assertNull(act.skipToken());
+    assertEquals(8, act.skip());
+  }
+
+  @Test
+  void testBufferFull() throws ODataApplicationException {
     final UriInfo info = buildUriInfo();
     final Map<String, Integer> sizes = new HashMap<>();
     sizes.put("Organizations", 2);
@@ -212,7 +236,7 @@ class JPAExamplePagingProviderTest {
   }
 
   @Test
-  void testBufferNotFilled() throws ODataApplicationException {
+  void testBufferNotFull() throws ODataApplicationException {
     final UriInfo info = buildUriInfo();
     final Map<String, Integer> sizes = new HashMap<>();
     sizes.put("Organizations", 2);
@@ -269,11 +293,15 @@ class JPAExamplePagingProviderTest {
   }
 
   private void addTopSkipToUri(final UriInfo info) {
+    addTopSkipToUri(info, 2, 7);
+  }
+
+  private void addTopSkipToUri(final UriInfo info, final int skip, final int top) {
     final SkipOption skipOption = mock(SkipOption.class);
     final TopOption topOption = mock(TopOption.class);
 
-    when(skipOption.getValue()).thenReturn(2);
-    when(topOption.getValue()).thenReturn(7);
+    when(skipOption.getValue()).thenReturn(skip);
+    when(topOption.getValue()).thenReturn(top);
     when(info.getSkipOption()).thenReturn(skipOption);
     when(info.getTopOption()).thenReturn(topOption);
 

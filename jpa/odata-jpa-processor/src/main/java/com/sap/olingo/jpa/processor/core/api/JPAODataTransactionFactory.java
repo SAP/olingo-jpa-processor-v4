@@ -6,7 +6,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 
 /**
  * A wrapper to abstract from various transaction APIs provided by JAVA or e.g. Spring like
- * jakarta.persistence.EntityTransaction, javax.transaction.UserTransaction, javax.transaction.Transaction or
+ * jakarta.persistence.EntityTransaction, jakarta.transaction.UserTransaction, jakarta.transaction.Transaction or
  * org.springframework.transaction.jta.JtaTransactionManager.
  * </p>
  *

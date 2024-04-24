@@ -75,6 +75,12 @@ public class TestHelper {
     return jpaEntity.getAttribute(attributeInternalName);
   }
 
+  public Optional<JPAAttribute> getJPAAttribute(final Class<?> clazz, final String attributeInternalName)
+      throws ODataJPAModelException {
+    final JPAEntityType jpaEntity = sd.getEntity(clazz);
+    return jpaEntity.getAttribute(attributeInternalName);
+  }
+
   public EdmFunction getStoredProcedure(final EntityType<?> jpaEntityType, final String string) {
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
       final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())

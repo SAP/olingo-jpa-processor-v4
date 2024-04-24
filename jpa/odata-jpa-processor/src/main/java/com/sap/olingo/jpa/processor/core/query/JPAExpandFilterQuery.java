@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +41,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
@@ -117,7 +118,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   @Nonnull
   @Override
   public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery,
-      final VisitableExpression expression) throws ODataApplicationException {
+      final VisitableExpression expression, final List<Path<Comparable<?>>> inPath) throws ODataApplicationException {
     // Last childQuery == null
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
@@ -140,11 +141,13 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   protected final JPAFilterCrossComplier addFilterCompiler(final JPANavigationPropertyInfo navigationInfo)
       throws ODataJPAModelException, ODataJPAProcessorException, ODataJPAQueryException {
 
-    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
+    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter(),
+        requestContext.getQueryDirectives());
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(navigationInfo.getUriInfo(),
         requestContext);
 
-    final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(this.association.getLeaf());
+    final JPAFilterRestrictionsWatchDog watchDog = new JPAFilterRestrictionsWatchDog(this.association.getLeaf(),
+        !navigationInfo.getKeyPredicates().isEmpty());
     return new JPAFilterCrossComplier(odata, sd, navigationInfo.getEntityType(), converter, this,
         navigationInfo.getFromClause(), null, subContext, watchDog);
   }
@@ -205,7 +208,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   private List<Order> createOrderBy(final Subquery<?> childQuery) throws ODataApplicationException {
     if (!hasRowLimit(childQuery)) {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), (JPAODataPage) null);
+      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage());
     }
     return emptyList();
   }
@@ -217,8 +220,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
       JPARowNumberFilterQuery rowNumberQuery;
       try {
         rowNumberQuery = new JPARowNumberFilterQuery(odata, requestContext, navigationInfo, parentQuery,
-            childAssociation, jpaEntity
-                .getKeyPath());
+            childAssociation, jpaEntity.getKeyPath());
       } catch (final ODataException e) {
         throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
       }
@@ -233,8 +235,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
       final ProcessorSubquery<?> nextQuery) throws ODataApplicationException {
 
     if (hasRowLimit(childQuery))
-      this.queryRoot = nextQuery.from((ProcessorSubquery<?>) ((JPARowNumberFilterQuery) queries.inner()).getSubQuery(
-          childQuery, null));
+      this.queryRoot = nextQuery.from((ProcessorSubquery<?>) ((JPARowNumberFilterQuery) queries.inner())
+          .getSubQuery(childQuery, null, Collections.emptyList()));
     else
       this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
     navigationInfo.setFromClause(queryRoot);
@@ -267,17 +269,19 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   }
 
   private Integer getSkipValue(@Nullable final Subquery<?> childQuery) {
+    if (navigationInfo.getPage() != null)
+      return navigationInfo.getPage().skip();
     if (navigationInfo.getUriInfo().getSkipOption() != null && childQuery == null)
       return navigationInfo.getUriInfo().getSkipOption().getValue();
-    else
-      return null;
+    return null;
   }
 
   private Integer getTopValue(@Nullable final Subquery<?> childQuery) {
+    if (navigationInfo.getPage() != null)
+      return navigationInfo.getPage().top();
     if (navigationInfo.getUriInfo().getTopOption() != null && childQuery == null)
       return navigationInfo.getUriInfo().getTopOption().getValue();
-    else
-      return null;
+    return null;
   }
 
   private boolean hasRowLimit(@Nullable final Subquery<?> childQuery) {
@@ -318,5 +322,10 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
       }
       throw new ODataJPAQueryException(QUERY_PREPARATION_ERROR, INTERNAL_SERVER_ERROR, e);
     }
+  }
+
+  @Override
+  public List<Path<Comparable<?>>> getLeftPaths() throws ODataJPAIllegalAccessException {
+    return Collections.emptyList();
   }
 }

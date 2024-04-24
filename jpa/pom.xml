@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa</artifactId>
-	<version>2.0.0</version>
+	<version>2.1.0</version>
 	<packaging>pom</packaging>
 	<name>odata-jpa</name>
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
@@ -12,18 +12,26 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>17</project.build.source>
 		<project.build.target>17</project.build.target>
-		<maven.complier.version>3.8.0</maven.complier.version>
-		<odata.version>4.9.0</odata.version>
-		<jackson.version>2.14.1</jackson.version>
+		<maven.compiler.version>3.13.0</maven.compiler.version>
+		<odata.version>5.0.0</odata.version>
+		<jackson.version>2.16.0</jackson.version>
 		<powermock.version>1.7.1</powermock.version>
 		<coveralls.version>4.3.0</coveralls.version>
+		<cf-logging.version>3.8.3</cf-logging.version>
+		<flyway.version>10.11.0</flyway.version>
+		<jakarta.version>6.0.0</jakarta.version>
+		<javax.version>4.0.1</javax.version>
 		<jpa.version>3.1.0</jpa.version>
-		<processor.version>2.0.0</processor.version>
-		<spring-jcl.version>6.0.11</spring-jcl.version>
-		<junit.version>5.9.1</junit.version>
-		<junit-platform.version>1.9.1</junit-platform.version>
-		<mockito.version>5.5.0</mockito.version>
-		<jacoco.version>0.8.10</jacoco.version>
+		<processor.version>${project.version}</processor.version>
+		<spring-jcl.version>6.1.4</spring-jcl.version>
+		<eclipseLink.version>4.0.2</eclipseLink.version>
+		<hibernate.version>6.4.0.Final</hibernate.version>
+		<openjpa.version>3.2.2</openjpa.version>
+		<junit.version>5.10.2</junit.version>
+		<junit-platform.version>1.10.2</junit-platform.version>
+		<mockito.version>5.11.0</mockito.version>
+		<jacoco.version>0.8.11</jacoco.version>
+		<netty.version>4.1.108.Final</netty.version>
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
 			${project.basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml
@@ -44,7 +52,7 @@
 			<properties>
 				<cobertura.skip>false</cobertura.skip>
 				<!-- nothing excluded -->
-				<exclude.regex></exclude.regex>
+				<exclude.regex />
 			</properties>
 		</profile>
 	</profiles>
@@ -61,13 +69,207 @@
 		<module>odata-jpa-vocabularies</module>
 		<module>odata-jpa-odata-vocabularies</module>
 	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-metadata</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-test</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-annotation</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor-cb</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor-parallel</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-coverage</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-spring-support</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-processor-ext</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-vocabularies</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>odata-jpa-odata-vocabularies</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- odata artifacts outside of this repo -->
+			<dependency>
+				<groupId>org.apache.olingo</groupId>
+				<artifactId>odata-server-api</artifactId>
+				<version>${odata.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.olingo</groupId>
+				<artifactId>odata-server-core</artifactId>
+				<version>${odata.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.olingo</groupId>
+				<artifactId>odata-commons-api</artifactId>
+				<version>${odata.version}</version>
+			</dependency>
+			<!-- external dependencies -->
+			<dependency>
+				<groupId>org.hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>2.7.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>2.2.224</version>
+			</dependency>
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-core</artifactId>
+				<version>${flyway.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-database-hsqldb</artifactId>
+				<version>${flyway.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.openjpa</groupId>
+				<artifactId>openjpa-all</artifactId>
+				<version>${openjpa}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.persistence</groupId>
+				<artifactId>org.eclipse.persistence.jpa</artifactId>
+				<version>${eclipseLink.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-entitymanager</artifactId>
+				<version>${hibernate.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.persistence</groupId>
+				<artifactId>jakarta.persistence-api</artifactId>
+				<version>${jpa.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>${jakarta.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.transaction</groupId>
+				<artifactId>jakarta.transaction-api</artifactId>
+				<version>2.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jcl</artifactId>
+				<version>${spring-jcl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.14.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>2.0.9</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>2.0.9</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sap.hcp.cf.logging</groupId>
+				<artifactId>cf-java-logging-support-log4j2</artifactId>
+				<version>${cf-logging.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>3.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson</groupId>
+				<artifactId>jackson-bom</artifactId>
+				<version>${jackson.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-codec-http</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.oneandone.reflections8</groupId>
+				<artifactId>reflections8</artifactId>
+				<version>0.11.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter</artifactId>
+				<version>${junit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-launcher</artifactId>
+				<version>${junit-platform.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${mockito.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.tngtech.archunit</groupId>
+				<artifactId>archunit-junit5</artifactId>
+				<version>1.2.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<build>
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M3</version>
+					<version>3.2.5</version>
 					<configuration>
 						<properties>
 							<configurationParameters>
@@ -79,7 +281,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${maven.complier.version}</version>
+					<version>${maven.compiler.version}</version>
 					<configuration>
 						<source>${project.build.source}</source>
 						<target>${project.build.target}</target>
@@ -92,12 +294,44 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>LATEST</version>
+					<version>3.10.0.2594</version>
 				</plugin>
 				<plugin>
 					<groupId>org.basepom.maven</groupId>
 					<artifactId>duplicate-finder-maven-plugin</artifactId>
 					<version>2.0.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eluder.coveralls</groupId>
+					<artifactId>coveralls-maven-plugin</artifactId>
+					<version>${coveralls.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.pitest</groupId>
+					<artifactId>pitest-maven</artifactId>
+					<version>1.15.3</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.pitest</groupId>
+							<artifactId>pitest-junit5-plugin</artifactId>
+							<version>1.2.1</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.16.2</version>
+					<configuration>
+						<excludes>
+							<exclude>org.apache.commons:commons-collections4</exclude>
+						</excludes>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -105,7 +339,6 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco.version}</version>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>

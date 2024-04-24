@@ -32,6 +32,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplexWithTransient</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionWithTwoKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CommunicationData</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollection</class>

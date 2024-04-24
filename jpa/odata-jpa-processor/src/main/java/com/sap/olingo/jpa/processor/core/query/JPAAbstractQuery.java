@@ -94,19 +94,8 @@ public abstract class JPAAbstractQuery {
 
   JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
       final EntityManager em, final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
-    super();
-    this.em = em;
-    this.cb = em.getCriteriaBuilder();
-    this.sd = sd;
-    try {
-      this.jpaEntity = sd.getEntity(edmEntityType);
-    } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
-    }
-    this.debugger = new JPAEmptyDebugger();
-    this.odata = odata;
-    this.claimsProvider = claimsProvider;
-    this.groups = Collections.emptyList();
+
+    this(odata, sd, asJPAEntityType(sd, edmEntityType), em, claimsProvider);
   }
 
   JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
@@ -149,6 +138,15 @@ public abstract class JPAAbstractQuery {
   public abstract <T> AbstractQuery<T> getQuery();
 
   public abstract <S, T> From<S, T> getRoot();
+
+  protected static JPAEntityType asJPAEntityType(final JPAServiceDocument sd, final EdmEntityType edmEntityType)
+      throws ODataJPAQueryException {
+    try {
+      return sd.getEntity(edmEntityType);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+    }
+  }
 
   protected jakarta.persistence.criteria.Expression<Boolean> addWhereClause(
       jakarta.persistence.criteria.Expression<Boolean> whereCondition,
@@ -322,21 +320,23 @@ public abstract class JPAAbstractQuery {
     return compoundCondition;
   }
 
+  @SuppressWarnings("unchecked")
   protected final Expression<Boolean> createWhereKeyIn(final JPAAssociationPath associationPath,
       final From<?, ?> target, final Subquery<?> subQuery) throws ODataJPAQueryException {
 
     try {
-      final List<Path<?>> paths = createWhereKeyInPathList(associationPath, target);
+      final List<Path<Comparable<?>>> paths = (List<Path<Comparable<?>>>) createWhereKeyInPathList(associationPath,
+          target);
       debugger.trace(this, "Creating WHERE snipped for in clause %s", paths);
-      return ((ProcessorCriteriaBuilder) cb).in(paths, subQuery);
+      return ((ProcessorCriteriaBuilder) cb).in(paths, (Subquery<List<Comparable<?>>>) subQuery);
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
   }
 
-  protected List<Path<?>> createWhereKeyInPathList(final JPAAssociationPath associationPath, final From<?, ?> target)
-      throws ODataJPAModelException {
+  protected List<?> createWhereKeyInPathList(final JPAAssociationPath associationPath,
+      final From<?, ?> target) throws ODataJPAModelException {
 
     if (associationPath.hasJoinTable()) {
       final JPAJoinTable joinTable = associationPath.getJoinTable();
@@ -406,7 +406,7 @@ public abstract class JPAAbstractQuery {
         } else
           // TODO Support methods like tolower for order by as well
           throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_NOT_SUPPORTED, BAD_REQUEST,
-              expression.getClass().getSimpleName());
+              expression.toString());
       }
     }
     debugger.trace(this, "The following navigation attributes in order by were found: %s", navigationAttributes
@@ -444,7 +444,7 @@ public abstract class JPAAbstractQuery {
     return whereCondition;
   }
 
-  protected JPAEntityType getJpaEntity() {
+  public JPAEntityType getJpaEntity() {
     return jpaEntity;
   }
 
@@ -520,7 +520,7 @@ public abstract class JPAAbstractQuery {
     return path;
   }
 
-  private Path<?> mapOnToWhere(final JPAOnConditionItem on, final From<?, ?> target) {
+  private Path<Comparable<?>> mapOnToWhere(final JPAOnConditionItem on, final From<?, ?> target) {
     return target.get(on.getRightPath().getLeaf().getInternalName());
   }
 

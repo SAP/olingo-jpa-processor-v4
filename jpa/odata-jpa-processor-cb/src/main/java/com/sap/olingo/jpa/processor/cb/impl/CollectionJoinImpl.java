@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -41,17 +42,15 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
   private static JPAPath determinePath(final JPAPath path) throws ODataJPAModelException {
     return ((JPACollectionAttribute) path.getLeaf())
         .asAssociation()
-        .getJoinTable()
-        .getEntityType() == null
+        .getTargetType() == null
             ? path : null;
   }
 
   private static JPAEntityType determineEt(@Nonnull final JPAPath path, @Nonnull final FromImpl<?, ?> parent)
       throws ODataJPAModelException {
-    return Optional.ofNullable(((JPACollectionAttribute) path.getLeaf())
+    return (JPAEntityType) Optional.ofNullable(((JPACollectionAttribute) path.getLeaf())
         .asAssociation()
-        .getJoinTable()
-        .getEntityType())
+        .getTargetType())
         .orElse(parent.st);
   }
 
@@ -134,19 +133,14 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
+    result = prime * result + Objects.hash(attribute);
     return result;
   }
 
   @Override
   public boolean equals(final Object object) {
-    if (this == object) return true;
-    if (!super.equals(object)) return false;
-    if (getClass() != object.getClass()) return false;
-    final CollectionJoinImpl<?, ?> other = (CollectionJoinImpl<?, ?>) object;
-    if (attribute == null) {
-      if (other.attribute != null) return false;
-    } else if (!attribute.equals(other.attribute)) return false;
-    return true;
+    if (object instanceof final CollectionJoinImpl other)// NOSONAR
+      return Objects.equals(attribute, other.attribute);
+    return false;
   }
 }

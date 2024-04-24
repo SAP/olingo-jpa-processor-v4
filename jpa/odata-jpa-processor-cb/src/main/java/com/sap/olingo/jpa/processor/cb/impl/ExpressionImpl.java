@@ -371,7 +371,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
     @Override
     public String getName() {
-      return null;
+      return index.toString();
     }
 
     @Override
@@ -488,21 +488,16 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   static class WindowFunctionExpression<T> extends ExpressionImpl<T> implements WindowFunction<T> {
     private final SqlWindowFunctions function;
     private Optional<List<Order>> orderBy;
-    private Optional<List<Path<?>>> partitionBy;
+    private Optional<List<Path<Comparable<?>>>> partitionBy;
 
     WindowFunctionExpression(@Nonnull final SqlWindowFunctions function) {
       this.function = function;
       this.orderBy = Optional.empty();
       this.partitionBy = Optional.empty();
     }
+
     // https://www.h2database.com/html/functions-window.html
-
-    // window_function_name ( expression ) OVER (
-    // partition_clause
-    // order_clause
-    // frame_clause
-    // )
-
+    // window_function_name ( expression ) OVER (partition_clause order_clause frame_clause)
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
       statement.append(function)
@@ -510,12 +505,12 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
           .append(CLOSING_BRACKET)
           .append(" OVER")
           .append(OPENING_BRACKET);
-      partitionBy.ifPresent(p -> {
+      partitionBy.ifPresent(paths -> {
         statement
             .append(" ")
             .append(SqlKeyWords.PARTITION)
             .append(" ");
-        statement.append(p.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
+        statement.append(paths.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
       });
       orderBy.ifPresent(o -> {
         statement
@@ -529,8 +524,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
     @Override
     public WindowFunction<T> orderBy(final Order... o) {
-      this.orderBy = Optional.ofNullable(Arrays.asList(o));
-      return this;
+      return orderBy(Arrays.asList(o));
     }
 
     @Override
@@ -540,14 +534,13 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     }
 
     @Override
-    public WindowFunction<T> partitionBy(final Path<?>... p) {
-      this.partitionBy = Optional.ofNullable(Arrays.asList(p));
-      return this;
+    public WindowFunction<T> partitionBy(@SuppressWarnings("unchecked") final Path<Comparable<?>>... paths) {
+      return partitionBy(Arrays.asList(paths));
     }
 
     @Override
-    public WindowFunction<T> partitionBy(final List<Path<?>> p) {
-      this.partitionBy = Optional.ofNullable(p);
+    public WindowFunction<T> partitionBy(final List<Path<Comparable<?>>> paths) {
+      this.partitionBy = Optional.ofNullable(paths);
       return this;
     }
 
@@ -574,8 +567,8 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
-      tableAlias.ifPresent(p -> {
-        statement.append(p);
+      tableAlias.ifPresent(path -> {
+        statement.append(path);
         statement.append(DOT);
       });
       statement.append(dbFieldName.orElseThrow(() -> new IllegalStateException("Missing name")));

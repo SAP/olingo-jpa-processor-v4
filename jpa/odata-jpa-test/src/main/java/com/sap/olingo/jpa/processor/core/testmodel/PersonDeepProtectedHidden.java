@@ -13,7 +13,6 @@ import jakarta.persistence.Entity;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 
 @EdmIgnore // Only
 @Entity(name = "PersonDeepProtected")
@@ -33,10 +32,8 @@ public class PersonDeepProtectedHidden extends BusinessPartnerProtected {// #NOS
   private AddressDeepProtected inhouseAddress;
 
   @Embedded
-  @EdmProtections({
-      @EdmProtectedBy(name = "Creator", path = "created/by"),
-      @EdmProtectedBy(name = "Updator", path = "updated/by")
-  })
+  @EdmProtectedBy(name = "Creator", path = "created/by")
+  @EdmProtectedBy(name = "Updator", path = "updated/by")
   private final AdministrativeInformation protectedAdminInfo = new AdministrativeInformation();
 
   public PersonDeepProtectedHidden() {

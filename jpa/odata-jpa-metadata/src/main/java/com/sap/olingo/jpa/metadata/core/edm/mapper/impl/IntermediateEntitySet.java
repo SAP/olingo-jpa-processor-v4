@@ -1,6 +1,10 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.ENTITY_TYPE_NOT_FOUND;
+
 import java.util.List;
+
+import javax.annotation.CheckForNull;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
@@ -37,6 +41,7 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
    * @return
    */
   @Override
+  @CheckForNull
   public JPAEntityType getODataEntityType() {
     if (entityType.asTopLevelOnly())
       return (JPAEntityType) entityType.getBaseType();
@@ -56,7 +61,7 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
 
-      final CsdlEntityType edmEt = ((IntermediateEntityType<?>) getODataEntityType()).getEdmItem();
+      final var edmEt = determineEdmType();
       edmEntitySet.setName(getExternalName());
       edmEntitySet.setType(buildFQN(edmEt.getName()));
 
@@ -83,6 +88,13 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
       lazyBuildEdmItem();
     }
     return filterAnnotation(alias, term);
+  }
+
+  private CsdlEntityType determineEdmType() throws ODataJPAModelException {
+    final IntermediateEntityType<?> type = (IntermediateEntityType<?>) getODataEntityType();
+    if (type != null)
+      return type.getEdmItem();
+    throw new ODataJPAModelException(ENTITY_TYPE_NOT_FOUND, getInternalName());
   }
 
 }

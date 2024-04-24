@@ -24,7 +24,7 @@ final class JPALambdaAllOperation extends JPALambdaOperation {
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
     final CriteriaBuilder cb = converter.cb;
-    return cb.and(cb.exists(getExistsQuery()), cb.not(cb.exists(getNotExistsQuery())));
+    return cb.and(cb.exists(getExistsQuery().query()), cb.not(cb.exists(getNotExistsQuery())));
   }
 
   @Override

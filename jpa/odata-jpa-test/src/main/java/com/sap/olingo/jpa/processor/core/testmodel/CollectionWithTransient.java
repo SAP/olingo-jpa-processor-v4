@@ -2,9 +2,6 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.List;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
-import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
-
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -15,6 +12,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
+import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
 
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"Collections\"")

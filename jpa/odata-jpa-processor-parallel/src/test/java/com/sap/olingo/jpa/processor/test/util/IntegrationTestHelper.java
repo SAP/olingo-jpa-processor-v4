@@ -69,7 +69,7 @@ public class IntegrationTestHelper {
         sessionContext);
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
-    handler.process(new JakartaRequestMapper(req), new JakartaResponseMapper(resp));
+    handler.process(req, resp);
   }
 
   public List<String> getRawBatchResult() throws IOException {

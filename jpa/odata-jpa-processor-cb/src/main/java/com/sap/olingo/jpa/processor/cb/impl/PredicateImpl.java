@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -193,7 +194,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     enum Operation {
       EQ("="), NE("<>"), GT(">"), GE(">="), LT("<"), LE("<=");
 
-      private String keyWord;
+      private final String keyWord;
 
       private Operation(final String keyWord) {
         this.keyWord = keyWord;
@@ -335,37 +336,78 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   }
 
   static class In<X> extends PredicateImpl implements CriteriaBuilder.In<X> {
-    private final List<Path<? extends X>> paths;
+    private Optional<Expression<? extends X>> expression;
+    private Optional<List<ParameterExpression<X, X>>> values;
+    private ParameterBuffer parameter;
 
-    In(final List<Path<? extends X>> paths, final Subquery<?> subquery) {
-      super((SqlConvertible) Objects.requireNonNull(subquery));
-      this.paths = paths;
+    @SuppressWarnings("unchecked")
+    In(final List<Path<?>> paths, final Subquery<?> subquery) {
+      this(paths.stream().map(path -> (Path<Comparable<?>>) path).toList(), null);
+      this.expression = Optional.of((Expression<? extends X>) Objects.requireNonNull(subquery));
+    }
+
+    In(final List<Path<Comparable<?>>> paths, final ParameterBuffer parameter) {
+      super(new CompoundPathImpl(paths));
+      this.values = Optional.empty();
+      this.expression = Optional.empty();
+      this.parameter = parameter;
+    }
+
+    @SuppressWarnings("unchecked")
+    In(final Path<?> path, final ParameterBuffer parameter) {
+      this(Collections.singletonList((Path<Comparable<?>>) path), parameter);
     }
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
-      statement.append(OPENING_BRACKET);
-      statement.append(paths
-          .stream()
-          .map(p -> ((Expression<?>) p)) // NOSONAR
+
+      return expression.map(exp -> asSubQuerySQL(exp, statement))
+          .orElseGet(() -> values.map(list -> asFixValueSQL(list, statement))
+              .orElseThrow());
+    }
+
+    private StringBuilder asFixValueSQL(final List<ParameterExpression<X, X>> list, final StringBuilder statement) {
+      prepareInExpression(statement);
+      statement.append(list.stream()
           .collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
-      statement.append(CLOSING_BRACKET)
+      return statement.append(CLOSING_BRACKET);
+    }
+
+    private StringBuilder asSubQuerySQL(final Expression<? extends X> exp, final StringBuilder statement) {
+      prepareInExpression(statement);
+      return ((SqlConvertible) Objects.requireNonNull(exp)).asSQL(statement).append(CLOSING_BRACKET);
+    }
+
+    private void prepareInExpression(final StringBuilder statement) {
+      expressions.get(0).asSQL(statement)
           .append(" ")
           .append(SqlKeyWords.IN)
           .append(" ")
           .append(OPENING_BRACKET);
-      final SqlConvertible sub = expressions.get(0);
-      return sub.asSQL(statement).append(CLOSING_BRACKET);
     }
 
     @Override
     public jakarta.persistence.criteria.CriteriaBuilder.In<X> value(final X value) {
-      throw new NotImplementedException();
+      if (this.expression.isPresent())
+        throw new IllegalStateException("Do not add a fixed value if an expression is already present");
+      values.ifPresentOrElse(list -> list.add(parameter.addValue(value)), () -> createValues(value));
+      return this;
+    }
+
+    private void createValues(final X value) {
+      // parameter.addValue(value)
+      values = Optional.of(new ArrayList<>());
+      values.get().add(parameter.addValue(value));
     }
 
     @Override
     public jakarta.persistence.criteria.CriteriaBuilder.In<X> value(final Expression<? extends X> value) {
-      throw new NotImplementedException();
+      if (this.values.isPresent())
+        throw new IllegalStateException("Do not add an expression if a fixed value is already present");
+      if (this.expression.isPresent())
+        throw new NotImplementedException();
+      this.expression = Optional.of(Objects.requireNonNull(value));
+      return this;
     }
 
     @Override
@@ -376,7 +418,8 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     @SuppressWarnings("unchecked")
     @Override
     public Expression<X> getExpression() {
-      return paths.isEmpty() ? null : (Expression<X>) paths.get(0);
+      final CompoundPath paths = ((CompoundPath) expressions.get(0));
+      return paths.isEmpty() ? null : (Expression<X>) paths.getFirst();
     }
 
   }

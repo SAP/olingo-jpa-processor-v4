@@ -258,4 +258,10 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     }
 
   }
+
+  @Override
+  public String toString() {
+    return "IntermediateJavaAction [jpaAction=" + jpaAction.name() + ", javaAction=" + javaAction
+        .getName() + ", javaConstructor=" + javaConstructor.getName() + ", parameterList=" + parameterList + "]";
+  }
 }

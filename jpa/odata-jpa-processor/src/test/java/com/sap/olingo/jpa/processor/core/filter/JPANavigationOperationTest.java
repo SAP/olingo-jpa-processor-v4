@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
@@ -27,6 +31,10 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
+import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
+
 class JPANavigationOperationTest {
   private JPANavigationOperation cut;
 
@@ -34,14 +42,26 @@ class JPANavigationOperationTest {
   private MethodKind methodCall;
   private List<JPAOperator> parameters;
   private JPAMemberOperator operator;
+  private JPAOperationConverter converter;
+  private JPAODataDatabaseOperations dbOperations;
+  private CriteriaBuilder cb;
 
   @BeforeEach
-  void setup() {
+  void setup() throws ODataException {
+    final JPAODataQueryDirectives directives = JPAODataServiceContext.with()
+        .useQueryDirectives()
+        .build()
+        .build()
+        .getQueryDirectives();
     jpaComplier = mock(JPAFilterComplierAccess.class);
     operator = mock(JPAMemberOperator.class);
+    dbOperations = mock(JPAODataDatabaseOperations.class);
     methodCall = MethodKind.INDEXOF;
+    cb = mock(CriteriaBuilder.class);
     parameters = new ArrayList<>();
     parameters.add(operator);
+    converter = new JPAOperationConverter(cb, dbOperations, directives);
+    when(jpaComplier.getConverter()).thenReturn(converter);
     cut = new JPANavigationOperation(jpaComplier, methodCall, parameters);
 
   }
@@ -114,11 +134,11 @@ class JPANavigationOperationTest {
         .map(method -> dynamicTest(method, () -> assertNull(executeMethod(cut, method))));
   }
 
-  private Object executeMethod(final Object obj, final String methodName) {
-    final Class<?> clazz = obj.getClass();
+  private Object executeMethod(final Object object, final String methodName) {
+    final Class<?> clazz = object.getClass();
     try {
       final Method method = clazz.getMethod(methodName);
-      return method.invoke(obj);
+      return method.invoke(object);
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
         | InvocationTargetException e) {
       fail();

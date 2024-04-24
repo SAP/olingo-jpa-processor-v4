@@ -2,4 +2,6 @@
 <faceted-project>
   <installed facet="java" version="17"/>
   <installed facet="jpt.jpa" version="2.1"/>
+  <installed facet="jst.utility" version="1.0"/>
+  <installed facet="java" version="17"/>
 </faceted-project>

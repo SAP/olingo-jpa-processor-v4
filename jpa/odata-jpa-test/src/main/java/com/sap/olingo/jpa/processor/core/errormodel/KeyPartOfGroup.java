@@ -51,10 +51,10 @@ public class KeyPartOfGroup {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof KeyPartOfGroup)) return false;
-    final KeyPartOfGroup other = (KeyPartOfGroup) obj;
-    return eTag == other.eTag && Objects.equals(iD, other.iD);
+    if (obj instanceof final KeyPartOfGroup other)
+
+      return eTag == other.eTag && Objects.equals(iD, other.iD);
+    return false;
   }
 
 }

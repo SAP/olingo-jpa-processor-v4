@@ -2,7 +2,6 @@ package com.sap.olingo.jpa.metadata.odata.v4.provider;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +17,6 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
-import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNamed;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
@@ -42,6 +40,7 @@ class JavaAnnotationConverter {
   private static final Log LOGGER = LogFactory.getLog(JavaAnnotationConverter.class);
   static final String EDM_NAMESPACE = "Edm";
   static final String IS_COLLECTION_TERM = "Collection";
+  static final String NULL = "null";
 
   JavaAnnotationConverter() {
     super();
@@ -62,14 +61,14 @@ class JavaAnnotationConverter {
   private CsdlCollection asCollectionExpression(final JPAReferences references,
       final AnnotationType propertyType, final ODataAnnotatable annotatable, final Object[] values) {
 
-    final CsdlCollection collection = new CsdlCollection();
-    final List<CsdlExpression> collectionItems = collection.getItems();
-    final FullQualifiedName fqn = propertyType.getFqn();
+    final var collection = new CsdlCollection();
+    final var collectionItems = collection.getItems();
+    final var fqn = propertyType.getFqn();
     for (final Object item : splitCollectionValues(propertyType, values)) {
       if (propertyType.isPrimitiveType())
         collectionItems.add(asConstantExpression(propertyType, item));
       else if (propertyType.isPathType()) {
-        final CsdlExpression expression = asPathExpression(annotatable, fqn, item);
+        final var expression = asPathExpression(annotatable, fqn, item);
         if (expression != null)
           collectionItems.add(asPathExpression(annotatable, fqn, item));
       } else
@@ -85,7 +84,7 @@ class JavaAnnotationConverter {
   }
 
   private CsdlPropertyValue asCsdlProperty(final CsdlProperty property, final CsdlExpression expression) {
-    final CsdlPropertyValue propertyValue = new CsdlPropertyValue();
+    final var propertyValue = new CsdlPropertyValue();
     propertyValue.setValue(expression);
     propertyValue.setProperty(property.getName());
     return propertyValue;
@@ -94,10 +93,10 @@ class JavaAnnotationConverter {
   private CsdlAnnotation asEdmAnnotation(final JPAReferences references,
       final Annotation annotation, final CsdlTerm term, final ODataAnnotatable annotatable) {
 
-    final String alias = annotation.annotationType().getAnnotation(Vocabulary.class).alias();
-    final String namespace = references.convertAlias(alias);
-    final CsdlAnnotation edmAnnotation = new CsdlAnnotation();
-    final AnnotationType annotationType = new AnnotationType(references, term);
+    final var alias = annotation.annotationType().getAnnotation(Vocabulary.class).alias();
+    final var namespace = references.convertAlias(alias);
+    final var edmAnnotation = new CsdlAnnotation();
+    final var annotationType = new AnnotationType(references, term);
     edmAnnotation.setTerm(new FullQualifiedName(namespace, term.getName()).getFullQualifiedNameAsString());
     edmAnnotation.setExpression(buildExpression(references, annotation, annotationType, annotatable));
     return edmAnnotation;
@@ -106,32 +105,28 @@ class JavaAnnotationConverter {
   private Optional<CsdlExpression> asEnumExpression(final Annotation annotation,
       final AnnotationType propertyType, final String propertyName) {
 
-    final Optional<Object> propertyValue = getPropertyValue(annotation, propertyName);
+    final var propertyValue = getPropertyValue(annotation, propertyName);
     return propertyValue.map(value -> asEnumExpression(propertyType, value));
   }
 
   private CsdlExpression asEnumExpression(final AnnotationType propertyType,
       @Nonnull final Object propertyValue) {
 
-    final CsdlEnumType enumType = propertyType.asEnumeration();
-    final CsdlEnumMember enumMember = enumType.getMember(propertyValue.toString());
-    return new CsdlConstantExpression(ConstantExpressionType.EnumMember, enumMember.getName());
+    final var enumType = propertyType.asEnumeration();
+    final var enumMember = enumType.getMember(propertyValue.toString());
+    return new CsdlConstantExpression(ConstantExpressionType.EnumMember,
+        enumMember == null ? NULL : enumMember.getName());
   }
 
   private ConstantExpressionType asExpressionType(final AnnotationType annotation) {
 
-    final FullQualifiedName fqn = annotation.getBaseType() != null ? annotation.getBaseType() : annotation.getFqn();
-    switch (EdmPrimitiveTypeKind.valueOfFQN(fqn)) {
-      case Boolean:
-        return ConstantExpressionType.Bool;
-      case Int32:
-        return ConstantExpressionType.Int;
-      case String:
-        return ConstantExpressionType.String;
-      default:
-        break;
-    }
-    return null;
+    final var fqn = annotation.getBaseType() != null ? annotation.getBaseType() : annotation.getFqn();
+    return switch (EdmPrimitiveTypeKind.valueOfFQN(fqn)) {
+      case Boolean -> ConstantExpressionType.Bool;
+      case Int32 -> ConstantExpressionType.Int;
+      case String -> ConstantExpressionType.String;
+      default -> null;
+    };
   }
 
   @CheckForNull
@@ -139,20 +134,21 @@ class JavaAnnotationConverter {
       final Object item) {
 
     try {
-      switch (fqn.getName()) {
-        case "PropertyPath":
+      return switch (fqn.getName()) {
+        case "PropertyPath" -> {
           // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part3-csdl/odata-v4.0-errata03-os-part3-csdl-complete.html#_Toc453752659
-          final CsdlPropertyPath path = new CsdlPropertyPath();
+          final var path = new CsdlPropertyPath();
           path.setValue(annotatable.convertStringToPath(item.toString()).getPathAsString());
-          return path;
-        case "NavigationPropertyPath":
+          yield path;
+        }
+        case "NavigationPropertyPath" -> {
           // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part3-csdl/odata-v4.0-errata03-os-part3-csdl-complete.html#_Toc453752657
-          final CsdlNavigationPropertyPath navigationPath = new CsdlNavigationPropertyPath();
+          final var navigationPath = new CsdlNavigationPropertyPath();
           navigationPath.setValue(annotatable.convertStringToNavigationPath(item.toString()).getPathAsString());
-          return navigationPath;
-        default:
-          return null;
-      }
+          yield navigationPath;
+        }
+        default -> null;
+      };
     } catch (final ODataPathNotFoundException e) {
       LOGGER.error("Error orrured when trying to convert path '" + item.toString() + "' of " +
           annotatable.getClass().getSimpleName(), e);
@@ -163,12 +159,12 @@ class JavaAnnotationConverter {
   private CsdlExpression asRecordExpression(final JPAReferences references, final Annotation annotation,
       final AnnotationType annotationType, final ODataAnnotatable annotatable) {
 
-    final CsdlRecord csdlRecord = new CsdlRecord();
+    final var csdlRecord = new CsdlRecord();
     final List<CsdlPropertyValue> recordProperties = new ArrayList<>();
     csdlRecord.setType(annotationType.getFqn().getFullQualifiedNameAsString());
     csdlRecord.setPropertyValues(recordProperties);
     for (final CsdlProperty property : annotationType.asComplexType().getProperties()) {
-      final AnnotationType propertyType = new AnnotationType(references, property);
+      final var propertyType = new AnnotationType(references, property);
       if (propertyType.isCollection()) {
         getPropertyValue(annotation, property.getName())
             .map(Object[].class::cast)
@@ -203,9 +199,9 @@ class JavaAnnotationConverter {
   private CsdlExpression buildExpression(final JPAReferences references, final Annotation annotation,
       final AnnotationType annotationType, final ODataAnnotatable annotatable) {
 
-    final Optional<Object> value = getPropertyValue(annotation, "value");
+    final var value = getPropertyValue(annotation, "value");
     if (annotationType.isCollection) {
-      final CsdlCollection collection = new CsdlCollection();
+      final var collection = new CsdlCollection();
       if (value.isPresent()) {
         for (final Object item : (Object[]) value.get()) {
           collection.getItems().add(buildRowExpression(references, annotation, annotationType, annotatable, item));
@@ -230,14 +226,14 @@ class JavaAnnotationConverter {
   }
 
   private String firstToLower(@Nonnull final String name) {
-    final char[] asArray = name.toCharArray();
+    final var asArray = name.toCharArray();
     asArray[0] = Character.toLowerCase(asArray[0]);
     return String.valueOf(asArray);
   }
 
   private Optional<Object> getPropertyValue(final Annotation annotation, final String propertyName) {
     try {
-      final Method method = annotation.getClass().getMethod(firstToLower(propertyName));
+      final var method = annotation.getClass().getMethod(firstToLower(propertyName));
       return Optional.ofNullable(method.invoke(annotation));
     } catch (final NoSuchMethodException unSupported) {
       LOGGER.trace("Unsupported property of annotation: " + propertyName);
@@ -255,7 +251,7 @@ class JavaAnnotationConverter {
       if (propertyType.isComplexType()) {
         items.add(value);
       } else {
-        final String[] itemElements = value.toString().split(",");
+        final var itemElements = value.toString().split(",");
         items.addAll(Arrays.asList(itemElements));
       }
     }
