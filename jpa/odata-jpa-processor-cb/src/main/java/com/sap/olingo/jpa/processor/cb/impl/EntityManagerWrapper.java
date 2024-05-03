@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,11 +35,14 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   private final EntityManager em;
   private final JPAServiceDocument sd;
   private final ParameterBuffer parameterBuffer;
+  private final SqlPagingFunctions sqlPagingFunctions;
 
-  public EntityManagerWrapper(final EntityManager em, final JPAServiceDocument sd) {
+
+  public EntityManagerWrapper(final EntityManager em, final JPAServiceDocument sd, final SqlPagingFunctions sqlPagingFunctions) {
     super();
     this.em = em;
     this.sd = sd;
+    this.sqlPagingFunctions = sqlPagingFunctions;
     this.cb = Optional.empty();
     this.parameterBuffer = new ParameterBuffer();
   }
@@ -676,7 +680,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
     if (!em.isOpen())
       throw new IllegalStateException("Entity Manager had been closed");
     return cb.orElseGet(() -> {
-      cb = Optional.of(new CriteriaBuilderImpl(sd, parameterBuffer));
+      cb = Optional.of(new CriteriaBuilderImpl(sd, parameterBuffer, sqlPagingFunctions));
       return cb.get();
     });
   }

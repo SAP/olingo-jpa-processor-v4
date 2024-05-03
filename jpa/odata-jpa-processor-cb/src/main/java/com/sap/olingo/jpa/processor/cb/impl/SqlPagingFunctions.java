@@ -1,23 +1,52 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-enum SqlPagingFunctions {
-  LIMIT("LIMIT", Integer.MAX_VALUE),
-  OFFSET("OFFSET", 0);
+import java.sql.Connection;
+import java.sql.SQLException;
 
-  private final String keyWord;
-  private final int defaultValue;
+public class SqlPagingFunctions {
+  public final PagingFunction LIMIT;
+  public final PagingFunction OFFSET;
 
-  private SqlPagingFunctions(final String keyWord, final int defaultValue) {
-    this.keyWord = keyWord;
-    this.defaultValue = defaultValue;
+  public SqlPagingFunctions() {
+    LIMIT = new PagingFunction("LIMIT", Integer.MAX_VALUE);
+    OFFSET = new PagingFunction("OFFSET", 0);
   }
 
-  @Override
-  public String toString() {
-    return keyWord;
+  public SqlPagingFunctions(Connection conn) {
+    boolean issybase = false;
+    try {
+      String driver = conn.getMetaData().getURL();
+      issybase = driver.startsWith("jdbc:sybase");
+    } catch ( SQLException e ) {
+      e.printStackTrace();        
+    }
+    if ( issybase ) {  
+      LIMIT = new PagingFunction("ROWS LIMIT", Integer.MAX_VALUE);
+    } else {
+      LIMIT = new PagingFunction("LIMIT", Integer.MAX_VALUE);
+    }
+    OFFSET = new PagingFunction("OFFSET", 0);
   }
 
-  int defaultValue() {
-    return defaultValue;
+  public class PagingFunction {
+    private final String keyWord;
+    private final int defaultValue;
+
+    public PagingFunction(final String keyWord, final int defaultValue) {
+      this.keyWord = keyWord;
+      this.defaultValue = defaultValue;
+    }
+  
+    @Override
+    public String toString() {
+      return keyWord;
+    }
+  
+    int defaultValue() {
+      return defaultValue;
+    
+    }
   }
 }
+
+

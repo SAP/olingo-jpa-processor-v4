@@ -48,10 +48,12 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
 
   private final JPAServiceDocument sd;
   private final ParameterBuffer parameter;
+  private final SqlPagingFunctions sqlPagingFunctions;
 
-  CriteriaBuilderImpl(final JPAServiceDocument sd, final ParameterBuffer parameterBuffer) {
+  CriteriaBuilderImpl(final JPAServiceDocument sd, final ParameterBuffer parameterBuffer, final SqlPagingFunctions sqlPagingFunctions) {
     this.sd = sd;
     this.parameter = parameterBuffer;
+    this.sqlPagingFunctions = sqlPagingFunctions;
   }
 
   /**
@@ -287,17 +289,17 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
 
   @Override
   public ProcessorCriteriaQuery<Object> createQuery() {
-    return new CriteriaQueryImpl<>(Object.class, sd, this);
+    return new CriteriaQueryImpl<>(Object.class, sd, this,sqlPagingFunctions);
   }
 
   @Override
   public <T> ProcessorCriteriaQuery<T> createQuery(final Class<T> resultClass) {
-    return new CriteriaQueryImpl<>(resultClass, sd, this);
+    return new CriteriaQueryImpl<>(resultClass, sd, this, sqlPagingFunctions);
   }
 
   @Override
   public ProcessorCriteriaQuery<Tuple> createTupleQuery() {
-    return new CriteriaQueryImpl<>(Tuple.class, sd, this);
+    return new CriteriaQueryImpl<>(Tuple.class, sd, this, sqlPagingFunctions);
   }
 
   @Override

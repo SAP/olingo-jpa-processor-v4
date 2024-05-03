@@ -68,4 +68,6 @@ public interface JPAODataSessionContextAccess {
 
   public JPAODataQueryDirectives getQueryDirectives();
 
+  public Object setSqlPagingFunctions(final Object sqlPagingFunctions);
+
 }

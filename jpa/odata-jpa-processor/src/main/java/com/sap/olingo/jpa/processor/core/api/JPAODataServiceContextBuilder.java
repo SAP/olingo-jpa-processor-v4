@@ -135,6 +135,8 @@ public interface JPAODataServiceContextBuilder {
 
   JPAODataServiceContextBuilder setAnnotationProvider(AnnotationProvider... annotationProvider);
 
+  JPAODataServiceContextBuilder setSqlPagingFunctions(Object sqlPagingFunctions);
+
   /**
    *
    */
