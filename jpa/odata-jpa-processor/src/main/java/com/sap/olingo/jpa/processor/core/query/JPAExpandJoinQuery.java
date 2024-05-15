@@ -225,12 +225,13 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   private JPAQueryCreationResult createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createTupleQuery")) {
-      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(uriResource.getOrderByOption());
+      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(uriResource
+          .getOrderByOption());
       final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(),
           cq, lastInfo);
       // TODO handle Join Column is ignored
-      cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
+      cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups)).distinct(true);
       final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         cq.where(whereClause);
