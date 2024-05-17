@@ -850,9 +850,10 @@ CREATE TABLE "User" (
 	"UserName"  VARCHAR(60) NOT NULL ,
 	"Password" VARCHAR(60),
 	"Enabled" BOOLEAN,
+	"UserType" VARCHAR(20),
 	PRIMARY KEY ("UserName"));	
-insert into "User" values ('Willi', '$2a$10$ekL4q.jeDmuc2AhZF/ARUe2KTMczEBHZlML.bN985noWuJcdilbg6', true); 
-insert into "User" values ('Marvin', '$2a$10$dPD0o8lEbOy0vYtpWkE78.vVBKWElJjiezkFo1nr6hG3EBRx4Gpl.', true);
+insert into "User" values ('Willi', '$2a$10$ekL4q.jeDmuc2AhZF/ARUe2KTMczEBHZlML.bN985noWuJcdilbg6', true, 'INTERACTIVE'); 
+insert into "User" values ('Marvin', '$2a$10$dPD0o8lEbOy0vYtpWkE78.vVBKWElJjiezkFo1nr6hG3EBRx4Gpl.', true, 'INTERACTIVE');
 
 CREATE TABLE "CountryRestriction" (	 
 	"UserName"  VARCHAR(60) NOT NULL ,

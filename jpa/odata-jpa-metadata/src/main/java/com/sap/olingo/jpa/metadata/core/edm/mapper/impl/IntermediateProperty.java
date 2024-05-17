@@ -25,6 +25,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -230,6 +231,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       retrieveAnnotations(this, Applicability.PROPERTY);
       determineIgnore();
+      determineIsEnum();
       determineStructuredType();
       determineInternalTypesFromConverter();
       determineDBFieldName();
@@ -239,7 +241,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       determineIsVersion();
       determineProtection();
       determineFieldGroups();
-      determineIsEnum();
       checkConsistency();
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());
@@ -620,6 +621,20 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
           | NoSuchMethodException | SecurityException e) {
         throw new ODataJPAModelException(
             ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSTANTIATED, e);
+      }
+    } else {
+      final var enumerated = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+          .getAnnotation(Enumerated.class);
+      if (enumerated != null) {
+        switch (enumerated.value()) {
+          case ORDINAL -> dbType = Integer.class;
+          case STRING -> dbType = String.class;
+          default -> throw new IllegalArgumentException("Unexpected value: " + enumerated.value());
+        }
+        conversionRequired = false;
+      } else if (isEnum) {
+        dbType = Integer.class;
+        conversionRequired = false;
       }
     }
   }

@@ -91,11 +91,20 @@ class TupleImpl implements Tuple {
       final JPAAttribute attribute = selection.get(index).getValue();
       if (values[index] == null)
         return null;
-      if (attribute.isEnum() && attribute.getConverter() == null) {
-        final int value = (Integer) convert(values[index], Integer.class);
-        return attribute.getType().getEnumConstants()[value];
-      }
       final Object value = convert(values[index], attribute.getDbType());
+      if (attribute.isEnum() && attribute.getConverter() == null) {
+        if (value instanceof String) {
+          for (final var enumValue : attribute.getType().getEnumConstants()) {
+            if (enumValue.toString().equals(value))
+              return enumValue;
+          }
+          attribute.getType();
+        } else if (value instanceof final Integer ordinal) {
+          return attribute.getType().getEnumConstants()[ordinal];
+        } else {
+          throw new IllegalArgumentException("Unsupported tagets type: " + attribute.getDbType());
+        }
+      }
       if (attribute.getRawConverter() != null)
         return attribute.getRawConverter().convertToEntityAttribute(value);
       return value;

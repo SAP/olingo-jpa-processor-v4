@@ -27,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
+import com.sap.olingo.jpa.processor.core.testmodel.UserType;
 
 public class TestHelper {
   final private Metamodel jpaMetamodel;
@@ -42,7 +43,7 @@ public class TestHelper {
 
     final Reflections reflections = mock(Reflections.class);
     when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
-        ABCClassification.class, AccessRights.class)));
+        ABCClassification.class, AccessRights.class, UserType.class)));
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), mock(IntermediateReferences.class));
 
     this.jpaMetamodel = metamodel;
