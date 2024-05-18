@@ -49,7 +49,6 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
           continue;
         }
         final var navigationPropBinding = new CsdlNavigationPropertyBinding();
-
         navigationPropBinding.setPath(navigationPropertyPath.getAlias());
 
         // TODO Check is FQN is better here

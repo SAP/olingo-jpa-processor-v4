@@ -562,5 +562,4 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       throws ODataJPAModelException {
     return ((IntermediateStructuredType<T>) embeddedId.getStructuredType()).getEdmItem().getProperties();
   }
-
 }

@@ -282,6 +282,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
           throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, BAD_REQUEST, e);
         }
       }
+      return whereCondition;
     }
     return whereCondition;
   }
