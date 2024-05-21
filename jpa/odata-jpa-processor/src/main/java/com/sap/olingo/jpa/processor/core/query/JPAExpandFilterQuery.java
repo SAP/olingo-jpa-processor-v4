@@ -270,7 +270,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
 
   private Integer getSkipValue(@Nullable final Subquery<?> childQuery) {
     if (navigationInfo.getPage() != null)
-      return navigationInfo.getPage().skip();
+      return navigationInfo.getPage().skip() > 0 ? navigationInfo.getPage().skip() : null;
     if (navigationInfo.getUriInfo().getSkipOption() != null && childQuery == null)
       return navigationInfo.getUriInfo().getSkipOption().getValue();
     return null;
@@ -278,7 +278,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
 
   private Integer getTopValue(@Nullable final Subquery<?> childQuery) {
     if (navigationInfo.getPage() != null)
-      return navigationInfo.getPage().top();
+      return navigationInfo.getPage().top() < Integer.MAX_VALUE ? navigationInfo.getPage().top() : null;
     if (navigationInfo.getUriInfo().getTopOption() != null && childQuery == null)
       return navigationInfo.getUriInfo().getTopOption().getValue();
     return null;

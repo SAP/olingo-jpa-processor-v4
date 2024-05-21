@@ -44,8 +44,6 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.apache.olingo.server.api.uri.queryoption.SkipOption;
-import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
@@ -450,29 +448,26 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   private void addSkip(final TypedQuery<Tuple> typedQuery) throws ODataJPAQueryException {
-    final SkipOption skipOption = uriResource.getSkipOption();
-    if (skipOption != null || page != null) {
-      int skipNumber = skipOption != null ? skipOption.getValue() : page.skip();
-      skipNumber = skipOption != null && page != null ? Math.max(skipOption.getValue(), page.skip()) : skipNumber;
-      if (skipNumber >= 0)
-        typedQuery.setFirstResult(skipNumber);
-      else
-        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_VALUE,
-            HttpStatusCode.BAD_REQUEST, Integer.toString(skipNumber), "$skip");
+    // Paging provider has to respect $skip. With the JPADefaultPagingProvider there shall be
+    // always a page
+    if (page != null) {
+      if (page.skip() > 0)
+        typedQuery.setFirstResult(page.skip());
+    } else {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NO_PAGE_FOUND,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, "$skip");
     }
   }
 
-  private void addTop(final TypedQuery<Tuple> tupleQuery) throws ODataJPAQueryException {
-    final TopOption topOption = uriResource.getTopOption();
-    if (topOption != null || page != null) {
-      int topNumber = topOption != null ? topOption.getValue() : page.top();
-      topNumber = topOption != null && page != null ? Math.min(topOption.getValue(), page.top())
-          : topNumber;
-      if (topNumber >= 0)
-        tupleQuery.setMaxResults(topNumber);
-      else
-        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_VALUE,
-            HttpStatusCode.BAD_REQUEST, Integer.toString(topNumber), "$top");
+  private void addTop(final TypedQuery<Tuple> typedQuery) throws ODataJPAQueryException {
+    // Paging provider has to respect $top. With the JPADefaultPagingProvider there shall be
+    // always a page
+    if (page != null) {
+      if (page.top() < Integer.MAX_VALUE)
+        typedQuery.setMaxResults(page.top());
+    } else {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NO_PAGE_FOUND,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, "$top");
     }
   }
 
