@@ -27,8 +27,10 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabula
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceAccess;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceList;
 import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.ExpandRestrictions;
+import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateRestrictions;
 
 @ExpandRestrictions(maxLevels = 2, nonExpandableProperties = { "roles" })
+@UpdateRestrictions()
 class JavaBasedODataAnnotationsProviderTest {
   JavaBasedCapabilitiesAnnotationsProvider cut;
   ODataAnnotatable annotatable;

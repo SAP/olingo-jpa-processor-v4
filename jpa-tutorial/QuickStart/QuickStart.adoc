@@ -46,7 +46,7 @@ This should contain the information about archetype:
     <archetype>
         <groupId>com.sap.olingo</groupId>
         <artifactId>odata-jpa-archetype-spring</artifactId>
-        <version>2.1.0</version>
+        <version>2.1.1</version>
     </archetype>
   </archetypes>
 </archetype-catalog>

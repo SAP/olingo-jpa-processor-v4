@@ -130,15 +130,13 @@ public interface JPAODataServiceContextBuilder {
    * can be overruled.<br>
    * @see <a href="https://issues.apache.org/jira/browse/OLINGO-787">Issue OLINGO-787</a>
    * @param useAbsoluteContextURL
-   * @return
    */
   JPAODataServiceContextBuilder setUseAbsoluteContextURL(boolean useAbsoluteContextURL);
 
   JPAODataServiceContextBuilder setAnnotationProvider(AnnotationProvider... annotationProvider);
 
   /**
-   * 
-   * @return
+   *
    */
   JPAODataQueryDirectivesBuilder useQueryDirectives();
 

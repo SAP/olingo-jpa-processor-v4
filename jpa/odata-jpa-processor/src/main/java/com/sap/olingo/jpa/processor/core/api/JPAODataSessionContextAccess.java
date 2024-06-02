@@ -67,4 +67,5 @@ public interface JPAODataSessionContextAccess {
   public List<AnnotationProvider> getAnnotationProvider();
 
   public JPAODataQueryDirectives getQueryDirectives();
+
 }

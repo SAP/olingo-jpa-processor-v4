@@ -2,19 +2,27 @@ package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
@@ -25,13 +33,21 @@ class JPAOperationConverterTest {
   private Expression<Number> expressionRight;
   private JPAOperationConverter cut;
   private JPAODataDatabaseOperations extension;
+  private JPAODataQueryDirectives directives;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
   void setUp() throws Exception {
+
+    directives = JPAODataServiceContext.with()
+        .useQueryDirectives()
+        .build()
+        .build()
+        .getQueryDirectives();
+
     cb = mock(CriteriaBuilder.class);
     extension = mock(JPAODataDatabaseOperations.class);
-    cut = new JPAOperationConverter(cb, extension);
+    cut = new JPAOperationConverter(cb, extension, directives);
     expressionLeft = mock(Path.class);
     expressionRight = mock(Path.class);
   }
@@ -173,8 +189,46 @@ class JPAOperationConverterTest {
   void testConvertInOperatorNotInThrowsException() {
     final JPAInOperator<String, JPAOperator> jpaOperator = mock(JPAInOperator.class);
     when(jpaOperator.getOperator()).thenReturn(BinaryOperatorKind.HAS);
-    assertThrows(ODataJPAFilterException.class, () -> cut.convert(jpaOperator));
+    final var act = assertThrows(ODataJPAFilterException.class, () -> cut.convert(jpaOperator));
+    assertEquals(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR.getKey(), act.getId());
   }
-}
 
-//case MOD:
+  @SuppressWarnings("unchecked")
+  @Test
+  void testConvertInOperatorInNotSupportedThrowsException() {
+    final JPAInOperator<String, JPAOperator> jpaOperator = mock(JPAInOperator.class);
+    when(jpaOperator.getOperator()).thenReturn(BinaryOperatorKind.IN);
+    final var act = assertThrows(ODataJPAFilterException.class, () -> cut.convert(jpaOperator));
+    assertEquals(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR.getKey(), act.getId());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void testConvertInOperatorTooManyValuesThrowsException() throws ODataException {
+    directives = JPAODataServiceContext.with()
+        .useQueryDirectives()
+        .maxValuesInInClause(10)
+        .build()
+        .build()
+        .getQueryDirectives();
+    cut = new JPAOperationConverter(cb, extension, directives);
+
+    final List<JPAOperator> values = buildValuesList(20);
+    final In<Object> inOperation = mock(In.class);
+    final JPAInOperator<String, JPAOperator> jpaOperator = mock(JPAInOperator.class);
+    when(jpaOperator.getOperator()).thenReturn(BinaryOperatorKind.IN);
+    when(cb.in(any())).thenReturn(inOperation);
+    when(jpaOperator.getFixValues()).thenReturn(values);
+    final var act = assertThrows(ODataJPAFilterException.class, () -> cut.convert(jpaOperator));
+    assertEquals(ODataJPAFilterException.MessageKeys.NO_VALUES_OUT_OF_LIMIT.getKey(), act.getId());
+  }
+
+  private List<JPAOperator> buildValuesList(final int i) {
+    final List<JPAOperator> result = new ArrayList<>(i);
+    for (int count = 0; count < i; count++) {
+      result.add(mock(JPAOperator.class));
+    }
+    return result;
+  }
+
+}

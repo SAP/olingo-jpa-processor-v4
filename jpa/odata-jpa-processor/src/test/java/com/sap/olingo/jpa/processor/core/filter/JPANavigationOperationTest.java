@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
@@ -30,6 +31,8 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
 class JPANavigationOperationTest {
@@ -44,7 +47,12 @@ class JPANavigationOperationTest {
   private CriteriaBuilder cb;
 
   @BeforeEach
-  void setup() {
+  void setup() throws ODataException {
+    final JPAODataQueryDirectives directives = JPAODataServiceContext.with()
+        .useQueryDirectives()
+        .build()
+        .build()
+        .getQueryDirectives();
     jpaComplier = mock(JPAFilterComplierAccess.class);
     operator = mock(JPAMemberOperator.class);
     dbOperations = mock(JPAODataDatabaseOperations.class);
@@ -52,7 +60,7 @@ class JPANavigationOperationTest {
     cb = mock(CriteriaBuilder.class);
     parameters = new ArrayList<>();
     parameters.add(operator);
-    converter = new JPAOperationConverter(cb, dbOperations);
+    converter = new JPAOperationConverter(cb, dbOperations, directives);
     when(jpaComplier.getConverter()).thenReturn(converter);
     cut = new JPANavigationOperation(jpaComplier, methodCall, parameters);
 

@@ -37,6 +37,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAKeyPairException;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
@@ -45,9 +47,9 @@ class JPAExpandJoinQueryTest extends TestBase {
   private EntityManager em;
   private JPAODataRequestContextAccess requestContext;
   private TestHelper helper;
-  private JPAKeyPair orgPair;
+  private JPAKeyPair organizationPair;
   private JPAKeyPair adminPair;
-  private Optional<JPAKeyBoundary> orgBoundary;
+  private Optional<JPAKeyBoundary> organizationBoundary;
   private Optional<JPAKeyBoundary> adminBoundary;
   @SuppressWarnings("rawtypes")
   private Map<JPAAttribute, Comparable> simpleKey;
@@ -58,8 +60,8 @@ class JPAExpandJoinQueryTest extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     em = emf.createEntityManager();
     requestContext = mock(JPAODataRequestContextAccess.class);
-    orgPair = new JPAKeyPair(helper.getJPAEntityType("Organizations").getKey());
-    orgBoundary = Optional.of(new JPAKeyBoundary(1, orgPair));
+    organizationPair = new JPAKeyPair(helper.getJPAEntityType("Organizations").getKey());
+    organizationBoundary = Optional.of(new JPAKeyBoundary(1, organizationPair));
     adminPair = new JPAKeyPair(helper.getJPAEntityType("AdministrativeDivisions").getKey());
     adminBoundary = Optional.of(new JPAKeyBoundary(1, adminPair));
     final JPAServiceDebugger debugger = mock(JPAServiceDebugger.class);
@@ -74,9 +76,19 @@ class JPAExpandJoinQueryTest extends TestBase {
   }
 
   @Test
-  void testSelectAllWithAllExpand() throws ODataException {
+  void testSelectDistinctExpand() throws ODataException {
+    // .../BusinessPartnerRoles?$expand=BusinessPartner($select=ID;$expand=Roles)
+    final JPAInlineItemInfo item = createBusinessParterRolesExpandChildrenParent(null, null);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
+    final JPAExpandQueryResult act = cut.execute();
+    assertEquals(7, act.getNoResults());
+    assertEquals(11, act.getNoResultsDeep());
+  }
+
+  @Test
+  void testSelectOrganizationByIdWithAllExpand() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
-    final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
+    final JPAInlineItemInfo item = createOrganizationExpandRoles(null, null);
     cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
     final JPAExpandQueryResult act = cut.execute();
     assertEquals(4, act.getNoResults());
@@ -92,7 +104,7 @@ class JPAExpandJoinQueryTest extends TestBase {
     when(key.getText()).thenReturn("'2'");
     final List<UriParameter> keyPredicates = new ArrayList<>();
     keyPredicates.add(key);
-    final JPAInlineItemInfo item = createOrgExpandRoles(keyPredicates, null);
+    final JPAInlineItemInfo item = createOrganizationExpandRoles(keyPredicates, null);
 
     cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
     final JPAExpandQueryResult act = cut.execute();
@@ -103,9 +115,9 @@ class JPAExpandJoinQueryTest extends TestBase {
   @Test
   void testSelectWithMinBoundary() throws ODataException {
     // .../Organizations?$expand=Roles&$skip=2&$format=json
-    final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
+    final JPAInlineItemInfo item = createOrganizationExpandRoles(null, null);
     setSimpleKey(3);
-    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, orgBoundary);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, organizationBoundary);
     final JPAExpandQueryResult act = cut.execute();
     assertTrue(cut.getSQLString().contains(".\"ID\" = ?"));
     assertEquals(1, act.getNoResults());
@@ -128,10 +140,10 @@ class JPAExpandJoinQueryTest extends TestBase {
   @Test
   void testSelectWithMinMaxBoundary() throws ODataException {
     // .../Organizations?$expand=Roles&$top=3&$format=json
-    final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
+    final JPAInlineItemInfo item = createOrganizationExpandRoles(null, null);
     setSimpleKey(2);
     setSimpleKey(1);
-    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, orgBoundary);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, organizationBoundary);
     final JPAExpandQueryResult act = cut.execute();
     assertTrue(cut.getSQLString().contains(".\"ID\" >= ?"));
     assertTrue(cut.getSQLString().contains(".\"ID\" <= ?"));
@@ -162,7 +174,7 @@ class JPAExpandJoinQueryTest extends TestBase {
   @Test
   void testSQLStringNotEmptyAfterExecute() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
-    final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
+    final JPAInlineItemInfo item = createOrganizationExpandRoles(null, null);
     cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
     assertTrue(cut.getSQLString().isEmpty());
     cut.execute();
@@ -209,7 +221,49 @@ class JPAExpandJoinQueryTest extends TestBase {
     return item;
   }
 
-  private JPAInlineItemInfo createOrgExpandRoles(final List<UriParameter> keyPredicates,
+  private JPAInlineItemInfo createBusinessParterRolesExpandChildrenParent(final List<UriParameter> keyPredicates,
+      final Expression<Boolean> expression) throws ODataJPAModelException, ODataApplicationException {
+
+// .../BusinessPartnerRoles?$expand=BusinessPartner($select=ID;$expand=Roles)
+
+    final JPAEntityType et = helper.getJPAEntityType(BusinessPartnerRole.class);
+    final JPAEntityType buPaEt = helper.getJPAEntityType(BusinessPartner.class);
+
+    final JPAExpandItemWrapper uriInfo = mock(JPAExpandItemWrapper.class);
+    final UriResourceEntitySet uriEts = mock(UriResourceEntitySet.class);
+    when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
+    final EdmEntityType edmType = mock(EdmEntityType.class);
+    final EdmEntitySet edmSet = mock(EdmEntitySet.class);
+
+    final List<JPANavigationPropertyInfo> hops = new ArrayList<>();
+    hops.add(new JPANavigationPropertyInfo(helper.sd, uriEts, et.getAssociationPath(
+        "BusinessPartner"), null));
+    hops.add(new JPANavigationPropertyInfo(helper.sd, buPaEt.getAssociationPath(
+        "Roles"), null, buPaEt));
+    hops.add(new JPANavigationPropertyInfo(helper.sd, null, null, et));
+
+    final JPAInlineItemInfo item = mock(JPAInlineItemInfo.class);
+    final UriResourceNavigation target = mock(UriResourceNavigation.class);
+    final EdmNavigationProperty targetProperty = mock(EdmNavigationProperty.class);
+    when(targetProperty.getName()).thenReturn("Roles");
+    when(target.getProperty()).thenReturn(targetProperty);
+    final List<UriResource> resourceParts = new ArrayList<>();
+    resourceParts.add(target);
+
+    when(item.getEntityType()).thenReturn(et);
+    when(item.getUriInfo()).thenReturn(uriInfo);
+    when(item.getHops()).thenReturn(hops);
+    when(item.getExpandAssociation()).thenReturn(buPaEt.getAssociationPath("Roles"));
+    when(uriInfo.getUriResourceParts()).thenReturn(resourceParts);
+    when(uriEts.getType()).thenReturn(edmType);
+    when(uriEts.getEntitySet()).thenReturn(edmSet);
+    when(edmSet.getName()).thenReturn("BusinessPartnerRoles");
+    when(edmType.getNamespace()).thenReturn(PUNIT_NAME);
+    when(edmType.getName()).thenReturn("BusinessPartnerRole");
+    return item;
+  }
+
+  private JPAInlineItemInfo createOrganizationExpandRoles(final List<UriParameter> keyPredicates,
       final Expression<Boolean> expression) throws ODataJPAModelException, ODataApplicationException {
 
     final JPAEntityType et = helper.getJPAEntityType("BusinessPartnerRoles");
@@ -252,7 +306,7 @@ class JPAExpandJoinQueryTest extends TestBase {
   private void setSimpleKey(final Integer value) throws ODataJPAModelException, ODataJPAKeyPairException {
     simpleKey = new HashMap<>(1);
     simpleKey.put(helper.getJPAEntityType("Organizations").getKey().get(0), value);
-    orgPair.setValue(simpleKey);
+    organizationPair.setValue(simpleKey);
   }
 
   private void setComplexKey(final String key1, final String key2, final String key3)
