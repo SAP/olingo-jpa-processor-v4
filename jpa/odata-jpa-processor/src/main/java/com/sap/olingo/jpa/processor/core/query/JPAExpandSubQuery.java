@@ -12,22 +12,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Selection;
-import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -46,6 +37,16 @@ import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 /**
  * Requires Processor Query
@@ -293,8 +294,9 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
       tupleQuery.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), groups));
       tupleQuery.orderBy(createOrderBy(joinTables));
       tupleQuery.distinct(orderByAttributes.isEmpty());
-      if (!orderByAttributes.isEmpty())
-        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent()));
+      if (!orderByAttributes.isEmpty()) {
+        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(), new HashSet<>()));
+      }
       final TypedQuery<Tuple> query = em.createQuery(tupleQuery);
       return new JPAQueryCreationResult(query, selectionPath);
     }

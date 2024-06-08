@@ -24,17 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.AbstractQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Selection;
-import jakarta.persistence.criteria.Subquery;
+import javax.annotation.Nonnull;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
@@ -74,6 +64,18 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasur
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 public abstract class JPAAbstractQuery {
   protected static final String PERMISSIONS_REGEX = ".*[\\*\\%\\+\\_].*";
@@ -153,10 +155,11 @@ public abstract class JPAAbstractQuery {
       final jakarta.persistence.criteria.Expression<Boolean> additionalExpression) {
 
     if (additionalExpression != null) {
-      if (whereCondition == null)
+      if (whereCondition == null) {
         whereCondition = additionalExpression;
-      else
+      } else {
         whereCondition = cb.and(whereCondition, additionalExpression);
+      }
     }
     return whereCondition;
   }
@@ -184,20 +187,27 @@ public abstract class JPAAbstractQuery {
       final Map<String, From<?, ?>> joinTables, final From<?, ?> from) {
     for (final JPAAssociationPath orderBy : orderByTarget) {
       From<?, ?> join = from;
-      for (final JPAElement o : orderBy.getPath())
+      for (final JPAElement o : orderBy.getPath()) {
         join = join.join(o.getInternalName(), JoinType.LEFT);
+      }
       // Take on condition from JPA metadata; no explicit on
       joinTables.put(orderBy.getAlias(), join);
     }
   }
 
   protected List<jakarta.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables, // NOSONAR
-      final From<?, ?> from, final Collection<JPAPath> selectionPathList) {
+      final From<?, ?> from, final Collection<JPAPath> selectionPathList, @Nonnull Set<Path<?>> orderByPaths) {
 
     try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "createGroupBy")) {
       final List<jakarta.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
       for (final JPAPath jpaPath : selectionPathList) {
-        groupBy.add(ExpressionUtility.convertToCriteriaPath(joinTables, from, jpaPath.getPath()));
+        var path = ExpressionUtility.convertToCriteriaPath(joinTables, from, jpaPath.getPath());
+        orderByPaths.remove(path);
+        groupBy.add(path);
+      }
+
+      for (var path : orderByPaths) {
+        groupBy.add(path);
       }
       return groupBy;
     }
@@ -209,10 +219,11 @@ public abstract class JPAAbstractQuery {
     Join<T, S> join = null;
     JoinType joinType;
     for (int i = 0; i < pathList.size(); i++) {
-      if (i == pathList.size() - 1)
+      if (i == pathList.size() - 1) {
         joinType = finalJoinType;
-      else
+      } else {
         joinType = JoinType.INNER;
+      }
       if (i == 0) {
         join = root.join(pathList.get(i).getInternalName(), joinType);
         join.alias(alias);
@@ -272,8 +283,9 @@ public abstract class JPAAbstractQuery {
       final Map<String, From<?, ?>> dummyJoinTables = new HashMap<>(1);
       for (final JPAProtectionInfo protection : et.getProtections()) { // look for protected attributes
         final List<JPAClaimsPair<?>> values = claimsProvider.get().get(protection.getClaimName()); // NOSONAR
-        if (values.isEmpty())
+        if (values.isEmpty()) {
           throw new ODataJPAQueryException(MISSING_CLAIM, HttpStatusCode.FORBIDDEN);
+        }
         if (!(containsAll(values))) {
           final Path<?> path = ExpressionUtility.convertToCriteriaPath(dummyJoinTables, from, protection.getPath()
               .getPath());
@@ -358,9 +370,11 @@ public abstract class JPAAbstractQuery {
   protected final List<JPAPath> extractDescriptionAttributes(final Collection<JPAPath> jpaPathList) {
 
     final List<JPAPath> result = new ArrayList<>();
-    for (final JPAPath p : jpaPathList)
-      if (p.getLeaf() instanceof JPADescriptionAttribute)
+    for (final JPAPath p : jpaPathList) {
+      if (p.getLeaf() instanceof JPADescriptionAttribute) {
         result.add(p);
+      }
+    }
     return result;
   }
 
@@ -390,9 +404,10 @@ public abstract class JPAAbstractQuery {
                   .isCollection()) {
                 pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
                 final JPAPath jpaPath = jpaEntity.getPath(pathString.toString());
-                if (jpaPath.isTransient())
+                if (jpaPath.isTransient()) {
                   throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_TRANSIENT, NOT_IMPLEMENTED, jpaPath
                       .getLeaf().toString());
+                }
                 navigationAttributes.add(((JPACollectionAttribute) jpaPath.getLeaf()).asAssociation());
 
               } else if (uriResource instanceof final UriResourceProperty resourceProperty) {
@@ -403,10 +418,11 @@ public abstract class JPAAbstractQuery {
               throw new ODataJPAQueryException(QUERY_RESULT_CONV_ERROR, INTERNAL_SERVER_ERROR, e);
             }
           }
-        } else
+        } else {
           // TODO Support methods like tolower for order by as well
           throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_NOT_SUPPORTED, BAD_REQUEST,
               expression.toString());
+        }
       }
     }
     debugger.trace(this, "The following navigation attributes in order by were found: %s", navigationAttributes
@@ -421,10 +437,11 @@ public abstract class JPAAbstractQuery {
       final JPADescriptionAttribute descriptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
       final Join<?, ?> join = createJoinFromPath(descriptionFieldPath.getAlias(), descriptionFieldPath.getPath(),
           target, JoinType.LEFT);
-      if (descriptionField.isLocationJoin())
+      if (descriptionField.isLocationJoin()) {
         join.on(createOnCondition(join, descriptionField, getLocale().toString()));
-      else
+      } else {
         join.on(createOnCondition(join, descriptionField, getLocale().getLanguage()));
+      }
       joinTables.put(descriptionField.getInternalName(), join);
     }
   }
@@ -436,10 +453,11 @@ public abstract class JPAAbstractQuery {
       final jakarta.persistence.criteria.Expression<Boolean> additionalExpression) {
 
     if (additionalExpression != null) {
-      if (whereCondition == null)
+      if (whereCondition == null) {
         whereCondition = additionalExpression;
-      else
+      } else {
         whereCondition = cb.or(whereCondition, additionalExpression);
+      }
     }
     return whereCondition;
   }
@@ -454,8 +472,9 @@ public abstract class JPAAbstractQuery {
     final Set<JPAPath> allPath = new HashSet<>(descriptionFields);
     if (filter != null) {
       for (final JPAPath path : filter.getMember()) {
-        if (path.getLeaf() instanceof JPADescriptionAttribute)
+        if (path.getLeaf() instanceof JPADescriptionAttribute) {
           allPath.add(path);
+        }
       }
     }
     return allPath;
@@ -472,8 +491,9 @@ public abstract class JPAAbstractQuery {
       final String localValue) {
     final Predicate existingOn = join.getOn();
     Expression<Boolean> result = cb.equal(determineLocalePath(join, descriptionField.getLocaleFieldName()), localValue);
-    if (existingOn != null)
+    if (existingOn != null) {
       result = cb.and(existingOn, result);
+    }
     for (final JPAPath value : descriptionField.getFixedValueAssignment().keySet()) {
       result = cb.and(result,
           cb.equal(determineLocalePath(join, value), descriptionField.getFixedValueAssignment().get(value)));
@@ -489,16 +509,18 @@ public abstract class JPAAbstractQuery {
     jakarta.persistence.criteria.Expression<Boolean> attributeRestriction = null;
     for (final JPAClaimsPair<?> value : values) { // for each given claim value
       if (value.hasUpperBoundary) {
-        if (wildcardsSupported && containsWildcard((String) value.min))
+        if (wildcardsSupported && containsWildcard((String) value.min)) {
           throw new ODataJPAQueryException(WILDCARD_UPPER_NOT_SUPPORTED, HttpStatusCode.BAD_REQUEST);
-        else
+        } else {
           attributeRestriction = orWhereClause(attributeRestriction, createBetween(value, path));
+        }
       } else {
-        if (wildcardsSupported && containsWildcard((String) value.min))
+        if (wildcardsSupported && containsWildcard((String) value.min)) {
           attributeRestriction = orWhereClause(attributeRestriction, cb.like((Path<String>) path,
               ((String) value.min).replace('*', '%').replace('+', '_')));
-        else
+        } else {
           attributeRestriction = orWhereClause(attributeRestriction, cb.equal(path, value.min));
+        }
       }
     }
     return attributeRestriction;

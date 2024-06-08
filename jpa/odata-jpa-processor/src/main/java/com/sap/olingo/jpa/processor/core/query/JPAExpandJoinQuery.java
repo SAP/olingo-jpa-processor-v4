@@ -8,17 +8,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Selection;
+import java.util.Set;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -33,6 +27,14 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
 
 /**
  * A query to retrieve the expand entities.
@@ -105,14 +107,16 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   }
 
   private long determineTop() {
-    if (uriResource.getTopOption() != null)
+    if (uriResource.getTopOption() != null) {
       return uriResource.getTopOption().getValue();
+    }
     return Long.MAX_VALUE;
   }
 
   private long determineSkip() {
-    if (uriResource.getSkipOption() != null)
+    if (uriResource.getSkipOption() != null) {
       return uriResource.getSkipOption().getValue();
+    }
     return 0;
   }
 
@@ -233,16 +237,19 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
       // TODO handle Join Column is ignored
       cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups)).distinct(true);
       final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
-      if (whereClause != null)
+      if (whereClause != null) {
         cq.where(whereClause);
+      }
 
+      final Set<Path<?>> orderByPaths = new HashSet<>();
       final List<Order> orderBy = createOrderByJoinCondition(association);
       orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource,
-          page));
+          page, orderByPaths));
 
       cq.orderBy(orderBy);
-      if (!orderByAttributes.isEmpty())
-        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent()));
+      if (!orderByAttributes.isEmpty()) {
+        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(), orderByPaths));
+      }
 
       final TypedQuery<Tuple> query = em.createQuery(cq);
 

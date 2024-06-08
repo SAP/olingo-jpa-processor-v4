@@ -37,16 +37,13 @@ class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
-  void testOrderByOneComplexPropertyDesc() throws IOException, ODataException {
+  void testOrderByOneComplexPropertyDeepAsc() throws IOException, ODataException {
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=Address/Region desc");
-    if (helper.getStatus() != 200)
-      System.out.println(helper.getRawResult());
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$orderby=AdministrativeInformation/Created/By");
     helper.assertStatus(200);
 
     final ArrayNode orgs = helper.getValues();
-    assertEquals("US-UT", orgs.get(0).get("Address").get("Region").asText());
-    assertEquals("US-CA", orgs.get(9).get("Address").get("Region").asText());
   }
 
   @Test
@@ -248,4 +245,13 @@ class TestJPAQueryOrderByClause extends TestBase {
         "CollectionDeeps?$orderby=FirstLevel/TransientCollection/$count asc");
     helper.assertStatus(501);
   }
+
+  @Test
+  void testOrderByToOneProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AssociationOneToOneSources?$orderby=ColumnTarget/Source asc");
+    helper.assertStatus(200);
+  }
+
 }

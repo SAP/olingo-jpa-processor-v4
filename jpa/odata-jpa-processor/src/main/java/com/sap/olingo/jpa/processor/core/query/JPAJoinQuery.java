@@ -7,14 +7,12 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
-
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.AbstractQuery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -27,6 +25,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.Path;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery {
 
@@ -42,8 +45,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery {
 
     final var resources = requestContext.getUriInfo().getUriResourceParts();
     final var bindingTarget = Utility.determineBindingTarget(resources);
-    if (bindingTarget instanceof EdmBoundCast)
+    if (bindingTarget instanceof EdmBoundCast) {
       return requestContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getEntityType());
+    }
     return requestContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getName());
   }
 
@@ -87,13 +91,16 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery {
           .distinct(determineDistinct());
 
       final var whereClause = createWhere();
-      if (whereClause != null)
+      if (whereClause != null) {
         cq.where(whereClause);
+      }
 
-      cq.orderBy(createOrderByBuilder().createOrderByList(joinTables, uriResource, page));
+      final Set<Path<?>> orderByPaths = new HashSet<>();
+      cq.orderBy(createOrderByBuilder().createOrderByList(joinTables, uriResource, page, orderByPaths));
 
-      if (!orderByNavigationAttributes.isEmpty())
-        cq.groupBy(createGroupBy(joinTables, root, selectionPath.joinedPersistent()));
+      if (!orderByNavigationAttributes.isEmpty()) {
+        cq.groupBy(createGroupBy(joinTables, root, selectionPath.joinedPersistent(), orderByPaths));
+      }
 
       final TypedQuery<Tuple> typedQuery = em.createQuery(cq);
       addTopSkip(typedQuery);
@@ -111,8 +118,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery {
   }
 
   private JPAOrderByBuilder createOrderByBuilder() throws ODataJPAQueryException {
-    if (entitySet.isPresent())
+    if (entitySet.isPresent()) {
       return new JPAOrderByBuilder(entitySet.get(), jpaEntity, target, cb, groups);
+    }
     return new JPAOrderByBuilder(jpaEntity, target, cb, groups);
   }
 
@@ -143,8 +151,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery {
 
   private JPAConvertibleResult returnEmptyResult(final Collection<JPAPath> selectionPath) {
     if (lastInfo.getAssociationPath() != null
-        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
+        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute)) {
       return new JPACollectionQueryResult(jpaEntity, lastInfo.getAssociationPath(), selectionPath);
+    }
     return new JPAExpandQueryResult(jpaEntity, selectionPath);
   }
 
@@ -152,8 +161,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery {
       final HashMap<String, List<Tuple>> result) throws ODataApplicationException {
     final var odataEntityType = determineODataTargetEntityType(requestContext);
     if (lastInfo.getAssociationPath() != null
-        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
+        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute)) {
       return new JPACollectionQueryResult(result, null, odataEntityType, lastInfo.getAssociationPath(), selectionPath);
+    }
     return new JPAExpandQueryResult(result, Collections.emptyMap(), odataEntityType, selectionPath);
   }
 }

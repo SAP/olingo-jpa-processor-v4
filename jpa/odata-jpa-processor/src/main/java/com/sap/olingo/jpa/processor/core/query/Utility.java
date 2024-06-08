@@ -57,9 +57,8 @@ public final class Utility {
   public static JPAAssociationPath determineAssociation(final JPAServiceDocument sd, final EdmType navigationStart,
       final StringBuilder associationName) throws ODataApplicationException {
 
-    final JPAEntityType navigationStartType;
     try {
-      navigationStartType = sd.getEntity(navigationStart);
+      final JPAEntityType navigationStartType = sd.getEntity(navigationStart);
       if (navigationStartType == null)
         throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
       return navigationStartType.getAssociationPath(associationName.toString());

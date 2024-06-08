@@ -11,19 +11,13 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Selection;
-import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -50,6 +44,13 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterRestrictionsWatchDog;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
+
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   final List<UriParameter> keyPredicates;
@@ -156,12 +157,13 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   protected Expression<Boolean> applyAdditionalFilter(final Expression<Boolean> where)
       throws ODataApplicationException {
 
-    if (navigationInfo.getFilterCompiler() != null && aggregationType == null)
+    if (navigationInfo.getFilterCompiler() != null && aggregationType == null) {
       try {
         return addWhereClause(where, navigationInfo.getFilterCompiler().compile());
       } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
+    }
     return where;
   }
 
@@ -190,8 +192,9 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   void setFilter(final JPANavigationPropertyInfo navigationInfo) throws ODataJPAModelException,
       ODataJPAProcessorException,
       ODataJPAQueryException {
-    if (navigationInfo.getFilterCompiler() == null)
+    if (navigationInfo.getFilterCompiler() == null) {
       navigationInfo.setFilterCompiler(addFilterCompiler(navigationInfo));
+    }
   }
 
   private List<Expression<?>> createGroupBy(final Subquery<?> childQuery,
@@ -208,7 +211,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   private List<Order> createOrderBy(final Subquery<?> childQuery) throws ODataApplicationException {
     if (!hasRowLimit(childQuery)) {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage());
+      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage(),
+          new HashSet<>());
     }
     return emptyList();
   }
@@ -234,18 +238,20 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   void createRoots(final Subquery<?> childQuery, final JPAQueryPair queries,
       final ProcessorSubquery<?> nextQuery) throws ODataApplicationException {
 
-    if (hasRowLimit(childQuery))
+    if (hasRowLimit(childQuery)) {
       this.queryRoot = nextQuery.from((ProcessorSubquery<?>) ((JPARowNumberFilterQuery) queries.inner())
           .getSubQuery(childQuery, null, Collections.emptyList()));
-    else
+    } else {
       this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+    }
     navigationInfo.setFromClause(queryRoot);
   }
 
   private Expression<Boolean> createWhere(final Subquery<?> childQuery) throws ODataApplicationException {
 
-    if (hasRowLimit(childQuery))
+    if (hasRowLimit(childQuery)) {
       return createWhereByRowNumber(queryRoot, navigationInfo);
+    }
 
     return createWhereSubQuery(childQuery, false);
   }
@@ -255,9 +261,10 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     Expression<Boolean> whereCondition = createWhereByKey(queryRoot, this.keyPredicates, jpaEntity);
     whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
         queryRoot));
-    if (queryJoinTable != null)
+    if (queryJoinTable != null) {
       whereCondition = addWhereClause(whereCondition, createWhereTableJoin(queryJoinTable, queryRoot, association,
           useInverse));
+    }
 
     if (childQuery != null) {
       whereCondition = addWhereClause(whereCondition,
@@ -269,18 +276,22 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   }
 
   private Integer getSkipValue(@Nullable final Subquery<?> childQuery) {
-    if (navigationInfo.getPage() != null)
+    if (navigationInfo.getPage() != null) {
       return navigationInfo.getPage().skip() > 0 ? navigationInfo.getPage().skip() : null;
-    if (navigationInfo.getUriInfo().getSkipOption() != null && childQuery == null)
+    }
+    if (navigationInfo.getUriInfo().getSkipOption() != null && childQuery == null) {
       return navigationInfo.getUriInfo().getSkipOption().getValue();
+    }
     return null;
   }
 
   private Integer getTopValue(@Nullable final Subquery<?> childQuery) {
-    if (navigationInfo.getPage() != null)
+    if (navigationInfo.getPage() != null) {
       return navigationInfo.getPage().top() < Integer.MAX_VALUE ? navigationInfo.getPage().top() : null;
-    if (navigationInfo.getUriInfo().getTopOption() != null && childQuery == null)
+    }
+    if (navigationInfo.getUriInfo().getTopOption() != null && childQuery == null) {
       return navigationInfo.getUriInfo().getTopOption().getValue();
+    }
     return null;
   }
 
