@@ -1107,4 +1107,21 @@ class TestJPAProcessorExpand extends TestBase {
       }
     }
   }
+
+  @Test
+  void testAnyFilterOnExpandWithMultipleHops() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+      "Organizations?$expand=AdministrativeInformation/Created/User($filter=Jobs/any(p:p/Id eq '98'))");
+    helper.assertStatus(200);
+    final ArrayNode organizations = helper.getValues();
+    for(JsonNode organization : organizations) {
+        JsonNode user = organization.get("AdministrativeInformation").get("Created").get("User");
+        if(organization.get("ID").asText().equals("4")) {
+          assertNotNull(user);
+          assertEquals("98", user.get("ID").asText());
+        } else {
+          assert (user instanceof NullNode);
+        }
+    }
+  }
 }
