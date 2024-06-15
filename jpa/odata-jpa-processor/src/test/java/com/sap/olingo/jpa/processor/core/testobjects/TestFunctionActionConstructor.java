@@ -13,7 +13,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 
-@SuppressWarnings("unused")
 public class TestFunctionActionConstructor implements ODataFunction, ODataAction {
 
   private final EntityManager em;
@@ -30,16 +29,17 @@ public class TestFunctionActionConstructor implements ODataFunction, ODataAction
 
   @EdmFunction(returnType = @ReturnType(type = Boolean.class), hasFunctionImport = true, isBound = false)
   public Boolean func(@EdmParameter(name = "date") final LocalDate date) {
-    return Boolean.TRUE;
+    return em != null && header != null && parameter != null;
   }
 
   @EdmAction(returnType = @ReturnType)
-  public void action(@EdmParameter(name = "date") final LocalDate date) {
-
+  public void action(@EdmParameter(name = "date") final LocalDate date) throws Exception {
+    if (em == null || header == null || parameter == null)
+      throw new Exception("Missing parameter");
   }
 
   @EdmFunction(returnType = @ReturnType)
   public Boolean funcEnum(@EdmParameter(name = "access") final FileAccess value) {
-    return Boolean.TRUE;
+    return em != null && header != null && parameter != null;
   }
 }

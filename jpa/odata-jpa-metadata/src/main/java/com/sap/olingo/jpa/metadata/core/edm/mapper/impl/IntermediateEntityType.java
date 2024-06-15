@@ -351,6 +351,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       postProcessor.processEntityType(this);
       retrieveAnnotations(this, Applicability.ENTITY_TYPE);
       edmStructuralType = new CsdlEntityType();
+      determineHasEtag();
       edmStructuralType.setName(getExternalName());
       edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
       edmStructuralType.setNavigationProperties(extractEdmModelElements(
@@ -360,7 +361,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       edmStructuralType.setBaseType(determineBaseType());
       ((CsdlEntityType) edmStructuralType).setHasStream(determineHasStream());
       edmStructuralType.setAnnotations(determineAnnotations());
-      determineHasEtag();
       checkPropertyConsistency(); //
       // TODO determine OpenType
     }

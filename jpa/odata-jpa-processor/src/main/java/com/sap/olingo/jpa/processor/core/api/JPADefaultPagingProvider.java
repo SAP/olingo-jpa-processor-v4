@@ -27,17 +27,6 @@ class JPADefaultPagingProvider implements JPAODataPagingProvider {
       final JPAODataPathInformation pathInformation, final UriInfo uriInfo, final Integer preferredPageSize,
       final JPACountQuery countQuery, final EntityManager em) throws ODataApplicationException {
 
-//    final SkipOption skipOption = uriResource.getSkipOption();
-//    if (skipOption != null || page != null) {
-//      int skipNumber = skipOption != null ? skipOption.getValue() : page.skip();
-//      skipNumber = skipOption != null && page != null ? Math.max(skipOption.getValue(), page.skip()) : skipNumber;
-//      if (skipNumber >= 0)
-//        typedQuery.setFirstResult(skipNumber);
-//      else
-//        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_VALUE,
-//            HttpStatusCode.BAD_REQUEST, Integer.toString(skipNumber), "$skip");
-//    }
-
     final var skipValue = uriInfo.getSkipOption() != null ? determineSkipValue(uriInfo) : 0;
     final var topValue = uriInfo.getTopOption() != null ? determineTopValue(uriInfo) : Integer.MAX_VALUE;
     return Optional.of(new JPAODataPage(uriInfo, skipValue, topValue, null));

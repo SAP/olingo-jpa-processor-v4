@@ -38,6 +38,7 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
   @SuppressWarnings("unchecked")
   protected final <S> Subquery<S> getSubQuery(final Expression expression)
       throws ODataApplicationException {
+    // TODO uriResourceParts null when nested lambda => use information from root instead
     final List<UriResource> allUriResourceParts = new ArrayList<>(uriResourceParts);
     allUriResourceParts.addAll(member.getUriResourceParts());
 

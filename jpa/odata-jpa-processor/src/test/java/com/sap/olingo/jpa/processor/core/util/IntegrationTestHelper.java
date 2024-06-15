@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +63,8 @@ public class IntegrationTestHelper {
   public final HttpServletRequest request;
   public final HttpServletResponse response;
   private final ArgumentCaptor<Integer> captorStatus;
+  private final ArgumentCaptor<String> captorHeader;
+  private final ArgumentCaptor<String> captorHeaderValue;
   public static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
   public static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
@@ -146,6 +149,8 @@ public class IntegrationTestHelper {
     final OData odata = OData.newInstance();
     String[] packages = TestBase.enumPackages;
     captorStatus = ArgumentCaptor.forClass(Integer.class);
+    captorHeader = ArgumentCaptor.forClass(String.class);
+    captorHeaderValue = ArgumentCaptor.forClass(String.class);
     this.request = getRequestMock(uriPrefix + urlPath,
         requestBody == null ? null : new StringBuilder(requestBody.toString()), headers);
     this.response = getResponseMock();
@@ -197,6 +202,14 @@ public class IntegrationTestHelper {
   public int getStatus() {
     verify(response).setStatus(captorStatus.capture());
     return captorStatus.getValue();
+  }
+
+  public String getHeader(final String name) {
+    verify(response, atLeastOnce()).addHeader(captorHeader.capture(), captorHeaderValue.capture());
+    final var index = captorHeader.getAllValues().indexOf(name);
+    if (index >= 0)
+      return captorHeaderValue.getAllValues().get(index);
+    return null;
   }
 
   public String getRawResult() throws IOException {

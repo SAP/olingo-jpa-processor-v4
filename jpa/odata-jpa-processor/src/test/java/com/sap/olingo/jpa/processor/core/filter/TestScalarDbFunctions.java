@@ -10,13 +10,9 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.Query;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,32 +21,23 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
-import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-class TestJPACustomScalarFunctions {
+class TestScalarDbFunctions {
 
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected TestHelper helper;
   protected Map<String, List<String>> headers;
   protected static JPADefaultEdmNameBuilder nameBuilder;
   protected static DataSource ds;
 
   @BeforeAll
-  public static void setupClass() throws ODataJPAModelException {
+  public static void setupClass() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
-    CreateDensityFunction();
-  }
-
-  @AfterAll
-  public static void tearDownClass() throws ODataJPAModelException {
-    DropDensityFunction();
   }
 
   @Test
@@ -86,7 +73,10 @@ class TestJPACustomScalarFunctions {
             7),
         arguments("FunctionMixParamOrder",
             "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Population=Population,Area=Area) mul 1000000 gt 1000",
-            7));
+            7),
+        arguments("FunctionMixParamOrder",
+            "AdministrativeDivisions?$filter=com.sap.olingo.jpa.ConvertToQkm(Area=$it/Area) gt 100",
+            4));
   }
 
   @ParameterizedTest
@@ -101,42 +91,16 @@ class TestJPACustomScalarFunctions {
     assertEquals(numberOfResults, divisions.size(), text);
   }
 
-  private static void CreateDensityFunction() {
-    final EntityManager em = emf.createEntityManager();
-    final EntityTransaction t = em.getTransaction();
+  @Test
+  void testFilterOnFunctionNested() throws IOException, ODataException {
 
-    final StringBuffer sqlString = new StringBuffer();
-
-    sqlString.append(
-        "CREATE FUNCTION  \"OLINGO\".\"PopulationDensity\" (UnitArea  INT, Population BIGINT ) ");
-    sqlString.append("RETURNS DOUBLE ");
-    sqlString.append("BEGIN ATOMIC  "); //
-    sqlString.append("  DECLARE aDouble DOUBLE; "); //
-    sqlString.append("  DECLARE pDouble DOUBLE; ");
-    sqlString.append("  SET aDouble = UnitArea; ");
-    sqlString.append("  SET pDouble = Population; ");
-    sqlString.append("  IF UnitArea <= 0 THEN RETURN 0; ");
-    sqlString.append("  ELSE RETURN pDouble  / aDouble; "); // * 1000000
-    sqlString.append("  END IF;  "); //
-    sqlString.append("END");
-
-    t.begin();
-    final Query q = em.createNativeQuery(sqlString.toString());
-    q.executeUpdate();
-    t.commit();
-  }
-
-  private static void DropDensityFunction() {
-    final EntityManager em = emf.createEntityManager();
-    final EntityTransaction t = em.getTransaction();
-
-    final StringBuffer sqlString = new StringBuffer();
-
-    sqlString.append("DROP FUNCTION  \"OLINGO\".\"PopulationDensity\"");
-
-    t.begin();
-    final Query q = em.createNativeQuery(sqlString.toString());
-    q.executeUpdate();
-    t.commit();
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        """
+            AdministrativeDivisions?$filter=\
+            com.sap.olingo.jpa.PopulationDensity(Area=\
+            com.sap.olingo.jpa.ConvertToQkm(Area=$it/Area),Population=$it/Population) gt 1000""");
+    helper.assertStatus(200);
+    final ArrayNode jobs = helper.getValues();
+    assertEquals(7, jobs.size());
   }
 }

@@ -2,12 +2,11 @@ package com.sap.olingo.jpa.processor.core.processor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ComplexValue;
@@ -106,11 +105,11 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private EntityCollection createEntityCollection(final EdmEntityType returnType, final Object result,
-      final UriHelper createUriHelper, final JPAOperation jpaFunction)
+      final UriHelper createUriHelper, final JPAOperation jpaOperation)
       throws ODataApplicationException {
 
     final List resultList = new ArrayList();
-    if (jpaFunction.getResultParameter().isCollection())
+    if (jpaOperation.getResultParameter().isCollection())
       resultList.addAll((Collection<?>) result);
     else if (result == null)
       return null;
@@ -131,22 +130,33 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
     if (result != null
         && !(result instanceof final EntityCollection collection
             && collection.getEntities().isEmpty())) {
+      final EntityCollection collection = result instanceof EntityCollection // NO SONAR
+          ? (EntityCollection) result
+          : new EntityCollection();
       final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType,
           request);
-      createSuccessResponse(response, responseFormat, serializerResult);
+      createSuccessResponse(response, responseFormat, serializerResult, collection);
     } else {
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
     }
   }
 
-  protected Object createInstance(final EntityManager em, final JPAJavaOperation jpaOperation)
+  protected Object createInstance(final JPAJavaOperation jpaOperation, final Object... parameters)
       throws InstantiationException, IllegalAccessException, InvocationTargetException {
 
     final Constructor<?> constructor = jpaOperation.getConstructor();
-    if (constructor.getParameterCount() == 1)
-      return constructor.newInstance(em);
-    else
-      return constructor.newInstance();
+    final Object[] paramValues = new Object[constructor.getParameters().length];
+    int i = 0;
+    for (final Parameter p : constructor.getParameters()) {
+      for (final Object o : parameters) {
+        if (p.getType().isAssignableFrom(o.getClass())) {
+          paramValues[i] = o;
+          break;
+        }
+      }
+      i++;
+    }
+    return constructor.newInstance(paramValues);
   }
 
 }

@@ -18,6 +18,11 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -48,11 +53,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedExcepti
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Path;
 
 /**
  * Constructor of Order By clause.
@@ -127,7 +127,7 @@ final class JPAOrderByBuilder {
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
-      @Nonnull final UriInfoResource uriResource, @Nullable final JPAODataPage page, Set<Path<?>> orderByPaths)
+      @Nonnull final UriInfoResource uriResource, @Nullable final JPAODataPage page, final Set<Path<?>> orderByPaths)
       throws ODataApplicationException {
 
     final List<Order> result = new ArrayList<>();
@@ -302,7 +302,6 @@ final class JPAOrderByBuilder {
         StringBuilder externalPath = new StringBuilder();
         for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
           if (isPrimitiveSimpleProperty(uriResourceItem)) {
-            // addPathByAttribute(externalPath, getAttribute(type, uriResourceItem));
             path = convertPropertyPath(type, uriResourceItem, path);
             addOrderByExpression(orders, orderByItem, orderByPaths, path);
           } else if (isComplexSimpleProperty(uriResourceItem)) {

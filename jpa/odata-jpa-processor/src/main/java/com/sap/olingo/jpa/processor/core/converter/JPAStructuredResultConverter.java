@@ -155,7 +155,7 @@ public abstract class JPAStructuredResultConverter {
         collection));
   }
 
-  private Method getGetter(final String attributeName, final Map<String, Method> methodMap)
+  Method getGetter(final String attributeName, final Map<String, Method> methodMap)
       throws ODataJPAQueryException {
     final String getterName = ACCESS_MODIFIER_GET + JPADefaultEdmNameBuilder.firstToUpper(attributeName);
 

@@ -34,6 +34,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
@@ -44,7 +46,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 
-class TestJPAFunctionDB {
+class JPAFunctionRequestProcessorDbTest {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   private JPAODataDatabaseProcessor dbProcessor;
@@ -63,6 +65,8 @@ class TestJPAFunctionDB {
   private JPAOperationSerializer serializer;
   private SerializerResult serializerResult;
   private EntityManager em;
+  private JPAHttpHeaderMap headers;
+  private JPARequestParameterMap parameters;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -82,12 +86,16 @@ class TestJPAFunctionDB {
     function = mock(JPADataBaseFunction.class);
     uriResources = new ArrayList<>();
     edmFunction = mock(EdmFunction.class);
+    headers = mock(JPAHttpHeaderMap.class);
+    parameters = mock(JPARequestParameterMap.class);
 
     when(requestContext.getSerializer()).thenReturn(serializer);
     when(serializer.serialize(any(Annotatable.class), any(EdmType.class), any(ODataRequest.class)))
         .thenReturn(serializerResult);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getEntityManager()).thenReturn(em);
+    when(requestContext.getHeader()).thenReturn(headers);
+    when(requestContext.getRequestParameter()).thenReturn(parameters);
     when(uriInfo.getUriResourceParts()).thenReturn(uriResources);
     when(requestContext.getDatabaseProcessor()).thenReturn(dbProcessor);
     when(requestContext.getEdmProvider()).thenReturn(provider);
@@ -118,28 +126,6 @@ class TestJPAFunctionDB {
     when(edmReturnType.getType()).thenReturn(new EdmBoolean());
 
     cut.retrieveData(request, response, ContentType.JSON);
-    verify(dbProcessor, times(1)).executeFunctionQuery(uriResources, function, em);
-  }
-
-  @Test
-  void testCallsFunctionCount() throws ODataApplicationException, ODataLibraryException,
-      ODataJPAModelException {
-
-    final EdmReturnType edmReturnType = mock(EdmReturnType.class);
-    final JPAOperationResultParameter resultParam = mock(JPAOperationResultParameter.class);
-    when(function.getResultParameter()).thenReturn(resultParam);
-    when(resultParam.getTypeFQN()).thenReturn(new FullQualifiedName(PUNIT_NAME, "CheckRights"));
-    when(resultParam.getType()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return Boolean.class;
-      }
-    });
-
-    when(edmFunction.getReturnType()).thenReturn(edmReturnType);
-    when(edmReturnType.getType()).thenReturn(new EdmBoolean());
-
-    cut.retrieveData(request, response, ContentType.JSON);
-    verify(dbProcessor, times(1)).executeFunctionQuery(uriResources, function, em);
+    verify(dbProcessor, times(1)).executeFunctionQuery(uriResources, function, em, headers, parameters);
   }
 }

@@ -98,7 +98,6 @@ class TupleImpl implements Tuple {
             if (enumValue.toString().equals(value))
               return enumValue;
           }
-          attribute.getType();
         } else if (value instanceof final Integer ordinal) {
           return attribute.getType().getEnumConstants()[ordinal];
         } else {
