@@ -160,11 +160,10 @@ final class JPAOrderByBuilder {
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
-      @Nullable final OrderByOption orderBy, @Nonnull final JPAAssociationPath association)
+      @Nullable final OrderByOption orderBy, @Nonnull final JPAAssociationPath association, @Nonnull  final Set<Path<?>> orderByPaths)
       throws ODataApplicationException {
 
     final List<Order> result = new ArrayList<>();
-    final Set<Path<?>> orderByPaths = new HashSet<>();
     try {
       LOGGER.trace("Determined relationship and add corresponding to OrderBy");
       addOrderByJoinCondition(association, result);

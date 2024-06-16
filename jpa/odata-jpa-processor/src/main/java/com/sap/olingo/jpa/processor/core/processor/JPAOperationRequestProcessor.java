@@ -130,7 +130,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
     if (result != null
         && !(result instanceof final EntityCollection collection
             && collection.getEntities().isEmpty())) {
-      final EntityCollection collection = result instanceof EntityCollection // NO SONAR
+      final EntityCollection collection = result instanceof EntityCollection // NOSONAR
           ? (EntityCollection) result
           : new EntityCollection();
       final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType,
