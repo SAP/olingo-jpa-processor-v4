@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -21,6 +22,30 @@ import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
 class TestJPAQueryCollection extends TestBase {
+
+  @Test
+  void testSelectOneSimpleCollectionProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('1')?$select=Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode organization = helper.getValue();
+    final ArrayNode comment = (ArrayNode) organization.get("Comment");
+    assertEquals(2, comment.size());
+  }
+
+  @Test
+  void testSelectOneComplexCollectionProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons('99')?$select=InhouseAddress");
+    helper.assertStatus(200);
+
+    final ObjectNode organization = helper.getValue();
+    final ArrayNode address = (ArrayNode) organization.get("InhouseAddress");
+    assertEquals(2, address.size());
+  }
 
   @Test
   void testSelectPropertyAndCollection() throws IOException, ODataException {
@@ -184,6 +209,25 @@ class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
+  void testSelectTwoCollectionDeepComplex() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps('502')?$select=FirstLevel/SecondLevel/Comment,FirstLevel/SecondLevel/Address");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final TextNode actId = (TextNode) collection.get("ID");
+    assertEquals("502", actId.asText());
+    final ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
+    assertFalse(complex.get("SecondLevel") instanceof NullNode);
+    final ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    final ArrayNode comment = (ArrayNode) second.get("Comment");
+    assertEquals(2, comment.size());
+    final ArrayNode address = (ArrayNode) second.get("Address");
+    assertNotNull(address);
+  }
+
+  @Test
   void testSelectOnlyNoCollectionDeepComplex() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -193,11 +237,62 @@ class TestJPAQueryCollection extends TestBase {
     final ObjectNode collection = helper.getValue();
     final TextNode actId = (TextNode) collection.get("ID");
     assertEquals("501", actId.asText());
-    final ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
-    assertFalse(complex.get("SecondLevel") instanceof NullNode);
-    final ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    final ObjectNode second = assertDeepCollectionSecondLevel(collection);
     final IntNode number = (IntNode) second.get("Number");
     assertEquals(-1, number.asInt());
+  }
+
+  @Test
+  void testSelectOneCollectionPropertyViaDeepPath() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps('501')/FirstLevel/SecondLevel?$select=Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode second = helper.getValue();
+    final ArrayNode comment = (ArrayNode) second.get("Comment");
+    assertTrue(comment.size() > 0);
+  }
+
+  @Test
+  void testSelectTwoCollectionPropertyViaDeepPath() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps('501')/FirstLevel/SecondLevel?$select=Address,Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode second = helper.getValue();
+    final ArrayNode comment = (ArrayNode) second.get("Comment");
+    assertTrue(comment.size() > 0);
+    final ArrayNode addresses = (ArrayNode) second.get("Address");
+    assertTrue(addresses.size() > 0);
+  }
+
+  @Test
+  void testSelectAllCollectionPropertyViaDeepPath() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps('501')/FirstLevel/SecondLevel");
+    helper.assertStatus(200);
+
+    final ObjectNode second = helper.getValue();
+    final ArrayNode comment = (ArrayNode) second.get("Comment");
+    assertTrue(comment.size() > 0);
+    final ArrayNode addresses = (ArrayNode) second.get("Address");
+    assertTrue(addresses.size() > 0);
+  }
+
+  @Test
+  void testSelectOneCollectionPropertyViaPath() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps('501')/FirstLevel?$select=SecondLevel/Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode first = helper.getValue();
+    final ObjectNode secondLevel = (ObjectNode) first.get("SecondLevel");
+    final ArrayNode comment = (ArrayNode) secondLevel.get("Comment");
+    assertTrue(comment.size() > 0);
   }
 
   @Test
@@ -274,7 +369,7 @@ class TestJPAQueryCollection extends TestBase {
     final ObjectNode complex = helper.getValue();
     assertEquals(1, complex.get("LevelID").asInt());
     assertFalse(complex.get("SecondLevel") instanceof NullNode);
-    assertEquals(2, ((ArrayNode) complex.get("TransientCollection")).size());
+    assertEquals(2, complex.get("TransientCollection").size());
   }
 
   @Test
@@ -383,5 +478,13 @@ class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
     final ValueNode count = helper.getSingleValue();
     assertEquals(1, count.asInt());
+  }
+
+  private ObjectNode assertDeepCollectionSecondLevel(final ObjectNode collection) {
+
+    final ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
+    assertFalse(complex.get("SecondLevel") instanceof NullNode);
+    final ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    return second;
   }
 }

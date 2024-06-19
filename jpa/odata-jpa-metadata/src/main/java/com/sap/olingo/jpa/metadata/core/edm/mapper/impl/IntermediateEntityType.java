@@ -308,16 +308,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return determineAbstract();
   }
 
-  @Override
-  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
-    final List<JPAPath> result = new ArrayList<>();
-    for (final JPAPath path : this.resolvedPathMap.values()) {
-      if (!path.ignore() && path.getAlias().startsWith(selectItemPath.getAlias()))
-        result.add(path);
-    }
-    return result;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   protected <I extends CsdlAbstractEdmItem> List<I> extractEdmModelElements(

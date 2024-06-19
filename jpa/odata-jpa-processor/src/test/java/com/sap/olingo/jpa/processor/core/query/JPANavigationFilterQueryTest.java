@@ -79,7 +79,7 @@ class JPANavigationFilterQueryTest extends TestBase {
     when(em.getCriteriaBuilder()).thenReturn(cb);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
     when(parent.getQuery()).thenReturn(cq);
-    when(cq.subquery(any())).thenReturn(subQuery);
+    when(cq.subquery(any(Class.class))).thenReturn(subQuery);
     when(subQuery.from(JoinPartnerRoleRelation.class)).thenReturn(queryJoinTable);
     when(subQuery.from(BusinessPartnerRoleProtected.class)).thenReturn(queryRoot);
     when(claimsProvider.get("RoleCategory")).thenReturn(Collections.singletonList(new JPAClaimsPair<>("A")));
