@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -621,6 +623,58 @@ class TestJPAQueryWhereClause extends TestBase {
     assertNotNull(organization);
     assertEquals(1, organization.size());
     assertEquals(3, organization.get(0).get("Roles").size());
+  }
+
+  @Test
+  void testExpandWithFilterOnCollectionAttribute() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$expand=SupportEngineers($filter=InhouseAddress/any(p:p/Building eq '2'))");
+    helper.assertStatus(200);
+    final ArrayNode organizations = helper.getValues();
+    for (final JsonNode organization : organizations) {
+      if (organization.get("ID").asText().equals("1") || organization.get("ID").asText().equals("2")) {
+        final ArrayNode supportEngineers = (ArrayNode) organization.get("SupportEngineers");
+        assertEquals(1, supportEngineers.size());
+        final ArrayNode address = (ArrayNode) supportEngineers.get(0).get("InhouseAddress");
+        assertEquals(1, address.size());
+        assertEquals("2", address.get(0).get("Building").asText());
+      } else {
+        final ArrayNode supportEngineers = (ArrayNode) organization.get("SupportEngineers");
+        assertEquals(0, supportEngineers.size());
+      }
+    }
+  }
+
+  @Test
+  void testAnyFilterOnExpandWithMultipleHops() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$expand=AdministrativeInformation/Created/User($filter=Jobs/any(p:p/Id eq '98'))");
+    helper.assertStatus(200);
+    final ArrayNode organizations = helper.getValues();
+    for (final JsonNode organization : organizations) {
+      final JsonNode user = organization.get("AdministrativeInformation").get("Created").get("User");
+      if (organization.get("ID").asText().equals("4")) {
+        assertNotNull(user);
+        assertEquals("98", user.get("ID").asText());
+      } else {
+        assert (user instanceof NullNode);
+      }
+    }
+  }
+
+  @Test
+  void testExpandWithFilterOnNavigation() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=startswith(DivisionCode,'BE2')&$expand=Children($filter=Children/any(c:c/ParentDivisionCode eq 'BE25'))");
+    helper.assertStatus(200);
+    final ArrayNode divisions = helper.getValues();
+    for (final var division : divisions) {
+      final ArrayNode children = (ArrayNode) division.get("Children");
+      if (division.get("DivisionCode").asText().equals("BE2"))
+        assertFalse(children.isEmpty());
+      else
+        assertTrue(children.isEmpty());
+    }
   }
 
   @Test

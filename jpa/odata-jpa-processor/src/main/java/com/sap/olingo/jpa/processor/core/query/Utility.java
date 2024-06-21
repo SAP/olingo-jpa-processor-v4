@@ -481,6 +481,20 @@ public final class Utility {
     return false;
   }
 
+  public static boolean hasCollection(final List<UriResource> resourceParts) {
+    if (resourceParts != null) {
+      for (int i = resourceParts.size() - 1; i >= 0; i--) {
+        if (isCollection(resourceParts.get(i)))
+          return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean isCollection(final UriResource resourcePart) {
+    return (resourcePart instanceof final UriResourceProperty resourceProperty && resourceProperty.isCollection());
+  }
+
   private static EdmBindingTarget determineBindingTargetOfEntitySet(final UriResourceEntitySet resourceItem) {
     EdmBindingTarget targetEdmBindingTarget;
     if (resourceItem.getTypeFilterOnCollection() != null) {

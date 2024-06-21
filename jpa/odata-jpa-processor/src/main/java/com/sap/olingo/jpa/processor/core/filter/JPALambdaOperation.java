@@ -27,7 +27,7 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
 
   JPALambdaOperation(final JPAFilterComplierAccess jpaCompiler, final Member member) {
     super(jpaCompiler);
-    this.member = member.getResourcePath();// ((UriResourceLambdaVariable)member.getResourcePath().getUriResourceParts().get(0)).getType()
+    this.member = member.getResourcePath();
   }
 
   @Override
