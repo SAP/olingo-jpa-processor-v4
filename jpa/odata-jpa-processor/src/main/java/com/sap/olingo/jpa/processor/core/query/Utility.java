@@ -67,7 +67,13 @@ public final class Utility {
       final JPAEntityType navigationStartType = sd.getEntity(navigationStart);
       if (navigationStartType == null)
         throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
-      return navigationStartType.getAssociationPath(associationName.toString());
+      JPAAssociationPath path = navigationStartType.getAssociationPath(associationName.toString());
+      if (path == null) {
+        final var collection = navigationStartType.getCollectionAttribute(associationName.toString());
+        if (collection != null)
+          path = collection.asAssociation();
+      }
+      return path;
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST, e);
     }
