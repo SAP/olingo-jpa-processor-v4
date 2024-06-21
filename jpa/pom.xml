@@ -24,7 +24,7 @@
 		<jpa.version>3.1.0</jpa.version>
 		<processor.version>${project.version}</processor.version>
 		<spring-jcl.version>6.1.8</spring-jcl.version>
-		<eclipseLink.version>4.0.2</eclipseLink.version>
+		<eclipseLink.version>4.0.3</eclipseLink.version>
 		<hibernate.version>6.4.0.Final</hibernate.version>
 		<openjpa.version>3.2.2</openjpa.version>
 		<junit.version>5.10.2</junit.version>
