@@ -71,7 +71,7 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
 
     StringBuilder associationName = null;
     UriResourcePartTyped navigation = null;
-    if (resourceParts != null && Utility.hasNavigation(resourceParts)) {
+    if (resourceParts != null && (Utility.hasNavigation(resourceParts) || hasCollection(resourceParts))) {
       for (int i = resourceParts.size() - 1; i >= 0; i--) {
         final UriResource resourcePart = resourceParts.get(i);
         if (resourcePart instanceof UriResourceNavigation) {
@@ -91,22 +91,12 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
             pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociationPath(sd,
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
         }
-      }
-    } else if (resourceParts != null && hasCollection(resourceParts)) {
-      for (int i = resourceParts.size() - 1; i >= 0; i--) {
-        final UriResource resourcePart = resourceParts.get(i);
+        /* placing this condition at the end makes sure that other conditions are not entered for the resource
+        that's being processed once navigation object gets populated */
         if (isCollection(resourcePart)) {
           navigation = (UriResourcePartTyped) resourceParts.get(i);
           associationName = new StringBuilder();
           associationName.insert(0, ((UriResourceProperty) navigation).getProperty().getName());
-        } else if (navigation != null) {
-          if (resourceParts.get(i) instanceof final UriResourceComplexProperty complexProperty) {
-            associationName.insert(0, JPAPath.PATH_SEPARATOR);
-            associationName.insert(0, complexProperty.getProperty().getName());
-          }
-          if (resourcePart instanceof UriResourceEntitySet)
-            pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociationPath(sd,
-                ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
         }
       }
     }
