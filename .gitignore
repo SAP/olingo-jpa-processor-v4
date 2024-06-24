@@ -64,8 +64,5 @@ hs_err_pid*
 # --- Derby stuff
 **/jpa-processor/test/**
 /.vscode/
-<<<<<<< HEAD
 /.idea/
 /olingo-jpa-processor-v4.iml
-=======
->>>>>>> jpa-processor/master

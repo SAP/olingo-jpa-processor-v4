@@ -62,7 +62,4 @@ Redis
 icao
 iata
 MULTI
-<<<<<<< HEAD
-=======
 Asc
->>>>>>> jpa-processor/master
