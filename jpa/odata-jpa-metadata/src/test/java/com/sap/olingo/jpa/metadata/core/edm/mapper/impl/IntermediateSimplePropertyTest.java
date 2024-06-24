@@ -79,6 +79,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
+import com.sap.olingo.jpa.processor.core.testmodel.User;
 
 class IntermediateSimplePropertyTest extends TestMappingRoot {
   private TestHelper helper;
@@ -146,8 +147,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   void checkGetPropertyEnumTypeWithoutConverterMustNotHaveMapper() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Organization.class), "aBCClass");
     final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertNull(property.getEdmItem().getMapping());
   }
 
@@ -155,17 +155,24 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   void checkGetPropertyEnumTypeWithConverter() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "accessRights");
     final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals("com.sap.olingo.jpa.AccessRights", property.getEdmItem().getType(), "Wrong type");
+  }
+
+  @Test
+  void checkGetPropertyEnumTypeWithEnumerated() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(User.class), "userType");
+    final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+    assertEquals(String.class, property.getDbType());
+    assertNotNull(property.getEdmItem());
   }
 
   @Test
   void checkGetPropertyIgnoreFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertFalse(property.ignore());
   }
 
@@ -174,8 +181,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "customString1");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertTrue(property.ignore());
   }
 
@@ -184,8 +190,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "customString1");
     final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertTrue(property.getEdmItem().isNullable());
   }
 
@@ -1007,11 +1012,11 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     final var reference = helper.annotationInfo.getReferences();
     final var annotationProvider = new JavaBasedCoreAnnotationsProvider();// mock(AnnotationProvider.class);
 
-    final var typeDefinition = mock(CsdlTypeDefinition.class);
-    when(typeDefinition.getName()).thenReturn("Tag");
-    when(typeDefinition.getUnderlyingType()).thenReturn("Edm.Boolean");
+    final var typeDefintion = mock(CsdlTypeDefinition.class);
+    when(typeDefintion.getName()).thenReturn("Tag");
+    when(typeDefintion.getUnderlyingType()).thenReturn("Edm.Boolean");
     final var terms = AnnotationTestHelper.addTermToCoreReferences(reference, "ComputedDefaultValue", "Tag",
-        typeDefinition);
+        typeDefintion);
 
     when(reference.convertAlias("Core")).thenReturn("Org.OData.Core.V1");
     when(reference.getTerms("Core", Applicability.PROPERTY))

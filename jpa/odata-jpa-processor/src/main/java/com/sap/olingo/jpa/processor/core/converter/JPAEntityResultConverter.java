@@ -1,19 +1,29 @@
 package com.sap.olingo.jpa.processor.core.converter;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.CheckForNull;
 
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAEntityResultConverter extends JPAStructuredResultConverter {
   private final EdmEntityType edmEntityType;
@@ -36,10 +46,32 @@ public class JPAEntityResultConverter extends JPAStructuredResultConverter {
       odataEntity.setType(this.jpaTopLevelType.getExternalFQN().getFullQualifiedNameAsString());
       final List<Property> properties = odataEntity.getProperties();
       convertProperties(row, properties, jpaTopLevelType);
+      odataEntity.setETag(createETag(row, jpaTopLevelType));
       odataEntity.setId(new URI(odataUriHelper.buildKeyPredicate(edmEntityType, odataEntity)));
       odataResults.add(odataEntity);
     }
     return odataEntityCollection;
   }
 
+  @CheckForNull
+  private String createETag(final Object row, final JPAStructuredType jpaType) throws ODataJPAQueryException {
+    if (jpaType instanceof final JPAEntityType et) {
+      try {
+        if (et.hasEtag()) {
+          Object value = row;
+          for (final JPAElement part : et.getEtagPath().getPath()) {
+            final Map<String, Method> methodMap = getMethods(value.getClass());
+            final Method getMethod = getGetter(part.getInternalName(), methodMap);
+            value = getMethod.invoke(value);
+          }
+          return value.toString();
+        }
+      } catch (final ODataJPAModelException | IllegalAccessException | IllegalArgumentException
+          | InvocationTargetException e) {
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return null;
+
+  }
 }

@@ -308,16 +308,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return determineAbstract();
   }
 
-  @Override
-  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
-    final List<JPAPath> result = new ArrayList<>();
-    for (final JPAPath path : this.resolvedPathMap.values()) {
-      if (!path.ignore() && path.getAlias().startsWith(selectItemPath.getAlias()))
-        result.add(path);
-    }
-    return result;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   protected <I extends CsdlAbstractEdmItem> List<I> extractEdmModelElements(
@@ -351,6 +341,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       postProcessor.processEntityType(this);
       retrieveAnnotations(this, Applicability.ENTITY_TYPE);
       edmStructuralType = new CsdlEntityType();
+      determineHasEtag();
       edmStructuralType.setName(getExternalName());
       edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
       edmStructuralType.setNavigationProperties(extractEdmModelElements(
@@ -360,7 +351,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       edmStructuralType.setBaseType(determineBaseType());
       ((CsdlEntityType) edmStructuralType).setHasStream(determineHasStream());
       edmStructuralType.setAnnotations(determineAnnotations());
-      determineHasEtag();
       checkPropertyConsistency(); //
       // TODO determine OpenType
     }

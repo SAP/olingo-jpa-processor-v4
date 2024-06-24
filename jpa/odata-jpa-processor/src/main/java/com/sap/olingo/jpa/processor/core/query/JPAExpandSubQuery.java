@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -233,7 +235,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
     }
   }
 
-  private List<Order> createOrderBy(final Map<String, From<?, ?>> joinTables) throws ODataApplicationException {
+  private List<Order> createOrderBy(final Map<String, From<?, ?>> joinTables, Set<Path<?>> orderByPaths) throws ODataApplicationException {
     if (association.hasJoinTable() && hasRowLimit(lastInfo)) {
       try {
         final List<Order> orders = new ArrayList<>();
@@ -251,7 +253,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
       return orderByBuilder.createOrderByListAlias(joinTables, uriResource.getOrderByOption(), association);
     } else {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, root, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, uriResource.getOrderByOption(), association);
+      return orderByBuilder.createOrderByList(joinTables, uriResource.getOrderByOption(), association, orderByPaths);
     }
   }
 
@@ -291,10 +293,12 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
           subQuery);
       tupleQuery.where(createWhere(subQuery, lastInfo));
       tupleQuery.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), groups));
-      tupleQuery.orderBy(createOrderBy(joinTables));
+      final Set<Path<?>> orderByPaths = new HashSet<>();
+      tupleQuery.orderBy(createOrderBy(joinTables, orderByPaths));
       tupleQuery.distinct(orderByAttributes.isEmpty());
-      if (!orderByAttributes.isEmpty())
-        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent()));
+      if (!orderByAttributes.isEmpty()) {
+        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(),orderByPaths));
+      }
       final TypedQuery<Tuple> query = em.createQuery(tupleQuery);
       return new JPAQueryCreationResult(query, selectionPath);
     }

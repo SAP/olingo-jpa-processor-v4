@@ -1,8 +1,11 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import javax.annotation.Nullable;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 
+import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -43,10 +46,29 @@ abstract class JPAAbstractRequestProcessor {
   }
 
   protected final void createSuccessResponse(final ODataResponse response, final ContentType responseFormat,
-      final SerializerResult serializerResult) {
+      final SerializerResult serializerResult, @Nullable final EntityCollection entityCollection) {
 
     response.setContent(serializerResult.getContent());
     response.setStatusCode(successStatusCode);
     response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
+    createETagHeader(response, entityCollection);
+  }
+
+  protected final void createNotModifiedResponse(final ODataResponse response,
+      final EntityCollection entityCollection) {
+    response.setStatusCode(HttpStatusCode.NOT_MODIFIED.getStatusCode());
+    createETagHeader(response, entityCollection);
+  }
+
+  protected final void createPreconditionFailedResponse(final ODataResponse response) {
+    response.setStatusCode(HttpStatusCode.PRECONDITION_FAILED.getStatusCode());
+  }
+
+  private void createETagHeader(final ODataResponse response, final EntityCollection entityCollection) {
+    if (entityCollection != null && entityCollection.getEntities().size() == 1) {
+      final var etag = entityCollection.getEntities().get(0).getETag();
+      if (etag != null)
+        response.setHeader(HttpHeader.ETAG, "\"" + etag + "\"");
+    }
   }
 }

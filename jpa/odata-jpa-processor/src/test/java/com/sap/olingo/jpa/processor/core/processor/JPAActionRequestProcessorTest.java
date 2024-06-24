@@ -5,15 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +29,19 @@ import org.apache.olingo.commons.api.data.Parameter;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -45,6 +50,7 @@ import org.apache.olingo.server.api.deserializer.DeserializerResult;
 import org.apache.olingo.server.api.deserializer.ODataDeserializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
+import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -60,6 +66,7 @@ import org.mockito.stubbing.Answer;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -68,13 +75,14 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testobjects.FileAccess;
+import com.sap.olingo.jpa.processor.core.testobjects.TestFunctionActionConstructor;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActionNoParameter;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActions;
 
@@ -110,6 +118,8 @@ class JPAActionRequestProcessorTest {
   private CsdlReturnType returnType;
   @Mock
   private UriResourceEntitySet bindingEntity;
+  @Mock
+  private UriHelper uriHelper;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -131,6 +141,8 @@ class JPAActionRequestProcessorTest {
     when(edmProvider.getServiceDocument()).thenReturn(sd);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
+    when(requestContext.getRequestParameter()).thenReturn(new JPARequestParameterHashMap());
+    when(requestContext.getHeader()).thenReturn(new JPAHttpHeaderHashMap());
     when(serializer.serialize(any(Annotatable.class), any(EdmType.class), any(ODataRequest.class)))
         .thenReturn(serializerResult);
     when(serializer.getContentType()).thenReturn(ContentType.APPLICATION_JSON);
@@ -140,6 +152,7 @@ class JPAActionRequestProcessorTest {
     when(edmAction.isBound()).thenReturn(Boolean.FALSE);
     when(sd.getAction(edmAction)).thenReturn(action);
     when(odata.createDeserializer((ContentType) any())).thenReturn(deserializer);
+    when(odata.createUriHelper()).thenReturn(uriHelper);
 
     when(deserializer.actionParameters(request.getBody(), resource.getAction())).thenReturn(dResult);
     when(dResult.getActionParameters()).thenReturn(actionParameter);
@@ -150,9 +163,7 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsConstructorWithoutParameter() throws InstantiationException,
-      IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
-      SecurityException, ODataApplicationException {
+  void testCallsConstructorWithoutParameter() throws NoSuchMethodException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
     setConstructorAndMethod("unboundReturnPrimitiveNoParameter");
@@ -164,16 +175,14 @@ class JPAActionRequestProcessorTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testCallsConstructorWithParameter() throws ODataJPAProcessException, InstantiationException,
-      IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
-      SecurityException, ODataApplicationException {
+  void testCallsConstructorWithParameter() throws NoSuchMethodException, SecurityException, ODataApplicationException {
     TestJavaActions.constructorCalls = 0;
 
     @SuppressWarnings("rawtypes")
-    final Constructor c = TestJavaActions.class.getConstructors()[0];
-    final Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
-    when(action.getConstructor()).thenReturn(c);
-    when(action.getMethod()).thenReturn(m);
+    final Constructor constructor = TestJavaActions.class.getConstructors()[0];
+    final Method method = TestJavaActions.class.getMethod("unboundWithOutParameter");
+    when(action.getConstructor()).thenReturn(constructor);
+    when(action.getMethod()).thenReturn(method);
     when(action.getReturnType()).thenReturn(null);
     cut.performAction(request, response, requestFormat);
 
@@ -182,14 +191,14 @@ class JPAActionRequestProcessorTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testCallsActionVoidNoParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
-      SecurityException, ODataApplicationException {
+  void testCallsActionVoidNoParameterReturnNoContent() throws NoSuchMethodException, SecurityException,
+      ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
-    final Constructor c = TestJavaActions.class.getConstructors()[0];
-    final Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
-    when(action.getConstructor()).thenReturn(c);
-    when(action.getMethod()).thenReturn(m);
+    final Constructor constructor = TestJavaActions.class.getConstructors()[0];
+    final Method method = TestJavaActions.class.getMethod("unboundWithOutParameter");
+    when(action.getConstructor()).thenReturn(constructor);
+    when(action.getMethod()).thenReturn(method);
     when(action.getReturnType()).thenReturn(null);
 
     cut.performAction(request, response, requestFormat);
@@ -198,14 +207,14 @@ class JPAActionRequestProcessorTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testCallsActionPrimitiveNoParameterReturnValue() throws ODataJPAProcessException, NoSuchMethodException,
-      SecurityException, SerializerException, ODataApplicationException {
+  void testCallsActionPrimitiveNoParameterReturnValue() throws NoSuchMethodException, SecurityException,
+      SerializerException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
-    final Constructor c = TestJavaActions.class.getConstructors()[0];
-    final Method m = TestJavaActions.class.getMethod("unboundReturnFacetNoParameter");
-    when(action.getConstructor()).thenReturn(c);
-    when(action.getMethod()).thenReturn(m);
+    final Constructor constructor = TestJavaActions.class.getConstructors()[0];
+    final Method method = TestJavaActions.class.getMethod("unboundReturnFacetNoParameter");
+    when(action.getConstructor()).thenReturn(constructor);
+    when(action.getMethod()).thenReturn(method);
     final JPAOperationResultParameter rParam = mock(JPAOperationResultParameter.class);
     when(action.getResultParameter()).thenReturn(rParam);
 
@@ -226,10 +235,10 @@ class JPAActionRequestProcessorTest {
       SecurityException, SerializerException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
-    final Constructor c = TestJavaActions.class.getConstructors()[0];
-    final Method m = TestJavaActions.class.getMethod("returnEmbeddable");
-    when(action.getConstructor()).thenReturn(c);
-    when(action.getMethod()).thenReturn(m);
+    final Constructor constructor = TestJavaActions.class.getConstructors()[0];
+    final Method method = TestJavaActions.class.getMethod("returnEmbeddable");
+    when(action.getConstructor()).thenReturn(constructor);
+    when(action.getMethod()).thenReturn(method);
     final JPAOperationResultParameter rParam = mock(JPAOperationResultParameter.class);
     when(action.getResultParameter()).thenReturn(rParam);
 
@@ -241,12 +250,7 @@ class JPAActionRequestProcessorTest {
 
     final JPAStructuredType st = mock(JPAStructuredType.class);
     when(sd.getComplexType((EdmComplexType) any())).thenReturn(st);
-    when(st.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return CommunicationData.class;
-      }
-    });
+    doReturn(CommunicationData.class).when(st).getTypeClass();
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(200);
@@ -254,13 +258,13 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidOneParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
-      SecurityException, ODataJPAModelException, NumberFormatException, ODataApplicationException {
+  void testCallsActionVoidOneParameterReturnNoContent() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, NumberFormatException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    final Method m = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
+    final Method method = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
 
-    addParameter(m, Short.valueOf("10"), "A", 0);
+    addParameter(method, Short.valueOf("10"), "A", 0);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
@@ -268,15 +272,14 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidOneEnumerationParameterReturnNoContent() throws ODataJPAProcessException,
-      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
-      ODataApplicationException {
+  void testCallsActionVoidOneEnumerationParameterReturnNoContent() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, NumberFormatException, ODataApplicationException {
 
     TestJavaActionNoParameter.resetCalls();
 
-    final Method m = setConstructorAndMethod("unboundVoidOneEnumerationParameter", FileAccess.class);
+    final Method method = setConstructorAndMethod("unboundVoidOneEnumerationParameter", FileAccess.class);
 
-    addParameter(m, FileAccess.Create, "AccessRights", 0);
+    addParameter(method, FileAccess.Create, "AccessRights", 0);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
@@ -284,14 +287,14 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidTwoParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
-      SecurityException, ODataJPAModelException, NumberFormatException, ODataApplicationException {
+  void testCallsActionVoidTwoParameterReturnNoContent() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, NumberFormatException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    final Method m = setConstructorAndMethod("unboundVoidTwoParameter", Short.class, Integer.class);
+    final Method method = setConstructorAndMethod("unboundVoidTwoParameter", Short.class, Integer.class);
 
-    addParameter(m, Short.valueOf("10"), "A", 0);
-    addParameter(m, Integer.valueOf("200000"), "B", 1);
+    addParameter(method, Short.valueOf("10"), "A", 0);
+    addParameter(method, Integer.valueOf("200000"), "B", 1);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
@@ -299,14 +302,13 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidOneParameterNullableGivenNullReturnNoContent() throws ODataJPAProcessException,
-      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
-      ODataApplicationException {
+  void testCallsActionVoidOneParameterNullableGivenNullReturnNoContent() throws NoSuchMethodException,
+      SecurityException, ODataJPAModelException, NumberFormatException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    final Method m = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
+    final Method method = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
 
-    addParameter(m, null, "A", 0);
+    addParameter(method, null, "A", 0);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
@@ -314,16 +316,15 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidOnlyBindingParameter() throws ODataJPAProcessException,
-      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
-      EdmPrimitiveTypeException, ODataApplicationException {
+  void testCallsActionVoidOnlyBindingParameter() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, NumberFormatException, EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    final Method m = setConstructorAndMethod("boundOnlyBinding", AdministrativeDivision.class);
+    final Method method = setConstructorAndMethod("boundOnlyBinding", AdministrativeDivision.class);
     when(edmAction.isBound()).thenReturn(Boolean.TRUE);
     uriResources.add(0, bindingEntity);
 
-    setBindingParameter(m);
+    setBindingParameter(method);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
@@ -332,24 +333,23 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidBindingParameterPlusTwoBothNull() throws ODataJPAProcessException,
-      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
-      EdmPrimitiveTypeException, ODataApplicationException {
+  void testCallsActionVoidBindingParameterPlusTwoBothNull() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, NumberFormatException, EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    final Method m = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class,
+    final Method method = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class,
         Integer.class);
     when(edmAction.isBound()).thenReturn(Boolean.TRUE);
     uriResources.add(0, bindingEntity);
 
-    setBindingParameter(m);
+    setBindingParameter(method);
 
     JPAParameter jpaParam = mock(JPAParameter.class);
-    when(action.getParameter(m.getParameters()[1])).thenReturn(jpaParam);
+    when(action.getParameter(method.getParameters()[1])).thenReturn(jpaParam);
     when(jpaParam.getName()).thenReturn("A");
 
     jpaParam = mock(JPAParameter.class);
-    when(action.getParameter(m.getParameters()[2])).thenReturn(jpaParam);
+    when(action.getParameter(method.getParameters()[2])).thenReturn(jpaParam);
     when(jpaParam.getName()).thenReturn("B");
 
     cut.performAction(request, response, requestFormat);
@@ -361,23 +361,22 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidBindingParameterPlusTwoFirstNull() throws ODataJPAProcessException,
-      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
-      EdmPrimitiveTypeException, ODataApplicationException {
+  void testCallsActionVoidBindingParameterPlusTwoFirstNull() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, NumberFormatException, EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    final Method m = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class,
+    final Method method = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class,
         Integer.class);
     when(edmAction.isBound()).thenReturn(Boolean.TRUE);
     uriResources.add(0, bindingEntity);
 
-    setBindingParameter(m);
+    setBindingParameter(method);
 
     final JPAParameter jpaParam = mock(JPAParameter.class);
-    when(action.getParameter(m.getParameters()[1])).thenReturn(jpaParam);
+    when(action.getParameter(method.getParameters()[1])).thenReturn(jpaParam);
     when(jpaParam.getName()).thenReturn("A");
 
-    addParameter(m, 20, "B", 2);
+    addParameter(method, 20, "B", 2);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
@@ -388,43 +387,82 @@ class JPAActionRequestProcessorTest {
   }
 
   @Test
-  void testCallsActionVoidBindingParameterAbstractCallBySubtype() throws ODataJPAProcessException,
-      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
-      EdmPrimitiveTypeException, ODataApplicationException {
+  void testCallsActionVoidBindingParameterAbstractCallBySubtype() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, NumberFormatException, ODataApplicationException {
 
     TestJavaActionNoParameter.resetCalls();
-    final Method m = setConstructorAndMethod("boundBindingSuperType", BusinessPartner.class);
+    final Method method = setConstructorAndMethod("boundBindingSuperType", BusinessPartner.class);
     when(edmAction.isBound()).thenReturn(Boolean.TRUE);
     uriResources.add(0, bindingEntity);
 
-    final JPAParameter bindingParam = addParameter(m, null, "Root", 0);
-    when(bindingParam.getType()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return BusinessPartner.class;
-      }
-    });
+    final JPAParameter bindingParam = addParameter(method, null, "Root", 0);
+    doReturn(BusinessPartner.class).when(bindingParam).getType();
     final JPAEntityType et = mock(JPAEntityType.class);
     when(sd.getEntity((EdmType) any())).thenReturn(et);
-    when(et.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return Organization.class;
-      }
-    });
+    doReturn(Organization.class).when(et).getTypeClass();
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
   }
 
-  private void setBindingParameter(final Method m) throws ODataJPAModelException, EdmPrimitiveTypeException {
-    final JPAParameter bindingParam = addParameter(m, null, "Root", 0);
+  @Test
+  void testCallsWithConstructorParameterValue() throws NoSuchMethodException, ODataJPAModelException,
+      ODataApplicationException {
+    final Method method = setConstructorAndMethod(TestFunctionActionConstructor.class, "action", LocalDate.class);
+    addParameter(method, LocalDate.now(), "date", 0);
+    cut.performAction(request, response, requestFormat);
+    verify(response, times(1)).setStatusCode(204);
+  }
 
-    when(bindingParam.getType()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return AdministrativeDivision.class;
-      }
-    });
+  @Test
+  void testETagHeaderFilledForEntity() throws NoSuchMethodException, ODataApplicationException, ODataJPAModelException,
+      SerializerException {
+    setConstructorAndMethod(TestJavaActions.class, "returnsEntityWithETag");
+
+    final EdmReturnType edmReturnType = mock(EdmReturnType.class);
+    final EdmEntityType type = mock(EdmEntityType.class);
+    when(edmAction.getReturnType()).thenReturn(edmReturnType);
+    when(edmReturnType.getType()).thenReturn(type);
+    when(type.getKind()).thenReturn(EdmTypeKind.ENTITY);
+
+    final JPAOperationResultParameter resultParameter = mock(JPAOperationResultParameter.class);
+    when(action.getResultParameter()).thenReturn(resultParameter);
+    when(resultParameter.isCollection()).thenReturn(false);
+
+    final JPAEntityType jpaType = mock(JPAEntityType.class);
+    final JPAAttribute idAttribute = createJPAAttribute("iD", "Test", "ID");
+    final JPAAttribute eTagAttribute = createJPAAttribute("eTag", "Test", "ETag");
+    final List<JPAAttribute> attributes = Arrays.asList(idAttribute, eTagAttribute);
+    final JPAPath eTagPath = mock(JPAPath.class);
+    final JPAElement pathPart = mock(JPAElement.class);
+    when(sd.getEntity(type)).thenReturn(jpaType);
+    when(jpaType.getExternalFQN()).thenReturn(new FullQualifiedName("Test", "Person"));
+    doReturn(Person.class).when(jpaType).getTypeClass();
+    when(jpaType.getAttributes()).thenReturn(attributes);
+    when(jpaType.hasEtag()).thenReturn(true);
+    when(jpaType.getEtagPath()).thenReturn(eTagPath);
+    when(eTagPath.getPath()).thenReturn(Arrays.asList(pathPart));
+    when(pathPart.getInternalName()).thenReturn("eTag");
+
+    when(uriHelper.buildKeyPredicate(any(), any())).thenReturn("example.org");
+
+    cut.performAction(request, response, requestFormat);
+    verify(response, times(1)).setStatusCode(200);
+    verify(response, times(1)).setHeader(HttpHeader.ETAG, "\"7\"");
+  }
+
+  private JPAAttribute createJPAAttribute(final String internalName, final String namespace,
+      final String externalName) {
+    final JPAAttribute attribute = mock(JPAAttribute.class);
+    when(attribute.getInternalName()).thenReturn(internalName);
+    when(attribute.getExternalName()).thenReturn(externalName);
+    when(attribute.getExternalFQN()).thenReturn(new FullQualifiedName(namespace, externalName));
+    return attribute;
+  }
+
+  private void setBindingParameter(final Method method) throws ODataJPAModelException, EdmPrimitiveTypeException {
+    final JPAParameter bindingParam = addParameter(method, null, "Root", 0);
+
+    doReturn(AdministrativeDivision.class).when(bindingParam).getType();
     final List<UriParameter> keys = new ArrayList<>();
     final UriParameter key1 = mock(UriParameter.class);
     when(bindingEntity.getKeyPredicates()).thenReturn(keys);
@@ -440,20 +478,11 @@ class JPAActionRequestProcessorTest {
     when(sd.getEntity((EdmType) any())).thenReturn(et);
     when(et.getPath("CodeID")).thenReturn(codePath);
     when(et.getAttribute("codeID")).thenReturn(Optional.of(code));
-    when(et.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return AdministrativeDivision.class;
-      }
-    });
+    doReturn(AdministrativeDivision.class).when(et).getTypeClass();
+
     when(codePath.getLeaf()).thenReturn(code);
     when(code.getInternalName()).thenReturn("codeID");
-    when(code.getType()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return String.class;
-      }
-    });
+    doReturn(String.class).when(code).getType();
 
     when(code.getProperty()).thenReturn(edmProperty);
     when(code.getEdmType()).thenReturn(EdmPrimitiveTypeKind.String);
@@ -468,7 +497,7 @@ class JPAActionRequestProcessorTest {
         });
   }
 
-  private JPAParameter addParameter(final Method m, final Object value, final String name, final int index)
+  private JPAParameter addParameter(final Method method, final Object value, final String name, final int index)
       throws ODataJPAModelException {
 
     final Parameter param = mock(Parameter.class);
@@ -478,7 +507,7 @@ class JPAActionRequestProcessorTest {
     actionParameter.put(name, param);
 
     final JPAParameter jpaParam = mock(JPAParameter.class);
-    when(action.getParameter(m.getParameters()[index])).thenReturn(jpaParam);
+    when(action.getParameter(method.getParameters()[index])).thenReturn(jpaParam);
     when(jpaParam.getName()).thenReturn(name);
     return jpaParam;
   }
@@ -487,11 +516,24 @@ class JPAActionRequestProcessorTest {
   private Method setConstructorAndMethod(final String methodName, final Class<?>... parameterTypes)
       throws NoSuchMethodException {
     @SuppressWarnings("rawtypes")
-    final Constructor c = TestJavaActionNoParameter.class.getConstructors()[0];
-    final Method m = TestJavaActionNoParameter.class.getMethod(methodName, parameterTypes);
-    when(action.getConstructor()).thenReturn(c);
-    when(action.getMethod()).thenReturn(m);
+    final Constructor constructor = TestJavaActionNoParameter.class.getConstructors()[0];
+    final Method method = TestJavaActionNoParameter.class.getMethod(methodName, parameterTypes);
+    when(action.getConstructor()).thenReturn(constructor);
+    when(action.getMethod()).thenReturn(method);
     when(action.getReturnType()).thenReturn(null);
-    return m;
+    return method;
   }
+
+  @SuppressWarnings("unchecked")
+  private Method setConstructorAndMethod(final Class<?> clazz, final String methodName,
+      final Class<?>... parameterTypes) throws NoSuchMethodException {
+    @SuppressWarnings("rawtypes")
+    final Constructor constructor = clazz.getConstructors()[0];
+    final Method method = clazz.getMethod(methodName, parameterTypes);
+    when(action.getConstructor()).thenReturn(constructor);
+    when(action.getMethod()).thenReturn(method);
+    when(action.getReturnType()).thenReturn(null);
+    return method;
+  }
+
 }

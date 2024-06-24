@@ -1,0 +1,7 @@
+#Organize Import Order
+#Sun Jun 09 11:30:55 CEST 2024
+0=java
+1=javax
+2=jakarta
+3=org
+4=com

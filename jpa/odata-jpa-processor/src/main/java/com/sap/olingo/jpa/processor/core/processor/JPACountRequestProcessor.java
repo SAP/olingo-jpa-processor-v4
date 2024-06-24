@@ -35,7 +35,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
     if (uriResource instanceof UriResourceEntitySet
         || uriResource instanceof UriResourceSingleton) {
       final var result = countEntities();
-      createSuccessResponse(response, ContentType.TEXT_PLAIN, serializer.serialize(request, result));
+      createSuccessResponse(response, ContentType.TEXT_PLAIN, serializer.serialize(request, result), null);
     } else {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED, uriResource.getKind().toString());

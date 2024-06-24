@@ -1025,7 +1025,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetAnnotationValueReturnsNullAliasUnknown() throws ODataJPAModelException {
+  void checkGetAnnotationVaueReturnsNullAliasUnknown() throws ODataJPAModelException {
     createAnnotation();
     final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);

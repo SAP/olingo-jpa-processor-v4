@@ -153,4 +153,6 @@ public interface JPAStructuredType extends JPAElement {
    */
   @CheckForNull
   public JPAStructuredType getBaseType();
+
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
 }

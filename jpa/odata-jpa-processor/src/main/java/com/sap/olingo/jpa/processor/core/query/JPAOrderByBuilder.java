@@ -104,11 +104,12 @@ final class JPAOrderByBuilder {
    * [...ComplexProperty,...PrimitiveProperty]<br>
    * .../Organizations?$orderby=Roles/$count --> one item, two resourcePaths [...NavigationProperty,...Count]<br>
    * .../Organizations?$orderby=Roles/$count desc,Address/Country asc -->two items
+   * .../AdminustrativeDivision?$orderby=Parent/DivisionCode
    * <p>
    * SQL example to order by number of entities
    * <p>
    * <code>
-   * SELECT t0."BusinessPartnerID" ,COUNT(t1."BusinessPartnerID")<br>
+   * SELECT t0."BusinessPartnerID" ,COUNT(t1."BusinessPartnerID")
    * <pre>FROM "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t0 <br>
    * LEFT OUTER JOIN "OLINGO"."org.apache.olingo.jpa::BusinessPartnerRole" t1 <br>
    * ON (t1."BusinessPartnerID" = t0."BusinessPartnerID")}
@@ -119,25 +120,27 @@ final class JPAOrderByBuilder {
    * @since 1.0.0
    * @param joinTables
    * @param uriResource
+   * @param page
+   * @param orderByPaths: A collection of paths to the properties within the ORDER BY clause
    * @return A list of generated orderby clauses
    * @throws ODataApplicationException
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
-      @Nonnull final UriInfoResource uriResource, @Nullable final JPAODataPage page) throws ODataApplicationException {
+      @Nonnull final UriInfoResource uriResource, @Nullable final JPAODataPage page, final Set<Path<?>> orderByPaths)
+      throws ODataApplicationException {
 
     final List<Order> result = new ArrayList<>();
-    final Set<Path<?>> orderBys = new HashSet<>();
     try {
       if (uriResource.getOrderByOption() != null) {
         LOGGER.trace(LOG_ORDER_BY);
-        addOrderByFromUriResource(joinTables, result, orderBys, uriResource.getOrderByOption());
+        addOrderByFromUriResource(joinTables, result, orderByPaths, uriResource.getOrderByOption());
         watchDog.watch(result);
       }
       if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null
           || (page != null && page.top() != Integer.MAX_VALUE)) {
         LOGGER.trace("Determined $top/$skip or page: add primary key to Order By");
-        addOrderByPrimaryKey(result, orderBys);
+        addOrderByPrimaryKey(result, orderByPaths);
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, BAD_REQUEST);
@@ -157,11 +160,10 @@ final class JPAOrderByBuilder {
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
-      @Nullable final OrderByOption orderBy, @Nonnull final JPAAssociationPath association)
+      @Nullable final OrderByOption orderBy, @Nonnull final JPAAssociationPath association, @Nonnull  final Set<Path<?>> orderByPaths)
       throws ODataApplicationException {
 
     final List<Order> result = new ArrayList<>();
-    final Set<Path<?>> orderByPaths = new HashSet<>();
     try {
       LOGGER.trace("Determined relationship and add corresponding to OrderBy");
       addOrderByJoinCondition(association, result);
@@ -259,8 +261,9 @@ final class JPAOrderByBuilder {
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataJPAQueryException {
 
     for (final JPANavigationPropertyInfo item : navigationInfo) {
-      if (item.getAssociationPath() == association)
+      if (item.getAssociationPath() == association) {
         return (From<X, Y>) item.getFromClause();
+      }
     }
     throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
         HttpStatusCode.BAD_REQUEST);
@@ -269,10 +272,11 @@ final class JPAOrderByBuilder {
   private void addOrderByExpression(final List<Order> orders, final OrderByItem orderByItem,
       final jakarta.persistence.criteria.Expression<?> expression) {
 
-    if (orderByItem.isDescending())
+    if (orderByItem.isDescending()) {
       orders.add(cb.desc(expression));
-    else
+    } else {
       orders.add(cb.asc(expression));
+    }
   }
 
   private void addOrderByExpression(final List<Order> orders, final OrderByItem orderByItem,
@@ -294,7 +298,7 @@ final class JPAOrderByBuilder {
         final UriInfoResource resourcePath = member.getResourcePath();
         JPAStructuredType type = jpaEntity;
         Path<?> path = target;
-        final StringBuilder externalPath = new StringBuilder();
+        StringBuilder externalPath = new StringBuilder();
         for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
           if (isPrimitiveSimpleProperty(uriResourceItem)) {
             path = convertPropertyPath(type, uriResourceItem, path);
@@ -304,13 +308,19 @@ final class JPAOrderByBuilder {
             addPathByAttribute(externalPath, attribute);
             path = path.get(attribute.getInternalName());
             type = attribute.getStructuredType();
-          } else if (uriResourceItem instanceof UriResourceNavigation
+          } else if ((uriResourceItem instanceof final UriResourceNavigation navigation
+              && navigation.isCollection())
               || (uriResourceItem instanceof final UriResourceProperty property
                   && property.isCollection())) {
             // In case the orderby contains a navigation or collection a $count has to follow. This is ensured by Olingo
             appendPathByCollection(externalPath, uriResourceItem);
             final From<?, ?> join = joinTables.get(externalPath.toString());
             addOrderByExpression(orders, orderByItem, cb.count(join));
+          } else if (uriResourceItem instanceof UriResourceNavigation) {
+            appendPathByCollection(externalPath, uriResourceItem);
+            type = type.getAssociationPath(externalPath.toString()).getTargetType();
+            path = joinTables.get(externalPath.toString());
+            externalPath = new StringBuilder();
           } else if (!(uriResourceItem instanceof UriResourceCount)) {
             throw new ODataJPANotImplementedException("orderby using " + uriResourceItem.getKind().name());
           }
@@ -324,16 +334,19 @@ final class JPAOrderByBuilder {
       throws ODataJPAQueryException, ODataJPAProcessorException, ODataJPAModelException {
 
     final JPAPath attributePath = type.getPath(((UriResourceProperty) uriResourceItem).getProperty().getName());
-    if (attributePath == null)
+    if (attributePath == null) {
       throw new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, INTERNAL_SERVER_ERROR,
           uriResourceItem.getSegmentValue());
-    if (!attributePath.isPartOfGroups(groups))
+    }
+    if (!attributePath.isPartOfGroups(groups)) {
       throw new ODataJPAQueryException(QUERY_PREPARATION_NOT_ALLOWED_MEMBER, FORBIDDEN, attributePath.getAlias());
+    }
     Path<?> path = startPath;
     for (final JPAElement pathElement : attributePath.getPath()) {
-      if (pathElement instanceof final JPAAttribute attribute && attribute.isTransient())
+      if (pathElement instanceof final JPAAttribute attribute && attribute.isTransient()) {
         throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_TRANSIENT, NOT_IMPLEMENTED,
             pathElement.getExternalName());
+      }
       path = path.get(pathElement.getInternalName());
     }
     path.alias(attributePath.getAlias());
@@ -358,10 +371,11 @@ final class JPAOrderByBuilder {
   }
 
   private void appendPathByCollection(final StringBuilder externalPath, final UriResource uriResourceItem) {
-    if (uriResourceItem instanceof final UriResourceNavigation navigation)
+    if (uriResourceItem instanceof final UriResourceNavigation navigation) {
       externalPath.append(navigation.getProperty().getName());
-    else
+    } else {
       externalPath.append(((UriResourceProperty) uriResourceItem).getProperty().getName());
+    }
   }
 
   private JPAAttribute getAttribute(final JPAStructuredType type, final UriResource uriResourceItem)
@@ -370,9 +384,10 @@ final class JPAOrderByBuilder {
     final JPAAttribute attribute = type.getAttribute((UriResourceProperty) uriResourceItem).orElseThrow(
         () -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, INTERNAL_SERVER_ERROR,
             uriResourceItem.getSegmentValue()));
-    if (attribute.isTransient())
+    if (attribute.isTransient()) {
       throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_TRANSIENT, NOT_IMPLEMENTED,
           attribute.getExternalName());
+    }
     return attribute;
 
   }

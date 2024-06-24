@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.debug.DefaultDebugSupport;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
+import com.sap.olingo.jpa.processor.core.util.Assertions;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -105,6 +107,16 @@ class TestJPAQueryTopSkip extends TestBase {
     final ObjectNode value = (ObjectNode) mapper.readTree(getRawResult(response));
     assertNull(value.get("@odata.nextLink"));
 
+  }
+  @Tag(Assertions.CB_ONLY_TEST)
+  @Test
+  void testExpandTopSkipWithoutError() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$skip=5&$top=5&$expand=Children");
+    helper.assertStatus(200);
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = ((ArrayNode) collection.get("value"));
+    assertEquals(5, act.size());
   }
 
   public String getRawResult(final HttpServletResponse response) throws IOException {

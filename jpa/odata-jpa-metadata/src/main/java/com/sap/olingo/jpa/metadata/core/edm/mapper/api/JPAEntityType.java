@@ -77,8 +77,6 @@ public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
 
   public boolean hasStream() throws ODataJPAModelException;
 
-  public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
-
   public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException;
 }
