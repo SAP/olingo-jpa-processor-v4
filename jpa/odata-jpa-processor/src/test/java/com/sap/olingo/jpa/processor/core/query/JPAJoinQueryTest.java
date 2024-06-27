@@ -115,7 +115,7 @@ class JPAJoinQueryTest extends TestQueryBase {
   }
 
   @Test
-  void testBuildEntityPathListRethrowsException() throws ODataApplicationException, ODataJPAModelException {
+  void testBuildEntityPathListRethrowsException() throws ODataJPAModelException {
     final var jpaEntityType = mock(JPAEntityType.class);
     when(jpaEntityType.getPathList()).thenThrow(ODataJPAModelException.class);
     assertThrows(ODataApplicationException.class, () -> cut.buildEntityPathList(jpaEntityType));

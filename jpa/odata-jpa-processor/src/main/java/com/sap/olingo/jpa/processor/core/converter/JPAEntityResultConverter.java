@@ -23,17 +23,20 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAEntityResultConverter extends JPAStructuredResultConverter {
   private final EdmEntityType edmEntityType;
   private final UriHelper odataUriHelper;
+  private final JPAODataEtagHelper etagHelper;
 
   public JPAEntityResultConverter(final UriHelper uriHelper, final JPAServiceDocument sd, final List<?> jpaQueryResult,
-      final EdmEntityType returnType) throws ODataJPAModelException {
+      final EdmEntityType returnType, final JPAODataEtagHelper etagHelper) throws ODataJPAModelException {
     super(jpaQueryResult, sd.getEntity(returnType));
     this.edmEntityType = returnType;
     this.odataUriHelper = uriHelper;
+    this.etagHelper = etagHelper;
   }
 
   @Override
@@ -46,7 +49,7 @@ public class JPAEntityResultConverter extends JPAStructuredResultConverter {
       odataEntity.setType(this.jpaTopLevelType.getExternalFQN().getFullQualifiedNameAsString());
       final List<Property> properties = odataEntity.getProperties();
       convertProperties(row, properties, jpaTopLevelType);
-      odataEntity.setETag(createETag(row, jpaTopLevelType));
+      odataEntity.setETag(createEtag(row, jpaTopLevelType));
       odataEntity.setId(new URI(odataUriHelper.buildKeyPredicate(edmEntityType, odataEntity)));
       odataResults.add(odataEntity);
     }
@@ -54,7 +57,7 @@ public class JPAEntityResultConverter extends JPAStructuredResultConverter {
   }
 
   @CheckForNull
-  private String createETag(final Object row, final JPAStructuredType jpaType) throws ODataJPAQueryException {
+  private String createEtag(final Object row, final JPAStructuredType jpaType) throws ODataJPAQueryException {
     if (jpaType instanceof final JPAEntityType et) {
       try {
         if (et.hasEtag()) {
@@ -64,7 +67,7 @@ public class JPAEntityResultConverter extends JPAStructuredResultConverter {
             final Method getMethod = getGetter(part.getInternalName(), methodMap);
             value = getMethod.invoke(value);
           }
-          return value.toString();
+          return etagHelper.asEtag(et, value);
         }
       } catch (final ODataJPAModelException | IllegalAccessException | IllegalArgumentException
           | InvocationTargetException e) {

@@ -251,7 +251,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
         final String etagAlias = rowEntity.getEtagPath().getAlias();
         final Object etag = row.get(etagAlias);
         if (etag != null) {
-          odataEntity.setETag(etag.toString());
+          odataEntity.setETag(requestContext.getEtagHelper().asEtag(rowEntity, etag));
         }
       }
 

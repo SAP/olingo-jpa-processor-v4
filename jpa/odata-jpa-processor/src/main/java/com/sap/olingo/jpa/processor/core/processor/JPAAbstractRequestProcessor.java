@@ -68,7 +68,7 @@ abstract class JPAAbstractRequestProcessor {
     if (entityCollection != null && entityCollection.getEntities().size() == 1) {
       final var etag = entityCollection.getEntities().get(0).getETag();
       if (etag != null)
-        response.setHeader(HttpHeader.ETAG, "\"" + etag + "\"");
+        response.setHeader(HttpHeader.ETAG, etag);
     }
   }
 }

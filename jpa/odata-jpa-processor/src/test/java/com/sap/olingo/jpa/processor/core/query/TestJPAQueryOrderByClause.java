@@ -6,35 +6,32 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
-import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
-import com.sap.olingo.jpa.processor.core.util.TestHelper;
+import javax.sql.DataSource;
+
 import jakarta.persistence.EntityManagerFactory;
+
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
+import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
-import com.sap.olingo.jpa.processor.core.util.TestBase;
-
-import javax.sql.DataSource;
 
 class TestJPAQueryOrderByClause {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   public static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   protected static EntityManagerFactory emf;
-  protected TestHelper helper;
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
   protected static DataSource dataSource;
 
   @BeforeAll
-  public static void setupClass() throws ODataJPAModelException {
+  public static void setupClass() {
     dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
@@ -68,8 +65,6 @@ class TestJPAQueryOrderByClause {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$orderby=AdministrativeInformation/Created/By");
     helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
   }
 
   @Test
@@ -284,7 +279,7 @@ class TestJPAQueryOrderByClause {
   void testOrderByToOnePropertyWithCollectionProperty() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-            "BusinessPartnerRoles?$expand=BusinessPartner($expand=Roles;$select=ID)&$orderby=BusinessPartner/Country asc");
+        "BusinessPartnerRoles?$expand=BusinessPartner($expand=Roles;$select=ID)&$orderby=BusinessPartner/Country asc");
     helper.assertStatus(200);
   }
 }

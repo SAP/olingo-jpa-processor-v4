@@ -16,6 +16,7 @@ import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -43,6 +44,7 @@ public class TestQueryBase extends TestBase {
   protected UriInfo uriInfo;
   protected JPAODataInternalRequestContext requestContext;
   protected JPAODataRequestContext externalContext;
+  protected OData odata;
 
   public TestQueryBase() {
     super();
@@ -51,6 +53,7 @@ public class TestQueryBase extends TestBase {
   @BeforeEach
   public void setup() throws ODataException, ODataJPAIllegalAccessException {
     buildUriInfo("BusinessPartners", "BusinessPartner");
+    odata = mock(OData.class);
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
@@ -60,7 +63,7 @@ public class TestQueryBase extends TestBase {
         null, null);
     externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    requestContext = new JPAODataInternalRequestContext(externalContext, context);
+    requestContext = new JPAODataInternalRequestContext(externalContext, context, odata);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, requestContext);
 
@@ -93,7 +96,7 @@ public class TestQueryBase extends TestBase {
     final EdmType odataType = buildUriInfo(esName, etName);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    requestContext = new JPAODataInternalRequestContext(externalContext, context);
+    requestContext = new JPAODataInternalRequestContext(externalContext, context, odata);
     requestContext.setUriInfo(uriInfo);
     return odataType;
   }

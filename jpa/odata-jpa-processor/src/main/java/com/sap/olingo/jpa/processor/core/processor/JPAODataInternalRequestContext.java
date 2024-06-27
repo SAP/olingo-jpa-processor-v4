@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
@@ -32,6 +33,7 @@ import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
+import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
@@ -68,13 +70,15 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private Optional<JPAEdmProvider> edmProvider;
   private JPAODataDatabaseOperations operationConverter;
   private JPAODataQueryDirectives queryDirectives;
+  private JPAODataEtagHelper etagHelper;
 
   public JPAODataInternalRequestContext(@Nonnull final JPAODataRequestContext requestContext,
-      @Nonnull final JPAODataSessionContextAccess sessionContext) {
+      @Nonnull final JPAODataSessionContextAccess sessionContext, final OData odata) {
     this.header = new JPAHttpHeaderHashMap(Collections.emptyMap());
     copyRequestContext(requestContext, sessionContext);
     this.hookFactory = new JPAHookFactory(em, header, customParameter);
     initDebugger();
+    etagHelper = new JPAODataEtagHelperImpl(odata);
   }
 
   /**
@@ -216,6 +220,11 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     return locales;
   }
 
+  @Override
+  public JPAODataEtagHelper getEtagHelper() {
+    return etagHelper;
+  }
+
   public void setEntityManager(@Nonnull final EntityManager em) {
     this.em = Objects.requireNonNull(em);
   }
@@ -275,6 +284,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     this.edmProvider = Optional.ofNullable(context.getEdmProvider());
     this.operationConverter = context.getOperationConverter();
     this.queryDirectives = context.getQueryDirectives();
+    this.etagHelper = context.getEtagHelper();
   }
 
   private void copyRequestContext(@Nonnull final JPAODataRequestContext requestContext,

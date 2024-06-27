@@ -67,6 +67,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -105,6 +106,8 @@ class JPAFunctionRequestProcessorTest {
   ArgumentCaptor<Annotatable> annotatableCaptor;
   @Mock
   private UriHelper uriHelper;
+  @Mock
+  private JPAODataEtagHelper etagHelper;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -127,6 +130,7 @@ class JPAFunctionRequestProcessorTest {
     when(requestContext.getHeader()).thenReturn(new JPAHttpHeaderHashMap());
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
+    when(requestContext.getEtagHelper()).thenReturn(etagHelper);
     when(serializer.serialize(any(Annotatable.class), any(EdmType.class), any(ODataRequest.class)))
         .thenReturn(serializerResult);
     when(serializer.getContentType()).thenReturn(ContentType.APPLICATION_JSON);
@@ -218,7 +222,7 @@ class JPAFunctionRequestProcessorTest {
   }
 
   @Test
-  void testETagHeaderFilledForEntity() throws NoSuchMethodException, ODataApplicationException, ODataLibraryException,
+  void testEtagHeaderFilledForEntity() throws NoSuchMethodException, ODataApplicationException, ODataLibraryException,
       ODataJPAModelException {
     setConstructorAndMethod(TestFunctionReturnType.class, "convertBirthday");
 
@@ -234,18 +238,19 @@ class JPAFunctionRequestProcessorTest {
 
     final JPAEntityType jpaType = mock(JPAEntityType.class);
     final JPAAttribute idAttribute = createJPAAttribute("iD", "Test", "ID");
-    final JPAAttribute eTagAttribute = createJPAAttribute("eTag", "Test", "ETag");
-    final List<JPAAttribute> attributes = Arrays.asList(idAttribute, eTagAttribute);
-    final JPAPath eTagPath = mock(JPAPath.class);
+    final JPAAttribute etagAttribute = createJPAAttribute("eTag", "Test", "ETag");
+    final List<JPAAttribute> attributes = Arrays.asList(idAttribute, etagAttribute);
+    final JPAPath etagPath = mock(JPAPath.class);
     final JPAElement pathPart = mock(JPAElement.class);
     when(sd.getEntity(type)).thenReturn(jpaType);
     when(jpaType.getExternalFQN()).thenReturn(new FullQualifiedName("Test", "Person"));
     doReturn(Person.class).when(jpaType).getTypeClass();
     when(jpaType.getAttributes()).thenReturn(attributes);
     when(jpaType.hasEtag()).thenReturn(true);
-    when(jpaType.getEtagPath()).thenReturn(eTagPath);
-    when(eTagPath.getPath()).thenReturn(Arrays.asList(pathPart));
+    when(jpaType.getEtagPath()).thenReturn(etagPath);
+    when(etagPath.getPath()).thenReturn(Arrays.asList(pathPart));
     when(pathPart.getInternalName()).thenReturn("eTag");
+    when(etagHelper.asEtag(any(), any())).thenReturn("\"3\"");
 
     when(uriHelper.buildKeyPredicate(any(), any())).thenReturn("example.org");
 

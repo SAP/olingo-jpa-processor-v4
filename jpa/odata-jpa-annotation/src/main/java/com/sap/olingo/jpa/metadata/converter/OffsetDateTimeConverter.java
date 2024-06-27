@@ -10,7 +10,7 @@ import jakarta.persistence.Converter;
  * Default converter to convert from {@link java.time.OffsetDateTime} to {@link java.time.ZonedDateTime}. This is
  * required, as Olingo 4.7.1 only supports ZonedDateTime, where as JPA 2.2 supports OffsetDateTime.
  * @author Oliver Grande
- * Created: 09.03.2020
+ * @since 09.03.2020
  *
  */
 @Converter(autoApply = false)

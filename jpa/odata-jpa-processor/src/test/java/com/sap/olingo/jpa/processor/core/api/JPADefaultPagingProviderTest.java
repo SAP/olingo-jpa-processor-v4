@@ -80,14 +80,14 @@ class JPADefaultPagingProviderTest {
   }
 
   @Test
-  void testGetFirstPageThrowsExceptionSkipNegative() throws ODataApplicationException {
+  void testGetFirstPageThrowsExceptionSkipNegative() {
     when(skipOption.getValue()).thenReturn(-99);
     when(uriInfo.getSkipOption()).thenReturn(skipOption);
     assertThrows(ODataJPAQueryException.class, () -> cut.getFirstPage(null, null, uriInfo, null, null, null));
   }
 
   @Test
-  void testGetFirstPageThrowsExceptionTopNegative() throws ODataApplicationException {
+  void testGetFirstPageThrowsExceptionTopNegative() {
     when(topOption.getValue()).thenReturn(-99);
     when(uriInfo.getTopOption()).thenReturn(topOption);
     assertThrows(ODataJPAQueryException.class, () -> cut.getFirstPage(null, null, uriInfo, null, null, null));

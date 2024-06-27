@@ -72,7 +72,7 @@ abstract class TestJPAModifyProcessor {
   protected static JPAEdmProvider jpaEdm;
   protected static DataSource ds;
   protected static List<AnnotationProvider> annotationProvider;
-  protected static JPAReferences refrences;
+  protected static JPAReferences references;
 
   @BeforeAll
   public static void setupClass() throws ODataException {
@@ -129,6 +129,7 @@ abstract class TestJPAModifyProcessor {
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
     when(requestContext.getTransactionFactory()).thenReturn(factory);
+    when(requestContext.getEtagHelper()).thenReturn(new JPAODataEtagHelperImpl(odata));
     when(uriInfo.getUriResourceParts()).thenReturn(pathParts);
     when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
     when(uriEts.getEntitySet()).thenReturn(ets);
@@ -141,7 +142,7 @@ abstract class TestJPAModifyProcessor {
   }
 
   protected ODataRequest prepareRepresentationRequest(final JPAAbstractCUDRequestHandler spy)
-      throws ODataJPAProcessorException, SerializerException, ODataException {
+      throws ODataException {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");
 
@@ -175,7 +176,7 @@ abstract class TestJPAModifyProcessor {
   }
 
   protected ODataRequest prepareLinkRequest(final JPAAbstractCUDRequestHandler spy)
-      throws ODataJPAProcessorException, SerializerException, ODataException {
+      throws ODataException {
 
     // .../AdministrativeDivisions(DivisionCode='DE60',CodeID='NUTS2',CodePublisher='Eurostat')
     final ODataRequest request = prepareSimpleRequest("return=representation");
@@ -239,8 +240,7 @@ abstract class TestJPAModifyProcessor {
   }
 
   @SuppressWarnings("unchecked")
-  protected ODataRequest prepareSimpleRequest(final String content) throws ODataException, ODataJPAProcessorException,
-      SerializerException {
+  protected ODataRequest prepareSimpleRequest(final String content) throws ODataException {
 
     final EntityTransaction transaction = mock(EntityTransaction.class);
     when(em.getTransaction()).thenReturn(transaction);
@@ -260,7 +260,7 @@ abstract class TestJPAModifyProcessor {
   }
 
   protected ODataRequest preparePersonRequest(final JPAAbstractCUDRequestHandler spy)
-      throws ODataJPAProcessorException, SerializerException, ODataException {
+      throws ODataException {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");
 
