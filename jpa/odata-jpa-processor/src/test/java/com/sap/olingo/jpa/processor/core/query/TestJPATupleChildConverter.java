@@ -19,6 +19,7 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,7 @@ class TestJPATupleChildConverter extends TestBase {
   private JPAODataRequestContextAccess requestContext;
   private JPAODataRequestContext context;
   private JPAODataSessionContextAccess sessionContext;
+  private OData odata;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -60,7 +62,8 @@ class TestJPATupleChildConverter extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "ID");
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
-    requestContext = new JPAODataInternalRequestContext(context, sessionContext);
+    odata = mock(OData.class);
+    requestContext = new JPAODataInternalRequestContext(context, sessionContext, odata);
     cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder, "Organization"),
         requestContext);
   }
@@ -159,7 +162,7 @@ class TestJPATupleChildConverter extends TestBase {
     assertEquals(1, act.getEntities().get(0).getProperties().size());
     assertEquals("1", act.getEntities().get(0).getProperties().get(0).getValue());
     assertEquals("ID", act.getEntities().get(0).getProperties().get(0).getName());
-    assertEquals("2", act.getEntities().get(0).getETag());
+    assertEquals("\"2\"", act.getEntities().get(0).getETag());
   }
 
   @Test

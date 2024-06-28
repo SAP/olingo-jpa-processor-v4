@@ -39,7 +39,6 @@ import org.apache.olingo.server.api.debug.DefaultDebugSupport;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -165,7 +164,7 @@ public class IntegrationTestHelper {
         new ArrayList<>()));
 
     final JPAODataInternalRequestContext requestContext = buildRequestContext(localEmf, claims, groups, edmProvider,
-        sessionContext);
+        sessionContext, odata);
 
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
@@ -175,16 +174,17 @@ public class IntegrationTestHelper {
 
   public JPAODataInternalRequestContext buildRequestContext(final EntityManagerFactory localEmf,
       final JPAODataClaimsProvider claims, final JPAODataGroupProvider groups, final JPAEdmProvider edmProvider,
-      final JPAODataSessionContextAccess sessionContext) throws ODataException {
+      final JPAODataSessionContextAccess sessionContext, final OData odata) throws ODataException {
     final EntityManager em = createEmfWrapper(localEmf, edmProvider).createEntityManager();
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+
     when(externalContext.getEntityManager()).thenReturn(em);
     when(externalContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
     when(externalContext.getDebuggerSupport()).thenReturn(new DefaultDebugSupport());
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
-        sessionContext);
+        sessionContext, odata);
     return requestContext;
   }
 
@@ -243,7 +243,7 @@ public class IntegrationTestHelper {
     return new ResultStream((OutPutStream) response.getOutputStream());
   }
 
-  public ArrayNode getValues() throws JsonProcessingException, IOException {
+  public ArrayNode getValues() throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
     final JsonNode node = mapper.readTree(getRawResult());
     if (!(node.get("value") instanceof ArrayNode))
@@ -252,7 +252,7 @@ public class IntegrationTestHelper {
     return values;
   }
 
-  public ObjectNode getValue() throws JsonProcessingException, IOException {
+  public ObjectNode getValue() throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
     final JsonNode value = mapper.readTree(getRawResult());
     if (!(value instanceof ObjectNode))
@@ -260,7 +260,7 @@ public class IntegrationTestHelper {
     return (ObjectNode) value;
   }
 
-  public ValueNode getSingleValue() throws JsonProcessingException, IOException {
+  public ValueNode getSingleValue() throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
     final JsonNode value = mapper.readTree(getRawResult());
     if (!(value instanceof ValueNode))
@@ -268,7 +268,7 @@ public class IntegrationTestHelper {
     return (ValueNode) value;
   }
 
-  public ValueNode getSingleValue(final String nodeName) throws JsonProcessingException, IOException {
+  public ValueNode getSingleValue(final String nodeName) throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
     final JsonNode node = mapper.readTree(getRawResult());
     if (!(node.get(nodeName) instanceof ValueNode))

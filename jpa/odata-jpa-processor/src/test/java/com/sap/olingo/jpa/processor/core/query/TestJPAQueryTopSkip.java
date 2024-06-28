@@ -93,7 +93,7 @@ class TestJPAQueryTopSkip extends TestBase {
     when(externalContext.getGroupsProvider()).thenReturn(Optional.empty());
     when(externalContext.getDebuggerSupport()).thenReturn(new DefaultDebugSupport());
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
-    final var requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext);
+    final var requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext, odata);
 
     final var handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
         new ArrayList<>()));

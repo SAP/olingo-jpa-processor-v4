@@ -1,6 +1,9 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -20,7 +23,8 @@ public class DeepProtectedExample {
 
   @Version
   @Column(name = "\"ETag\"", nullable = false)
-  private long eTag;
+  @Convert(converter = TimestampLongConverter.class)
+  private Timestamp etag;
 
   @Column(name = "\"Type\"", length = 1, insertable = false, updatable = false, nullable = false)
   private String type;
@@ -52,8 +56,12 @@ public class DeepProtectedExample {
     this.postalAddress = postalAddress;
   }
 
-  public long getETag() {
-    return eTag;
+  public Timestamp getEtag() {
+    return etag;
+  }
+
+  public void setEtag(final Timestamp timestamp) {
+    etag = timestamp;
   }
 
   @Override
@@ -65,15 +73,15 @@ public class DeepProtectedExample {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    final DeepProtectedExample other = (DeepProtectedExample) obj;
-    if (iD == null) {
-      if (other.iD != null) return false;
-    } else if (!iD.equals(other.iD)) return false;
-    return true;
+  public boolean equals(final Object object) {
+    if (object instanceof final DeepProtectedExample other) {
+      if (iD == null) {
+        if (other.iD == null)
+          return true;
+      } else {
+        return iD.equals(other.iD);
+      }
+    }
+    return false;
   }
-
 }

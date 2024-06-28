@@ -116,7 +116,8 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
     else
       resultList.add(result);
     try {
-      return new JPAEntityResultConverter(createUriHelper, sd, resultList, returnType).getResult();
+      return new JPAEntityResultConverter(createUriHelper, sd, resultList, returnType, requestContext.getEtagHelper())
+          .getResult();
     } catch (SerializerException | ODataJPAModelException | URISyntaxException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);

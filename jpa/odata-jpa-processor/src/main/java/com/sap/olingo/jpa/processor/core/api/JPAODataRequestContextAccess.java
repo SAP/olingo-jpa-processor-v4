@@ -71,4 +71,6 @@ public interface JPAODataRequestContextAccess {
   public List<Locale> getProvidedLocale();
 
   public JPAODataQueryDirectives getQueryDirectives();
+
+  public JPAODataEtagHelper getEtagHelper();
 }

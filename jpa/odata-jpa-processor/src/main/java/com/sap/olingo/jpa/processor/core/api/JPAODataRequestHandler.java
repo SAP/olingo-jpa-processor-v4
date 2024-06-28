@@ -53,7 +53,7 @@ public class JPAODataRequestHandler {
       final OData odata) {
     this.emf = serviceContext.getEntityManagerFactory();
     this.serviceContext = (JPAODataServiceContext) serviceContext;
-    this.requestContext = new JPAODataInternalRequestContext(requestContext, serviceContext);
+    this.requestContext = new JPAODataInternalRequestContext(requestContext, serviceContext, odata);
     this.odata = odata;
   }
 

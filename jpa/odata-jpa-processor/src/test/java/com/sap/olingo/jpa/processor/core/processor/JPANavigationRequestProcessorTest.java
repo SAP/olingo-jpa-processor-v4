@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +49,7 @@ class JPANavigationRequestProcessorTest extends TestBase {
   private JPAHttpHeaderMap headers;
   private UriInfoResource uriInfo;
   private UriResource uriResource;
+  private OData odata;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -60,10 +60,12 @@ class JPANavigationRequestProcessorTest extends TestBase {
     uriResource = mock(UriResource.class);
     result = mock(JPAExpandResult.class, withSettings().extraInterfaces(JPAConvertibleResult.class));
     headers = mock(JPAHttpHeaderMap.class);
+    odata = OData.newInstance();
 
     when(requestContext.getEdmProvider()).thenReturn(helper.edmProvider);
     when(requestContext.getEntityManager()).thenReturn(emf.createEntityManager());
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
+    when(requestContext.getEtagHelper()).thenReturn(new JPAODataEtagHelperImpl(odata));
     when(uriInfo.getUriResourceParts()).thenReturn(Collections.singletonList(uriResource));
 
     cut = new JPANavigationRequestProcessor(OData.newInstance(), metadata, requestContext);
@@ -72,7 +74,7 @@ class JPANavigationRequestProcessorTest extends TestBase {
   }
 
   @Test
-  void testNoETagPropertySuccess() throws ODataJPAProcessorException, ODataJPAModelException {
+  void testNoEtagPropertySuccess() throws ODataJPAProcessorException, ODataJPAModelException {
     final Tuple tuple = mock(Tuple.class);
     final List<Tuple> rootResult = Collections.singletonList(tuple);
     when(result.getResult(ROOT_RESULT_KEY)).thenReturn(rootResult);
@@ -115,13 +117,13 @@ class JPANavigationRequestProcessorTest extends TestBase {
 
   @ParameterizedTest
   @MethodSource("provideIfMatchHeader")
-  void testIfMatchHeader(final List<String> eTag, final JPAETagValidationResult exp, final String message)
-      throws IOException, ODataException {
+  void testIfMatchHeader(final List<String> etag, final JPAETagValidationResult exp, final String message)
+      throws ODataException {
 
     final Tuple tuple = mock(Tuple.class);
     final List<Tuple> rootResult = Collections.singletonList(tuple);
     when(result.getResult(ROOT_RESULT_KEY)).thenReturn(rootResult);
-    when(headers.get(HttpHeader.IF_MATCH)).thenReturn(eTag);
+    when(headers.get(HttpHeader.IF_MATCH)).thenReturn(etag);
 
     when(tuple.get("ETag")).thenReturn(Integer.valueOf(1));
 
@@ -140,13 +142,13 @@ class JPANavigationRequestProcessorTest extends TestBase {
 
   @ParameterizedTest
   @MethodSource("provideIfNoneMatchHeader")
-  void testIfNoneMatchHeader(final List<String> eTag, final JPAETagValidationResult exp, final String message)
-      throws IOException, ODataException {
+  void testIfNoneMatchHeader(final List<String> etag, final JPAETagValidationResult exp, final String message)
+      throws ODataException {
 
     final Tuple tuple = mock(Tuple.class);
     final List<Tuple> rootResult = Collections.singletonList(tuple);
     when(result.getResult(ROOT_RESULT_KEY)).thenReturn(rootResult);
-    when(headers.get(HttpHeader.IF_NONE_MATCH)).thenReturn(eTag);
+    when(headers.get(HttpHeader.IF_NONE_MATCH)).thenReturn(etag);
 
     when(tuple.get("ETag")).thenReturn(Integer.valueOf(1));
 
@@ -162,14 +164,13 @@ class JPANavigationRequestProcessorTest extends TestBase {
 
   @ParameterizedTest
   @MethodSource("provideHeaderException")
-  void testThrowExceptionMultipleResults(final List<String> eTag, final String header) throws IOException,
-      ODataException {
+  void testThrowExceptionMultipleResults(final List<String> etag, final String header) {
 
     final Tuple tuple1 = mock(Tuple.class);
     final Tuple tuple2 = mock(Tuple.class);
     final List<Tuple> rootResult = Arrays.asList(tuple1, tuple2);
     when(result.getResult(ROOT_RESULT_KEY)).thenReturn(rootResult);
-    when(headers.get(header)).thenReturn(eTag);
+    when(headers.get(header)).thenReturn(etag);
 
     assertThrows(ODataJPAProcessorException.class,
         () -> cut.validateEntityTag((JPAConvertibleResult) result, headers));

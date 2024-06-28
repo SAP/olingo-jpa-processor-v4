@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import jakarta.persistence.Tuple;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.data.ComplexValue;
@@ -29,6 +31,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.etag.PreconditionException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
@@ -46,6 +49,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
@@ -166,6 +170,11 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     }
   }
 
+  void checkRequestSupported() throws ODataJPAProcessException {
+    if (uriInfo.getApplyOption() != null)
+      throw new ODataJPANotImplementedException("$apply");
+  }
+
   /**
    * Validate
    * <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-14.24">If-Match</a> and
@@ -181,46 +190,42 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     try {
       if (result instanceof final JPAExpandResult expandResult) {
         if (expandResult.getEntityType().hasEtag()) {
-          final var etagAlias = expandResult.getEntityType().getEtagPath().getAlias();
+
+          final var results = expandResult.getResult(ROOT_RESULT_KEY);
           final var ifNoneMatchEntityTags = header.get(HttpHeader.IF_NONE_MATCH);
-          if (ifNoneMatchEntityTags != null && !ifNoneMatchEntityTags.isEmpty()) {
-            final var results = expandResult.getResult(ROOT_RESULT_KEY);
-            if (results.size() == 1) {
-              final Object etag = "\"" + results.get(0).get(etagAlias) + "\"";
-              return ifNoneMatchEntityTags.contains(etag) || ifNoneMatchEntityTags.contains("*")
-                  ? JPAETagValidationResult.NOT_MODIFIED
-                  : JPAETagValidationResult.SUCCESS;
-            } else if (results.size() > 1) {
-              throw new ODataJPAProcessorException(VALIDATION_NOT_POSSIBLE_TOO_MANY_RESULTS,
-                  HttpStatusCode.BAD_REQUEST);
-            }
-          }
           final var ifMatchEntityTags = header.get(HttpHeader.IF_MATCH);
-          if (ifMatchEntityTags != null && !ifMatchEntityTags.isEmpty()) {
-            final var results = expandResult.getResult(ROOT_RESULT_KEY);
-            if (results.size() == 1) {
-              final Object etag = "\"" + results.get(0).get(etagAlias) + "\"";
-              return ifMatchEntityTags.contains(etag) || ifMatchEntityTags.contains("*")
-                  ? JPAETagValidationResult.SUCCESS
-                  : JPAETagValidationResult.PRECONDITION_FAILED;
-            } else if (results.size() > 1) {
-              throw new ODataJPAProcessorException(VALIDATION_NOT_POSSIBLE_TOO_MANY_RESULTS,
-                  HttpStatusCode.BAD_REQUEST);
-            }
+          if (results.size() == 1) {
+            final var etagAlias = expandResult.getEntityType().getEtagPath().getAlias();
+            final var etag = requestContext.getEtagHelper().asEtag(expandResult.getEntityType(),
+                results.get(0).get(etagAlias));
+            if (requestContext.getEtagHelper().checkReadPreconditions(etag, ifMatchEntityTags, ifNoneMatchEntityTags))
+              return JPAETagValidationResult.NOT_MODIFIED;
+          } else if (!preconditionCheckSupported(results, ifNoneMatchEntityTags, ifMatchEntityTags)) {
+            throw new ODataJPAProcessorException(VALIDATION_NOT_POSSIBLE_TOO_MANY_RESULTS,
+                HttpStatusCode.BAD_REQUEST);
           }
         }
       } else {
         LOGGER.warn("Result is not of type JPAExpandResult. ETag validation not possible");
       }
-    } catch (final ODataJPAModelException e) {
+    } catch (final ODataJPAModelException | ODataJPAQueryException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+
+    catch (final PreconditionException e) {
+      return JPAETagValidationResult.PRECONDITION_FAILED;
     }
     return JPAETagValidationResult.SUCCESS;
   }
 
-  void checkRequestSupported() throws ODataJPAProcessException {
-    if (uriInfo.getApplyOption() != null)
-      throw new ODataJPANotImplementedException("$apply");
+  private boolean preconditionCheckSupported(final List<Tuple> results, final List<String> ifNoneMatchEntityTags,
+      final List<String> ifMatchEntityTags) {
+    return results.size() <= 1
+        || (isEmpty(ifMatchEntityTags) && isEmpty(ifNoneMatchEntityTags));
+  }
+
+  private boolean isEmpty(final List<String> list) {
+    return list == null || list.isEmpty();
   }
 
   private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {

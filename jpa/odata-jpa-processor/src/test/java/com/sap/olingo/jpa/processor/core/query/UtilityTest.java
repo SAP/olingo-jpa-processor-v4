@@ -276,7 +276,6 @@ class UtilityTest extends TestBase {
     when(commentPath.getLeaf()).thenReturn(pathLeaf);
     when(commentPath.getPath()).thenReturn(Collections.singletonList(pathLeaf));
     when(commentPath.getAlias()).thenReturn("Comment");
-    // when(es.getKind()).thenReturn(UriResourceKind.entitySet);
     when(es.getType()).thenReturn(edmType);
     when(edmType.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(edmType.getName()).thenReturn("Organization");
@@ -322,9 +321,6 @@ class UtilityTest extends TestBase {
     assertEquals("FirstLevel/SecondLevel/Comment", act.get(commentPath).getAlias());
   }
 
-  // [JPAPathImpl [alias=SecondLevel/Comment,
-  // Uri [CollectionDeeps, FirstLevel]
-
   private UriResourceNavigation createNavigationResource() {
     final EdmNavigationProperty property = mock(EdmNavigationProperty.class);
     final UriResourceNavigation navigation = mock(UriResourceNavigation.class);
@@ -347,12 +343,6 @@ class UtilityTest extends TestBase {
     when(resourceItem.getEntitySet()).thenReturn(es);
     when(resourceItem.getKeyPredicates()).thenReturn(Collections.emptyList());
     return resourceItem;
-  }
-
-  private UriResourceSingleton createSingletonResource(final String string) {
-    final EdmSingleton es = mock(EdmSingleton.class);
-    when(es.getName()).thenReturn("Singleton");
-    return createSingletonResource(es);
   }
 
   private UriResourceSingleton createSingletonResource(final EdmSingleton es) {

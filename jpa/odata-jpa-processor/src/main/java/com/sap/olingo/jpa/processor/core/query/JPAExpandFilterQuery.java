@@ -136,7 +136,6 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
       nextQuery.orderBy(createOrderBy(childQuery, orderByPaths));
       nextQuery.setFirstResult(getSkipValue(childQuery));
       nextQuery.setMaxResults(getTopValue(childQuery));
-      //nextQuery.groupBy(createGroupBy(childQuery, orderByAttributes, selections, orderByPaths));
       nextQuery.groupBy(createGroupBy(joinTables, queryRoot, selections, orderByPaths));
       return nextQuery;
     }
@@ -200,22 +199,12 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     }
   }
 
-  private List<Expression<?>> createGroupBy(final Subquery<?> childQuery,
-      final List<JPAAssociationPath> orderByAttributes, final List<JPAPath> selections, final Set<Path<?>> orderByPaths) {
-    if (!orderByAttributes.isEmpty()) {
-
-      return selections.stream()
-          .map(path -> mapOnToSelection(path, queryRoot, childQuery))
-          .collect(toList()); // NOSONAR
-    }
-    return emptyList();
-  }
-
-  private List<Order> createOrderBy(final Subquery<?> childQuery, final Set<Path<?>> orderByPaths) throws ODataApplicationException {
+  private List<Order> createOrderBy(final Subquery<?> childQuery, final Set<Path<?>> orderByPaths)
+      throws ODataApplicationException {
     if (!hasRowLimit(childQuery)) {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
       return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage(),
-              orderByPaths);
+          orderByPaths);
     }
     return emptyList();
   }

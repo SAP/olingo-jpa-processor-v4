@@ -42,7 +42,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -78,6 +77,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   @BeforeEach
   public void setup() throws ODataException, ODataJPAIllegalAccessException {
     super.setup();
+
     contextSpy = spy(context);
     final JPAEdmProvider providerSpy = spy(context.getEdmProvider());
     sdSpy = spy(context.getEdmProvider().getServiceDocument());
@@ -512,7 +512,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException, ODataJPAQueryException {
+  void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException {
     prepareTestDeepProtected();
     when(etSpy.getProtections()).thenCallRealMethod();
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -624,14 +624,14 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(etSpy).when(sdSpy).getEntity("BusinessPartnerProtecteds");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
-        contextSpy);
+        contextSpy, odata);
     try {
       requestContext.setUriInfo(uriInfo);
     } catch (final ODataJPAIllegalAccessException e) {
       fail();
     }
     cut = new JPAJoinQuery(null, requestContext);
-    cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq, null);
+    cut.createFromClause(new ArrayList<>(1), new ArrayList<>(), cut.cq, null);
   }
 
   private void prepareTestDeepProtected() throws ODataException, JPANoSelectionException {
@@ -649,13 +649,13 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
     doReturn(null).when(etSpy).getAssociation("");
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
-        contextSpy);
+        contextSpy, odata);
     try {
       requestContext.setUriInfo(uriInfo);
     } catch (final ODataJPAIllegalAccessException e) {
       fail();
     }
     cut = new JPAJoinQuery(null, requestContext);
-    cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq, null);
+    cut.createFromClause(new ArrayList<>(1), new ArrayList<>(), cut.cq, null);
   }
 }

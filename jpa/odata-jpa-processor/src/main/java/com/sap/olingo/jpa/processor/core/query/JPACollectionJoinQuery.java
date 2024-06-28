@@ -92,13 +92,11 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
         // If the collection is part of a navigation take all the attributes
         expandPath(jpaEntity, jpaPathList, this.association.getAlias(), true);
       else {
-        final var st = jpaEntity; // Utility.determineTargetStructuredType(jpaEntity,
-        // uriResource.getUriResourceParts());
+        final var st = jpaEntity;
         for (final SelectItem sItem : select.getSelectItems()) {
           final JPAPath selectItemPath = selectItemAsPath(st, pathPrefix, sItem);
           if (pathContainsCollection(selectItemPath)) {
             if (selectItemPath.getLeaf().isComplex()) {
-              final JPAAttribute attribute = selectItemPath.getLeaf();
               expandPath(st, jpaPathList, selectItemPath.getAlias(), true);
             } else {
               jpaPathList.getODataSelections().add(selectItemPath);

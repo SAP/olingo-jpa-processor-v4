@@ -79,6 +79,7 @@
 		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>
 		<class>com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.LocalDateTimeConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.TimestampLongConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey</class>
