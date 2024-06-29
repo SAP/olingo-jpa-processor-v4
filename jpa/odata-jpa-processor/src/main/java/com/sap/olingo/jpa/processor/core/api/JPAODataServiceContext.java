@@ -55,6 +55,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
   private final boolean useAbsoluteContextURL;
   private final List<AnnotationProvider> annotationProvider;
   private final JPAODataQueryDirectives queryDirectives;
+  private final Object sqlPagingFunctions;
 
   public static JPAODataServiceContextBuilder with() {
     return new Builder();
@@ -78,6 +79,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     useAbsoluteContextURL = builder.useAbsoluteContextURL;
     annotationProvider = Arrays.asList(builder.annotationProvider);
     queryDirectives = builder.queryDirectives;
+    sqlPagingFunctions = builder.sqlPagingFunctions;
   }
 
   @Override
@@ -153,6 +155,11 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     return queryDirectives;
   }
 
+  @Override
+  public Object setSqlPagingFunctions(Object sqlPagingFunctions) {
+    return this.sqlPagingFunctions;
+  }
+
   static class Builder implements JPAODataServiceContextBuilder {
 
     private String namespace;
@@ -172,6 +179,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     private boolean useAbsoluteContextURL = false;
     private AnnotationProvider[] annotationProvider;
     private JPAODataQueryDirectivesImpl queryDirectives;
+    private Object sqlPagingFunctions;
 
     private Builder() {
       super();
@@ -388,6 +396,12 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
       return this;
     }
 
+    @Override
+    public JPAODataServiceContextBuilder setSqlPagingFunctions(final Object sqlPagingFunctions) {
+      this.sqlPagingFunctions = sqlPagingFunctions;
+      return this;
+    }
+
     @SuppressWarnings("unchecked")
     private void createEmfWrapper() {
       if (emf.isPresent()) {
@@ -398,7 +412,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
             jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays
                 .asList(annotationProvider));
           emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
-              JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument()));
+              JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument(), sqlPagingFunctions));
           LOGGER.trace("Criteria Builder Extension found. It will be used");
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
             | NoSuchMethodException | SecurityException e) {
@@ -421,5 +435,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
       this.queryDirectives = queryDirectives;
       return this;
     }
+
   }
+
 }

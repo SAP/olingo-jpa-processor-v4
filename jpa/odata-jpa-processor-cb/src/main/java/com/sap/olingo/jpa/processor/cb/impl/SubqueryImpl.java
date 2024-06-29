@@ -53,11 +53,11 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   private Optional<Integer> firstResult;
 
   SubqueryImpl(@Nonnull final Class<T> type, @Nonnull final CriteriaQuery<?> parent, final AliasBuilder ab,
-      final CriteriaBuilder cb) {
+      final CriteriaBuilder cb, final SqlPagingFunctions sqlPagingFunctions) {
     super();
     this.type = Objects.requireNonNull(type);
     this.parent = Objects.requireNonNull(parent);
-    this.inner = new CriteriaQueryImpl<>(type, ((CriteriaQueryImpl<?>) parent).getServiceDocument(), ab, cb);
+    this.inner = new CriteriaQueryImpl<>(type, ((CriteriaQueryImpl<?>) parent).getServiceDocument(), ab, cb, sqlPagingFunctions);
     maxResult = Optional.empty();
     firstResult = Optional.empty();
   }

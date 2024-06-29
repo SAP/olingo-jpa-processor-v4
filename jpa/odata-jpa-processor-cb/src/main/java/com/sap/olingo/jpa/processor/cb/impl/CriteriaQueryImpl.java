@@ -53,12 +53,14 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
   private Optional<Integer> maxResults;
   private Optional<Integer> firstResult;
   private final CriteriaBuilder cb;
+  private final SqlPagingFunctions sqlPagingFunctions;
 
   CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final AliasBuilder ab,
-      final CriteriaBuilder cb) {
+      final CriteriaBuilder cb, final SqlPagingFunctions sqlPagingFunctions ) {
     super();
     this.resultType = clazz;
     this.sd = sd;
+    this.sqlPagingFunctions = sqlPagingFunctions;
     this.where = Optional.empty();
     this.orderList = Optional.empty();
     this.groupBy = Optional.empty();
@@ -70,8 +72,8 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
     this.selectAliasBuilder = new AliasBuilder("S");
   }
 
-  CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final CriteriaBuilder cb) {
-    this(clazz, sd, new AliasBuilder(), cb);
+  CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final CriteriaBuilder cb, final SqlPagingFunctions sqlPagingFunctions ) {
+    this(clazz, sd, new AliasBuilder(), cb, sqlPagingFunctions);
   }
 
   @Override
@@ -112,11 +114,11 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
       ((SqlConvertible) e).asSQL(statement);
     });
     maxResults.ifPresent(limit -> statement.append(" ")
-        .append(SqlPagingFunctions.LIMIT)
+        .append(sqlPagingFunctions.LIMIT)
         .append(" ")
         .append(limit));
     firstResult.ifPresent(offset -> statement.append(" ")
-        .append(SqlPagingFunctions.OFFSET)
+        .append(sqlPagingFunctions.OFFSET)
         .append(" ")
         .append(offset));
     return statement;
@@ -405,7 +407,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
 
   @Override
   public <U> ProcessorSubquery<U> subquery(@Nonnull final Class<U> type) {
-    return new SubqueryImpl<>(type, this, aliasBuilder, cb);
+    return new SubqueryImpl<>(type, this, aliasBuilder, cb, sqlPagingFunctions);
   }
 
   /**
