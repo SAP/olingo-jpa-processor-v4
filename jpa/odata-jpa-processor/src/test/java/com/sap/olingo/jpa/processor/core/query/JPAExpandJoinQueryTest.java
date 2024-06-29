@@ -76,7 +76,17 @@ class JPAExpandJoinQueryTest extends TestBase {
   }
 
   @Test
-  void testSelectAllWithAllExpand() throws ODataException {
+  void testSelectDistinctExpand() throws ODataException {
+    // .../BusinessPartnerRoles?$expand=BusinessPartner($select=ID;$expand=Roles)
+    final JPAInlineItemInfo item = createBusinessParterRolesExpandChildrenParent(null, null);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
+    final JPAExpandQueryResult act = cut.execute();
+    assertEquals(7, act.getNoResults());
+    assertEquals(11, act.getNoResultsDeep());
+  }
+
+  @Test
+  void testSelectOrganizationByIdWithAllExpand() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
     final JPAInlineItemInfo item = createOrganizationExpandRoles(null, null);
     cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());

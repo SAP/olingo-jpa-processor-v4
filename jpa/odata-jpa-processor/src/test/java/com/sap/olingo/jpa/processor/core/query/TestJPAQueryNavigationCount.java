@@ -70,4 +70,5 @@ class TestJPAQueryNavigationCount extends TestBase {
 
     assertEquals(400, helper.getStatus());
   }
+
 }

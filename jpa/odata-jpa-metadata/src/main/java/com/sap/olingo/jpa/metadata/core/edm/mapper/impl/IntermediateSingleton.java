@@ -70,4 +70,5 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
     }
     return filterAnnotation(alias, term);
   }
+
 }
