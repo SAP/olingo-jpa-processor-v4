@@ -484,7 +484,6 @@ class TestJPAQueryCollection extends TestBase {
 
     final ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
     assertFalse(complex.get("SecondLevel") instanceof NullNode);
-    final ObjectNode second = (ObjectNode) complex.get("SecondLevel");
-    return second;
+    return (ObjectNode) complex.get("SecondLevel");
   }
 }
