@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -192,8 +193,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         if (expandResult.getEntityType().hasEtag()) {
 
           final var results = expandResult.getResult(ROOT_RESULT_KEY);
-          final var ifNoneMatchEntityTags = header.get(HttpHeader.IF_NONE_MATCH);
-          final var ifMatchEntityTags = header.get(HttpHeader.IF_MATCH);
+          final var ifNoneMatchEntityTags = getMatchHeader(header, HttpHeader.IF_NONE_MATCH);
+          final var ifMatchEntityTags = getMatchHeader(header, HttpHeader.IF_MATCH);
           if (results.size() == 1) {
             final var etagAlias = expandResult.getEntityType().getEtagPath().getAlias();
             final var etag = requestContext.getEtagHelper().asEtag(expandResult.getEntityType(),
@@ -216,6 +217,11 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       return JPAETagValidationResult.PRECONDITION_FAILED;
     }
     return JPAETagValidationResult.SUCCESS;
+  }
+
+  private List<String> getMatchHeader(final JPAHttpHeaderMap headers, final String matchHeader) {
+    return Optional.ofNullable(headers.get(matchHeader)).orElseGet(() -> headers.get(
+        matchHeader.toLowerCase(Locale.ENGLISH)));
   }
 
   private boolean preconditionCheckSupported(final List<Tuple> results, final List<String> ifNoneMatchEntityTags,

@@ -14,6 +14,7 @@ import static org.mockito.Mockito.withSettings;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import jakarta.persistence.Tuple;
@@ -93,7 +94,7 @@ class JPANavigationRequestProcessorTest extends TestBase {
   @Test
   void testValidIfMatchWithoutResult() throws ODataJPAProcessorException {
     when(result.getResult(ROOT_RESULT_KEY)).thenReturn(Collections.emptyList());
-    when(headers.get(HttpHeader.IF_MATCH)).thenReturn(Arrays.asList("\"1\""));
+    when(headers.get(HttpHeader.IF_MATCH.toLowerCase(Locale.ENGLISH))).thenReturn(Arrays.asList("\"1\""));
 
     assertEquals(JPAETagValidationResult.SUCCESS, cut.validateEntityTag((JPAConvertibleResult) result, headers));
   }
@@ -101,7 +102,7 @@ class JPANavigationRequestProcessorTest extends TestBase {
   @Test
   void testValidIfNoneMatchWithoutResult() throws ODataJPAProcessorException {
     when(result.getResult(ROOT_RESULT_KEY)).thenReturn(Collections.emptyList());
-    when(headers.get(HttpHeader.IF_NONE_MATCH)).thenReturn(Arrays.asList("\"0\""));
+    when(headers.get(HttpHeader.IF_NONE_MATCH.toLowerCase(Locale.ENGLISH))).thenReturn(Arrays.asList("\"0\""));
 
     assertEquals(JPAETagValidationResult.SUCCESS, cut.validateEntityTag((JPAConvertibleResult) result, headers));
   }
