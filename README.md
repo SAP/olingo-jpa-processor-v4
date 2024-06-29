@@ -102,13 +102,4 @@ Detailed information including third-party components and their licensing/copyri
 |2.0.2| - Solution for issue [#239](https://github.com/SAP/olingo-jpa-processor-v4/issues/239)<br> - Partial solution for issue [#226](https://github.com/SAP/olingo-jpa-processor-v4/issues/226)<br> - Solution for issue [#238](https://github.com/SAP/olingo-jpa-processor-v4/issues/238) and [#236](https://github.com/SAP/olingo-jpa-processor-v4/issues/236)|No|
 |2.1.0| - Enhancement of annotation API<br>- Enhancement of API for server driven paging<br>- Optional support of IN operand <br>- Update to Olingo 5.0.0<br>- Rework $count implementation<br>- Fix problem with $count on collection properties|No|
 |2.1.1| - Fix for issue [#292](https://github.com/SAP/olingo-jpa-processor-v4/issues/292)|No|
-<<<<<<< HEAD
 |2.1.3| - Fix for issue [#319](https://github.com/SAP/olingo-jpa-processor-v4/issues/319)<br> - Fix for issue [#325](https://github.com/SAP/olingo-jpa-processor-v4/issues/325)<br> - Fix for issue [#327](https://github.com/SAP/olingo-jpa-processor-v4/issues/327)<br> - Fix for issue [#331](https://github.com/SAP/olingo-jpa-processor-v4/issues/331)<br> - Fix of en issue with $orderby and _to one_ navigation properties |No|
-=======
-|2.1.3|
- - Fix for issue [#319](https://github.com/SAP/olingo-jpa-processor-v4/issues/319)<br>
- - Fix for issue [#325](https://github.com/SAP/olingo-jpa-processor-v4/issues/325)<br>
- - Fix for issue [#327](https://github.com/SAP/olingo-jpa-processor-v4/issues/327)<br>
- - Fix for issue [#331](https://github.com/SAP/olingo-jpa-processor-v4/issues/331)<br>
- - Fix of en issue with $orderby and _to one_ navigation properties |No|
->>>>>>> refs/remotes/public/main
