@@ -16,6 +16,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
+import org.apache.olingo.server.api.uri.UriResourceLambdaVariable;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
@@ -71,62 +72,37 @@ abstract class JPAExistsOperation implements JPAExpressionOperator {
 
     StringBuilder associationName = null;
     UriResourcePartTyped navigation = null;
-    if (resourceParts != null && Utility.hasNavigation(resourceParts)) {
+    if (Utility.hasNavigation(resourceParts) || Utility.hasCollection(resourceParts)) {
       for (int i = resourceParts.size() - 1; i >= 0; i--) {
         final UriResource resourcePart = resourceParts.get(i);
-        if (resourcePart instanceof UriResourceNavigation) {
+        if (resourcePart instanceof final UriResourceNavigation nextNavigation) {
           if (navigation != null)
             pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociationPath(sd,
-                ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
-          navigation = (UriResourceNavigation) resourceParts.get(i);
+                nextNavigation, associationName), null));
+          navigation = nextNavigation;
           associationName = new StringBuilder();
-          associationName.insert(0, ((UriResourceNavigation) navigation).getProperty().getName());
+          associationName.insert(0, nextNavigation.getProperty().getName());
         }
         if (navigation != null) {
           if (resourceParts.get(i) instanceof final UriResourceComplexProperty complexProperty) {
             associationName.insert(0, JPAPath.PATH_SEPARATOR);
             associationName.insert(0, complexProperty.getProperty().getName());
-          }
-          if (resourcePart instanceof UriResourceEntitySet)
+          } else if (resourcePart instanceof final UriResourceEntitySet entitySet)
             pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociationPath(sd,
-                ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
+                entitySet, associationName), null));
+          else if (resourcePart instanceof final UriResourceLambdaVariable lambdaVariable)
+            pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociation(sd,
+                lambdaVariable.getType(), associationName), null));
         }
-      }
-    } else if (resourceParts != null && hasCollection(resourceParts)) {
-      for (int i = resourceParts.size() - 1; i >= 0; i--) {
-        final UriResource resourcePart = resourceParts.get(i);
-        if (isCollection(resourcePart)) {
-          navigation = (UriResourcePartTyped) resourceParts.get(i);
+        if (Utility.isCollection(resourcePart)) {
+          navigation = (UriResourcePartTyped) resourcePart;
           associationName = new StringBuilder();
           associationName.insert(0, ((UriResourceProperty) navigation).getProperty().getName());
-        } else if (navigation != null) {
-          if (resourceParts.get(i) instanceof final UriResourceComplexProperty complexProperty) {
-            associationName.insert(0, JPAPath.PATH_SEPARATOR);
-            associationName.insert(0, complexProperty.getProperty().getName());
-          }
-          if (resourcePart instanceof UriResourceEntitySet)
-            pathList.add(new JPANavigationPropertyInfo(sd, navigation, Utility.determineAssociationPath(sd,
-                ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
         }
       }
     }
     return pathList;
   }
 
-  public boolean hasCollection(final List<UriResource> resourceParts) {
-    if (resourceParts != null) {
-      for (int i = resourceParts.size() - 1; i >= 0; i--) {
-        if (isCollection(resourceParts.get(i)))
-          return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean isCollection(final UriResource resourcePart) {
-
-    return (resourcePart instanceof final UriResourceProperty resourceProperty && resourceProperty.isCollection());
-  }
-
-  protected static record SubQueryItem(List<Path<Comparable<?>>> jpaPath, Subquery<List<Comparable<?>>> query) {}
+  protected record SubQueryItem(List<Path<Comparable<?>>> jpaPath, Subquery<List<Comparable<?>>> query) {}
 }

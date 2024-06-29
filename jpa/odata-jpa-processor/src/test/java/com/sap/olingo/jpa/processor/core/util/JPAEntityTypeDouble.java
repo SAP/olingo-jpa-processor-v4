@@ -11,6 +11,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEtagValidator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -239,5 +240,11 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   public Object getAnnotationValue(final String alias, final String term, final String property)
       throws ODataJPAModelException {
     return this.base.getAnnotationValue(alias, term, property);
+  }
+
+  @Override
+  public JPAEtagValidator getEtagValidator() {
+    fail();
+    return JPAEtagValidator.WEAK;
   }
 }

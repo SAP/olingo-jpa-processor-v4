@@ -50,9 +50,11 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
           .getFunction().getName());
     Object result = null;
     if (jpaFunction.getFunctionType() == EdmFunctionType.JavaClass) {
-      result = new JPAJavaFunctionProcessor(sd, uriResourceFunction, (JPAJavaFunction) jpaFunction, em).process();
+      result = new JPAJavaFunctionProcessor(sd, uriResourceFunction, (JPAJavaFunction) jpaFunction,
+          em, requestContext.getHeader(), requestContext.getRequestParameter()).process();
     } else if (jpaFunction.getFunctionType() == EdmFunctionType.UserDefinedFunction) {
-      result = dbProcessor.executeFunctionQuery(uriInfo.getUriResourceParts(), (JPADataBaseFunction) jpaFunction, em);
+      result = dbProcessor.executeFunctionQuery(uriInfo.getUriResourceParts(), (JPADataBaseFunction) jpaFunction, em,
+          requestContext.getHeader(), requestContext.getRequestParameter());
     }
     final EdmType returnType = uriResourceFunction.getFunction().getReturnType().getType();
     final Annotatable annotatable = convertResult(result, returnType, jpaFunction);

@@ -34,7 +34,7 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
     this.dataSource = dataSource;
     this.processor = new JPADefaultDatabaseProcessor();
     this.packageNames = packages;
-    this.pagingProvider = provider;
+    this.pagingProvider = provider != null ? provider : new JPADefaultPagingProvider();
     this.annotationProvider = annotationProvider;
     try {
       this.directives = JPAODataServiceContext.with().useQueryDirectives().maxValuesInInClause(3).build().build()

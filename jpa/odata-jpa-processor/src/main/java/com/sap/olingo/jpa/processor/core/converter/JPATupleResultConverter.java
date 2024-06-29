@@ -250,11 +250,11 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       }
+    } else if (attribute != null && value != null && attribute.isEnum() && !value.getClass().isArray()) {
+      odataValue = ((Enum<?>) value).ordinal();
     } else if (attribute != null && attribute.getConverter() != null) {
       final AttributeConverter<T, S> converter = attribute.getConverter();
       odataValue = converter.convertToDatabaseColumn((T) value);
-    } else if (attribute != null && value != null && attribute.isEnum()) {
-      odataValue = ((Enum<?>) value).ordinal();
     } else if (attribute != null && value != null && attribute.isCollection()) {
       return;
     } else if (attribute != null && value != null && attribute.getType() == Duration.class) {

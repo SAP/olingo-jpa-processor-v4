@@ -61,7 +61,8 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
       final JPAAction jpaAction = sd.getAction(resource.getAction());
       if (jpaAction == null)
         throw new ODataJPAProcessorException(ACTION_UNKNOWN, BAD_REQUEST, resource.getAction().getName());
-      final Object instance = createInstance(em, jpaAction);
+      final Object instance = createInstance(jpaAction, em, requestContext.getHeader(), requestContext
+          .getRequestParameter());
 
       final ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
       final Map<String, org.apache.olingo.commons.api.data.Parameter> actionParameter =

@@ -15,6 +15,9 @@ public class AssociationOneToOneTarget {
   @Column(name = "\"ID\"")
   protected String iD;
 
+  @Column(name = "\"SOURCE\"")
+  protected String source;
+
   @OneToOne(mappedBy = "defaultTarget", fetch = FetchType.LAZY)
   private AssociationOneToOneSource defaultSource;
 

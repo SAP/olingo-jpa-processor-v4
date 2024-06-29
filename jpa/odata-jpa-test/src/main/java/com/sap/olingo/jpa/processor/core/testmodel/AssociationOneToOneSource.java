@@ -27,6 +27,6 @@ public class AssociationOneToOneSource {
    * Association with a given name. So it is expected that table AssociationOneToOneSource contains a column TARGET.
    */
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "target")
+  @JoinColumn(name = "\"TARGET\"")
   private AssociationOneToOneTarget columnTarget;
 }

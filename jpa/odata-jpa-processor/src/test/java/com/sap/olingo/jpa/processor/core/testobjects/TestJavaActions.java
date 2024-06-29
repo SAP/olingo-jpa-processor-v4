@@ -61,6 +61,14 @@ public class TestJavaActions implements ODataAction {
     return null;
   }
 
+  @EdmAction(returnType = @ReturnType(type = Person.class), isBound = false)
+  public Person returnsEntityWithETag() {
+    final var person = new Person();
+    person.setETag(7);
+    person.setID("Test");
+    return person;
+  }
+
   @EdmAction()
   public ChangeInformation returnEmbeddable() {
     return new ChangeInformation();

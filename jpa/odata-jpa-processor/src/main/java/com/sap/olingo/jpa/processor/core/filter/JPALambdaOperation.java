@@ -25,8 +25,8 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
 
   protected final UriInfoResource member;
 
-  JPALambdaOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
-    super(jpaComplier);
+  JPALambdaOperation(final JPAFilterComplierAccess jpaCompiler, final Member member) {
+    super(jpaCompiler);
     this.member = member.getResourcePath();
   }
 
@@ -38,7 +38,11 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
   @SuppressWarnings("unchecked")
   protected final <S> Subquery<S> getSubQuery(final Expression expression)
       throws ODataApplicationException {
-    final List<UriResource> allUriResourceParts = new ArrayList<>(uriResourceParts);
+    // Add association root, which is only available for the first lambda expression
+    final List<UriResource> allUriResourceParts = new ArrayList<>();
+    if (uriResourceParts != null)
+      allUriResourceParts.addAll(uriResourceParts);
+    // Add association path
     allUriResourceParts.addAll(member.getUriResourceParts());
 
     // 1. Determine all relevant associations

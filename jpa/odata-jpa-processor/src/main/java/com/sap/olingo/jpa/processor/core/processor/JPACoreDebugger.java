@@ -137,6 +137,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
     }
 
     private long getMemoryConsumption() {
+
       final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
       if (threadMXBean instanceof final com.sun.management.ThreadMXBean sunMXBean) {
         return sunMXBean.getThreadAllocatedBytes(Thread.currentThread().getId());

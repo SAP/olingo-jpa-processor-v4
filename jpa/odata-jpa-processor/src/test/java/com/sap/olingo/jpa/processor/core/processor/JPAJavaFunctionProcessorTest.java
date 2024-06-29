@@ -62,7 +62,7 @@ class JPAJavaFunctionProcessorTest {
   private JPARequestParameterMap requestParameter;
 
   @BeforeEach
-  void setup() throws ODataJPAModelException {
+  void setup() {
     uriParameters = new ArrayList<>();
     sd = mock(JPAServiceDocument.class);
     jpaFunction = mock(JPAJavaFunction.class);
@@ -76,8 +76,8 @@ class JPAJavaFunctionProcessorTest {
   }
 
   @Test
-  void testConstructorQueryContextParameter() throws ODataApplicationException, NoSuchMethodException,
-      SecurityException, ODataJPAModelException, EdmPrimitiveTypeException {
+  void testConstructorQueryContextParameter() throws NoSuchMethodException, SecurityException, ODataJPAModelException,
+      EdmPrimitiveTypeException {
 
     final Constructor<TestFunctionForFilter> c = TestFunctionForFilter.class.getConstructor(JPAODataQueryContext.class);
     final Method m = TestFunctionForFilter.class.getMethod("at2", LocalDate.class);
@@ -97,14 +97,14 @@ class JPAJavaFunctionProcessorTest {
   void testConstructorWithThreeParameter() throws ODataApplicationException, NoSuchMethodException, SecurityException,
       ODataJPAModelException, EdmPrimitiveTypeException {
 
-    final Constructor<TestFunctionActionConstructor> c = TestFunctionActionConstructor.class.getConstructor(
+    final Constructor<TestFunctionActionConstructor> constructor = TestFunctionActionConstructor.class.getConstructor(
         EntityManager.class, JPAHttpHeaderMap.class, JPARequestParameterMap.class);
-    final Method m = TestFunctionActionConstructor.class.getMethod("func", LocalDate.class);
-    final Triple<UriParameter, EdmParameter, JPAParameter> parameter = createParameter("date", m);
+    final Method method = TestFunctionActionConstructor.class.getMethod("func", LocalDate.class);
+    final Triple<UriParameter, EdmParameter, JPAParameter> parameter = createParameter("date", method);
     setPrimitiveValue(LocalDate.now(), parameter);
 
-    doReturn(c).when(jpaFunction).getConstructor();
-    doReturn(m).when(jpaFunction).getMethod();
+    doReturn(constructor).when(jpaFunction).getConstructor();
+    doReturn(method).when(jpaFunction).getMethod();
 
     when(uriResourceFunction.getParameters()).thenReturn(uriParameters);
     when(edmFunction.getParameter("date")).thenReturn(parameter.getMiddle());
@@ -137,7 +137,7 @@ class JPAJavaFunctionProcessorTest {
 
   @Test
   void testParameterEnum() throws ODataApplicationException, NoSuchMethodException, SecurityException,
-      ODataJPAModelException, EdmPrimitiveTypeException {
+      ODataJPAModelException {
 
     final Constructor<TestFunctionActionConstructor> c = TestFunctionActionConstructor.class.getConstructor(
         EntityManager.class, JPAHttpHeaderMap.class, JPARequestParameterMap.class);
@@ -157,8 +157,7 @@ class JPAJavaFunctionProcessorTest {
   }
 
   @Test
-  void testThrowsExceptionEnumNotFound() throws ODataApplicationException, NoSuchMethodException, SecurityException,
-      ODataJPAModelException, EdmPrimitiveTypeException {
+  void testThrowsExceptionEnumNotFound() throws NoSuchMethodException, SecurityException, ODataJPAModelException {
 
     final Constructor<TestFunctionActionConstructor> c = TestFunctionActionConstructor.class.getConstructor(
         EntityManager.class, JPAHttpHeaderMap.class, JPARequestParameterMap.class);
@@ -178,9 +177,7 @@ class JPAJavaFunctionProcessorTest {
   }
 
   @Test
-  void testThrowsExceptionOnUnsupportedType() throws ODataApplicationException, NoSuchMethodException,
-      SecurityException,
-      ODataJPAModelException, EdmPrimitiveTypeException {
+  void testThrowsExceptionOnUnsupportedType() throws NoSuchMethodException, SecurityException, ODataJPAModelException {
 
     final Constructor<TestFunctionActionConstructor> c = TestFunctionActionConstructor.class.getConstructor(
         EntityManager.class, JPAHttpHeaderMap.class, JPARequestParameterMap.class);
@@ -200,8 +197,8 @@ class JPAJavaFunctionProcessorTest {
   }
 
   @Test
-  void testRethrowsExceptionOnInvocationError() throws ODataApplicationException, NoSuchMethodException,
-      SecurityException, ODataJPAModelException, EdmPrimitiveTypeException {
+  void testRethrowsExceptionOnInvocationError() throws NoSuchMethodException, SecurityException, ODataJPAModelException,
+      EdmPrimitiveTypeException {
 
     final Constructor<TestFunctionForFilter> c = TestFunctionForFilter.class.getConstructor(JPAODataQueryContext.class);
     final Method m = TestFunctionForFilter.class.getMethod("at2", LocalDate.class);
@@ -219,8 +216,8 @@ class JPAJavaFunctionProcessorTest {
   }
 
   @Test
-  void testRethrowsExceptionOnInvocationTargetError() throws ODataApplicationException, NoSuchMethodException,
-      SecurityException, ODataJPAModelException, EdmPrimitiveTypeException {
+  void testRethrowsExceptionOnInvocationTargetError() throws NoSuchMethodException, SecurityException,
+      ODataJPAModelException, EdmPrimitiveTypeException {
 
     final Constructor<TestFunctionParameter> c = TestFunctionParameter.class.getConstructor(EntityManager.class);
     final Method m = TestFunctionParameter.class.getMethod("sumThrowsException", Integer.class);
@@ -237,8 +234,8 @@ class JPAJavaFunctionProcessorTest {
   }
 
   @Test
-  void testRethrowsExceptionOnParameterError() throws ODataApplicationException, NoSuchMethodException,
-      SecurityException, ODataJPAModelException, EdmPrimitiveTypeException {
+  void testRethrowsExceptionOnParameterError() throws NoSuchMethodException, SecurityException, ODataJPAModelException,
+      EdmPrimitiveTypeException {
 
     final Constructor<TestFunctionForFilter> c = TestFunctionForFilter.class.getConstructor(JPAODataQueryContext.class);
     final Method m = TestFunctionForFilter.class.getMethod("at2", LocalDate.class);
@@ -259,7 +256,7 @@ class JPAJavaFunctionProcessorTest {
   }
 
   private Triple<UriParameter, EdmParameter, JPAParameter> createParameter(final String name, final Method m)
-      throws ODataJPAModelException, EdmPrimitiveTypeException {
+      throws ODataJPAModelException {
     final UriParameter uriParameter = mock(UriParameter.class);
     when(uriParameter.getName()).thenReturn(name);
     uriParameters.add(uriParameter);
@@ -300,8 +297,7 @@ class JPAJavaFunctionProcessorTest {
     when(enumAttribute.enumOf(value.toString())).thenReturn(value);
   }
 
-  private void setComplexValue(final Object value, final Triple<UriParameter, EdmParameter, JPAParameter> parameter)
-      throws EdmPrimitiveTypeException {
+  private void setComplexValue(final Object value, final Triple<UriParameter, EdmParameter, JPAParameter> parameter) {
     when(parameter.getLeft().getText()).thenReturn(value == null ? null : value.toString());
     final EdmComplexType edmType = mock(EdmComplexType.class);
     when(parameter.getMiddle().getType()).thenReturn(edmType);

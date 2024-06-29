@@ -3,6 +3,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.CheckForNull;
+
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -75,9 +77,10 @@ public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
 
   public boolean hasEtag() throws ODataJPAModelException;
 
-  public boolean hasStream() throws ODataJPAModelException;
+  @CheckForNull
+  public JPAEtagValidator getEtagValidator() throws ODataJPAModelException;
 
-  public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
+  public boolean hasStream() throws ODataJPAModelException;
 
   public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException;

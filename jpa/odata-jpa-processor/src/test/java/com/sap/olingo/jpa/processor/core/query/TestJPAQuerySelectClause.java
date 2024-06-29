@@ -168,7 +168,8 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     assertContains(selectClause, "Name2");
     assertContains(selectClause, "Type");
     assertContains(selectClause, "ID");
-    assertEquals(3, selectClause.size());
+    assertContains(selectClause, "ETag");
+    assertEquals(4, selectClause.size());
   }
 
   @Test
@@ -252,8 +253,9 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Comment"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(1, selectClause.size());
-    assertEquals("ID", selectClause.get(0).getAlias());
+    assertEquals(2, selectClause.size());
+    assertContains(selectClause, "ID");
+    assertContains(selectClause, "ETag");
   }
 
   @Test

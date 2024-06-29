@@ -44,8 +44,6 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.apache.olingo.server.api.uri.queryoption.SkipOption;
-import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
@@ -77,23 +75,13 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected static final String ALIAS_SEPARATOR = ".";
   protected final UriInfoResource uriResource;
   protected final CriteriaQuery<Tuple> cq;
-  protected Root<?> root; // Start of an navigation
-  protected From<?, ?> target; // The entity that shall be returned by the query
   protected final JPAODataPage page;
   protected final List<JPANavigationPropertyInfo> navigationInfo;
   protected final JPANavigationPropertyInfo lastInfo;
   protected final JPAODataRequestContextAccess requestContext;
+  protected Root<?> root; // Start of a navigation
+  protected From<?, ?> target; // The entity that shall be returned by the query
   protected Optional<JPAEntitySet> entitySet;
-
-  protected static Optional<JPAEntitySet> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)
-      throws ODataException {
-
-    final EdmBindingTarget bindingTarget = Utility.determineBindingTarget(requestContext.getUriInfo()
-        .getUriResourceParts());
-    if (bindingTarget instanceof EdmEntitySet)
-      return requestContext.getEdmProvider().getServiceDocument().getEntitySet(bindingTarget.getName());
-    return Optional.empty();
-  }
 
   JPAAbstractJoinQuery(final OData odata, final JPAEntityType jpaEntityType,
       final JPAODataRequestContextAccess requestContext, final List<JPANavigationPropertyInfo> navigationInfo)
@@ -115,6 +103,16 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     this.navigationInfo = navigationInfo;
     this.lastInfo = determineLastInfo(navigationInfo);
     this.entitySet = Optional.empty();
+  }
+
+  protected static Optional<JPAEntitySet> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
+
+    final EdmBindingTarget bindingTarget = Utility.determineBindingTarget(requestContext.getUriInfo()
+        .getUriResourceParts());
+    if (bindingTarget instanceof EdmEntitySet)
+      return requestContext.getEdmProvider().getServiceDocument().getEntitySet(bindingTarget.getName());
+    return Optional.empty();
   }
 
   @SuppressWarnings("unchecked")
@@ -204,6 +202,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * <li>A stream is requested and the property contains the mime type</>
    * </ul>
    * Not included are collection properties.
+   *
    * @param uriResource
    * @return
    * @throws ODataApplicationException
@@ -253,12 +252,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   /**
-   *
    * @param orderByTarget
-   * @param descriptionFields List of the requested fields that of type description
+   * @param selectionPath
    * @param query
    * @param lastInfo
-   * @param queryRoot
    * @return
    * @throws ODataApplicationException
    * @throws JPANoSelectionException
@@ -368,31 +365,31 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     return (last instanceof final UriResourceProperty property && property.isCollection());
   }
 
-  protected void expandPath(final JPAEntityType jpaEntity, final SelectionPathInfo<JPAPath> jpaPathList,
+  protected void expandPath(final JPAStructuredType st, final SelectionPathInfo<JPAPath> jpaPathList,
       final String selectItem, final boolean targetIsCollection) throws ODataJPAModelException,
       ODataJPAProcessException {
 
-    final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
+    final JPAPath selectItemPath = st.getPath(selectItem);
     if (selectItemPath == null)
       throw new ODataJPAQueryException(QUERY_PREPARATION_INVALID_SELECTION_PATH, BAD_REQUEST);
     if (selectItemPath.getLeaf().isComplex()) {
-      expandComplexPath(jpaEntity, jpaPathList, targetIsCollection, selectItemPath);
+      expandComplexPath(st, jpaPathList, targetIsCollection, selectItemPath);
     } else if (selectItemPath.isTransient()) {
-      addTransientAttribute(jpaEntity, jpaPathList, selectItemPath);
+      addTransientAttribute(st, jpaPathList, selectItemPath);
     } else if (!selectItemPath.getLeaf().isCollection()
         || targetIsCollection) {// Primitive Type
       jpaPathList.getODataSelections().add(selectItemPath);
     }
   }
 
-  private void expandComplexPath(final JPAEntityType jpaEntity, final SelectionPathInfo<JPAPath> jpaPathList,
+  private void expandComplexPath(final JPAStructuredType st, final SelectionPathInfo<JPAPath> jpaPathList,
       final boolean targetIsCollection, final JPAPath selectItemPath) throws ODataJPAModelException,
       ODataJPAProcessorException {
-    final List<JPAPath> child = jpaEntity.searchChildPath(selectItemPath);
+    final List<JPAPath> child = st.searchChildPath(selectItemPath);
     if (targetIsCollection) {
       for (final JPAPath p : child) {
         if (p.isTransient())
-          addTransientAttribute(jpaEntity, jpaPathList, p);
+          addTransientAttribute(st, jpaPathList, p);
         else
           jpaPathList.getODataSelections().add(p);
       }
@@ -401,9 +398,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
   }
 
-  private void addTransientAttribute(final JPAEntityType jpaEntity, final SelectionPathInfo<JPAPath> jpaPathList,
+  private void addTransientAttribute(final JPAStructuredType st, final SelectionPathInfo<JPAPath> jpaPathList,
       final JPAPath path) throws ODataJPAModelException, ODataJPAProcessorException {
-    buildRequiredSelections(jpaEntity, path, jpaPathList.getRequiredSelections());
+    buildRequiredSelections(st, path, jpaPathList.getRequiredSelections());
     jpaPathList.getTransientSelections().add(path);
   }
 
@@ -450,29 +447,26 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   private void addSkip(final TypedQuery<Tuple> typedQuery) throws ODataJPAQueryException {
-    final SkipOption skipOption = uriResource.getSkipOption();
-    if (skipOption != null || page != null) {
-      int skipNumber = skipOption != null ? skipOption.getValue() : page.skip();
-      skipNumber = skipOption != null && page != null ? Math.max(skipOption.getValue(), page.skip()) : skipNumber;
-      if (skipNumber >= 0)
-        typedQuery.setFirstResult(skipNumber);
-      else
-        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_VALUE,
-            HttpStatusCode.BAD_REQUEST, Integer.toString(skipNumber), "$skip");
+    // Paging provider has to respect $skip. With the JPADefaultPagingProvider there shall be
+    // always a page
+    if (page != null) {
+      if (page.skip() > 0)
+        typedQuery.setFirstResult(page.skip());
+    } else {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NO_PAGE_FOUND,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, "$skip");
     }
   }
 
-  private void addTop(final TypedQuery<Tuple> tupleQuery) throws ODataJPAQueryException {
-    final TopOption topOption = uriResource.getTopOption();
-    if (topOption != null || page != null) {
-      int topNumber = topOption != null ? topOption.getValue() : page.top();
-      topNumber = topOption != null && page != null ? Math.min(topOption.getValue(), page.top())
-          : topNumber;
-      if (topNumber >= 0)
-        tupleQuery.setMaxResults(topNumber);
-      else
-        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_VALUE,
-            HttpStatusCode.BAD_REQUEST, Integer.toString(topNumber), "$top");
+  private void addTop(final TypedQuery<Tuple> typedQuery) throws ODataJPAQueryException {
+    // Paging provider has to respect $top. With the JPADefaultPagingProvider there shall be
+    // always a page
+    if (page != null) {
+      if (page.top() < Integer.MAX_VALUE)
+        typedQuery.setMaxResults(page.top());
+    } else {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NO_PAGE_FOUND,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, "$top");
     }
   }
 
@@ -493,7 +487,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     return jpaPathList;
   }
 
-  private void buildRequiredSelections(final JPAEntityType et, final JPAPath transientAttributePath,
+  private void buildRequiredSelections(final JPAStructuredType et, final JPAPath transientAttributePath,
       final Set<JPAPath> requitedSelections) throws ODataJPAModelException, ODataJPAProcessorException {
 
     final StringBuilder pathName = new StringBuilder();
@@ -511,8 +505,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
           .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
               HttpStatusCode.INTERNAL_SERVER_ERROR, internalName))
           .getExternalName();
-      final StringBuilder requiredPathName = new StringBuilder(pathName.toString()).append(externalName);
-      requitedSelections.add(et.getPath(requiredPathName.toString(), false));
+      requitedSelections.add(et.getPath(pathName + externalName, false));
     }
   }
 
@@ -524,9 +517,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   /**
-   * In order to be able to link the result of a expand query with the super-ordinate query it is necessary to ensure
+   * In order to be able to link the result of an expand query with the super-ordinate query it is necessary to ensure
    * that the join columns are selected.<br>
    * The same columns are required for the count query, for select as well as order by.
+   *
    * @param uriResource
    * @param jpaPathList
    * @throws ODataApplicationException
@@ -606,6 +600,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   /**
    * Skips all those properties that are or belong to a collection property or marked as transient. E.g
    * (Organization)Comment or (Person)InhouseAddress/Room
+   *
    * @param selectablePathList
    * @param allPathList
    * @throws ODataJPAProcessorException
@@ -739,6 +734,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   /**
    * Completes NavigationInfo and add Joins for navigation parts e.g. from <code>../Organizations('3')/Roles</code>
+   *
    * @param joinTables
    * @throws ODataJPAQueryException
    * @throws ODataJPAProcessorException
@@ -779,6 +775,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingDerivedTypes">
    * 4.11 Addressing Derived Types
    * </a>
+   *
    * @param baseType
    * @param potentialDerivedType
    * @return true if potentialDerivedType is indeed a derived type of baseType
@@ -809,6 +806,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   /**
    * Start point of a Join Query e.g. triggered by <code>../Organizations</code> or
    * <code>../Organizations('3')/Roles</code>
+   *
    * @param query
    * @param joinTables
    * @throws ODataJPAQueryException

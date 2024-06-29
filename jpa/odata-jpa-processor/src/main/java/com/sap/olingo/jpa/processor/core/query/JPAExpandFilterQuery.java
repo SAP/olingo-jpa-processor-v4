@@ -11,9 +11,11 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -127,13 +129,14 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
           .getOrderByOption());
       createRoots(childQuery, queries, nextQuery);
       buildJoinTable(orderByAttributes, emptyList(), childQuery);
+      final Set<Path<?>> orderByPaths = new HashSet<>();
       final List<JPAPath> selections = selectionPathIn();
       nextQuery.where(createWhere(childQuery));
       nextQuery.multiselect(selectIn(childQuery, selections));
-      nextQuery.orderBy(createOrderBy(childQuery));
+      nextQuery.orderBy(createOrderBy(childQuery, orderByPaths));
       nextQuery.setFirstResult(getSkipValue(childQuery));
       nextQuery.setMaxResults(getTopValue(childQuery));
-      nextQuery.groupBy(createGroupBy(childQuery, orderByAttributes, selections));
+      nextQuery.groupBy(createGroupBy(joinTables, queryRoot, selections, orderByPaths));
       return nextQuery;
     }
   }
@@ -156,18 +159,19 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   protected Expression<Boolean> applyAdditionalFilter(final Expression<Boolean> where)
       throws ODataApplicationException {
 
-    if (navigationInfo.getFilterCompiler() != null && aggregationType == null)
+    if (navigationInfo.getFilterCompiler() != null && aggregationType == null) {
       try {
         return addWhereClause(where, navigationInfo.getFilterCompiler().compile());
       } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
+
+    }
     return where;
   }
 
   void buildJoinTable(final List<JPAAssociationPath> orderByAttributes, final Collection<JPAPath> selectionPath,
-      final Subquery<?> childQuery)
-      throws ODataApplicationException {
+      final Subquery<?> childQuery) throws ODataApplicationException {
     createFromClauseJoinTable(joinTables, childQuery);
     createFromClauseOrderBy(orderByAttributes, joinTables, queryRoot);
     createFromClauseDescriptionFields(selectionPath, joinTables, queryRoot, singletonList(navigationInfo));
@@ -190,25 +194,17 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   void setFilter(final JPANavigationPropertyInfo navigationInfo) throws ODataJPAModelException,
       ODataJPAProcessorException,
       ODataJPAQueryException {
-    if (navigationInfo.getFilterCompiler() == null)
+    if (navigationInfo.getFilterCompiler() == null) {
       navigationInfo.setFilterCompiler(addFilterCompiler(navigationInfo));
-  }
-
-  private List<Expression<?>> createGroupBy(final Subquery<?> childQuery,
-      final List<JPAAssociationPath> orderByAttributes, final List<JPAPath> selections) {
-    if (!orderByAttributes.isEmpty()) {
-
-      return selections.stream()
-          .map(path -> mapOnToSelection(path, queryRoot, childQuery))
-          .collect(toList()); // NOSONAR
     }
-    return emptyList();
   }
 
-  private List<Order> createOrderBy(final Subquery<?> childQuery) throws ODataApplicationException {
+  private List<Order> createOrderBy(final Subquery<?> childQuery, final Set<Path<?>> orderByPaths)
+      throws ODataApplicationException {
     if (!hasRowLimit(childQuery)) {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage());
+      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage(),
+          orderByPaths);
     }
     return emptyList();
   }
@@ -234,18 +230,20 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   void createRoots(final Subquery<?> childQuery, final JPAQueryPair queries,
       final ProcessorSubquery<?> nextQuery) throws ODataApplicationException {
 
-    if (hasRowLimit(childQuery))
+    if (hasRowLimit(childQuery)) {
       this.queryRoot = nextQuery.from((ProcessorSubquery<?>) ((JPARowNumberFilterQuery) queries.inner())
           .getSubQuery(childQuery, null, Collections.emptyList()));
-    else
+    } else {
       this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+    }
     navigationInfo.setFromClause(queryRoot);
   }
 
   private Expression<Boolean> createWhere(final Subquery<?> childQuery) throws ODataApplicationException {
 
-    if (hasRowLimit(childQuery))
+    if (hasRowLimit(childQuery)) {
       return createWhereByRowNumber(queryRoot, navigationInfo);
+    }
 
     return createWhereSubQuery(childQuery, false);
   }
@@ -255,9 +253,10 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     Expression<Boolean> whereCondition = createWhereByKey(queryRoot, this.keyPredicates, jpaEntity);
     whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
         queryRoot));
-    if (queryJoinTable != null)
+    if (queryJoinTable != null) {
       whereCondition = addWhereClause(whereCondition, createWhereTableJoin(queryJoinTable, queryRoot, association,
           useInverse));
+    }
 
     if (childQuery != null) {
       whereCondition = addWhereClause(whereCondition,
@@ -269,18 +268,22 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   }
 
   private Integer getSkipValue(@Nullable final Subquery<?> childQuery) {
-    if (navigationInfo.getPage() != null)
-      return navigationInfo.getPage().skip();
-    if (navigationInfo.getUriInfo().getSkipOption() != null && childQuery == null)
+    if (navigationInfo.getPage() != null) {
+      return navigationInfo.getPage().skip() > 0 ? navigationInfo.getPage().skip() : null;
+    }
+    if (navigationInfo.getUriInfo().getSkipOption() != null && childQuery == null) {
       return navigationInfo.getUriInfo().getSkipOption().getValue();
+    }
     return null;
   }
 
   private Integer getTopValue(@Nullable final Subquery<?> childQuery) {
-    if (navigationInfo.getPage() != null)
-      return navigationInfo.getPage().top();
-    if (navigationInfo.getUriInfo().getTopOption() != null && childQuery == null)
+    if (navigationInfo.getPage() != null) {
+      return navigationInfo.getPage().top() < Integer.MAX_VALUE ? navigationInfo.getPage().top() : null;
+    }
+    if (navigationInfo.getUriInfo().getTopOption() != null && childQuery == null) {
       return navigationInfo.getUriInfo().getTopOption().getValue();
+    }
     return null;
   }
 

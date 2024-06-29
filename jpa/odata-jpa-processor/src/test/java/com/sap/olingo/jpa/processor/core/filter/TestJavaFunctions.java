@@ -16,22 +16,19 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
-import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class TestJavaFunctions {
+class TestJavaFunctions {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected TestHelper helper;
   protected Map<String, List<String>> headers;
   protected static JPADefaultEdmNameBuilder nameBuilder;
   protected static DataSource ds;
 
   @BeforeAll
-  public static void setupClass() throws ODataJPAModelException {
+  public static void setupClass() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
