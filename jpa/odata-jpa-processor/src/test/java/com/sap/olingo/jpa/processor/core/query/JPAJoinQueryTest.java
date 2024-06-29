@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -8,16 +9,18 @@ import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
@@ -30,8 +33,7 @@ import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
 class JPAJoinQueryTest extends TestQueryBase {
   private CriteriaBuilder cb;
-  @SuppressWarnings("rawtypes")
-  private CriteriaQuery cq;
+
   private EntityManager em;
   private JPAODataRequestContextAccess localContext;
   private JPAHttpHeaderMap headerMap;
@@ -42,7 +44,7 @@ class JPAJoinQueryTest extends TestQueryBase {
   public void setup() throws ODataException, ODataJPAIllegalAccessException {
     em = mock(EntityManager.class);
     cb = spy(emf.getCriteriaBuilder());
-    cq = mock(CriteriaQuery.class);
+
     localContext = mock(JPAODataRequestContextAccess.class);
     headerMap = mock(JPAHttpHeaderMap.class);
     parameterMap = mock(JPARequestParameterMap.class);
@@ -110,5 +112,12 @@ class JPAJoinQueryTest extends TestQueryBase {
     when(potentialSubType.getBaseType()).thenReturn(baseType2);
 
     assertFalse(cut.derivedTypeRequested(baseType, potentialSubType));
+  }
+
+  @Test
+  void testBuildEntityPathListRethrowsException() throws ODataJPAModelException {
+    final var jpaEntityType = mock(JPAEntityType.class);
+    when(jpaEntityType.getPathList()).thenThrow(ODataJPAModelException.class);
+    assertThrows(ODataApplicationException.class, () -> cut.buildEntityPathList(jpaEntityType));
   }
 }

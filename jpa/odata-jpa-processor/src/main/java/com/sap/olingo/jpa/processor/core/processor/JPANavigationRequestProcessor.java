@@ -4,14 +4,20 @@ import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_R
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ODATA_MAXPAGESIZE_NOT_A_NUMBER;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.VALIDATION_NOT_POSSIBLE_TOO_MANY_RESULTS;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import jakarta.persistence.Tuple;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -19,20 +25,24 @@ import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.etag.PreconditionException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
@@ -40,8 +50,10 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryFactory;
@@ -52,6 +64,7 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Utility;
 
 public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
+  private static final Log LOGGER = LogFactory.getLog(JPANavigationRequestProcessor.class);
   private final ServiceMetadata serviceMetadata;
   private final UriResource lastItem;
   private final JPAODataPage page;
@@ -83,15 +96,19 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       }
 
       final var result = query.execute();
+      // Validate If-Match and If-None-Match headers
+      final var conditionValidationResult = validateEntityTag(result, requestContext.getHeader());
       // Read Expand and Collection
-      final var keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(),
-          page);
-      final var watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
-      watchDog.watch(uriInfo.getExpandOption(), uriInfo.getUriResourceParts());
-      result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary,
-          watchDog));
-      // Convert tuple result into an OData Result
       EntityCollection entityCollection;
+      if (conditionValidationResult == JPAETagValidationResult.SUCCESS) {
+        final var keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(),
+            page);
+        final var watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
+        watchDog.watch(uriInfo.getExpandOption(), uriInfo.getUriResourceParts());
+        result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary,
+            watchDog));
+      }
+      // Convert tuple result into an OData Result
       try (var converterMeasurement = debugger.newMeasurement(this, "convertResult")) {
         entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
             serviceMetadata, requestContext)).get(ROOT_RESULT_KEY);
@@ -132,7 +149,11 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
        * of
        * the related single entity. If no entity is related, the service returns 204 No Content.
        */
-      if (hasNoContent(entityCollection.getEntities()))
+      if (conditionValidationResult == JPAETagValidationResult.NOT_MODIFIED)
+        createNotModifiedResponse(response, entityCollection);
+      else if (conditionValidationResult == JPAETagValidationResult.PRECONDITION_FAILED)
+        createPreconditionFailedResponse(response);
+      else if (hasNoContent(entityCollection.getEntities()))
         response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
       else if (doesNotExists(entityCollection.getEntities()))
         response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
@@ -140,7 +161,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       else if (entityCollection.getEntities() != null) {
         try (var serializerMeasurement = debugger.newMeasurement(this, "serialize")) {
           final var serializerResult = serializer.serialize(request, entityCollection);
-          createSuccessResponse(response, responseFormat, serializerResult);
+          createSuccessResponse(response, responseFormat, serializerResult, entityCollection);
         }
       } else {
         // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
@@ -150,9 +171,67 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     }
   }
 
-  private void checkRequestSupported() throws ODataJPAProcessException {
+  void checkRequestSupported() throws ODataJPAProcessException {
     if (uriInfo.getApplyOption() != null)
       throw new ODataJPANotImplementedException("$apply");
+  }
+
+  /**
+   * Validate
+   * <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-14.24">If-Match</a> and
+   * <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-14.26">If-None-Match</a>
+   * headers
+   * @param result Query result
+   * @param header List of all request headers
+   * @throws ODataJPAProcessorException
+   */
+  JPAETagValidationResult validateEntityTag(final JPAConvertibleResult result, final JPAHttpHeaderMap header)
+      throws ODataJPAProcessorException {
+
+    try {
+      if (result instanceof final JPAExpandResult expandResult) {
+        if (expandResult.getEntityType().hasEtag()) {
+
+          final var results = expandResult.getResult(ROOT_RESULT_KEY);
+          final var ifNoneMatchEntityTags = getMatchHeader(header, HttpHeader.IF_NONE_MATCH);
+          final var ifMatchEntityTags = getMatchHeader(header, HttpHeader.IF_MATCH);
+          if (results.size() == 1) {
+            final var etagAlias = expandResult.getEntityType().getEtagPath().getAlias();
+            final var etag = requestContext.getEtagHelper().asEtag(expandResult.getEntityType(),
+                results.get(0).get(etagAlias));
+            if (requestContext.getEtagHelper().checkReadPreconditions(etag, ifMatchEntityTags, ifNoneMatchEntityTags))
+              return JPAETagValidationResult.NOT_MODIFIED;
+          } else if (!preconditionCheckSupported(results, ifNoneMatchEntityTags, ifMatchEntityTags)) {
+            throw new ODataJPAProcessorException(VALIDATION_NOT_POSSIBLE_TOO_MANY_RESULTS,
+                HttpStatusCode.BAD_REQUEST);
+          }
+        }
+      } else {
+        LOGGER.warn("Result is not of type JPAExpandResult. ETag validation not possible");
+      }
+    } catch (final ODataJPAModelException | ODataJPAQueryException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+
+    catch (final PreconditionException e) {
+      return JPAETagValidationResult.PRECONDITION_FAILED;
+    }
+    return JPAETagValidationResult.SUCCESS;
+  }
+
+  private List<String> getMatchHeader(final JPAHttpHeaderMap headers, final String matchHeader) {
+    return Optional.ofNullable(headers.get(matchHeader)).orElseGet(() -> headers.get(
+        matchHeader.toLowerCase(Locale.ENGLISH)));
+  }
+
+  private boolean preconditionCheckSupported(final List<Tuple> results, final List<String> ifNoneMatchEntityTags,
+      final List<String> ifMatchEntityTags) {
+    return results.size() <= 1
+        || (isEmpty(ifMatchEntityTags) && isEmpty(ifNoneMatchEntityTags));
+  }
+
+  private boolean isEmpty(final List<String> list) {
+    return list == null || list.isEmpty();
   }
 
   private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {

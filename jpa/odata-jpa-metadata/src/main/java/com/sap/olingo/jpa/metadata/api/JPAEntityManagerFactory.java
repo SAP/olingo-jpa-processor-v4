@@ -28,8 +28,9 @@ public class JPAEntityManagerFactory {
       final Map<Integer, EntityManagerFactory> dsMap = emfMap.get(pUnit);
       EntityManagerFactory emf = dsMap.get(dsKey);
 
-      if (emf != null)
-        return emf;
+      if (emf != null) {
+        return emf; 
+      }
       emf = Persistence.createEntityManagerFactory(pUnit, ds);
       dsMap.put(dsKey, emf);
       return emf;

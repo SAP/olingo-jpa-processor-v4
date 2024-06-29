@@ -79,6 +79,7 @@
 		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>
 		<class>com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.LocalDateTimeConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.TimestampLongConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey</class>
@@ -92,17 +93,18 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsSingleton</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.DetailSettings</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.User</class>        
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="jakarta.persistence.validation.mode" value="NONE" />
 			<property name="eclipselink.logging.level.sql" value="FINE"  />
-			<property name="eclipselink.logging.level" value="ERROR" />
+			<property name="eclipselink.logging.level.metadata" value="SEVERE"/>
+			<property name="eclipselink.logging.level" value="SEVERE" />
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />
 			<property name="eclipse.weaving" value="true"/>
 			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
-			<property name="eclipselink.logging.level" value="WARNING" />
 
 			<!--  -->
 			<property name="openjpa.DynamicEnhancementAgent" value="true"/>
@@ -146,9 +148,9 @@
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />
 			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
-			<property name="eclipselink.logging.level" value="WARNING" />
-			<property name="eclipselink.logging.level.sql" value="WARNING" />
-			<property name="eclipselink.logging.level.metadata" value="ALL"/>
+			<property name="eclipselink.logging.level" value="SEVERE" />
+			<property name="eclipselink.logging.level.sql" value="SEVERE" />
+			<property name="eclipselink.logging.level.metadata" value="SEVERE"/>
 			<!--  -->
 			<property name="openjpa.DynamicEnhancementAgent" value="true"/>
 			<property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>

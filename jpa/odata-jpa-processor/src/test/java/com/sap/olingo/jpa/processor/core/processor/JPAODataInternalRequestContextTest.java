@@ -19,7 +19,9 @@ import java.util.Optional;
 import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.debug.DebugSupport;
+import org.apache.olingo.server.api.etag.ETagHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,7 @@ import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
+import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
@@ -77,12 +80,17 @@ class JPAODataInternalRequestContextTest {
   private JPAEdmProvider edmProvider;
   private JPAODataDatabaseOperations operationConverter;
   private JPAODataQueryDirectives queryDirectives;
+  private JPAODataEtagHelper etagHelper;
+  private OData odata;
+  private ETagHelper olingoEtagHelper;
 
   @BeforeEach
   void setup() throws ODataException {
     contextAccess = mock(JPAODataRequestContextAccess.class);
     requestContext = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
+    odata = mock(OData.class);
+    olingoEtagHelper = mock(ETagHelper.class);
     uriInfoResource = mock(UriInfoResource.class);
     header = new HashMap<>();
 
@@ -100,7 +108,10 @@ class JPAODataInternalRequestContextTest {
     edmProvider = mock(JPAEdmProvider.class);
     operationConverter = mock(JPAODataDatabaseOperations.class);
     queryDirectives = new JPAODataQueryDirectives.JPAODataQueryDirectivesImpl(0);
+    etagHelper = mock(JPAODataEtagHelper.class);
     page = new JPAODataPage(uriInfo, 0, 0, claims);
+
+    when(odata.createETagHelper()).thenReturn(olingoEtagHelper);
 
     when(contextAccess.getTransactionFactory()).thenReturn(transactionFactory);
     when(contextAccess.getRequestParameter()).thenReturn(customParameter);
@@ -110,6 +121,7 @@ class JPAODataInternalRequestContextTest {
     when(contextAccess.getProvidedLocale()).thenReturn(locales);
     when(contextAccess.getDebugger()).thenReturn(debugger);
     when(contextAccess.getQueryDirectives()).thenReturn(queryDirectives);
+    when(contextAccess.getEtagHelper()).thenReturn(etagHelper);
 
     when(requestContext.getClaimsProvider()).thenReturn(claims);
     when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
@@ -145,10 +157,11 @@ class JPAODataInternalRequestContextTest {
     assertEquals(page, cut.getPage());
     assertEquals(uriInfo, cut.getUriInfo());
     assertEquals(queryDirectives, cut.getQueryDirectives());
+    assertEquals(etagHelper, cut.getEtagHelper());
   }
 
   @Test
-  void testCreateFromContextUriAccessWithDebugger() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
+  void testCreateFromContextUriAccessWithDebugger() throws ODataJPAProcessorException {
 
     cut = new JPAODataInternalRequestContext(uriInfoResource, serializer, contextAccess, header);
 
@@ -164,10 +177,11 @@ class JPAODataInternalRequestContextTest {
     assertEquals(locales, cut.getProvidedLocale());
     assertNotNull(cut.getCUDRequestHandler());
     assertEquals(queryDirectives, cut.getQueryDirectives());
+    assertEquals(etagHelper, cut.getEtagHelper());
   }
 
   @Test
-  void testCreateFromContextUriContextAccess() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
+  void testCreateFromContextUriContextAccess() throws ODataJPAProcessorException {
 
     when(contextAccess.getHeader()).thenReturn(new JPAHttpHeaderHashMap(header));
     cut = new JPAODataInternalRequestContext(uriInfoResource, contextAccess);
@@ -184,10 +198,11 @@ class JPAODataInternalRequestContextTest {
     assertEquals(locales, cut.getProvidedLocale());
     assertNotNull(cut.getCUDRequestHandler());
     assertEquals(queryDirectives, cut.getQueryDirectives());
+    assertEquals(etagHelper, cut.getEtagHelper());
   }
 
   @Test
-  void testCreateFromContextUriContextAccessHeader() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
+  void testCreateFromContextUriContextAccessHeader() throws ODataJPAProcessorException {
 
     cut = new JPAODataInternalRequestContext(uriInfoResource, contextAccess, header);
 
@@ -203,12 +218,13 @@ class JPAODataInternalRequestContextTest {
     assertEquals(locales, cut.getProvidedLocale());
     assertNotNull(cut.getCUDRequestHandler());
     assertEquals(queryDirectives, cut.getQueryDirectives());
+    assertEquals(etagHelper, cut.getEtagHelper());
   }
 
   @Test
-  void testCreateFromRequestContextWithDebugSupport() throws ODataJPAIllegalAccessException {
+  void testCreateFromRequestContextWithDebugSupport() {
     // contextAccess.get
-    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
 
     assertEquals(em, cut.getEntityManager());
     assertEquals(claims, cut.getClaimsProvider());
@@ -223,7 +239,7 @@ class JPAODataInternalRequestContextTest {
 
   @Test
   void testCreateFromContextAccessWithDebugSupport() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
-    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     cut = new JPAODataInternalRequestContext(page, serializer, cut, header);
     assertTrue(cut.getDebugSupport().isUserAuthorized());
   }
@@ -309,8 +325,7 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testSetJPAODataPageThrowsExceptionUriInfoExists() throws ODataJPAIllegalAccessException,
-      ODataJPAProcessorException {
+  void testSetJPAODataPageThrowsExceptionUriInfoExists() throws ODataJPAProcessorException {
     cut = new JPAODataInternalRequestContext(uriInfoResource, serializer, contextAccess, header);
 
     assertThrows(ODataJPAIllegalAccessException.class, () -> cut.setJPAODataPage(page));
@@ -336,19 +351,25 @@ class JPAODataInternalRequestContextTest {
 
   @Test
   void testGetDatabaseProcessor() {
-    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     assertEquals(dbProcessor, cut.getDatabaseProcessor());
   }
 
   @Test
   void testGetEdmProvider() throws ODataException {
-    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     assertEquals(edmProvider, cut.getEdmProvider());
   }
 
   @Test
   void testGetOperationConverter() {
-    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     assertEquals(operationConverter, cut.getOperationConverter());
+  }
+
+  @Test
+  void testGetEtagHelper() {
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
+    assertNotNull(cut.getEtagHelper());
   }
 }

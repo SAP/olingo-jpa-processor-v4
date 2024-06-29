@@ -84,6 +84,7 @@ public class TestFunctionReturnType implements ODataFunction {
   public Person convertBirthday() {
     final Person p = new Person();
     p.setID("1");
+    p.setETag(3L);
     p.setBirthDay(LocalDate.now());
     p.setInhouseAddress(new ArrayList<>());
     return p;

@@ -11,6 +11,8 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import db.migration.V1_1__SchemaMigration;
+
 public class DataSourceHelper {
   private static final String DB_SCHEMA = "OLINGO";
 
@@ -64,6 +66,9 @@ public class DataSourceHelper {
 
     config.schemas(DB_SCHEMA);
     config.createSchemas(true);
+    // Prefer additional migration over callback to create UDFs
+    config.javaMigrations(new V1_1__SchemaMigration());
+    config.loggers("auto");
     new Flyway(config).migrate();
     return config.getDataSource();
   }

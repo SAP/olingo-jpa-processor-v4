@@ -287,6 +287,16 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   }
 
   @Override
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
+    final List<JPAPath> result = new ArrayList<>();
+    for (final JPAPath path : this.resolvedPathMap.values()) {
+      if (!path.ignore() && path.getAlias().startsWith(selectItemPath.getAlias()))
+        result.add(path);
+    }
+    return result;
+  }
+
+  @Override
   public List<JPAProtectionInfo> getProtections() throws ODataJPAModelException {
     lazyBuildCompleteProtectionList();
     return protectedAttributes;

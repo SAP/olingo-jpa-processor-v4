@@ -41,6 +41,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEtagValidator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -60,6 +61,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     IntermediateEntityTypeAccess {
 
   private Optional<JPAPath> etagPath;
+  private Optional<JPAEtagValidator> etagValidator;
   private Optional<Optional<JPAQueryExtension<EdmQueryExtensionProvider>>> extensionQueryProvider;
   private List<JPAAttribute> keyAttributes;
   private final boolean asTopLevelOnly;
@@ -180,6 +182,13 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   public JPAPath getEtagPath() throws ODataJPAModelException {
     if (hasEtag() && etagPath.isPresent())
       return etagPath.get();
+    return null;
+  }
+
+  @Override
+  public JPAEtagValidator getEtagValidator() throws ODataJPAModelException {
+    if (hasEtag())
+      return etagValidator.orElse(null);
     return null;
   }
 
@@ -308,16 +317,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return determineAbstract();
   }
 
-  @Override
-  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
-    final List<JPAPath> result = new ArrayList<>();
-    for (final JPAPath path : this.resolvedPathMap.values()) {
-      if (!path.ignore() && path.getAlias().startsWith(selectItemPath.getAlias()))
-        result.add(path);
-    }
-    return result;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   protected <I extends CsdlAbstractEdmItem> List<I> extractEdmModelElements(
@@ -351,6 +350,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       postProcessor.processEntityType(this);
       retrieveAnnotations(this, Applicability.ENTITY_TYPE);
       edmStructuralType = new CsdlEntityType();
+      determineHasEtag();
       edmStructuralType.setName(getExternalName());
       edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
       edmStructuralType.setNavigationProperties(extractEdmModelElements(
@@ -360,7 +360,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       edmStructuralType.setBaseType(determineBaseType());
       ((CsdlEntityType) edmStructuralType).setHasStream(determineHasStream());
       edmStructuralType.setAnnotations(determineAnnotations());
-      determineHasEtag();
       checkPropertyConsistency(); //
       // TODO determine OpenType
     }
@@ -529,10 +528,14 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesMap.entrySet()) {
       if (property.getValue().isEtag()) {
         etagPath = Optional.of(getPath(property.getValue().getExternalName(), false));
+        etagValidator = Optional.of(Number.class.isAssignableFrom(property.getValue().getJavaType())
+            ? JPAEtagValidator.STRONG : JPAEtagValidator.WEAK);
       }
     }
-    if (getBaseType() instanceof final IntermediateEntityType<?> baseEntityType)
+    if (getBaseType() instanceof final IntermediateEntityType<?> baseEntityType) {
       etagPath = Optional.ofNullable(baseEntityType.getEtagPath());
+      etagValidator = Optional.ofNullable(baseEntityType.getEtagValidator());
+    }
   }
 
   private <A extends Annotation> Optional<A> getAnnotation(final Class<?> annotated, final Class<A> type) {

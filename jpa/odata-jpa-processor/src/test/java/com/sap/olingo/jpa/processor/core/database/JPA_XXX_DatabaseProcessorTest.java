@@ -37,6 +37,8 @@ import org.mockito.internal.matchers.Equals;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -65,6 +67,8 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
   protected String oneParameterResult;
   protected String twoParameterResult;
   protected String countResult;
+  protected JPAHttpHeaderMap headers;
+  protected JPARequestParameterMap parameters;
 
   void initEach() {
     em = mock(EntityManager.class);
@@ -78,6 +82,8 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     uriResourceParts.add(uriFunction);
     uriParameters = new ArrayList<>();
     firstUriParameter = mock(UriParameter.class);
+    headers = mock(JPAHttpHeaderMap.class);
+    parameters = mock(JPARequestParameterMap.class);
 
     jpaFunction = mock(JPADataBaseFunction.class);
     returnParameter = mock(JPAOperationResultParameter.class);
@@ -106,7 +112,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(uriResourceCount.getKind()).thenReturn(UriResourceKind.value);
 
     final ODataApplicationException act = assertThrows(ODataApplicationException.class,
-        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em));
+        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers, parameters));
 
     assertEquals(act.getStatusCode(), HttpStatusCode.NOT_IMPLEMENTED.getStatusCode());
   }
@@ -118,10 +124,11 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(jpaFunction.getParameter()).thenThrow(ODataJPAModelException.class);
 
     final ODataApplicationException act = assertThrows(ODataApplicationException.class,
-        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em));
+        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers, parameters));
     assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   void testBoundFunctionWithOneParameterCount() throws ODataApplicationException,
       ODataJPAModelException {
@@ -132,7 +139,8 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(uriResourceCount.getKind()).thenReturn(UriResourceKind.count);
     when(functionQuery.getSingleResult()).thenReturn(5L);
 
-    final List<Long> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<Long> act = (List<Long>) cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers,
+        parameters);
 
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(countResult)));
     verify(functionQuery, times(1)).setParameter(1, "5");
@@ -143,12 +151,14 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     assertEquals(5L, act.get(0));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
-  void testBoundFunctionWithOneParameterReturnsBuPas() throws ODataApplicationException,
+  void testBoundFunctionWithOneParameterReturnsBusinessPartners() throws ODataApplicationException,
       ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
-    final List<BusinessPartner> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<BusinessPartner> act = (List<BusinessPartner>) cut.executeFunctionQuery(uriResourceParts, jpaFunction,
+        em, headers, parameters);
 
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(oneParameterResult)), eq(
         BusinessPartner.class));
@@ -157,13 +167,15 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     assertEquals(2, act.size());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
-  void testBoundFunctionWithTwoParameterReturnsBuPas() throws ODataApplicationException,
+  void testBoundFunctionWithTwoParameterReturnsBusinessPartners() throws ODataApplicationException,
       ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
     addSecondBoundParameter();
-    final List<BusinessPartner> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<BusinessPartner> act = (List<BusinessPartner>) cut.executeFunctionQuery(uriResourceParts, jpaFunction,
+        em, headers, parameters);
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(twoParameterResult)), eq(
         BusinessPartner.class));
     verify(functionQuery, times(1)).setParameter(1, "5");
@@ -179,7 +191,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(uriEntitySet.getKeyPredicates()).thenReturn(new ArrayList<>());
 
     final ODataApplicationException act = assertThrows(ODataApplicationException.class,
-        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em));
+        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers, parameters));
 
     assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), act.getStatusCode());
   }
@@ -195,7 +207,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
         .thenThrow(EdmPrimitiveTypeException.class);
 
     final ODataApplicationException act = assertThrows(ODataApplicationException.class,
-        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em));
+        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers, parameters));
 
     assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
 
@@ -208,7 +220,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(jpaFunction.isBound()).thenThrow(ODataJPAModelException.class);
 
     final ODataApplicationException act = assertThrows(ODataApplicationException.class,
-        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em));
+        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers, parameters));
     assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
   }
 
@@ -219,10 +231,11 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(jpaFunction.getParameter()).thenThrow(ODataJPAModelException.class);
 
     final ODataApplicationException act = assertThrows(ODataApplicationException.class,
-        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em));
+        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers, parameters));
     assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   void testUnboundFunctionWithOneParameterCount() throws ODataApplicationException, ODataJPAModelException {
 
@@ -233,7 +246,8 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(uriResourceCount.getKind()).thenReturn(UriResourceKind.count);
     when(functionQuery.getSingleResult()).thenReturn(5L);
 
-    final List<Long> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<Long> act = (List<Long>) cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers,
+        parameters);
 
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(countResult)));
     verify(functionQuery, times(1)).setParameter(1, "5");
@@ -244,13 +258,15 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     assertEquals(5L, act.get(0));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
-  void testUnboundFunctionWithOneParameterReturnsBuPas() throws ODataApplicationException,
+  void testUnboundFunctionWithOneParameterReturnsBusinessPartners() throws ODataApplicationException,
       ODataJPAModelException {
 
     createFunctionWithOneParameter();
 
-    final List<BusinessPartner> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<BusinessPartner> act = (List<BusinessPartner>) cut.executeFunctionQuery(uriResourceParts, jpaFunction,
+        em, headers, parameters);
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(oneParameterResult)), eq(
         BusinessPartner.class));
     verify(functionQuery, times(1)).setParameter(1, "5");
@@ -258,14 +274,16 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     assertEquals(2, act.size());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
-  void testUnboundFunctionWithTwoParameterReturnsBuPas() throws ODataApplicationException,
+  void testUnboundFunctionWithTwoParameterReturnsBusinessPartners() throws ODataApplicationException,
       ODataJPAModelException {
 
     createFunctionWithOneParameter();
     addSecondParameter();
 
-    final List<BusinessPartner> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<BusinessPartner> act = (List<BusinessPartner>) cut.executeFunctionQuery(uriResourceParts, jpaFunction,
+        em, headers, parameters);
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(twoParameterResult)), eq(
         BusinessPartner.class));
     verify(functionQuery, times(1)).setParameter(1, "5");
@@ -281,7 +299,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(uriFunction.getParameters()).thenReturn(new ArrayList<>());
 
     final ODataApplicationException act = assertThrows(ODataApplicationException.class,
-        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em));
+        () -> cut.executeFunctionQuery(uriResourceParts, jpaFunction, em, headers, parameters));
     assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), act.getStatusCode());
 
   }

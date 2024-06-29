@@ -14,6 +14,7 @@ import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,7 @@ class TestJPAExpandQueryCreateResult extends TestBase {
   private JPAExpandJoinQuery cut;
   private JPAODataSessionContextAccess sessionContext;
   private JPAODataInternalRequestContext requestContext;
+  private OData odata;
 
   @BeforeEach
   void setup() throws ODataException, ODataJPAIllegalAccessException {
@@ -48,7 +50,8 @@ class TestJPAExpandQueryCreateResult extends TestBase {
 
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext);
+    odata = OData.newInstance();
+    requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext, odata);
     requestContext.setUriInfo(new UriInfoDouble(new ExpandItemDouble(targetEntity).getResourcePath()));
 
     cut = new JPAExpandJoinQuery(null, helper.getJPAAssociationPath("Organizations", "Roles"),

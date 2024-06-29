@@ -124,14 +124,18 @@ public abstract class JPAStructuredResultConverter {
   private void convertComplexProperty(final Object row, final List<Property> properties, final JPAAttribute attribute,
       final Method getMethod) throws ODataJPAModelException, ODataJPAQueryException, IllegalAccessException,
       InvocationTargetException {
-    final ComplexValue complexValue = new ComplexValue();
-    properties.add(new Property(
-        attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
-        attribute.getExternalName(),
-        ValueType.COMPLEX,
-        complexValue));
-    final List<Property> values = complexValue.getValue();
-    convertProperties(getMethod.invoke(row), values, attribute.getStructuredType());
+
+    final var complexResult = getMethod.invoke(row);
+    if (complexResult != null) {
+      final ComplexValue complexValue = new ComplexValue();
+      properties.add(new Property(
+          attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
+          attribute.getExternalName(),
+          ValueType.COMPLEX,
+          complexValue));
+      final List<Property> values = complexValue.getValue();
+      convertProperties(complexResult, values, attribute.getStructuredType());
+    }
   }
 
   private void convertCollectionProperty(final Object row, final List<Property> properties,
@@ -155,7 +159,7 @@ public abstract class JPAStructuredResultConverter {
         collection));
   }
 
-  private Method getGetter(final String attributeName, final Map<String, Method> methodMap)
+  Method getGetter(final String attributeName, final Map<String, Method> methodMap)
       throws ODataJPAQueryException {
     final String getterName = ACCESS_MODIFIER_GET + JPADefaultEdmNameBuilder.firstToUpper(attributeName);
 

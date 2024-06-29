@@ -497,7 +497,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Entity createdEntity = convertEntity(et, result, request.getAllHeaders());
       final EntityCollection entities = new EntityCollection();
       entities.getEntities().add(createdEntity);
-      createSuccessResponse(response, responseFormat, serializer.serialize(request, entities));
+      createSuccessResponse(response, responseFormat, serializer.serialize(request, entities), entities);
       response.setHeader(HttpHeader.LOCATION, location);
     }
   }
@@ -688,7 +688,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       }
       final EntityCollection entities = new EntityCollection();
       entities.getEntities().add(updatedEntity);
-      createSuccessResponse(response, responseFormat, serializer.serialize(request, entities));
+      createSuccessResponse(response, responseFormat, serializer.serialize(request, entities), entities);
     }
   }
 

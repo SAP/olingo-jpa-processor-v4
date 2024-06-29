@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
 
@@ -28,61 +29,48 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.testobjects.UserType;
 import com.sap.olingo.jpa.processor.core.testmodel.DateTimeConverter;
 
 class TupleImplTest {
+  private static final int NO_ELEMENTS = 7;
   private static final String SECOND_VALUE = "Second";
   private static final String THIRD_VALUE = "Third";
   private static final String FIRST_VALUE = "First";
   private static final String TIME_VALUE = "Timestamp";
+  private static final String ENUM_VALUE_STRING = "EnumeratedString";
+  private static final String ENUM_VALUE_ORDINAL = "EnumeratedOrdinal";
+  private static final String ENUM_VALUE_ERROR = "EnumeratedError";
   private Tuple cut;
-  private final Object[] values = { "Hello", "World", 3, Timestamp.valueOf("2019-01-25 14:00:25") };
+  private final Object[] values = { "Hello", "World", 3, Timestamp.valueOf("2019-01-25 14:00:25"), "INTERACTIVE", 0,
+      "2019-01-25" };
   private Map<String, Integer> selectionIndex;
   private List<Entry<String, JPAAttribute>> selPath;
 
   @BeforeEach
   void setup() {
 
-    selPath = new ArrayList<>(3);
-    selectionIndex = new HashMap<>(3);
+    selPath = new ArrayList<>(NO_ELEMENTS);
+    selectionIndex = new HashMap<>(NO_ELEMENTS);
     selectionIndex.put(FIRST_VALUE, 0);
     selectionIndex.put(SECOND_VALUE, 1);
     selectionIndex.put(THIRD_VALUE, 2);
     selectionIndex.put(TIME_VALUE, 3);
+    selectionIndex.put(ENUM_VALUE_STRING, 4);
+    selectionIndex.put(ENUM_VALUE_ORDINAL, 5);
+    selectionIndex.put(ENUM_VALUE_ERROR, 6);
 
     selPath.add(new ProcessorSelection.SelectionAttribute(FIRST_VALUE, mockAttribute(FIRST_VALUE, String.class)));
     selPath.add(new ProcessorSelection.SelectionAttribute(SECOND_VALUE, mockAttribute(SECOND_VALUE, String.class)));
     selPath.add(new ProcessorSelection.SelectionAttribute(THIRD_VALUE, mockAttribute(THIRD_VALUE, Integer.class)));
     selPath.add(new ProcessorSelection.SelectionAttribute(TIME_VALUE, mockAttributeWithConverter(TIME_VALUE)));
+    selPath.add(new ProcessorSelection.SelectionAttribute(ENUM_VALUE_STRING, mockAttributeEnumerated(ENUM_VALUE_STRING,
+        String.class)));
+    selPath.add(new ProcessorSelection.SelectionAttribute(ENUM_VALUE_ORDINAL, mockAttributeEnumerated(
+        ENUM_VALUE_ORDINAL, Integer.class)));
+    selPath.add(new ProcessorSelection.SelectionAttribute(ENUM_VALUE_ERROR, mockAttributeEnumerated(ENUM_VALUE_ERROR,
+        LocalDate.class)));
     cut = new TupleImpl(values, selPath, selectionIndex);
-  }
-
-  private JPAAttribute mockAttribute(final String alias, final Class<?> clazz) {
-    final JPAAttribute a = mock(JPAAttribute.class);
-    when(a.getType()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return clazz;
-      }
-    });
-    return a;
-  }
-
-  private JPAAttribute mockAttributeWithConverter(final String alias) {
-    final JPAAttribute attribute = mockAttribute(alias, Timestamp.class);
-    when(attribute.getConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
-      @Override
-      public AttributeConverter<LocalDateTime, Timestamp> answer(final InvocationOnMock invocation) throws Throwable {
-        return new DateTimeConverter();
-      }
-    });
-    when(attribute.getRawConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
-      @Override
-      public AttributeConverter<LocalDateTime, Timestamp> answer(final InvocationOnMock invocation) throws Throwable {
-        return new DateTimeConverter();
-      }
-    });
-    return attribute;
   }
 
   @Test
@@ -99,7 +87,7 @@ class TupleImplTest {
 
   @Test
   void testGetByIndexThrowsExceptionOnInvalidIndex() {
-    assertThrows(IllegalArgumentException.class, () -> cut.get(5));
+    assertThrows(IllegalArgumentException.class, () -> cut.get(NO_ELEMENTS));
     assertThrows(IllegalArgumentException.class, () -> cut.get(-1));
   }
 
@@ -127,7 +115,7 @@ class TupleImplTest {
 
   @Test
   void testGetByIndexWithCastThrowsExceptionOnInvalidIndex() {
-    assertThrows(IllegalArgumentException.class, () -> cut.get(5, Number.class));
+    assertThrows(IllegalArgumentException.class, () -> cut.get(NO_ELEMENTS, Number.class));
     assertThrows(IllegalArgumentException.class, () -> cut.get(-1, Number.class));
   }
 
@@ -150,7 +138,7 @@ class TupleImplTest {
   void testGetTupleElements() {
     final List<TupleElement<?>> act = cut.getElements();
     boolean secondFound = false;
-    assertEquals(4, act.size());
+    assertEquals(NO_ELEMENTS, act.size());
     for (final TupleElement<?> t : act) {
       if (SECOND_VALUE.equals(t.getAlias())) {
         assertEquals(String.class, t.getJavaType());
@@ -165,5 +153,52 @@ class TupleImplTest {
   void testTupleReturnsConvertedValue() {
     cut = new TupleImpl(values, selPath, selectionIndex);
     assertTrue(cut.get(TIME_VALUE) instanceof LocalDateTime);
+  }
+
+  @Test
+  void testTupleReturnsEnumeratedStringConvertedValue() {
+    cut = new TupleImpl(values, selPath, selectionIndex);
+    final var act = cut.get(ENUM_VALUE_STRING);
+    assertTrue(act instanceof UserType);
+    assertEquals("INTERACTIVE", ((UserType) act).toString());
+  }
+
+  @Test
+  void testTupleReturnsEnumeratedOrdinalConvertedValue() {
+    cut = new TupleImpl(values, selPath, selectionIndex);
+    final var act = cut.get(ENUM_VALUE_ORDINAL);
+    assertTrue(act instanceof UserType);
+    assertEquals("BATCH", ((UserType) act).toString());
+  }
+
+  @Test
+  void testTupleThrowsExceptionEnumeratedWrongType() {
+    cut = new TupleImpl(values, selPath, selectionIndex);
+    assertThrows(IllegalArgumentException.class, () -> cut.get(ENUM_VALUE_ERROR));
+  }
+
+  private JPAAttribute mockAttribute(final String alias, final Class<?> clazz) {
+    final JPAAttribute a = mock(JPAAttribute.class);
+    when(a.getType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return clazz;
+      }
+    });
+    return a;
+  }
+
+  private JPAAttribute mockAttributeWithConverter(final String alias) {
+    final JPAAttribute attribute = mockAttribute(alias, Timestamp.class);
+    doReturn(new DateTimeConverter()).when(attribute).getConverter();
+    doReturn(new DateTimeConverter()).when(attribute).getRawConverter();
+    return attribute;
+  }
+
+  private JPAAttribute mockAttributeEnumerated(final String alias, final Class<?> dbType) {
+    final JPAAttribute attribute = mockAttribute(alias, UserType.class);
+    when(attribute.isEnum()).thenReturn(true);
+    doReturn(dbType).when(attribute).getDbType();
+    return attribute;
   }
 }

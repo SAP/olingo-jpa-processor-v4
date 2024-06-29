@@ -128,5 +128,4 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
   }
 
   private static record CacheEntry(Long maxTop, JPAODataPage page) {}
-
 }

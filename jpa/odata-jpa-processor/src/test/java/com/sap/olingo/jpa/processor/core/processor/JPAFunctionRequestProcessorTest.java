@@ -5,13 +5,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
@@ -20,13 +22,19 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.olingo.commons.api.data.Annotatable;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.commons.core.edm.primitivetype.EdmBoolean;
+import org.apache.olingo.commons.core.edm.primitivetype.EdmDate;
 import org.apache.olingo.commons.core.edm.primitivetype.EdmInt16;
 import org.apache.olingo.commons.core.edm.primitivetype.EdmInt32;
 import org.apache.olingo.server.api.OData;
@@ -36,6 +44,7 @@ import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.deserializer.ODataDeserializer;
 import org.apache.olingo.server.api.serializer.SerializerResult;
+import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -49,13 +58,20 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.testobjects.TestFunctionActionConstructor;
 import com.sap.olingo.jpa.processor.core.testobjects.TestFunctionReturnType;
 
 class JPAFunctionRequestProcessorTest {
@@ -88,6 +104,10 @@ class JPAFunctionRequestProcessorTest {
   private EdmFunction edmFunction;
   @Captor
   ArgumentCaptor<Annotatable> annotatableCaptor;
+  @Mock
+  private UriHelper uriHelper;
+  @Mock
+  private JPAODataEtagHelper etagHelper;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -106,8 +126,11 @@ class JPAFunctionRequestProcessorTest {
     when(em.getCriteriaBuilder()).thenReturn(cb);
     when(requestContext.getEdmProvider()).thenReturn(edmProvider);
     when(edmProvider.getServiceDocument()).thenReturn(sd);
+    when(requestContext.getRequestParameter()).thenReturn(new JPARequestParameterHashMap());
+    when(requestContext.getHeader()).thenReturn(new JPAHttpHeaderHashMap());
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
+    when(requestContext.getEtagHelper()).thenReturn(etagHelper);
     when(serializer.serialize(any(Annotatable.class), any(EdmType.class), any(ODataRequest.class)))
         .thenReturn(serializerResult);
     when(serializer.getContentType()).thenReturn(ContentType.APPLICATION_JSON);
@@ -119,6 +142,7 @@ class JPAFunctionRequestProcessorTest {
     when(function.getFunctionType()).thenReturn(EdmFunctionType.JavaClass);
     when(sd.getFunction(edmFunction)).thenReturn(function);
     when(odata.createDeserializer((ContentType) any())).thenReturn(deserializer);
+    when(odata.createUriHelper()).thenReturn(uriHelper);
 
     requestFormat = ContentType.APPLICATION_JSON;
 
@@ -126,14 +150,13 @@ class JPAFunctionRequestProcessorTest {
   }
 
   @Test
-  void testCallsWithParameterValue() throws InstantiationException,
-      IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
+  void testCallsWithParameterValue() throws IllegalArgumentException, NoSuchMethodException,
       SecurityException, ODataApplicationException, ODataLibraryException, ODataJPAModelException {
 
-    final Method m = setConstructorAndMethod("primitiveValue", short.class);
+    final Method method = setConstructorAndMethod("primitiveValue", short.class);
 
     final Triple<UriParameter, EdmParameter, JPAParameter> parameter =
-        createParameter("A", "5", m);
+        createParameter("A", "5", Short.class, method);
 
     final EdmReturnType returnType = mock(EdmReturnType.class);
     when(returnType.getType()).thenReturn(EdmInt32.getInstance());
@@ -151,14 +174,13 @@ class JPAFunctionRequestProcessorTest {
   }
 
   @Test
-  void testCallsWithParameterNull() throws InstantiationException,
-      IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
-      SecurityException, ODataApplicationException, ODataLibraryException, ODataJPAModelException {
+  void testCallsWithParameterNull() throws NoSuchMethodException, ODataJPAModelException, ODataApplicationException,
+      ODataLibraryException {
 
-    final Method m = setConstructorAndMethod("primitiveValueNullable", Short.class);
+    final Method method = setConstructorAndMethod("primitiveValueNullable", Short.class);
 
     final Triple<UriParameter, EdmParameter, JPAParameter> parameter =
-        createParameter("A", null, m);
+        createParameter("A", null, Short.class, method);
 
     final EdmReturnType returnType = mock(EdmReturnType.class);
     when(returnType.getType()).thenReturn(EdmInt32.getInstance());
@@ -175,20 +197,97 @@ class JPAFunctionRequestProcessorTest {
     assertTrue(annotatableCaptor.getValue().toString().contains("0"));
   }
 
-  @SuppressWarnings("unchecked")
+  @Test
+  void testCallsWithConstructorParameterValue() throws NoSuchMethodException, ODataJPAModelException,
+      ODataApplicationException, ODataLibraryException {
+
+    final Method method = setConstructorAndMethod(TestFunctionActionConstructor.class, "func", LocalDate.class);
+
+    final Triple<UriParameter, EdmParameter, JPAParameter> parameter =
+        createParameter("date", "2024-10-03", LocalDate.class, method);
+
+    final EdmReturnType returnType = mock(EdmReturnType.class);
+    when(returnType.getType()).thenReturn(EdmBoolean.getInstance());
+    when(edmFunction.getReturnType()).thenReturn(returnType);
+    when(edmFunction.getParameter("date")).thenReturn(parameter.getMiddle());
+
+    final JPAOperationResultParameter resultParameter = mock(JPAOperationResultParameter.class);
+    when(function.getResultParameter()).thenReturn(resultParameter);
+    when(resultParameter.isCollection()).thenReturn(Boolean.FALSE);
+
+    cut.retrieveData(request, response, requestFormat);
+    verify(response).setStatusCode(HttpStatusCode.OK.getStatusCode());
+    verify(serializer).serialize(annotatableCaptor.capture(), eq(EdmBoolean.getInstance()), eq(request));
+    assertTrue(annotatableCaptor.getValue().toString().contains("true"));
+  }
+
+  @Test
+  void testEtagHeaderFilledForEntity() throws NoSuchMethodException, ODataApplicationException, ODataLibraryException,
+      ODataJPAModelException {
+    setConstructorAndMethod(TestFunctionReturnType.class, "convertBirthday");
+
+    final EdmReturnType returnType = mock(EdmReturnType.class);
+    final EdmEntityType type = mock(EdmEntityType.class);
+    when(returnType.getType()).thenReturn(type);
+    when(edmFunction.getReturnType()).thenReturn(returnType);
+    when(type.getKind()).thenReturn(EdmTypeKind.ENTITY);
+
+    final JPAOperationResultParameter resultParameter = mock(JPAOperationResultParameter.class);
+    when(function.getResultParameter()).thenReturn(resultParameter);
+    when(resultParameter.isCollection()).thenReturn(Boolean.FALSE);
+
+    final JPAEntityType jpaType = mock(JPAEntityType.class);
+    final JPAAttribute idAttribute = createJPAAttribute("iD", "Test", "ID");
+    final JPAAttribute etagAttribute = createJPAAttribute("eTag", "Test", "ETag");
+    final List<JPAAttribute> attributes = Arrays.asList(idAttribute, etagAttribute);
+    final JPAPath etagPath = mock(JPAPath.class);
+    final JPAElement pathPart = mock(JPAElement.class);
+    when(sd.getEntity(type)).thenReturn(jpaType);
+    when(jpaType.getExternalFQN()).thenReturn(new FullQualifiedName("Test", "Person"));
+    doReturn(Person.class).when(jpaType).getTypeClass();
+    when(jpaType.getAttributes()).thenReturn(attributes);
+    when(jpaType.hasEtag()).thenReturn(true);
+    when(jpaType.getEtagPath()).thenReturn(etagPath);
+    when(etagPath.getPath()).thenReturn(Arrays.asList(pathPart));
+    when(pathPart.getInternalName()).thenReturn("eTag");
+    when(etagHelper.asEtag(any(), any())).thenReturn("\"3\"");
+
+    when(uriHelper.buildKeyPredicate(any(), any())).thenReturn("example.org");
+
+    cut.retrieveData(request, response, requestFormat);
+    verify(response, times(1)).setStatusCode(200);
+    verify(response, times(1)).setHeader(HttpHeader.ETAG, "\"3\"");
+
+  }
+
   private Method setConstructorAndMethod(final String methodName,
       final Class<?>... parameterTypes) throws NoSuchMethodException {
+    return setConstructorAndMethod(TestFunctionReturnType.class, methodName, parameterTypes);
+  }
+
+  private JPAAttribute createJPAAttribute(final String internalName, final String namespace,
+      final String externalName) {
+    final JPAAttribute attribute = mock(JPAAttribute.class);
+    when(attribute.getInternalName()).thenReturn(internalName);
+    when(attribute.getExternalName()).thenReturn(externalName);
+    when(attribute.getExternalFQN()).thenReturn(new FullQualifiedName(namespace, externalName));
+    return attribute;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Method setConstructorAndMethod(final Class<?> clazz, final String methodName,
+      final Class<?>... parameterTypes) throws NoSuchMethodException {
     @SuppressWarnings("rawtypes")
-    final Constructor c = TestFunctionReturnType.class.getConstructors()[0];
-    final Method m = TestFunctionReturnType.class.getMethod(methodName, parameterTypes);
-    when(function.getConstructor()).thenReturn(c);
-    when(function.getMethod()).thenReturn(m);
+    final Constructor constructor = clazz.getConstructors()[0];
+    final Method method = clazz.getMethod(methodName, parameterTypes);
+    when(function.getConstructor()).thenReturn(constructor);
+    when(function.getMethod()).thenReturn(method);
     when(function.getReturnType()).thenReturn(null);
-    return m;
+    return method;
   }
 
   private Triple<UriParameter, EdmParameter, JPAParameter> createParameter(final String name, final String value,
-      final Method m) throws ODataJPAModelException {
+      final Class<?> parameterType, final Method method) throws ODataJPAModelException {
     final UriParameter uriParameter = mock(UriParameter.class);
     when(uriParameter.getName()).thenReturn(name);
     when(uriParameter.getText()).thenReturn(value);
@@ -196,11 +295,13 @@ class JPAFunctionRequestProcessorTest {
 
     final JPAParameter parameter = mock(JPAParameter.class);
     when(parameter.getName()).thenReturn(name);
-    doReturn(Short.class).when(parameter).getType();
-    when(function.getParameter(m.getParameters()[0])).thenReturn(parameter);
+    doReturn(parameterType).when(parameter).getType();
+    when(function.getParameter(method.getParameters()[0])).thenReturn(parameter);
 
     final EdmParameter edmParameter = mock(EdmParameter.class);
-    when(edmParameter.getType()).thenReturn(EdmInt16.getInstance());
+    when(edmParameter.getType()).thenReturn(parameterType == LocalDate.class
+        ? EdmDate.getInstance()
+        : EdmInt16.getInstance());
 
     return new ImmutableTriple<>(uriParameter, edmParameter, parameter);
   }
