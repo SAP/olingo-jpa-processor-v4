@@ -91,7 +91,7 @@ class JPANavigationNullQueryTest extends TestBase {
     // when(uriResourceItem.getType()).thenReturn(jpaEntityType);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
     when(parent.getQuery()).thenReturn(cq);
-    when(cq.subquery(any())).thenReturn(subQuery);
+    when(cq.subquery(any(Class.class))).thenReturn(subQuery);
     when(subQuery.from(BusinessPartnerProtected.class)).thenReturn(queryRoot);
     when(claimsProvider.get("UserId")).thenReturn(Collections.singletonList(new JPAClaimsPair<>("Willi")));
     doReturn(BusinessPartnerProtected.class).when(from).getJavaType();

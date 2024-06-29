@@ -66,7 +66,7 @@ public class IntegrationTestHelper {
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(edmProvider,
         new ArrayList<>()));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(customContext,
-        sessionContext);
+        sessionContext, odata);
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
     handler.process(req, resp);
@@ -157,7 +157,6 @@ public class IntegrationTestHelper {
   public HttpServletResponse getResponseMock() throws IOException {
     final HttpServletResponse response = mock(HttpServletResponse.class, Answers.RETURNS_MOCKS);
     when(response.getOutputStream()).thenReturn(new OutPutStream());
-    // when(response.getBufferSize()).thenReturn(((OutPutStream) response.getOutputStream()).getSize());
     return response;
 
   }

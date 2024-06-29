@@ -14,6 +14,7 @@ import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
   private JPAODataRequestContextAccess requestContext;
   private JPAODataRequestContext context;
   private JPAODataSessionContextAccess sessionContext;
+  private OData odata;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -50,7 +52,8 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     keyPredicates = new HashMap<>();
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
-    requestContext = new JPAODataInternalRequestContext(context, sessionContext);
+    odata = mock(OData.class);
+    requestContext = new JPAODataInternalRequestContext(context, sessionContext, odata);
   }
 
   @Test

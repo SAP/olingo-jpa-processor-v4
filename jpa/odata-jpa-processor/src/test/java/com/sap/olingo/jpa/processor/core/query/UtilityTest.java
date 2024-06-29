@@ -10,8 +10,10 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -36,6 +38,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
@@ -259,6 +264,63 @@ class UtilityTest extends TestBase {
     assertEquals(2, act.size());
   }
 
+  @Test
+  void testDetermineAssociationsSelectOneProperty() throws ODataException {
+    final TestHelper helper = getHelper();
+    final JPAPath commentPath = mock(JPAPath.class);
+    final Set<JPAPath> selectOptions = new HashSet<>();
+    final UriResourceEntitySet es = createEntitySetResource("Organizations");
+    final JPACollectionAttribute pathLeaf = mock(JPACollectionAttribute.class);
+    final EdmEntityType edmType = mock(EdmEntityType.class);
+
+    when(commentPath.getLeaf()).thenReturn(pathLeaf);
+    when(commentPath.getPath()).thenReturn(Collections.singletonList(pathLeaf));
+    when(commentPath.getAlias()).thenReturn("Comment");
+    when(es.getType()).thenReturn(edmType);
+    when(edmType.getNamespace()).thenReturn("com.sap.olingo.jpa");
+    when(edmType.getName()).thenReturn("Organization");
+
+    resourceParts.add(es);
+    selectOptions.add(commentPath);
+
+    final Map<JPAPath, JPAAssociationPath> act = Utility.determineAssociations(helper.sd, resourceParts,
+        selectOptions);
+
+    assertEquals(1, act.size());
+    assertNotNull(act.get(commentPath));
+  }
+
+  @Test
+  void testDetermineAssociationsUriPathSelectPath() throws ODataException {
+    final TestHelper helper = getHelper();
+    final Set<JPAPath> selectOptions = new HashSet<>();
+    final UriResourceEntitySet es = createEntitySetResource("CollectionDeeps");
+    final UriResourceComplexProperty cp = createComplexPropertyResource("FirstLevel");
+    final EdmEntityType edmType = mock(EdmEntityType.class);
+
+    final JPAAttribute pathParent = mock(JPAAttribute.class);
+    final JPAPath commentPath = mock(JPAPath.class);
+    final JPACollectionAttribute pathLeaf = mock(JPACollectionAttribute.class);
+
+    when(commentPath.getLeaf()).thenReturn(pathLeaf);
+    when(commentPath.getPath()).thenReturn(Arrays.asList(pathParent, pathLeaf));
+    when(commentPath.getAlias()).thenReturn("SecondLevel/Comment");
+    when(es.getType()).thenReturn(edmType);
+    when(edmType.getNamespace()).thenReturn("com.sap.olingo.jpa");
+    when(edmType.getName()).thenReturn("CollectionDeep");
+
+    resourceParts.add(es);
+    resourceParts.add(cp);
+    selectOptions.add(commentPath);
+
+    final Map<JPAPath, JPAAssociationPath> act = Utility.determineAssociations(helper.sd, resourceParts,
+        selectOptions);
+
+    assertEquals(1, act.size());
+    assertNotNull(act.get(commentPath));
+    assertEquals("FirstLevel/SecondLevel/Comment", act.get(commentPath).getAlias());
+  }
+
   private UriResourceNavigation createNavigationResource() {
     final EdmNavigationProperty property = mock(EdmNavigationProperty.class);
     final UriResourceNavigation navigation = mock(UriResourceNavigation.class);
@@ -269,9 +331,9 @@ class UtilityTest extends TestBase {
     return navigation;
   }
 
-  private UriResourceEntitySet createEntitySetResource(final String string) {
+  private UriResourceEntitySet createEntitySetResource(final String name) {
     final EdmEntitySet es = mock(EdmEntitySet.class);
-    when(es.getName()).thenReturn("Persons");
+    when(es.getName()).thenReturn(name);
     return createEntitySetResource(es);
   }
 
@@ -283,12 +345,6 @@ class UtilityTest extends TestBase {
     return resourceItem;
   }
 
-  private UriResourceSingleton createSingletonResource(final String string) {
-    final EdmSingleton es = mock(EdmSingleton.class);
-    when(es.getName()).thenReturn("Singleton");
-    return createSingletonResource(es);
-  }
-
   private UriResourceSingleton createSingletonResource(final EdmSingleton es) {
     final UriResourceSingleton resourceItem = mock(UriResourceSingleton.class);
     when(resourceItem.getKind()).thenReturn(UriResourceKind.singleton);
@@ -296,12 +352,12 @@ class UtilityTest extends TestBase {
     return resourceItem;
   }
 
-  private UriResourceComplexProperty createComplexPropertyResource(final String string) {
+  private UriResourceComplexProperty createComplexPropertyResource(final String name) {
     final EdmProperty property = mock(EdmProperty.class);
     final EdmComplexType complexType = mock(EdmComplexType.class);
-    when(property.getName()).thenReturn("AdministrativeInformation");
+    when(property.getName()).thenReturn(name);
     when(complexType.getNamespace()).thenReturn(PUNIT_NAME);
-    when(complexType.getName()).thenReturn("AdministrativeInformation");
+    when(complexType.getName()).thenReturn(name);
 
     return createComplexPropertyResource(complexType, property);
   }

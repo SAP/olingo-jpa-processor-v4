@@ -19,6 +19,7 @@ import java.util.Optional;
 import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,14 +50,16 @@ class TestJPAODataRequestContextImpl {
   private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContext requestContext;
   private JPAEdmProvider edmProvider;
+  private OData odata;
 
   @BeforeEach
   void setup() throws ODataException {
     edmProvider = mock(JPAEdmProvider.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContext.class);
+    odata = mock(OData.class);
     when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
-    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
   }
 
   @Test
@@ -86,7 +89,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testReturnsSetJPASerializer() throws ODataJPAIllegalAccessException {
+  void testReturnsSetJPASerializer() {
     final JPASerializer exp = mock(JPASerializer.class);
     cut.setJPASerializer(exp);
     assertEquals(exp, cut.getSerializer());
@@ -101,7 +104,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testThrowsExceptionOnPageIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnPageIsNull() {
     assertThrows(NullPointerException.class, () -> cut.setJPAODataPage(null));
   }
 
@@ -114,12 +117,12 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testThrowsExceptionOnUriInfoIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnUriInfoIsNull() {
     assertThrows(NullPointerException.class, () -> cut.setUriInfo(null));
   }
 
   @Test
-  void testThrowsExceptionOnSerializerIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnSerializerIsNull() {
     assertThrows(NullPointerException.class, () -> cut.setJPASerializer(null));
   }
 
@@ -176,8 +179,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testGetCalculatorReturnsEmptyOptionalIfNotTransient() throws ODataJPAModelException,
-      ODataJPAProcessorException {
+  void testGetCalculatorReturnsEmptyOptionalIfNotTransient() throws ODataJPAProcessorException {
     final JPAAttribute attribute = mock(JPAAttribute.class);
     when(attribute.isTransient()).thenReturn(false);
     assertFalse(cut.getCalculator(attribute).isPresent());
@@ -218,7 +220,7 @@ class TestJPAODataRequestContextImpl {
     final Constructor<?> c = DummyPropertyCalculator.class.getConstructor(EntityManager.class);
 
     cut = new JPAODataInternalRequestContext(JPAODataRequestContext
-        .with().setEntityManager(mock(EntityManager.class)).build(), sessionContext);
+        .with().setEntityManager(mock(EntityManager.class)).build(), sessionContext, odata);
     when(attribute.isTransient()).thenReturn(true);
     when(attribute.getCalculatorConstructor()).thenReturn((Constructor<EdmTransientPropertyCalculator<?>>) c);
 
@@ -250,7 +252,7 @@ class TestJPAODataRequestContextImpl {
     final Constructor<?> c = TwoParameterTransientPropertyConverter.class.getConstructor(EntityManager.class,
         JPAHttpHeaderMap.class);
     cut = new JPAODataInternalRequestContext(JPAODataRequestContext
-        .with().setEntityManager(mock(EntityManager.class)).build(), sessionContext);
+        .with().setEntityManager(mock(EntityManager.class)).build(), sessionContext, odata);
     when(attribute.isTransient()).thenReturn(true);
     when(attribute.getCalculatorConstructor()).thenReturn((Constructor<EdmTransientPropertyCalculator<?>>) c);
 
@@ -266,7 +268,7 @@ class TestJPAODataRequestContextImpl {
         .with()
         .setEntityManager(mock(EntityManager.class))
         .setLocales(Arrays.asList(Locale.UK, Locale.ENGLISH))
-        .build(), sessionContext);
+        .build(), sessionContext, odata);
 
     assertEquals(Locale.UK, cut.getLocale());
   }
@@ -277,7 +279,7 @@ class TestJPAODataRequestContextImpl {
         .with()
         .setEntityManager(mock(EntityManager.class))
         .setLocales(Arrays.asList(Locale.UK, Locale.ENGLISH))
-        .build(), sessionContext);
+        .build(), sessionContext, odata);
 
     cut = new JPAODataInternalRequestContext(mock(UriInfoResource.class), cut);
     assertEquals(Locale.UK, cut.getLocale());
@@ -299,6 +301,6 @@ class TestJPAODataRequestContextImpl {
         .setClaimsProvider(expCp)
         .setGroupsProvider(expGp)
         .build();
-    cut = new JPAODataInternalRequestContext(context, sessionContext);
+    cut = new JPAODataInternalRequestContext(context, sessionContext, odata);
   }
 }

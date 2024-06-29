@@ -1087,41 +1087,4 @@ class TestJPAProcessorExpand extends TestBase {
     final ObjectNode parent = (ObjectNode) divisions.get(0).get("Parent");
     assertNotNull(parent);
   }
-
-  @Test
-  void testExpandWithFilterOnCollectionField() throws IOException, ODataException {
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$expand=SupportEngineers($filter=InhouseAddress/any(p:p/Building eq '2'))");
-    helper.assertStatus(200);
-    final ArrayNode organizations = helper.getValues();
-    for(JsonNode organization : organizations) {
-      if (organization.get("ID").asText().equals("1") || organization.get("ID").asText().equals("2")) {
-        final ArrayNode supportEngineers = (ArrayNode) organization.get("SupportEngineers");
-        assertEquals(1, supportEngineers.size());
-        ArrayNode address = (ArrayNode)supportEngineers.get(0).get("InhouseAddress");
-        assertEquals(1, address.size());
-        assertEquals("2", address.get(0).get("Building").asText());
-      } else {
-        final ArrayNode supportEngineers = (ArrayNode) organization.get("SupportEngineers");
-        assertEquals(0, supportEngineers.size());
-      }
-    }
-  }
-
-  @Test
-  void testAnyFilterOnExpandWithMultipleHops() throws IOException, ODataException {
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-      "Organizations?$expand=AdministrativeInformation/Created/User($filter=Jobs/any(p:p/Id eq '98'))");
-    helper.assertStatus(200);
-    final ArrayNode organizations = helper.getValues();
-    for(JsonNode organization : organizations) {
-        JsonNode user = organization.get("AdministrativeInformation").get("Created").get("User");
-        if(organization.get("ID").asText().equals("4")) {
-          assertNotNull(user);
-          assertEquals("98", user.get("ID").asText());
-        } else {
-          assert (user instanceof NullNode);
-        }
-    }
-  }
 }

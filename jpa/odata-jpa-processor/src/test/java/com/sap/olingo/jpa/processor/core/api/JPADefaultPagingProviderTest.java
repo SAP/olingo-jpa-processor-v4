@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -13,6 +14,8 @@ import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 class JPADefaultPagingProviderTest {
 
@@ -76,4 +79,17 @@ class JPADefaultPagingProviderTest {
     assertNull(act.get().skipToken());
   }
 
+  @Test
+  void testGetFirstPageThrowsExceptionSkipNegative() {
+    when(skipOption.getValue()).thenReturn(-99);
+    when(uriInfo.getSkipOption()).thenReturn(skipOption);
+    assertThrows(ODataJPAQueryException.class, () -> cut.getFirstPage(null, null, uriInfo, null, null, null));
+  }
+
+  @Test
+  void testGetFirstPageThrowsExceptionTopNegative() {
+    when(topOption.getValue()).thenReturn(-99);
+    when(uriInfo.getTopOption()).thenReturn(topOption);
+    assertThrows(ODataJPAQueryException.class, () -> cut.getFirstPage(null, null, uriInfo, null, null, null));
+  }
 }

@@ -41,12 +41,14 @@ public abstract class TestJPACreateResult extends TestBase {
   protected JPAODataRequestContextAccess requestContext;
   protected JPAODataRequestContext context;
   protected JPAODataSessionContextAccess sessionContext;
+  protected OData odata;
 
   public TestJPACreateResult() {
     super();
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
-    requestContext = new JPAODataInternalRequestContext(context, sessionContext);
+    odata = mock(OData.class);
+    requestContext = new JPAODataInternalRequestContext(context, sessionContext, odata);
   }
 
   @Test

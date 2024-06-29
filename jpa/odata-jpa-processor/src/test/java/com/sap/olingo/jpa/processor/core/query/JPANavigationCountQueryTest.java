@@ -101,7 +101,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
     when(em.getCriteriaBuilder()).thenReturn(cb);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
     when(parent.getQuery()).thenReturn(cq);
-    when(cq.<Comparable<?>> subquery(any())).thenReturn(subQuery);
+    when(cq.<Comparable<?>> subquery(any(Class.class))).thenReturn(subQuery);
     when(claimsProvider.get("RoleCategory")).thenReturn(Collections.singletonList(new JPAClaimsPair<>("A")));
     doReturn(BusinessPartnerProtected.class).when(from).getJavaType();
   }

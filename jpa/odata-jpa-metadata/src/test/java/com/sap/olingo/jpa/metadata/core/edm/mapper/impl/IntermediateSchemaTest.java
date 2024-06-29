@@ -28,6 +28,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.errormodel.MissingCardinalityAnnotation;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
+import com.sap.olingo.jpa.processor.core.testmodel.UserType;
 import com.sap.olingo.jpa.processor.core.util.TestDataConstants;
 
 class IntermediateSchemaTest extends TestMappingRoot {
@@ -39,7 +40,8 @@ class IntermediateSchemaTest extends TestMappingRoot {
     reflections = mock(Reflections.class);
     when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class,
-        AccessRights.class)));
+        AccessRights.class,
+        UserType.class)));
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
   }
 

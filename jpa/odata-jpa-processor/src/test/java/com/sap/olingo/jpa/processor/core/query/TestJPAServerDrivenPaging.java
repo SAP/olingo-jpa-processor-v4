@@ -52,10 +52,10 @@ import com.sap.olingo.jpa.processor.core.util.matcher.CountQueryMatcher;
 
 class TestJPAServerDrivenPaging extends TestBase {
   @Test
-  void testReturnsNotImplementedIfPagingProviderNotAvailable() throws IOException, ODataException {
+  void testReturnsGoneIfPagingProviderNotAvailable() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$skiptoken=xyz");
-    helper.assertStatus(501);
+    helper.assertStatus(410);
   }
 
   @Test

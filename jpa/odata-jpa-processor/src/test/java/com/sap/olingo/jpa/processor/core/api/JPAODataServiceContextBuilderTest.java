@@ -108,11 +108,10 @@ class JPAODataServiceContextBuilderTest {
   }
 
   @Test
-  void checkReturnsDefaultProvidedPagingIfNotProvider() throws ODataException {
+  void checkReturnsDefaultPagingProviderIfNotProvider() throws ODataException {
     cut = JPAODataServiceContext.with()
         .setDataSource(dataSource)
         .setPUnit(PUNIT_NAME)
-        .setPagingProvider(null)
         .build();
 
     assertTrue(cut.getPagingProvider() instanceof JPADefaultPagingProvider);

@@ -76,6 +76,16 @@ class JPAExpandJoinQueryTest extends TestBase {
   }
 
   @Test
+  void testSelectAllWithAllExpand() throws ODataException {
+    // .../Organizations?$expand=Roles&$format=json
+    final JPAInlineItemInfo item = createOrganizationExpandRoles(null, null);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
+    final JPAExpandQueryResult act = cut.execute();
+    assertEquals(4, act.getNoResults());
+    assertEquals(7, act.getNoResultsDeep());
+  }
+
+  @Test
   void testSelectDistinctExpand() throws ODataException {
     // .../BusinessPartnerRoles?$expand=BusinessPartner($select=ID;$expand=Roles)
     final JPAInlineItemInfo item = createBusinessParterRolesExpandChildrenParent(null, null);
@@ -87,16 +97,6 @@ class JPAExpandJoinQueryTest extends TestBase {
 
   @Test
   void testSelectOrganizationByIdWithAllExpand() throws ODataException {
-    // .../Organizations?$expand=Roles&$format=json
-    final JPAInlineItemInfo item = createOrganizationExpandRoles(null, null);
-    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
-    final JPAExpandQueryResult act = cut.execute();
-    assertEquals(4, act.getNoResults());
-    assertEquals(7, act.getNoResultsDeep());
-  }
-
-  @Test
-  void testSelectOrgByIdWithAllExpand() throws ODataException {
 
     // .../Organizations('2')?$expand=Roles&$format=json
     final UriParameter key = mock(UriParameter.class);

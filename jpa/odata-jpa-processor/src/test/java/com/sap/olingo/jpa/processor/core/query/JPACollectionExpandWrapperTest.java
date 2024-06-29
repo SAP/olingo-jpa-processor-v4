@@ -41,12 +41,12 @@ class JPACollectionExpandWrapperTest {
     filterOptions = mock(FilterOption.class);
     countOptions = mock(CountOption.class);
     selectOptions = mock(SelectOption.class);
-    cut = new JPACollectionExpandWrapper(jpaEntityType, uriInfo);
 
     when(uriInfo.getFilterOption()).thenReturn(filterOptions);
     when(uriInfo.getCountOption()).thenReturn(countOptions);
     when(uriInfo.getSelectOption()).thenReturn(selectOptions);
     when(uriInfo.getUriResourceParts()).thenReturn(parts);
+    cut = new JPACollectionExpandWrapper(jpaEntityType, uriInfo);
   }
 
   @Test

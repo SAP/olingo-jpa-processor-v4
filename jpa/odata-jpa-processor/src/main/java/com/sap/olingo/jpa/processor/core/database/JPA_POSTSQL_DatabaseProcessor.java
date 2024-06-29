@@ -17,6 +17,8 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
@@ -45,17 +47,17 @@ public class JPA_POSTSQL_DatabaseProcessor extends JPAAbstractDatabaseProcessor 
         HttpStatusCode.NOT_IMPLEMENTED);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
-      final JPADataBaseFunction jpaFunction, final EntityManager em) throws ODataApplicationException {
+  public Object executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final EntityManager em, final JPAHttpHeaderMap headers,
+      final JPARequestParameterMap parameters) throws ODataApplicationException {
 
     final UriResource last = uriResourceParts.get(uriResourceParts.size() - 1);
 
     if (last.getKind() == UriResourceKind.count) {
       final List<Long> countResult = new ArrayList<>();
       countResult.add(executeCountQuery(uriResourceParts, jpaFunction, em, SELECT_COUNT_PATTERN));
-      return (List<T>) countResult;
+      return countResult;
     }
     if (last.getKind() == UriResourceKind.function)
       return executeQuery(uriResourceParts, jpaFunction, em, SELECT_BASE_PATTERN);

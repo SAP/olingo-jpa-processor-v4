@@ -7,13 +7,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * The annotation can be used to assign attributes or properties to field or visibility groups. On case such a group is
+ * The annotation can be used to assign attributes or properties to field or visibility groups. In case such a group is
  * provided during a GET request all properties that are assigned to that group and all properties that are assigned to
- * no group, or in other words that are not annotated, get selected. In case properties that belong to another group are
- * requested, a null value is returned.<p>
- * 
+ * no group, or in other words that are not annotated, get selected. For properties that belong to another group are
+ * requested, a null value is returned.
+ * <p>
+ *
  * <b>Note:</b> Keys, mandatory fields as well as association or navigation properties can not be annotated
- * 
+ *
  * @author Oliver Grande
  *
  */
