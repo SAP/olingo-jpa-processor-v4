@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -100,7 +102,8 @@ public final class JPAProcessorFactory {
           checkNavigationPathSupported(resourceParts);
           yield new JPANavigationRequestProcessor(odata, serviceMetadata, requestContext);
         }
-        default -> throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+        default -> throw new ODataJPAProcessorException(
+            ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
             HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
       };
     } catch (final ODataJPAIllegalAccessException e) {
@@ -128,6 +131,7 @@ public final class JPAProcessorFactory {
     }
   }
 
+  @Nonnull
   private JPAODataPage getPage(final Map<String, List<String>> headers, final UriInfo uriInfo,
       final JPAODataRequestContextAccess requestContext, final JPAODataPathInformation pathInformation)
       throws ODataException {

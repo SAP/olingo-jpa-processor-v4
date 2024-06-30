@@ -126,9 +126,9 @@ class PredicateImplTest extends BuilderBaseTest {
     when(((SqlConvertible) subQuery).asSQL(statement)).thenAnswer(new Answer<StringBuilder>() {
       @Override
       public StringBuilder answer(final InvocationOnMock invocation) throws Throwable {
-        final StringBuilder statement = ((StringBuilder) invocation.getArgument(0));
-        statement.append("");
-        return statement;
+        final StringBuilder stmt = ((StringBuilder) invocation.getArgument(0));
+        stmt.append("");
+        return stmt;
       }
     });
     final In<?> act = new PredicateImpl.In<>(paths, subQuery);
@@ -145,9 +145,9 @@ class PredicateImplTest extends BuilderBaseTest {
 
       @Override
       public StringBuilder answer(final InvocationOnMock invocation) throws Throwable {
-        final StringBuilder statement = ((StringBuilder) invocation.getArgument(0));
-        statement.append("Test");
-        return statement;
+        final StringBuilder stmt = ((StringBuilder) invocation.getArgument(0));
+        stmt.append("Test");
+        return stmt;
       }
     });
     final In<?> act = new PredicateImpl.In<>(Collections.emptyList(), subQuery);

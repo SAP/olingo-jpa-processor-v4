@@ -19,10 +19,15 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 @RequestScope
 public class ODataController {
   
-  @Autowired
   private JPAODataSessionContextAccess serviceContext;
-  @Autowired
   private JPAODataRequestContext requestContext;
+
+  public ODataController(@Autowired JPAODataSessionContextAccess serviceContext,
+      @Autowired JPAODataRequestContext requestContext) {
+    super();
+    this.serviceContext = serviceContext;
+    this.requestContext = requestContext;
+  }
   
   @RequestMapping(value = "**", method = { RequestMethod.GET, RequestMethod.PATCH, // NOSONAR
       RequestMethod.POST, RequestMethod.DELETE })

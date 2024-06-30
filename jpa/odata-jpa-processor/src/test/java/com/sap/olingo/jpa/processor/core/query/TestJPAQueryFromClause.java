@@ -23,6 +23,7 @@ import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -53,9 +54,11 @@ class TestJPAQueryFromClause extends TestBase {
   private JPAAbstractJoinQuery cut;
   private JPAEntityType jpaEntityType;
   private JPAODataSessionContextAccess sessionContext;
+  private OData odata;
 
   @BeforeEach
   void setup() throws ODataException, ODataJPAIllegalAccessException {
+    odata = mock(OData.class);
     final UriInfo uriInfo = mock(UriInfo.class);
     final EdmEntitySet odataEs = mock(EdmEntitySet.class);
     final EdmEntityType odataType = mock(EdmEntityType.class);
@@ -81,7 +84,7 @@ class TestJPAQueryFromClause extends TestBase {
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
-        sessionContext);
+        sessionContext, odata);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, requestContext);
   }
@@ -159,7 +162,7 @@ class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  void checkFromListDescriptionAssozationAllFields2() throws ODataApplicationException, ODataJPAModelException,
+  void checkFromListDescriptionAssociationAllFields2() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final List<JPAPath> descriptionPathList = new ArrayList<>();
@@ -175,8 +178,7 @@ class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  void checkThrowsIfEliminatedByGroups() throws ODataJPAIllegalAccessException, ODataException,
-      JPANoSelectionException {
+  void checkThrowsIfEliminatedByGroups() throws ODataJPAIllegalAccessException, ODataException {
 
     final JPAODataInternalRequestContext requestContext = buildRequestContextToTestGroups(null);
 
@@ -240,7 +242,7 @@ class TestJPAQueryFromClause extends TestBase {
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
-        sessionContext);
+        sessionContext, odata);
     requestContext.setUriInfo(uriInfo);
     return requestContext;
   }

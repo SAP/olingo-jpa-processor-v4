@@ -15,6 +15,7 @@ import jakarta.persistence.criteria.Root;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -41,6 +42,7 @@ public class TestGroupBase extends TestBase {
   protected JPAODataSessionContextAccess context;
   protected UriInfo uriInfo;
   protected JPAODataInternalRequestContext requestContext;
+  protected OData odata;
 
   public TestGroupBase() {
     super();
@@ -59,7 +61,8 @@ public class TestGroupBase extends TestBase {
         null, null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    requestContext = new JPAODataInternalRequestContext(externalContext, context);
+    odata = OData.newInstance();
+    requestContext = new JPAODataInternalRequestContext(externalContext, context, odata);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, requestContext);
 
