@@ -10,7 +10,7 @@ import jakarta.persistence.Converter;
  * Default converter to convert from {@link Long} to {@link java.sql.Timestamp}.
  *
  * @author Oliver Grande
- * @version 1.0.0-RC
+ * @since 2.1.3
  */
 @Converter(autoApply = false)
 public class TimestampLongConverter implements AttributeConverter<Timestamp, Long> {

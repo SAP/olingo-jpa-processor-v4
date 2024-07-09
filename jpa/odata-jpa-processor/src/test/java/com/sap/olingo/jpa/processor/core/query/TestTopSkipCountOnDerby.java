@@ -10,12 +10,14 @@ import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import com.sap.olingo.jpa.processor.core.database.JPADerbySqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 
@@ -36,12 +38,11 @@ class TestTopSkipCountOnDerby {
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
   }
 
-  @Disabled
   @Test
   void testTop() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$top=10");
+        "AdministrativeDivisions?$top=10", new JPADerbySqlPatternProvider());
     helper.assertStatus(200);
     final ObjectNode collection = helper.getValue();
     final ArrayNode act = ((ArrayNode) collection.get("value"));
@@ -51,12 +52,11 @@ class TestTopSkipCountOnDerby {
     assertEquals("31003", act.get(0).get("DivisionCode").asText());
   }
 
-  @Disabled
   @Test
   void testSkip() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$skip=5");
+        "AdministrativeDivisions?$skip=5", new JPADerbySqlPatternProvider());
     helper.assertStatus(200);
     final ObjectNode collection = helper.getValue();
     final ArrayNode act = ((ArrayNode) collection.get("value"));
@@ -67,26 +67,20 @@ class TestTopSkipCountOnDerby {
   }
 
   @Test
-  void testCount() throws IOException, ODataException {
-
+  void testTopSkip() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions/$count");
+        "AdministrativeDivisions?$top=10&$skip=5", new JPADerbySqlPatternProvider());
     helper.assertStatus(200);
   }
 
-  @Test
-  void testCountExpand() throws IOException, ODataException {
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "AdministrativeDivisions/$count",
+      "Persons?$expand=Roles/$count",
+      "Persons('97')/InhouseAddress/$count" })
+  void testCount(final String query) throws IOException, ODataException {
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$expand=Roles/$count");
-    helper.assertStatus(200);
-  }
-
-  @Test
-  void testCountCollection() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons('97')/InhouseAddress/$count");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, query);
     helper.assertStatus(200);
   }
 }

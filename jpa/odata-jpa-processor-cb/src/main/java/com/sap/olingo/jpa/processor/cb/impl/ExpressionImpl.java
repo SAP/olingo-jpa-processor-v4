@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +30,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder.WindowFunction;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlFunction;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlOperator;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlParameter;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.SqlParameterException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
@@ -129,6 +135,17 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     throw new NotImplementedException();
   }
 
+  void checkParameterCount(final int act, final int max, final String function) {
+    if (act < max)
+      throw new SqlParameterException("Not all parameter supported for: " + function);
+  }
+
+  void addParameter(final ProcessorSqlParameter parameter, final List<CharSequence> parameterValues,
+      final SqlConvertible value) {
+    parameterValues.add(parameter.keyword());
+    parameterValues.add(value.asSQL(new StringBuilder()));
+  }
+
   static class AggregationExpression<N extends Number> extends ExpressionImpl<N> {
 
     private final SqlAggregation function;
@@ -176,10 +193,10 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     private final SqlConvertible right;
     private final SqlArithmetic operation;
 
-    ArithmeticExpression(@Nonnull final Expression<? extends N> x, @Nonnull final Expression<? extends N> y,
+    ArithmeticExpression(@Nonnull final Expression<? extends N> expression, @Nonnull final Expression<? extends N> y,
         @Nonnull final SqlArithmetic operation) {
 
-      this.left = (SqlConvertible) Objects.requireNonNull(x);
+      this.left = (SqlConvertible) Objects.requireNonNull(expression);
       this.right = (SqlConvertible) Objects.requireNonNull(y);
       this.operation = Objects.requireNonNull(operation);
     }
@@ -229,28 +246,42 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   static class ConcatExpression extends ExpressionImpl<String> {
     private final SqlConvertible first;
     private final SqlConvertible second;
+    private final ProcessorSqlPatternProvider sqlPattern;
 
-    ConcatExpression(@Nonnull final Expression<String> first, @Nonnull final Expression<String> second) {
+    ConcatExpression(@Nonnull final Expression<String> first, @Nonnull final Expression<String> second,
+        final ProcessorSqlPatternProvider sqlPattern) {
       this.first = (SqlConvertible) Objects.requireNonNull(first);
       this.second = (SqlConvertible) Objects.requireNonNull(second);
+      this.sqlPattern = sqlPattern;
     }
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
-      statement.append(SqlStringFunctions.CONCAT)
-          .append(OPENING_BRACKET);
-      first.asSQL(statement)
-          .append(", ");
-      second.asSQL(statement);
-      return statement.append(CLOSING_BRACKET);
+
+      final var concatenateClause = sqlPattern.getConcatenatePattern();
+      if (concatenateClause instanceof final ProcessorSqlFunction function) {
+        statement.append(function.function())
+            .append(OPENING_BRACKET);
+        first.asSQL(statement)
+            .append(function.parameters().get(1).keyword());
+        second.asSQL(statement);
+        return statement.append(CLOSING_BRACKET);
+      } else {
+        final var operation = (ProcessorSqlOperator) concatenateClause;
+        statement.append(OPENING_BRACKET);
+        first.asSQL(statement)
+            .append(operation.parameters().get(1).keyword());
+        second.asSQL(statement);
+        return statement.append(CLOSING_BRACKET);
+      }
     }
   }
 
   static class DistinctExpression<T> extends ExpressionImpl<T> {
     private final SqlConvertible left;
 
-    DistinctExpression(@Nonnull final Expression<?> x) {
-      this.left = (SqlConvertible) Objects.requireNonNull(x);
+    DistinctExpression(@Nonnull final Expression<?> expression) {
+      this.left = (SqlConvertible) Objects.requireNonNull(expression);
     }
 
     @Override
@@ -304,25 +335,60 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     private final SqlConvertible expression;
     private final SqlConvertible pattern;
     private final Optional<SqlConvertible> from;
+    private final ProcessorSqlPatternProvider sqlPattern;
 
-    LocateExpression(@Nonnull final Expression<String> x, @Nonnull final Expression<String> pattern,
-        final Expression<Integer> from) {
-      this.expression = (SqlConvertible) Objects.requireNonNull(x);
+    LocateExpression(@Nonnull final Expression<String> expression, @Nonnull final Expression<String> pattern,
+        final Expression<Integer> from, @Nonnull final ProcessorSqlPatternProvider sqlPattern) {
+      this.expression = (SqlConvertible) Objects.requireNonNull(expression);
       this.pattern = (SqlConvertible) Objects.requireNonNull(pattern);
       this.from = Optional.ofNullable((SqlConvertible) from);
+      this.sqlPattern = sqlPattern;
     }
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
       // LOCATE(<pattern>, <string>, <from>)
-      statement.append(SqlStringFunctions.LOCATE)
+      final var function = sqlPattern.getLocatePattern();
+      checkParameterCount(function.parameters().size(), from.isPresent() ? 3 : 2,
+          SqlStringFunctions.LOCATE.toString());
+      final List<CharSequence> parameterValues = new ArrayList<>(5);
+      statement.append(function.function())
           .append(OPENING_BRACKET);
-      pattern.asSQL(statement)
-          .append(", ");
-      expression.asSQL(statement);
-      from.ifPresent(l -> l.asSQL(statement.append(", ")));
+
+      for (final var parameter : function.parameters()) {
+        switch (parameter.parameter()) {
+          case ProcessorSqlPatternProvider.SEARCH_STRING_PLACEHOLDER -> addParameter(parameter, parameterValues,
+              pattern);
+          case ProcessorSqlPatternProvider.VALUE_PLACEHOLDER -> addParameter(parameter, parameterValues,
+              expression);
+          case ProcessorSqlPatternProvider.START_PLACEHOLDER -> from.ifPresent(f -> addParameter(parameter,
+              parameterValues, f));
+          default -> throw new IllegalArgumentException(parameter.parameter()
+              + " not supported for function LOCATE only supports function as pattern");
+        }
+      }
+      statement.append(parameterValues.stream().collect(Collectors.joining()));
       return statement.append(CLOSING_BRACKET);
     }
+  }
+
+  static class LengthExpression extends ExpressionImpl<Integer> {
+    private final SqlConvertible left;
+    private final ProcessorSqlPatternProvider sqlPattern;
+
+    LengthExpression(@Nonnull final Expression<?> expression, @Nonnull final ProcessorSqlPatternProvider sqlPattern) {
+      this.left = (SqlConvertible) Objects.requireNonNull(expression);
+      this.sqlPattern = Objects.requireNonNull(sqlPattern);
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+
+      final var function = sqlPattern.getLengthPattern();
+      statement.append(function.function()).append(OPENING_BRACKET);
+      return left.asSQL(statement).append(CLOSING_BRACKET);
+    }
+
   }
 
   static final class ParameterExpression<T, S> extends ExpressionImpl<T> implements Parameter<T> {
@@ -339,10 +405,10 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
       this.jpaPath = Optional.empty();
     }
 
-    ParameterExpression(final Integer i, final S value, @Nullable final Expression<?> x) {
+    ParameterExpression(final Integer i, final S value, @Nullable final Expression<?> expression) {
       this.index = i;
       this.value = value;
-      setPath(x);
+      setPath(expression);
     }
 
     @SuppressWarnings("unchecked")
@@ -354,9 +420,9 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
       return (T) value;
     }
 
-    void setPath(@Nullable final Expression<?> x) {
-      if (x instanceof PathImpl && ((PathImpl<?>) x).path.isPresent()) {
-        jpaPath = Optional.of(((PathImpl<?>) x).path.get()); // NOSONAR
+    void setPath(@Nullable final Expression<?> expression) {
+      if (expression instanceof PathImpl && ((PathImpl<?>) expression).path.isPresent()) {
+        jpaPath = Optional.of(((PathImpl<?>) expression).path.get()); // NOSONAR
         converter = Optional.ofNullable(jpaPath.get().getLeaf().getConverter());
       } else {
         this.converter = Optional.empty();
@@ -432,23 +498,37 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   static class SubstringExpression extends ExpressionImpl<String> {
     private final SqlConvertible expression;
     private final SqlConvertible from;
-    private final Optional<SqlConvertible> len;
+    private final Optional<SqlConvertible> length;
+    private final ProcessorSqlPatternProvider sqlPattern;
 
-    SubstringExpression(@Nonnull final Expression<String> x, @Nonnull final Expression<Integer> from,
-        final Expression<Integer> len) {
-      this.expression = (SqlConvertible) Objects.requireNonNull(x);
+    SubstringExpression(@Nonnull final Expression<String> expression, @Nonnull final Expression<Integer> from,
+        final Expression<Integer> length, @Nonnull final ProcessorSqlPatternProvider sqlPattern) {
+      this.expression = (SqlConvertible) Objects.requireNonNull(expression);
       this.from = (SqlConvertible) Objects.requireNonNull(from);
-      this.len = Optional.ofNullable((SqlConvertible) len);
+      this.length = Optional.ofNullable((SqlConvertible) length);
+      this.sqlPattern = Objects.requireNonNull(sqlPattern);
     }
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
-      statement.append(SqlStringFunctions.SUBSTRING)
+      final var function = sqlPattern.getSubStringPattern();
+      checkParameterCount(function.parameters().size(), length.isPresent() ? 3 : 2,
+          SqlStringFunctions.SUBSTRING.toString());
+      final List<CharSequence> parameterValues = new ArrayList<>(3);
+      statement.append(function.function())
           .append(OPENING_BRACKET);
-      expression.asSQL(statement)
-          .append(", ");
-      from.asSQL(statement);
-      len.ifPresent(l -> l.asSQL(statement.append(", ")));
+
+      for (final var parameter : function.parameters()) {
+        switch (parameter.parameter()) {
+          case ProcessorSqlPatternProvider.VALUE_PLACEHOLDER -> addParameter(parameter, parameterValues, expression);
+          case ProcessorSqlPatternProvider.START_PLACEHOLDER -> addParameter(parameter, parameterValues, from);
+          case ProcessorSqlPatternProvider.LENGTH_PLACEHOLDER -> length.ifPresent(f -> addParameter(parameter,
+              parameterValues, f));
+          default -> throw new IllegalArgumentException(parameter.parameter()
+              + " not supported for function SUBSTRING");
+        }
+      }
+      statement.append(parameterValues.stream().collect(Collectors.joining()));
       return statement.append(CLOSING_BRACKET);
     }
   }
@@ -472,8 +552,8 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     private final SqlConvertible left;
     private final SqlStringFunctions function;
 
-    UnaryFunctionalExpression(@Nonnull final Expression<?> x, @Nonnull final SqlStringFunctions function) {
-      this.left = (SqlConvertible) Objects.requireNonNull(x);
+    UnaryFunctionalExpression(@Nonnull final Expression<?> expression, @Nonnull final SqlStringFunctions function) {
+      this.left = (SqlConvertible) Objects.requireNonNull(expression);
       this.function = Objects.requireNonNull(function);
     }
 

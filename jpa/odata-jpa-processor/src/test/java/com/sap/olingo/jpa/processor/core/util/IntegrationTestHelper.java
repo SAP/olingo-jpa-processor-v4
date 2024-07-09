@@ -48,6 +48,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
@@ -74,17 +75,22 @@ public class IntegrationTestHelper {
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final AnnotationProvider annotationsProvider) throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, null, null, null, null, annotationsProvider);
+    this(localEmf, null, urlPath, null, null, null, null, null, null, annotationsProvider, null);
+  }
+
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
+      final ProcessorSqlPatternProvider sqlPattern) throws IOException, ODataException {
+    this(localEmf, null, urlPath, null, null, null, null, null, null, null, sqlPattern);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final Map<String, List<String>> headers) throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, null, headers, null, null, null);
+    this(localEmf, null, urlPath, null, null, null, headers, null, null, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final JPAODataGroupProvider groups) throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, null, null, null, groups, null);
+    this(localEmf, null, urlPath, null, null, null, null, null, groups, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath)
@@ -118,30 +124,30 @@ public class IntegrationTestHelper {
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final JPAODataClaimsProvider claims)
       throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, null, null, claims, null, null);
+    this(localEmf, null, urlPath, null, null, null, null, claims, null, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
       final JPAODataPagingProvider provider, final JPAODataClaimsProvider claims) throws IOException, ODataException {
-    this(localEmf, null, urlPath, null, null, provider, null, claims, null, null);
+    this(localEmf, null, urlPath, null, null, provider, null, claims, null, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory emf, final String urlPath,
       final JPAODataPagingProvider provider, final Map<String, List<String>> headers) throws IOException,
       ODataException {
-    this(emf, null, urlPath, null, null, provider, headers, null, null, null);
+    this(emf, null, urlPath, null, null, provider, headers, null, null, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath,
       final StringBuffer requestBody,
       final String functionPackage, final JPAODataPagingProvider provider) throws IOException, ODataException {
-    this(localEmf, dataSource, urlPath, requestBody, functionPackage, provider, null, null, null, null);
+    this(localEmf, dataSource, urlPath, requestBody, functionPackage, provider, null, null, null, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource dataSource, final String urlPath,
       final StringBuffer requestBody, final String functionPackage, final JPAODataPagingProvider pagingProvider,
       final Map<String, List<String>> headers, final JPAODataClaimsProvider claims, final JPAODataGroupProvider groups,
-      final AnnotationProvider annotationsProvider)
+      final AnnotationProvider annotationsProvider, final ProcessorSqlPatternProvider sqlPattern)
       throws IOException, ODataException {
 
     super();
@@ -158,7 +164,7 @@ public class IntegrationTestHelper {
 
     final JPAEdmProvider edmProvider = buildEdmProvider(localEmf, annotationsProvider, packages);
     final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, dataSource,
-        pagingProvider, annotationsProvider, functionPackage);
+        pagingProvider, annotationsProvider, sqlPattern, functionPackage);
 
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
         new ArrayList<>()));
@@ -175,7 +181,10 @@ public class IntegrationTestHelper {
   public JPAODataInternalRequestContext buildRequestContext(final EntityManagerFactory localEmf,
       final JPAODataClaimsProvider claims, final JPAODataGroupProvider groups, final JPAEdmProvider edmProvider,
       final JPAODataSessionContextAccess sessionContext, final OData odata) throws ODataException {
-    final EntityManager em = createEmfWrapper(localEmf, edmProvider).createEntityManager();
+
+    final EntityManager em = createEmfWrapper(localEmf, edmProvider,
+        sessionContext.getSqlPatternProvider() != null ? sessionContext.getSqlPatternProvider() : null)
+            .createEntityManager();
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
 
     when(externalContext.getEntityManager()).thenReturn(em);
@@ -369,15 +378,15 @@ public class IntegrationTestHelper {
 
   @SuppressWarnings("unchecked")
   private EntityManagerFactory createEmfWrapper(@Nonnull final EntityManagerFactory emf,
-      @Nonnull final JPAEdmProvider jpaEdm) throws ODataException {
+      @Nonnull final JPAEdmProvider jpaEdm, final ProcessorSqlPatternProvider sqlPattern) throws ODataException {
 
     try {
       final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class
           .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
 
       try {
-        return wrapperClass.getConstructor(EntityManagerFactory.class,
-            JPAServiceDocument.class).newInstance(emf, jpaEdm.getServiceDocument());
+        return wrapperClass.getConstructor(EntityManagerFactory.class, JPAServiceDocument.class,
+            ProcessorSqlPatternProvider.class).newInstance(emf, jpaEdm.getServiceDocument(), sqlPattern);
       } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
           | NoSuchMethodException | SecurityException e) {
         throw new ODataException(e.getMessage());

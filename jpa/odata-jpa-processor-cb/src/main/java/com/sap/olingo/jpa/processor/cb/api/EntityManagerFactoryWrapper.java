@@ -13,42 +13,46 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.metamodel.Metamodel;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.impl.EntityManagerWrapper;
 
 public final class EntityManagerFactoryWrapper implements EntityManagerFactory {
   private final EntityManagerFactory emf;
   private final JPAServiceDocument sd;
+  private final ProcessorSqlPatternProvider pattern;
 
-  public EntityManagerFactoryWrapper(final EntityManagerFactory emf, final JPAServiceDocument sd) {
+  public EntityManagerFactoryWrapper(final EntityManagerFactory emf, final JPAServiceDocument sd,
+      final ProcessorSqlPatternProvider pattern) {
     super();
     this.emf = emf;
     this.sd = sd;
+    this.pattern = pattern;
   }
 
   @Override
   public EntityManager createEntityManager() {
-    return new EntityManagerWrapper(emf.createEntityManager(), sd);
+    return new EntityManagerWrapper(emf.createEntityManager(), sd, pattern);
   }
 
   @Override
   public EntityManager createEntityManager(@SuppressWarnings("rawtypes") final Map map) {
-    return new EntityManagerWrapper(emf.createEntityManager(map), sd);
+    return new EntityManagerWrapper(emf.createEntityManager(map), sd, pattern);
   }
 
   @Override
   public EntityManager createEntityManager(final SynchronizationType synchronizationType) {
-    return new EntityManagerWrapper(emf.createEntityManager(synchronizationType), sd);
+    return new EntityManagerWrapper(emf.createEntityManager(synchronizationType), sd, pattern);
   }
 
   @Override
   public EntityManager createEntityManager(final SynchronizationType synchronizationType,
       @SuppressWarnings("rawtypes") final Map map) {
-    return new EntityManagerWrapper(emf.createEntityManager(synchronizationType, map), sd);
+    return new EntityManagerWrapper(emf.createEntityManager(synchronizationType, map), sd, pattern);
   }
 
   @Override
   public CriteriaBuilder getCriteriaBuilder() {
-    try (EntityManager em = new EntityManagerWrapper(emf.createEntityManager(), sd)) {
+    try (EntityManager em = new EntityManagerWrapper(emf.createEntityManager(), sd, pattern)) {
       return em.getCriteriaBuilder();
     }
   }

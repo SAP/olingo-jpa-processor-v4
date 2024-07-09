@@ -14,6 +14,8 @@ import org.apache.olingo.commons.api.ex.ODataException;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
+import com.sap.olingo.jpa.processor.core.database.JPAAbstractDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
@@ -21,14 +23,16 @@ import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFacto
 public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess {
   private final JPAEdmProvider edmProvider;
   private final DataSource dataSource;
-  private final JPADefaultDatabaseProcessor processor;
+  private final JPAAbstractDatabaseProcessor processor;
   private final String[] packageNames;
   private final JPAODataPagingProvider pagingProvider;
   private final AnnotationProvider annotationProvider;
   private JPAODataQueryDirectives directives;
+  private final ProcessorSqlPatternProvider sqlPatternProvider;
 
   public JPAODataContextAccessDouble(final JPAEdmProvider edmProvider, final DataSource dataSource,
-      final JPAODataPagingProvider provider, final AnnotationProvider annotationProvider, final String... packages) {
+      final JPAODataPagingProvider provider, final AnnotationProvider annotationProvider,
+      final ProcessorSqlPatternProvider sqlPatternProvider, final String... packages) {
     super();
     this.edmProvider = edmProvider;
     this.dataSource = dataSource;
@@ -36,6 +40,7 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
     this.packageNames = packages;
     this.pagingProvider = provider != null ? provider : new JPADefaultPagingProvider();
     this.annotationProvider = annotationProvider;
+    this.sqlPatternProvider = sqlPatternProvider;
     try {
       this.directives = JPAODataServiceContext.with().useQueryDirectives().maxValuesInInClause(3).build().build()
           .getQueryDirectives();
@@ -52,7 +57,9 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
 
   @Override
   public JPAODataDatabaseOperations getOperationConverter() {
-    return processor;
+    return processor instanceof JPAODataDatabaseOperations
+        ? (JPAODataDatabaseOperations) processor
+        : new JPADefaultDatabaseProcessor();
   }
 
   @Override
@@ -88,5 +95,10 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   @Override
   public JPAODataQueryDirectives getQueryDirectives() {
     return directives;
+  }
+
+  @Override
+  public ProcessorSqlPatternProvider getSqlPatternProvider() {
+    return sqlPatternProvider;
   }
 }

@@ -26,6 +26,18 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.AbstractQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
+
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -64,18 +76,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasur
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.AbstractQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Selection;
-import jakarta.persistence.criteria.Subquery;
 
 public abstract class JPAAbstractQuery {
   protected static final String PERMISSIONS_REGEX = ".*[\\*\\%\\+\\_].*";
@@ -196,17 +196,17 @@ public abstract class JPAAbstractQuery {
   }
 
   protected List<jakarta.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables, // NOSONAR
-      final From<?, ?> from, final Collection<JPAPath> selectionPathList, @Nonnull Set<Path<?>> orderByPaths) {
+      final From<?, ?> from, final Collection<JPAPath> selectionPathList, @Nonnull final Set<Path<?>> orderByPaths) {
 
     try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "createGroupBy")) {
       final List<jakarta.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
       for (final JPAPath jpaPath : selectionPathList) {
-        var path = ExpressionUtility.convertToCriteriaPath(joinTables, from, jpaPath.getPath());
+        final var path = ExpressionUtility.convertToCriteriaPath(joinTables, from, jpaPath.getPath());
         orderByPaths.remove(path);
         groupBy.add(path);
       }
 
-      for (var path : orderByPaths) {
+      for (final var path : orderByPaths) {
         groupBy.add(path);
       }
       return groupBy;
@@ -412,6 +412,15 @@ public abstract class JPAAbstractQuery {
 
               } else if (uriResource instanceof final UriResourceProperty resourceProperty) {
                 pathString.append(resourceProperty.getProperty().getName());
+                final JPAPath jpaPath = jpaEntity.getPath(pathString.toString());
+                if (jpaPath != null && jpaPath.isTransient()) {
+                  throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_TRANSIENT, NOT_IMPLEMENTED, jpaPath
+                      .getLeaf().toString());
+                }
+                if (jpaPath != null && jpaPath
+                    .getLeaf() instanceof final JPADescriptionAttribute descriptionAttribute) {
+                  navigationAttributes.add(descriptionAttribute.asAssociationAttribute().getPath());
+                }
                 pathString.append(JPAPath.PATH_SEPARATOR);
               }
             } catch (final ODataJPAModelException e) {
