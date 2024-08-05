@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -157,7 +158,7 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
       // Build select clause
       for (final JPAPath jpaPath : this.outerSelections) {
         if (jpaPath.isPartOfGroups(groups)) {
-          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, queryRoot, jpaPath.getPath());
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, queryRoot, jpaPath);
           path.alias(jpaPath.getAlias());
           selections.add(path);
         }
@@ -199,6 +200,9 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
 
   private List<Order> createOrderBy() throws ODataApplicationException {
     final JPAOrderByBuilder orderBy = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-    return orderBy.createOrderByList(emptyMap(), navigationInfo.getUriInfo().getOrderByOption());
+    final var orderByAttributes = getOrderByAttributes(navigationInfo.getUriInfo().getOrderByOption()).stream()
+        .map(attribute -> attribute.setTarget(queryRoot, joinTables, cb))
+        .collect(Collectors.toList()); // NOSONAR get mutable list
+    return orderBy.createOrderByList(emptyMap(), orderByAttributes);
   }
 }

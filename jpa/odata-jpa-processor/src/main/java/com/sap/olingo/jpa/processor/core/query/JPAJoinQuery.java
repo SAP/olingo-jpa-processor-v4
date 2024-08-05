@@ -7,12 +7,14 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.AbstractQuery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -25,11 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.AbstractQuery;
-import jakarta.persistence.criteria.Path;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery {
 
@@ -82,10 +80,10 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery {
     // Pre-process URI parameter, so they can be used at different places
     final var selectionPath = buildSelectionPathList(this.uriResource);
     try (var measurement = debugger.newMeasurement(this, "execute")) {
-      final var orderByNavigationAttributes = extractOrderByNavigationAttributes(uriResource
-          .getOrderByOption());
-      final var joinTables = createFromClause(orderByNavigationAttributes,
-          selectionPath.joinedPersistent(), cq, lastInfo);
+      final var orderByAttributes = getOrderByAttributes(uriResource.getOrderByOption());
+
+      final var joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(), cq,
+          lastInfo);
 
       cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups))
           .distinct(determineDistinct());
@@ -95,11 +93,10 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery {
         cq.where(whereClause);
       }
 
-      final Set<Path<?>> orderByPaths = new HashSet<>();
-      cq.orderBy(createOrderByBuilder().createOrderByList(joinTables, uriResource, page, orderByPaths));
+      cq.orderBy(createOrderByBuilder().createOrderByList(joinTables, orderByAttributes, page));
 
-      if (!orderByNavigationAttributes.isEmpty()) {
-        cq.groupBy(createGroupBy(joinTables, root, selectionPath.joinedPersistent(), orderByPaths));
+      if (orderByAttributes.stream().anyMatch(JPAProcessorAttribute::requiresJoin)) {
+        cq.groupBy(createGroupBy(joinTables, root, selectionPath.joinedPersistent(), orderByAttributes));
       }
 
       final TypedQuery<Tuple> typedQuery = em.createQuery(cq);

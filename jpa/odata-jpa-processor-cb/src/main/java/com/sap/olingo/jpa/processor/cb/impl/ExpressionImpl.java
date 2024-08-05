@@ -172,7 +172,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
           statement
               .append(tableAlias)
               .append(DOT)
-              .append(from.st.getPath(keys.get(0).getExternalName()).getDBFieldName());
+              .append(getJPAPath(from, keys).getDBFieldName());
         } catch (final ODataJPAModelException e) {
           throw new IllegalArgumentException(e);
         }
@@ -180,6 +180,15 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
       } else {
         return expression.asSQL(statement);
       }
+    }
+
+    @Nonnull
+    private JPAPath getJPAPath(final FromImpl<?, ?> from, final List<JPAAttribute> keys) throws ODataJPAModelException {
+      final var jpaPath = from.st.getPath(keys.get(0).getExternalName());
+      if (jpaPath != null)
+        return jpaPath;
+      else
+        throw new IllegalStateException();
     }
 
     SqlConvertible getExpression() {

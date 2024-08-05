@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.Entity;
@@ -189,7 +191,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
           throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySet.getName());
         final List<UriParameter> uriKeyPredicates = uriResourceEntitySet.getKeyPredicates();
         for (final UriParameter uriParam : uriKeyPredicates) {
-          final JPAAttribute attribute = et.getPath(uriParam.getName()).getLeaf();
+          final JPAAttribute attribute = getJPAPath(et, uriParam.getName()).getLeaf();
           jpaKeyPredicates.put(attribute.getInternalName(), ExpressionUtility.convertValueOnAttribute(odata, attribute,
               uriParam.getText(), true));
         }
@@ -416,9 +418,9 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     for (int i = 1; i < lastIndex; i++) {
       final UriResourceProperty uriResourceProperty = (UriResourceProperty) resourcePaths.get(i);
+      final JPAPath path = getJPAPath(st, uriResourceProperty.getProperty().getName());
       if (uriResourceProperty instanceof UriResourceComplexProperty && i < resourcePaths.size() - 1) {
         final Map<String, Object> jpaEmbedded = new HashMap<>();
-        final JPAPath path = st.getPath(uriResourceProperty.getProperty().getName());
         final String internalName = path.getPath().get(0).getInternalName();
 
         currentMap.put(internalName, jpaEmbedded);
@@ -427,10 +429,24 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         st = st.getAttribute(internalName).orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
             INTERNAL_SERVER_ERROR, internalName)).getStructuredType();
       } else {
-        currentMap.put(st.getPath(uriResourceProperty.getProperty().getName()).getLeaf().getInternalName(), null);
+        currentMap.put(path.getLeaf().getInternalName(), null);
       }
     }
     return jpaAttributes;
+  }
+
+  @Nonnull
+  private JPAPath getJPAPath(final JPAStructuredType st, final String name)
+      throws ODataJPAProcessorException {
+    try {
+      final var jpaPath = st.getPath(name);
+      if (jpaPath != null)
+        return jpaPath;
+      else
+        throw new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, INTERNAL_SERVER_ERROR, name);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, BAD_REQUEST);
+    }
   }
 
   private Optional<Object> createBeforeImage(final JPARequestEntity requestEntity, final EntityManager em)

@@ -14,6 +14,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
+
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
@@ -27,14 +35,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Selection;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 /**
  * A query to retrieve the expand entities.
@@ -229,8 +230,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   private JPAQueryCreationResult createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createTupleQuery")) {
-      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(uriResource
-          .getOrderByOption());
+      final var orderByAttributes = getOrderByAttributes(uriResource.getOrderByOption());
       final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(),
           cq, lastInfo);
@@ -243,11 +243,11 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
 
       final Set<Path<?>> orderByPaths = new HashSet<>();
       final List<Order> orderBy = createOrderByJoinCondition(association);
-      orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource,
-          page, orderByPaths));
+      orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables,
+          orderByAttributes, page));
 
       cq.orderBy(orderBy);
-      if (!orderByAttributes.isEmpty()) {
+      if (orderByAttributes.stream().anyMatch(JPAProcessorAttribute::requiresJoin)) {
         cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(), orderByPaths));
       }
 

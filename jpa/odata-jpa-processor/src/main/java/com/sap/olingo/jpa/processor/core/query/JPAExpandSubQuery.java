@@ -8,9 +8,26 @@ import static java.util.Collections.singletonList;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
+
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Selection;
+import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -29,16 +46,7 @@ import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Selection;
-import jakarta.persistence.criteria.Subquery;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 /**
  * Requires Processor Query
@@ -74,7 +82,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   }
 
   @Override
-  protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationPath> orderByTarget,
+  protected Map<String, From<?, ?>> createFromClause(final List<JPAProcessorAttribute> orderByTarget,
       final Collection<JPAPath> selectionPath, final CriteriaQuery<?> query, final JPANavigationPropertyInfo lastInfo)
       throws ODataApplicationException, JPANoSelectionException {
 
@@ -226,25 +234,16 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
     }
   }
 
-  private List<Order> createOrderBy(final Map<String, From<?, ?>> joinTables, Set<Path<?>> orderByPaths) throws ODataApplicationException {
-    if (association.hasJoinTable() && hasRowLimit(lastInfo)) {
-      try {
-        final List<Order> orders = new ArrayList<>();
+  private List<Order> createOrderBy(final Map<String, From<?, ?>> joinTables,
+      final List<JPAProcessorAttribute> orderByAttributes) throws ODataApplicationException {
 
-        for (final JPAOnConditionItem c : association.getJoinTable().getJoinColumns()) {
-          final Path<?> path = root.get(c.getLeftPath().getAlias());
-          orders.add(cb.asc(path));
-        }
-        return orders;
-      } catch (final ODataJPAModelException e) {
-        throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
-      }
+    final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, root, cb, groups);
+    if (association.hasJoinTable() && hasRowLimit(lastInfo)) {
+      return orderByBuilder.createOrderByList(association);
     } else if (hasRowLimit(lastInfo)) {
-      final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, root, cb, groups);
-      return orderByBuilder.createOrderByListAlias(joinTables, uriResource.getOrderByOption(), association);
+      return orderByBuilder.createOrderByListAlias(joinTables, orderByAttributes, association);
     } else {
-      final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, root, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, uriResource.getOrderByOption(), association, orderByPaths);
+      return orderByBuilder.createOrderByList(joinTables, orderByAttributes, association);
     }
   }
 
@@ -273,8 +272,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createTupleQuery")) {
       final ProcessorCriteriaQuery<Tuple> tupleQuery = (ProcessorCriteriaQuery<Tuple>) cq;
-      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(uriResource
-          .getOrderByOption());
+      final var orderByAttributes = getOrderByAttributes(uriResource.getOrderByOption());
       final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
       final JPAQueryPair queries = createQueries(selectionPath);
       addFilterCompiler(lastInfo);
@@ -284,11 +282,10 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
           subQuery);
       tupleQuery.where(createWhere(subQuery, lastInfo));
       tupleQuery.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), groups));
-      final Set<Path<?>> orderByPaths = new HashSet<>();
-      tupleQuery.orderBy(createOrderBy(joinTables, orderByPaths));
+      tupleQuery.orderBy(createOrderBy(joinTables, orderByAttributes));
       tupleQuery.distinct(orderByAttributes.isEmpty());
       if (!orderByAttributes.isEmpty()) {
-        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(),orderByPaths));
+        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(), orderByAttributes));
       }
       final TypedQuery<Tuple> query = em.createQuery(tupleQuery);
       return new JPAQueryCreationResult(query, selectionPath);
@@ -296,7 +293,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   }
 
   Map<String, From<?, ?>> createJoinTables(final ProcessorCriteriaQuery<Tuple> tupleQuery,
-      final SelectionPathInfo<JPAPath> selectionPath, final List<JPAAssociationPath> orderByAttributes,
+      final SelectionPathInfo<JPAPath> selectionPath, final List<JPAProcessorAttribute> orderByAttributes,
       final Subquery<Object> subQuery) throws ODataApplicationException, JPANoSelectionException {
 
     Map<String, From<?, ?>> joinTables = new HashMap<>();
@@ -306,7 +303,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
     } else {
       joinTables = createFromClause(emptyList(), selectionPath.joinedPersistent(), cq, lastInfo);
     }
-    createFromClauseOrderBy(orderByAttributes, joinTables, root);
+    createFromClauseOrderBy2(orderByAttributes, joinTables, root);
     return joinTables;
   }
 

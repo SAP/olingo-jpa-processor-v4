@@ -114,8 +114,10 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPACollectionAttribute> getDeclaredCollectionAttributes() throws ODataJPAModelException;
 
+  @CheckForNull
   public JPAPath getPath(final String externalName) throws ODataJPAModelException;
 
+  @CheckForNull
   public JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException;
 
   /**

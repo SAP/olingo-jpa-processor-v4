@@ -11,11 +11,9 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,6 +50,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterRestrictionsWatchDog;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   final List<UriParameter> keyPredicates;
@@ -125,18 +124,17 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
       final JPAQueryPair queries = createQueries(childQuery);
-      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(navigationInfo.getUriInfo()
-          .getOrderByOption());
+      final var orderByAttributes = getOrderByAttributes(navigationInfo.getUriInfo().getOrderByOption());
       createRoots(childQuery, queries, nextQuery);
       buildJoinTable(orderByAttributes, emptyList(), childQuery);
-      final Set<Path<?>> orderByPaths = new HashSet<>();
+
       final List<JPAPath> selections = selectionPathIn();
       nextQuery.where(createWhere(childQuery));
       nextQuery.multiselect(selectIn(childQuery, selections));
-      nextQuery.orderBy(createOrderBy(childQuery, orderByPaths));
+      nextQuery.orderBy(createOrderBy(childQuery, orderByAttributes));
       nextQuery.setFirstResult(getSkipValue(childQuery));
       nextQuery.setMaxResults(getTopValue(childQuery));
-      nextQuery.groupBy(createGroupBy(joinTables, queryRoot, selections, orderByPaths));
+      nextQuery.groupBy(createGroupBy(joinTables, queryRoot, selections, orderByAttributes));
       return nextQuery;
     }
   }
@@ -169,10 +167,10 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     return where;
   }
 
-  void buildJoinTable(final List<JPAAssociationPath> orderByAttributes, final Collection<JPAPath> selectionPath,
+  void buildJoinTable(final List<JPAProcessorAttribute> orderByAttributes, final Collection<JPAPath> selectionPath,
       final Subquery<?> childQuery) throws ODataApplicationException {
     createFromClauseJoinTable(joinTables, childQuery);
-    createFromClauseOrderBy(orderByAttributes, joinTables, queryRoot);
+    createFromClauseOrderBy2(orderByAttributes, joinTables, queryRoot);
     createFromClauseDescriptionFields(selectionPath, joinTables, queryRoot, singletonList(navigationInfo));
   }
 
@@ -198,12 +196,11 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     }
   }
 
-  private List<Order> createOrderBy(final Subquery<?> childQuery, final Set<Path<?>> orderByPaths)
+  private List<Order> createOrderBy(final Subquery<?> childQuery, final List<JPAProcessorAttribute> orderByAttributes)
       throws ODataApplicationException {
     if (!hasRowLimit(childQuery)) {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), navigationInfo.getPage(),
-          orderByPaths);
+      return orderByBuilder.createOrderByList(joinTables, orderByAttributes, navigationInfo.getPage());
     }
     return emptyList();
   }

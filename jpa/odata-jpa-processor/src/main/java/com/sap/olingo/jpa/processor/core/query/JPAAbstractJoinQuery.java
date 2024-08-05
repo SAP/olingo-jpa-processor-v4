@@ -4,6 +4,7 @@ import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorExcep
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_KEY_PROPERTY_ERROR;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
@@ -64,12 +65,14 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterRestrictionsWatchDog;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements JPAQuery {
   protected static final String ALIAS_SEPARATOR = ".";
@@ -251,16 +254,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     return null;
   }
 
-  /**
-   * @param orderByTarget
-   * @param selectionPath
-   * @param query
-   * @param lastInfo
-   * @return
-   * @throws ODataApplicationException
-   * @throws JPANoSelectionException
-   */
-  protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationPath> orderByTarget,
+  protected Map<String, From<?, ?>> createFromClause(final List<JPAProcessorAttribute> orderByTarget,
       final Collection<JPAPath> selectionPath, final CriteriaQuery<?> query, final JPANavigationPropertyInfo lastInfo)
       throws ODataApplicationException, JPANoSelectionException {
 
@@ -271,7 +265,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     createFromClauseNavigationJoins(joinTables);
     createFromClauseCollectionsJoins(joinTables);
     // 2. OrderBy navigation property
-    createFromClauseOrderBy(orderByTarget, joinTables, target);
+    createFromClauseOrderBy2(orderByTarget, joinTables, target);
     // 3. Description Join determine
     createFromClauseDescriptionFields(selectionPath, joinTables, target, navigationInfo);
     // 4. Collection Attribute Joins
@@ -577,7 +571,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     try {
       final JPAPath path = jpaEntity.getPath(collectionPath);
-      return path.isPartOfGroups(groups);
+      if (path != null)
+        return path.isPartOfGroups(groups);
+      else
+        throw new ODataJPAProcessorException(MessageKeys.QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
@@ -629,29 +626,34 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   @SuppressWarnings("unchecked")
   private <Y extends Comparable<? super Y>> jakarta.persistence.criteria.Expression<Boolean> createBoundaryEquals(
-      final JPAEntityType et, final From<?, ?> from, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException {
+      final JPAEntityType et, final From<?, ?> from, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException,
+      ODataJPAQueryException {
 
     jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
     final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
     Collections.reverse(keyElements);
     for (final JPAAttribute keyElement : keyElements) {
-      final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from, et.getPath(
-          keyElement
-              .getExternalName())
-          .getPath());
-      final jakarta.persistence.criteria.Expression<Boolean> equalFragment = cb.equal(keyPath, jpaKeyPair.getMin().get(
-          keyElement));
-      if (whereCondition == null)
-        whereCondition = equalFragment;
-      else
-        whereCondition = cb.and(whereCondition, equalFragment);
+      final var jpaPath = et.getPath(keyElement.getExternalName());
+      if (jpaPath != null) {
+        final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from, jpaPath
+            .getPath());
+        final jakarta.persistence.criteria.Expression<Boolean> equalFragment = cb.equal(keyPath, jpaKeyPair.getMin()
+            .get(keyElement));
+        if (whereCondition == null)
+          whereCondition = equalFragment;
+        else
+          whereCondition = cb.and(whereCondition, equalFragment);
+      } else {
+        throw new ODataJPAQueryException(QUERY_RESULT_KEY_PROPERTY_ERROR, INTERNAL_SERVER_ERROR, et.getExternalName());
+      }
     }
     return whereCondition;
   }
 
   @SuppressWarnings("unchecked")
-  private <Y extends Comparable<? super Y>> jakarta.persistence.criteria.Expression<Boolean> createBoundaryWithUpper(
-      final JPAEntityType et, final From<?, ?> from, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException {
+  private <Y extends Comparable<? super Y>> jakarta.persistence.criteria.Expression<Boolean> createBoundaryWithUpper( // NOSONAR
+      final JPAEntityType et, final From<?, ?> from, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException,
+      ODataJPAQueryException {
 
     final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
     Collections.reverse(keyElements);
@@ -660,22 +662,29 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     for (int primaryIndex = 0; primaryIndex < keyElements.size(); primaryIndex++) {
       for (int secondaryIndex = primaryIndex; secondaryIndex < keyElements.size(); secondaryIndex++) {
         final JPAAttribute keyElement = keyElements.get(secondaryIndex);
-        final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from,
-            et.getPath(keyElement.getExternalName()).getPath());
-        final Y lowerBoundary = jpaKeyPair.getMinElement(keyElement);
-        final Y upperBoundary = jpaKeyPair.getMaxElement(keyElement);
-        if (secondaryIndex == primaryIndex) {
-          if (primaryIndex == 0) {
-            lowerExpression = cb.greaterThanOrEqualTo(keyPath, lowerBoundary);
-            upperExpression = cb.lessThanOrEqualTo(keyPath, upperBoundary);
+        final var jpaPath = et.getPath(keyElement.getExternalName());
+        if (jpaPath != null) {
+          final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from,
+              jpaPath.getPath());
+          final Y lowerBoundary = jpaKeyPair.getMinElement(keyElement);
+          final Y upperBoundary = jpaKeyPair.getMaxElement(keyElement);
+          if (secondaryIndex == primaryIndex) {
+            if (primaryIndex == 0) {
+              lowerExpression = cb.greaterThanOrEqualTo(keyPath, lowerBoundary);
+              upperExpression = cb.lessThanOrEqualTo(keyPath, upperBoundary);
+            } else {
+              lowerExpression = cb.or(lowerExpression, cb.greaterThan(keyPath, lowerBoundary));
+              upperExpression = cb.or(upperExpression, cb.lessThan(keyPath, upperBoundary));
+            }
           } else {
-            lowerExpression = cb.or(lowerExpression, cb.greaterThan(keyPath, lowerBoundary));
-            upperExpression = cb.or(upperExpression, cb.lessThan(keyPath, upperBoundary));
+            lowerExpression = cb.and(lowerExpression, cb.equal(keyPath, lowerBoundary));
+            upperExpression = cb.and(upperExpression, cb.equal(keyPath, upperBoundary));
           }
         } else {
-          lowerExpression = cb.and(lowerExpression, cb.equal(keyPath, lowerBoundary));
-          upperExpression = cb.and(upperExpression, cb.equal(keyPath, upperBoundary));
+          throw new ODataJPAQueryException(QUERY_RESULT_KEY_PROPERTY_ERROR, INTERNAL_SERVER_ERROR, et
+              .getExternalName());
         }
+
       }
 
     }

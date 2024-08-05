@@ -59,8 +59,8 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
 
   @Override
   public StringBuilder asSQL(final StringBuilder statement) {
-    tableAlias.ifPresent(p -> {
-      statement.append(p);
+    tableAlias.ifPresent(alias -> {
+      statement.append(alias);
       statement.append(DOT);
     });
     path.ifPresent(p -> statement.append(p.getDBFieldName()));
@@ -147,22 +147,46 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
       } else {
         source = st;
       }
-      final JPAAttribute a = source.getDeclaredAttribute(attributeName)
+      final JPAAttribute attribute = source.getDeclaredAttribute(attributeName)
           .orElseThrow(() -> new IllegalArgumentException("'" + attributeName + "' not found at " + st
               .getInternalName()));
       if (this.path.isPresent()) {
         if (isKeyPath(path.get())) {
-          return new PathImpl<>(st.getPath(a.getExternalName()), Optional.of(this), st, tableAlias);
+          return createPathForKeyAttribute(attribute);
         }
-        final StringBuilder pathDescription = new StringBuilder(path.get().getAlias()).append(JPAPath.PATH_SEPARATOR)
-            .append(a.getExternalName());
-        return new PathImpl<>(st.getPath(pathDescription.toString(), false), Optional.of(this), st, tableAlias);
+        return createPathForDescriptionAttribute(attribute);
       } else {
-        return new PathImpl<>(st.getPath(a.getExternalName(), false), Optional.of(this), st, tableAlias);
+        return createPathForAttribute(attribute);
       }
     } catch (final ODataJPAModelException e) {
       throw new IllegalArgumentException("'" + attributeName + "' not found", e);
     }
+  }
+
+  private <Y> Path<Y> createPathForDescriptionAttribute(final JPAAttribute attribute) throws ODataJPAModelException {
+    final StringBuilder pathDescription = new StringBuilder(path.get().getAlias()).append(JPAPath.PATH_SEPARATOR)
+        .append(attribute.getExternalName());
+    final var jpaPath = st.getPath(pathDescription.toString(), false);
+    if (jpaPath != null)
+      return new PathImpl<>(jpaPath, Optional.of(this), st, tableAlias);
+    else
+      throw new IllegalStateException();
+  }
+
+  private <Y> Path<Y> createPathForKeyAttribute(final JPAAttribute attribute) throws ODataJPAModelException {
+    final var jpaPath = st.getPath(attribute.getExternalName());
+    if (jpaPath != null)
+      return new PathImpl<>(jpaPath, Optional.of(this), st, tableAlias);
+    else
+      throw new IllegalStateException();
+  }
+
+  private <Y> Path<Y> createPathForAttribute(final JPAAttribute attribute) throws ODataJPAModelException {
+    final var jpaPath = st.getPath(attribute.getExternalName(), false);
+    if (jpaPath != null)
+      return new PathImpl<>(jpaPath, Optional.of(this), st, tableAlias);
+    else
+      throw new IllegalStateException();
   }
 
   private boolean isKeyPath(final JPAPath jpaPath) throws ODataJPAModelException {
