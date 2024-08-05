@@ -282,4 +282,12 @@ class TestJPAQueryOrderByClause {
         "BusinessPartnerRoles?$expand=BusinessPartner($expand=Roles;$select=ID)&$orderby=BusinessPartner/Country asc");
     helper.assertStatus(200);
   }
+  
+  @Test
+  void testOrderByToTwoPropertyWithCollectionProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles?$orderby=BusinessPartner/Country asc,BusinessPartner/ID asc");
+    helper.assertStatus(200);
+  }  
 }

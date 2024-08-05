@@ -354,6 +354,13 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals(2, children.size());
     assertEquals("BE23", children.get(0).get("DivisionCode").asText());
   }
+  
+  @Test
+  void testExpandWithOrderByDescriptionProperty() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$expand=SupportedOrganizations($select=ID,LocationName;$orderby=LocationName desc)");
+    helper.assertStatus(200);
+  }
 
   @Test
   void testExpandWithCount() throws IOException, ODataException {
