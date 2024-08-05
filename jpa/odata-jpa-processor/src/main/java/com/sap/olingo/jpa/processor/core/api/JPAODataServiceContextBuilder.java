@@ -14,6 +14,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext.Builder;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
@@ -140,4 +141,11 @@ public interface JPAODataServiceContextBuilder {
    */
   JPAODataQueryDirectivesBuilder useQueryDirectives();
 
+  /**
+   * Some database use different clauses for a certain function. E.g., to limit the number of rows returned.
+   * Some databases use LIMIT and OFFSET, other OFFSET ... ROWS and FETCH NEXT ... ROWS.<br>
+   * This is relevant when module <i>odata-jpa-processor-cb</i> is used.
+   * @since 2.2.0
+   */
+  JPAODataServiceContextBuilder setSqlPatternProvider(ProcessorSqlPatternProvider sqlPattern);
 }

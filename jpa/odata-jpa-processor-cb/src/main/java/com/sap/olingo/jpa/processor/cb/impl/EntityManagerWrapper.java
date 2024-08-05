@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 
 public class EntityManagerWrapper implements EntityManager { // NOSONAR
@@ -34,11 +35,14 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   private final EntityManager em;
   private final JPAServiceDocument sd;
   private final ParameterBuffer parameterBuffer;
+  private final ProcessorSqlPatternProvider sqlPattern;
 
-  public EntityManagerWrapper(final EntityManager em, final JPAServiceDocument sd) {
+  public EntityManagerWrapper(final EntityManager em, final JPAServiceDocument sd,
+      final ProcessorSqlPatternProvider sqlPattern) {
     super();
     this.em = em;
     this.sd = sd;
+    this.sqlPattern = sqlPattern != null ? sqlPattern : new SqlDefaultPattern();
     this.cb = Optional.empty();
     this.parameterBuffer = new ParameterBuffer();
   }
@@ -283,14 +287,14 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   /**
    * Create an instance of <code>Query</code> for executing a
    * Java Persistence query language statement.
-   * @param qlString a Java Persistence query string
+   * @param queryString a Java Persistence query string
    * @return the new query instance
    * @throws IllegalArgumentException if the query string is
    * found to be invalid
    */
   @Override
-  public Query createQuery(final String qlString) {
-    return em.createQuery(qlString);
+  public Query createQuery(final String queryString) {
+    return em.createQuery(queryString);
   }
 
   /**
@@ -341,7 +345,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    * The select list of the query must contain only a single
    * item, which must be assignable to the type specified by
    * the <code>resultClass</code> argument.
-   * @param qlString a Java Persistence query string
+   * @param queryString a Java Persistence query string
    * @param resultClass the type of the query result
    * @return the new query instance
    * @throws IllegalArgumentException if the query string is found
@@ -350,7 +354,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    * @since Java Persistence 2.0
    */
   @Override
-  public <T> TypedQuery<T> createQuery(final String qlString, final Class<T> resultClass) {
+  public <T> TypedQuery<T> createQuery(final String queryString, final Class<T> resultClass) {
     throw new NotImplementedException();
   }
 
@@ -596,7 +600,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    * provider-specific API. If the provider's <code>EntityManager</code>
    * implementation does not support the specified class, the
    * <code>PersistenceException</code> is thrown.
-   * @param cls the class of the object to be returned. This is
+   * @param clazz the class of the object to be returned. This is
    * normally either the underlying <code>EntityManager</code> implementation
    * class or an interface that it implements.
    * @return an instance of the specified class
@@ -605,8 +609,8 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    * @since Java Persistence 2.0
    */
   @Override
-  public <T> T unwrap(final Class<T> cls) {
-    return em.unwrap(cls);
+  public <T> T unwrap(final Class<T> clazz) {
+    return em.unwrap(clazz);
   }
 
   /**
@@ -676,7 +680,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
     if (!em.isOpen())
       throw new IllegalStateException("Entity Manager had been closed");
     return cb.orElseGet(() -> {
-      cb = Optional.of(new CriteriaBuilderImpl(sd, parameterBuffer));
+      cb = Optional.of(new CriteriaBuilderImpl(sd, parameterBuffer, sqlPattern));
       return cb.get();
     });
   }

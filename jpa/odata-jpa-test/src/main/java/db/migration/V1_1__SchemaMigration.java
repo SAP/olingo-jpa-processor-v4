@@ -33,6 +33,7 @@ public class V1_1__SchemaMigration extends BaseJavaMigration { // NOSONAR
       case "SAP HANA" -> createFunctionHANA(connection);
       case "HSQLDB" -> createFunctionHSQLDB(connection);
       case "PostgreSQL" -> createFunctionPostgres(connection);
+      case "Derby" -> createFunctionDerby();
       default -> raiseUnsupportedDbException(dbType);
 
     };
@@ -155,6 +156,14 @@ public class V1_1__SchemaMigration extends BaseJavaMigration { // NOSONAR
     return Arrays.asList(Optional.of(connection.prepareStatement(sql)));
   }
 
+<<<<<<< HEAD
+=======
+  private List<Optional<PreparedStatement>> createFunctionDerby() {
+
+    return Collections.emptyList();
+  }
+
+>>>>>>> jpa-processor/master
   private List<Optional<PreparedStatement>> createFunctionH2() {
     return Collections.emptyList();
   }

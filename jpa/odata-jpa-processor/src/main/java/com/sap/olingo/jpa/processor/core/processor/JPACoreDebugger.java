@@ -140,7 +140,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
 
       final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
       if (threadMXBean instanceof final com.sun.management.ThreadMXBean sunMXBean) {
-        return sunMXBean.getThreadAllocatedBytes(Thread.currentThread().getId());
+        return sunMXBean.getCurrentThreadAllocatedBytes();
       }
       return 0L;
     }

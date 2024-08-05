@@ -195,6 +195,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   }
 
   private class AssociationPath implements JPAAssociationPath {
+
     private List<IntermediateJoinColumn> joinColumns = null;
 
     @Override

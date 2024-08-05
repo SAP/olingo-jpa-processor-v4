@@ -32,6 +32,6 @@ class CriteriaBuilderHSQLDBTest extends CriteriaBuilderOverallTest {
 
   @BeforeEach
   void setup() {
-    super.setup(emf, sd);
+    super.setup(emf, sd, null);
   }
 }

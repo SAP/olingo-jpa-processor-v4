@@ -10,3 +10,4 @@ target/
 .metadata
 *.log
 /.dbeaver/
+/old.project

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -14,7 +13,6 @@ import javax.sql.DataSource;
 import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,12 +40,6 @@ class TestScalarDbFunctions {
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
   }
 
-  @AfterAll
-  public static void teardownClass() throws SQLException {
-    emf.close();
-    ds.getConnection().close();
-  }
-  
   @Test
   void testFilterOnFunctionAndProperty() throws IOException, ODataException {
 

@@ -145,7 +145,7 @@ class TestJPAQueryOrderByClause {
   void testOrderBy$CountAsc() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$orderby=Roles/$count asc");
+        "Organizations?$select=ID&$orderby=Roles/$count asc");
     helper.assertStatus(200);
 
     final ArrayNode orgs = helper.getValues();
@@ -247,7 +247,7 @@ class TestJPAQueryOrderByClause {
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$orderby=FullName", groups);
-    helper.assertStatus(501);
+    helper.assertStatus(400);
   }
 
   @Test
@@ -256,7 +256,7 @@ class TestJPAQueryOrderByClause {
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$select=ID&$orderby=Address/Street", groups);
-    helper.assertStatus(501);
+    helper.assertStatus(400);
   }
 
   @Test
@@ -264,7 +264,7 @@ class TestJPAQueryOrderByClause {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps?$orderby=FirstLevel/TransientCollection/$count asc");
-    helper.assertStatus(501);
+    helper.assertStatus(400);
   }
 
   @Test
@@ -276,18 +276,47 @@ class TestJPAQueryOrderByClause {
   }
 
   @Test
+  void testOrderByToOnePropertyViaComplex() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$orderby=AdministrativeInformation/Created/User/LastName asc");
+    helper.assertStatus(200);
+  }
+
+  @Test
   void testOrderByToOnePropertyWithCollectionProperty() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles?$expand=BusinessPartner($expand=Roles;$select=ID)&$orderby=BusinessPartner/Country asc");
     helper.assertStatus(200);
   }
-  
+
   @Test
   void testOrderByToTwoPropertyWithCollectionProperty() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles?$orderby=BusinessPartner/Country asc,BusinessPartner/ID asc");
     helper.assertStatus(200);
-  }  
+  }
+
+  @Test
+  void testOrderByDescriptionProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=ID&$orderby=LocationName asc");
+    helper.assertStatus(200);
+
+    final ArrayNode orgs = helper.getValues();
+    assertEquals(10, orgs.size());
+    assertEquals("10", orgs.get(0).get("ID").asText());
+  }
+
+  @Test
+  void testOrderByDescriptionViaToOneProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles?$orderby=Organization/LocationName desc");
+    helper.assertStatus(200);
+  }
+
 }

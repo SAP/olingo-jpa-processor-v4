@@ -82,8 +82,11 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
     try {
       if (!attribute.isComplex()) {
         final JPAStructuredType source = attribute.asAssociation().getSourceType();
-        pathList.add(new PathImpl<>(source.getPath(attribute.asAssociation().getAlias()),
-            parent, st, tableAlias));
+        final var associationPath = source.getPath(attribute.asAssociation().getAlias());
+        if (associationPath != null)
+          pathList.add(new PathImpl<>(associationPath, parent, st, tableAlias));
+        else
+          throw new IllegalStateException();
       } else {
         final JPAStructuredType source = attribute.getStructuredType();
         for (final JPAPath p : source.getPathList()) {

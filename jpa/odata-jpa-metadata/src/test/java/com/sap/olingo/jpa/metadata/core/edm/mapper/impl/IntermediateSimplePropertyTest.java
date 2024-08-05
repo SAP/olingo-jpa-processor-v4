@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 import jakarta.persistence.Column;
@@ -59,7 +60,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.util.AnnotationTestHelper;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.util.MemberDouble;
-import com.sap.olingo.jpa.metadata.odata.v4.core.terms.GenaralProperty;
+import com.sap.olingo.jpa.metadata.odata.v4.core.terms.GeneralProperty;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Terms;
 import com.sap.olingo.jpa.metadata.odata.v4.general.Aliases;
 import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCoreAnnotationsProvider;
@@ -71,7 +72,6 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
 import com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
-import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
@@ -971,7 +971,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
         AnnotationsParent.class), "area");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
-    final var act = property.getAnnotationValue(Aliases.CORE, Terms.COMPUTED_DEFAULT_VALUE, GenaralProperty.VALUE,
+    final var act = property.getAnnotationValue(Aliases.CORE, Terms.COMPUTED_DEFAULT_VALUE, GeneralProperty.VALUE,
         Boolean.class);
     assertNotNull(act);
     assertTrue(act);
@@ -984,7 +984,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
         AnnotationsParent.class), "area");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
     assertNull(property.getAnnotationValue(Aliases.CAPABILITIES.alias(), Terms.COMPUTED_DEFAULT_VALUE.term(),
-        GenaralProperty.VALUE.property()));
+        GeneralProperty.VALUE.property()));
   }
 
   @Test

@@ -44,7 +44,7 @@ public class JPAJoinCountQuery extends JPAJoinQuery implements JPACountQuery {
         cq.where(whereClause);
       cq.multiselect(cb.count(target));
       final var result = em.createQuery(cq).getSingleResult();
-      return (Long) result.get(0);
+      return ((Number) result.get(0)).longValue();
     } catch (final JPANoSelectionException e) {
       return 0L;
     }
