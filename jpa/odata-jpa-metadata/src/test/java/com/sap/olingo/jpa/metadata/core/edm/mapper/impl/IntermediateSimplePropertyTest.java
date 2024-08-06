@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 
 import jakarta.persistence.Column;
@@ -72,6 +71,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
 import com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
