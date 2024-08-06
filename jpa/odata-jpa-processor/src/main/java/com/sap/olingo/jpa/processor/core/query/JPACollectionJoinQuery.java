@@ -145,7 +145,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       // Build select clause
       for (final JPAPath jpaPath : jpaPathList) {
         if (jpaPath.isPartOfGroups(groups)) {
-          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, target, jpaPath);
           path.alias(jpaPath.getAlias());
           selections.add(path);
         }

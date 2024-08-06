@@ -34,6 +34,7 @@ import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 /**
  * Requires Processor Query
@@ -66,7 +67,7 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
   }
 
   @Override
-  protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationPath> orderByTarget,
+  protected Map<String, From<?, ?>> createFromClause(final List<JPAProcessorAttribute> orderByTarget,
       final Collection<JPAPath> selectionPath, final CriteriaQuery<?> query, final JPANavigationPropertyInfo lastInfo)
       throws ODataApplicationException, JPANoSelectionException {
 

@@ -15,15 +15,15 @@ public class JPAODataDatabaseProcessorFactory {
   private static final Log LOGGER = LogFactory.getLog(JPAODataDatabaseProcessorFactory.class);
   private static final String PRODUCT_NAME_H2 = "H2";
   private static final String PRODUCT_NAME_HSQLDB = "HSQL Database Engine";
-  private static final String PRODUCT_NAME_POSTSQL = "PostgreSQL";
+  private static final String PRODUCT_NAME_POSTGRESQL = "PostgreSQL";
 
-  public JPAODataDatabaseProcessor create(final DataSource ds) throws SQLException {
-    if (ds != null) {
-      try (Connection connection = ds.getConnection()) {
+  public JPAODataDatabaseProcessor create(final DataSource dataSource) throws SQLException {
+    if (dataSource != null) {
+      try (Connection connection = dataSource.getConnection()) {
         final DatabaseMetaData dbMetadata = connection.getMetaData();
-        if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_POSTSQL)) {
+        if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_POSTGRESQL)) {
           LOGGER.trace("Create database-processor for PostgreSQL");
-          return new JPA_POSTSQL_DatabaseProcessor();
+          return new JPAPostgresqlDatabaseProcessor();
         } else if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_HSQLDB)) {
           LOGGER.trace("Create database-processor for HSQLDB");
           return new JPA_HSQLDB_DatabaseProcessor();

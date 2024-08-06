@@ -72,7 +72,7 @@ class JPAAbstractQueryTest extends TestQueryBase {
     final OrderByItem item = mock(OrderByItem.class);
     when(orderBy.getOrders()).thenReturn(Collections.singletonList(item));
     when(item.getExpression()).thenReturn(orderByExpression);
-    assertThrows(ODataJPAQueryException.class, () -> cut.extractOrderByNavigationAttributes(orderBy));
+    assertThrows(ODataJPAQueryException.class, () -> cut.getOrderByAttributes(orderBy));
   }
 
   private static class Query extends JPAAbstractQuery {
@@ -94,7 +94,7 @@ class JPAAbstractQueryTest extends TestQueryBase {
 
     @Override
     protected Locale getLocale() {
-      throw new IllegalAccessError();
+      return Locale.CANADA_FRENCH;
     }
 
     @Override

@@ -32,7 +32,7 @@ class JPAODataDatabaseProcessorFactoryTest {
     return Stream.of(
         arguments("H2", JPA_HSQLDB_DatabaseProcessor.class),
         arguments("HSQL Database Engine", JPA_HSQLDB_DatabaseProcessor.class),
-        arguments("PostgreSQL", JPA_POSTSQL_DatabaseProcessor.class),
+        arguments("PostgreSQL", JPAPostgresqlDatabaseProcessor.class),
         arguments("HANA", JPADefaultDatabaseProcessor.class));
   }
 

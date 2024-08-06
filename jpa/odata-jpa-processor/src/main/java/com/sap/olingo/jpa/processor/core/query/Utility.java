@@ -463,14 +463,6 @@ public final class Utility {
     return targetEdmEntity;
   }
 
-  public static JPAStructuredType determineTargetStructuredType(final JPAStructuredType st,
-      final List<UriResource> resources) throws ODataJPAModelException {
-    final var path = determinePropertyNavigationPrefix(resources);
-    if (path != null && !path.isEmpty())
-      return st.getPath(path).getLeaf().getStructuredType();
-    return st;
-  }
-
   public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
     if (uriResourceParts != null) {
       for (int i = uriResourceParts.size() - 1; i >= 0; i--) {

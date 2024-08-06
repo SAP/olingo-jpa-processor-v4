@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
 class JPAODataSessionContextAccessTest {
@@ -97,5 +98,9 @@ class JPAODataSessionContextAccessTest {
       return null;
     }
 
+    @Override
+    public ProcessorSqlPatternProvider getSqlPatternProvider() {
+      return null;
+    }
   }
 }

@@ -62,7 +62,7 @@ class PredicateImplTest extends BuilderBaseTest {
   void setup() {
     cut = new PredicateImpl.NotPredicate(mock(SqlConvertible.class));
 
-    final CriteriaBuilder cb = new CriteriaBuilderImpl(sd, new ParameterBuffer());
+    final CriteriaBuilder cb = new CriteriaBuilderImpl(sd, new ParameterBuffer(), new SqlDefaultPattern());
     statement = new StringBuilder();
     query = cb.createTupleQuery();
   }

@@ -4,13 +4,13 @@ enum SqlStringFunctions {
 
   LOWER("LOWER"),
   UPPER("UPPER"),
-  LENGTH("LENGTH"),
   TRIM("TRIM"),
+  LENGTH("LENGTH"),
   SUBSTRING("SUBSTRING"),
   CONCAT("CONCAT"),
   LOCATE("LOCATE");
 
-  private String keyWord;
+  private final String keyWord;
 
   private SqlStringFunctions(final String keyWord) {
     this.keyWord = keyWord;
