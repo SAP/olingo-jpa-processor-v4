@@ -356,6 +356,21 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  void testExpandWithOrderByDescriptionProperty() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$expand=SupportedOrganizations($select=ID,LocationName;$orderby=LocationName desc)");
+    helper.assertStatus(200);
+  }
+
+  @Test
+  void testExpandWithOrderByToOneDescriptionProperty() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$expand=Roles($orderby=Organization/LocationName desc)");
+    helper.assertStatus(200);
+
+  }
+
+  @Test
   void testExpandWithCount() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$count=true&$expand=Roles($count=true)");
@@ -372,9 +387,10 @@ class TestJPAProcessorExpand extends TestBase {
   @Test
   void testExpandWithCount2Level() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$count=true"
-            + "&$expand=Children($count=true;$expand=Children($count=true))"
-            + "&$filter=CodeID eq 'NUTS1' and startswith(DivisionCode,'BE')");
+        """
+            AdministrativeDivisions?$count=true\
+            &$expand=Children($count=true;$expand=Children($count=true))\
+            &$filter=CodeID eq 'NUTS1' and startswith(DivisionCode,'BE')""");
     helper.assertStatus(200);
 
     final ArrayNode grands = helper.getValues();

@@ -77,7 +77,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  void checkSelectExpandViaIgnoredProperties() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectExpandViaIgnoredProperties() throws ODataApplicationException {
     // Organizations('3')/Address?$expand=AdministrativeDivision
     fillJoinTable(root);
     final List<ExpandItem> expItems = new ArrayList<>();
@@ -102,7 +102,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  void checkSelectOnePropertyCreatedAt() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectOnePropertyCreatedAt() throws ODataApplicationException {
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("CreationDateTime"))).joinedPersistent(), root, Collections
             .emptyList());
@@ -113,7 +113,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  void checkSelectOnePropertyID() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectOnePropertyID() throws ODataApplicationException {
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("ID"))).joinedPersistent(), root, Collections.emptyList());
     assertEquals(2, selectClause.size());
@@ -142,7 +142,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  void checkSelectPropertyTypeCreatedAt() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectPropertyTypeCreatedAt() throws ODataApplicationException {
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistent(), root, Collections
             .emptyList());
@@ -417,7 +417,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     fail(alias + " not found");
   }
 
-  private class UriResourceValueDouble implements UriResourceValue {
+  private static class UriResourceValueDouble implements UriResourceValue {
 
     @Override
     public UriResourceKind getKind() {
@@ -430,7 +430,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     }
   }
 
-  private class UriResourceComplexPropertyDouble implements UriResourceComplexProperty {
+  private static class UriResourceComplexPropertyDouble implements UriResourceComplexProperty {
     private final EdmProperty property;
 
     public UriResourceComplexPropertyDouble(final EdmProperty property) {
@@ -493,7 +493,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
   }
 
-  private class UriResourceEntitySetDouble implements UriResourceEntitySet {
+  private static class UriResourceEntitySetDouble implements UriResourceEntitySet {
 
     @Override
     public EdmType getType() {

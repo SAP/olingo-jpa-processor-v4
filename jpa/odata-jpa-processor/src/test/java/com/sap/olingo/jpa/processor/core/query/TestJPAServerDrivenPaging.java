@@ -328,6 +328,7 @@ class TestJPAServerDrivenPaging extends TestBase {
     when(orderExpression.getResourcePath()).thenReturn(orderResourcePath);
     when(orderResourcePath.getUriResourceParts()).thenReturn(orderResourcePathItems);
     when(orderResourcePathItem.getProperty()).thenReturn(orderProperty);
+    when(orderResourcePathItem.getKind()).thenReturn(UriResourceKind.primitiveProperty);
     when(orderProperty.getName()).thenReturn("ID");
     when(order.getOrders()).thenReturn(orderItems);
     final List<UriResource> resourceParts = new ArrayList<>();

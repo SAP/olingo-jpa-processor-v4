@@ -11,6 +11,7 @@ import org.apache.olingo.server.api.processor.ErrorProcessor;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
 /**
@@ -67,5 +68,7 @@ public interface JPAODataSessionContextAccess {
   public List<AnnotationProvider> getAnnotationProvider();
 
   public JPAODataQueryDirectives getQueryDirectives();
+
+  public ProcessorSqlPatternProvider getSqlPatternProvider();
 
 }

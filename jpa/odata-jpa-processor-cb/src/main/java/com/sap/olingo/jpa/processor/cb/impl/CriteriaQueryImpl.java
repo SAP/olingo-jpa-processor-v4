@@ -31,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
@@ -53,12 +54,14 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
   private Optional<Integer> maxResults;
   private Optional<Integer> firstResult;
   private final CriteriaBuilder cb;
+  private final ProcessorSqlPatternProvider sqlPattern;
 
   CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final AliasBuilder ab,
-      final CriteriaBuilder cb) {
+      final CriteriaBuilder cb, final ProcessorSqlPatternProvider sqlPattern) {
     super();
     this.resultType = clazz;
     this.sd = sd;
+    this.sqlPattern = sqlPattern;
     this.where = Optional.empty();
     this.orderList = Optional.empty();
     this.groupBy = Optional.empty();
@@ -70,8 +73,9 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
     this.selectAliasBuilder = new AliasBuilder("S");
   }
 
-  CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final CriteriaBuilder cb) {
-    this(clazz, sd, new AliasBuilder(), cb);
+  CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final CriteriaBuilder cb,
+      final ProcessorSqlPatternProvider sqlPattern) {
+    this(clazz, sd, new AliasBuilder(), cb, sqlPattern);
   }
 
   @Override
@@ -111,14 +115,17 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
           .append(" ");
       ((SqlConvertible) e).asSQL(statement);
     });
-    maxResults.ifPresent(limit -> statement.append(" ")
-        .append(SqlPagingFunctions.LIMIT)
-        .append(" ")
-        .append(limit));
-    firstResult.ifPresent(offset -> statement.append(" ")
-        .append(SqlPagingFunctions.OFFSET)
-        .append(" ")
-        .append(offset));
+    if (sqlPattern.maxResultsFirst()) {
+      maxResults.ifPresent(limit -> statement.append(" ")
+          .append(SqlPagingFunctions.LIMIT.toString(sqlPattern, limit)));
+      firstResult.ifPresent(offset -> statement.append(" ")
+          .append(SqlPagingFunctions.OFFSET.toString(sqlPattern, offset)));
+    } else {
+      firstResult.ifPresent(offset -> statement.append(" ")
+          .append(SqlPagingFunctions.OFFSET.toString(sqlPattern, offset)));
+      maxResults.ifPresent(limit -> statement.append(" ")
+          .append(SqlPagingFunctions.LIMIT.toString(sqlPattern, limit)));
+    }
     return statement;
   }
 
@@ -261,8 +268,8 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public CriteriaQuery<T> having(final Expression<Boolean> restriction) {
-    final Predicate[] p = { (Predicate) restriction };
-    return having(p); // NOSONAR
+    final Predicate[] predicate = { (Predicate) restriction };
+    return having(predicate); // NOSONAR
   }
 
   /**
@@ -279,12 +286,12 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public CriteriaQuery<T> having(final Predicate... restrictions) {
-    final Predicate p = restrictions.length > 1
+    final Predicate predicate = restrictions.length > 1
         ? cb.and(restrictions)
         : restrictions.length == 1 // NOSONAR
             ? restrictions[0]
             : null;
-    having = Optional.ofNullable(p);
+    having = Optional.ofNullable(predicate);
     return this;
   }
 
@@ -405,7 +412,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
 
   @Override
   public <U> ProcessorSubquery<U> subquery(@Nonnull final Class<U> type) {
-    return new SubqueryImpl<>(type, this, aliasBuilder, cb);
+    return new SubqueryImpl<>(type, this, aliasBuilder, cb, sqlPattern);
   }
 
   /**

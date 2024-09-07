@@ -67,58 +67,58 @@ class EntityManagerFactoryWrapperTest {
   void setup() {
 
     sd = mock(JPAServiceDocument.class);
-    cut = new EntityManagerFactoryWrapper(emf, sd);
+    cut = new EntityManagerFactoryWrapper(emf, sd, null);
   }
 
   static Stream<Arguments> method() throws NoSuchMethodException, SecurityException {
-    final Class<EntityManagerFactory> c = EntityManagerFactory.class;
+    final Class<EntityManagerFactory> clazz = EntityManagerFactory.class;
     final EntityGraph<?> entityGraph = mock(EntityGraph.class);
     final Query query = mock(Query.class);
     final String dummy = "Test";
 
     return Stream.of(
-        arguments(c.getMethod("getMetamodel"), dummy, dummy, metamodel),
-        arguments(c.getMethod("isOpen"), dummy, dummy, Boolean.TRUE),
-        arguments(c.getMethod("close"), dummy, dummy, null),
-        arguments(c.getMethod("getProperties"), dummy, dummy, properties),
-        arguments(c.getMethod("getCache"), dummy, dummy, cache),
-        arguments(c.getMethod("unwrap", Class.class), c, dummy, emf),
-        arguments(c.getMethod("getPersistenceUnitUtil"), dummy, dummy, punitUtil),
-        arguments(c.getMethod("addNamedQuery", String.class, Query.class), dummy, query, null),
-        arguments(c.getMethod("addNamedEntityGraph", String.class, EntityGraph.class), dummy, entityGraph, null));
+        arguments(clazz.getMethod("getMetamodel"), dummy, dummy, metamodel),
+        arguments(clazz.getMethod("isOpen"), dummy, dummy, Boolean.TRUE),
+        arguments(clazz.getMethod("close"), dummy, dummy, null),
+        arguments(clazz.getMethod("getProperties"), dummy, dummy, properties),
+        arguments(clazz.getMethod("getCache"), dummy, dummy, cache),
+        arguments(clazz.getMethod("unwrap", Class.class), clazz, dummy, emf),
+        arguments(clazz.getMethod("getPersistenceUnitUtil"), dummy, dummy, punitUtil),
+        arguments(clazz.getMethod("addNamedQuery", String.class, Query.class), dummy, query, null),
+        arguments(clazz.getMethod("addNamedEntityGraph", String.class, EntityGraph.class), dummy, entityGraph, null));
   }
 
   static Stream<Arguments> emWrapperMethod() throws NoSuchMethodException, SecurityException {
-    final Class<EntityManagerFactory> c = EntityManagerFactory.class;
+    final Class<EntityManagerFactory> clazz = EntityManagerFactory.class;
     final String dummy = "Test";
 
     return Stream.of(
-        arguments(c.getMethod("createEntityManager"), dummy, dummy),
-        arguments(c.getMethod("createEntityManager", Map.class), new HashMap<>(), dummy),
-        arguments(c.getMethod("createEntityManager", SynchronizationType.class), SynchronizationType.SYNCHRONIZED,
+        arguments(clazz.getMethod("createEntityManager"), dummy, dummy),
+        arguments(clazz.getMethod("createEntityManager", Map.class), new HashMap<>(), dummy),
+        arguments(clazz.getMethod("createEntityManager", SynchronizationType.class), SynchronizationType.SYNCHRONIZED,
             dummy),
-        arguments(c.getMethod("createEntityManager", SynchronizationType.class, Map.class),
+        arguments(clazz.getMethod("createEntityManager", SynchronizationType.class, Map.class),
             SynchronizationType.SYNCHRONIZED, new HashMap<>()));
   }
 
   @ParameterizedTest
   @MethodSource("method")
-  void testOriginalCalled(final Method m, final Object p1, final Object p2, final Object ret)
+  void testOriginalCalled(final Method method, final Object p1, final Object p2, final Object ret)
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     Object result = null;
-    if (m.getParameterCount() == 0) {
-      result = m.invoke(cut);
+    if (method.getParameterCount() == 0) {
+      result = method.invoke(cut);
       final EntityManagerFactory v = verify(emf);
-      m.invoke(v);
-    } else if (m.getParameterCount() == 1) {
-      result = m.invoke(cut, p1);
+      method.invoke(v);
+    } else if (method.getParameterCount() == 1) {
+      result = method.invoke(cut, p1);
       final EntityManagerFactory v = verify(emf);
-      m.invoke(v, p1);
-    } else if (m.getParameterCount() == 2) {
-      result = m.invoke(cut, p1, p2);
+      method.invoke(v, p1);
+    } else if (method.getParameterCount() == 2) {
+      result = method.invoke(cut, p1, p2);
       final EntityManagerFactory v = verify(emf);
-      m.invoke(v, p1, p2);
+      method.invoke(v, p1, p2);
     }
     if (ret != null) {
       assertEquals(ret, result);
@@ -127,16 +127,16 @@ class EntityManagerFactoryWrapperTest {
 
   @ParameterizedTest
   @MethodSource("emWrapperMethod")
-  void testEmWrapperCreated(final Method m, final Object p1, final Object p2)
+  void testEmWrapperCreated(final Method method, final Object p1, final Object p2)
       throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     Object result = null;
-    if (m.getParameterCount() == 0) {
-      result = m.invoke(cut);
-    } else if (m.getParameterCount() == 1) {
-      result = m.invoke(cut, p1);
-    } else if (m.getParameterCount() == 2) {
-      result = m.invoke(cut, p1, p2);
+    if (method.getParameterCount() == 0) {
+      result = method.invoke(cut);
+    } else if (method.getParameterCount() == 1) {
+      result = method.invoke(cut, p1);
+    } else if (method.getParameterCount() == 2) {
+      result = method.invoke(cut, p1, p2);
     }
     assertTrue(result instanceof EntityManagerWrapper);
   }

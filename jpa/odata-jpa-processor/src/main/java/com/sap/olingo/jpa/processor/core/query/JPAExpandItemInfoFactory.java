@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +34,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public final class JPAExpandItemInfoFactory {
@@ -108,9 +111,7 @@ public final class JPAExpandItemInfoFactory {
               if (pathElement instanceof final JPAAttribute attribute && attribute.isCollection()) {
                 if (path.isPartOfGroups(groups.isPresent() ? groups.get().getGroups() : new ArrayList<>(0))
                     && !attribute.isTransient()) {
-                  final JPAPath collectionPath = ((JPAEntityType) pathInfo[ET_INDEX])
-                      .getPath(pathName.deleteCharAt(pathName.length() - 1).toString());
-                  collectionProperties.add((JPACollectionAttribute) collectionPath.getLeaf());
+                  collectionProperties.add(getCollectionPath(pathInfo, pathName));
                 }
                 break;
               }
@@ -142,6 +143,17 @@ public final class JPAExpandItemInfoFactory {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     return itemList;
+  }
+
+  private JPACollectionAttribute getCollectionPath(final Object[] pathInfo, final StringBuilder pathName)
+      throws ODataJPAModelException, ODataJPAProcessorException {
+
+    final var name = pathName.deleteCharAt(pathName.length() - 1).toString();
+    final JPAPath collectionPath = ((JPAEntityType) pathInfo[ET_INDEX]).getPath(name);
+    if (collectionPath != null)
+      return (JPACollectionAttribute) collectionPath.getLeaf();
+    else
+      throw new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR, name);
   }
 
   private Object[] determineNavigationElements(final JPAServiceDocument sd,
