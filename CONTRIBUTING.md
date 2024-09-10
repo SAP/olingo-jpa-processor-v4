@@ -19,17 +19,12 @@ In case you need to report a bug, please provide the following information:
 
 You are welcome to contribute code to the JPA Processor in order to fix bugs or to propose enhancements.
 
-There are three important things to know:
+There are four important things to know:
 
-1.  You must be aware of the Apache License (which describes contributions) and **agree to the Developer Certificate of Origin**. This is common practice in all major Open Source projects. To make this process as simple as possible, we are using *[CLA assistant](https://cla-assistant.io/)*. CLA assistant is an open source tool that integrates with GitHub very well and enables a one-click-experience for accepting the DCO. See the respective section below for details.
-2.  There are **some requirements regarding code style and quality** which need to be met (we also have to follow them). The respective section below gives more details on the coding guidelines.
-3.  **Not all proposed contributions can be accepted**. The code must fit the overall direction of the JPAProcessor and really improve it. For most bug fixes this is a given, but it could haven that design ideas get violated.
-
-### Developer Certificate of Origin (DCO)
-
-Due to legal reasons, contributors will be asked to accept a DCO when they create the first pull request to this project. SAP uses [the standard DCO text of the Linux Foundation](https://developercertificate.org/).
-
-This happens in an automated fashion during the submission process:	 the CLA assistant tool will add a comment to the pull request. Click it to check the DCO, then accept it on the following screen. CLA assistant will save this decision for upcoming contributions.
+1. You **have to** follow SAPs [contribution guidelines](https://github.com/SAP/.github/blob/main/CONTRIBUTING.md) as well as SAPs [AI-generated code contributions guidelines](https://github.com/SAP/.github/blob/main/CONTRIBUTING_USING_GENAI.md).
+2. You must be aware of the Apache License (which describes contributions) and **agree to the Developer Certificate of Origin**, see the [contribution guidelines](https://github.com/SAP/.github/blob/main/CONTRIBUTING.md). This is common practice in all major Open Source projects. To make this process as simple as possible, we are using *[CLA assistant](https://cla-assistant.io/)*. CLA assistant is an open source tool that integrates with GitHub very well and enables a one-click-experience for accepting the DCO. See the respective section below for details.
+3. There are **some requirements regarding code style and quality** which need to be met (we also have to follow them). The respective section below gives more details on the coding guidelines.
+4.  **Not all proposed contributions can be accepted**. The code must fit the overall direction of the JPAProcessor and really improve it. For most bug fixes this is a given, but it could haven that design ideas get violated.
 
 ### Contribution Content Guidelines
 
