@@ -55,7 +55,6 @@ An instance of the `MetadataPostProcessor` has to be added to the ServiceContext
   }
 ----
 
-
 The JPA Processor takes this information on the one hand to make the terms of the vocabulary accessible for Olingo and on the other hand adds the reference of the vocabulary to the service document and the metadata:
 
 [source,xml]
