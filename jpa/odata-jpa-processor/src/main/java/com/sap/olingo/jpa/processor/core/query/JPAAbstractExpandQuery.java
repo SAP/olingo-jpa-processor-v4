@@ -38,7 +38,7 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
 
   protected final JPAAssociationPath association;
 
-  JPAAbstractExpandQuery(final OData odata,
+  protected JPAAbstractExpandQuery(final OData odata,
       final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
       final JPAAssociationPath association) throws ODataException {
 
@@ -46,14 +46,14 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     this.association = association;
   }
 
-  JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+  protected JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
       final JPAInlineItemInfo item) throws ODataException {
 
     super(odata, item.getEntityType(), item.getUriInfo(), requestContext, item.getHops());
     this.association = getAssociation(item);
   }
 
-  JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext, final JPAEntityType et,
+  protected JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext, final JPAEntityType et,
       final JPAAssociationPath association, final List<JPANavigationPropertyInfo> hops) throws ODataException {
 
     super(odata, et, requestContext, hops);
@@ -143,7 +143,7 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     return groupBy;
   }
 
-  abstract Map<String, Long> count() throws ODataApplicationException;
+  protected abstract Map<String, Long> count() throws ODataApplicationException;
 
   protected boolean countRequested(final JPANavigationPropertyInfo lastInfo) {
     if (lastInfo.getUriInfo() == null)

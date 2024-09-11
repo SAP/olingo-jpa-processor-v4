@@ -137,11 +137,11 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
     return et;
   }
 
-  JPAFilterComplier getFilterCompiler() {
+  public JPAFilterComplier getFilterCompiler() {
     return filterCompiler;
   }
 
-  From<?, ?> getFromClause() { // NOSONAR
+  public From<?, ?> getFromClause() { // NOSONAR
     return fromClause;
   }
 
@@ -150,7 +150,7 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
     return keyPredicates;
   }
 
-  UriInfoResource getUriInfo() {
+  public UriInfoResource getUriInfo() {
     return uriInfo;
   }
 

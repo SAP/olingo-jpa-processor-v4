@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import jakarta.persistence.Tuple;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.data.ComplexValue;
@@ -63,7 +64,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAKeyBoundary;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Utility;
 
-public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
+public class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
   private static final Log LOGGER = LogFactory.getLog(JPANavigationRequestProcessor.class);
   private final ServiceMetadata serviceMetadata;
   private final UriResource lastItem;
@@ -348,7 +349,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     try (var expandMeasurement = debugger.newMeasurement(this, "readExpandEntities")) {
 
-      final var factory = new JPAExpandQueryFactory(odata, requestContext, cb);
+      final var factory = createExpandQueryFactory(odata, requestContext, cb);
       final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();
       if (watchDog.getRemainingLevels() > 0) {
         // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
@@ -386,6 +387,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       }
       return allExpResults;
     }
+  }
+
+  protected JPAExpandQueryFactory createExpandQueryFactory(OData odata,
+                                                           JPAODataRequestContextAccess requestContext,
+                                                           CriteriaBuilder cb) {
+    return new JPAExpandQueryFactory(odata, requestContext, cb);
   }
 
   private static Optional<JPAAnnotatable> determineTargetEntitySet(final JPAODataRequestContextAccess requestContext)

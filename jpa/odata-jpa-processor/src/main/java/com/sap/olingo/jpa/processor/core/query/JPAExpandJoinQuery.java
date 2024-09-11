@@ -216,7 +216,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   }
 
   @Override
-  final Map<String, Long> count() throws ODataApplicationException {
+  public final Map<String, Long> count() throws ODataApplicationException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "count")) {
       final JPAExpandJoinCountQuery countQuery = new JPAExpandJoinCountQuery(odata, requestContext, jpaEntity,

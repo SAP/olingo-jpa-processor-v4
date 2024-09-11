@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
  *
  * @param <T>
  */
-class SelectionPathInfo<T> {
+public class SelectionPathInfo<T> {
   private final Set<T> odataSelections;
   private final Set<T> requiredSelections;
   private final Set<T> transientSelections;
@@ -45,26 +45,26 @@ class SelectionPathInfo<T> {
     this.transientSelections = new HashSet<>();
   }
 
-  Set<T> getODataSelections() {
+  public Set<T> getODataSelections() {
     return odataSelections;
   }
 
-  Set<T> getRequiredSelections() {
+  public Set<T> getRequiredSelections() {
     return requiredSelections;
   }
 
-  Set<T> getTransientSelections() {
+  public Set<T> getTransientSelections() {
     return transientSelections;
   }
 
-  Set<T> joined() {
+  public Set<T> joined() {
     final Set<T> joined = new HashSet<>(odataSelections);
     joined.addAll(requiredSelections);
     joined.addAll(transientSelections);
     return joined;
   }
 
-  Set<T> joinedPersistent() {
+  public Set<T> joinedPersistent() {
     if (joinedPersistent == null) {
       joinedPersistent = new HashSet<>(odataSelections);
       joinedPersistent.addAll(requiredSelections);
@@ -72,7 +72,7 @@ class SelectionPathInfo<T> {
     return joinedPersistent;
   }
 
-  Set<T> joinedRequested() {
+  public Set<T> joinedRequested() {
     if (joinedRequested == null) {
       joinedRequested = new HashSet<>(odataSelections);
       joinedRequested.addAll(transientSelections);
