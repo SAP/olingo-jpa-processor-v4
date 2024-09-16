@@ -13,7 +13,7 @@ https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html
 The JPA Processor supports, as of now, only metadata annotations. These are seen as static. That is, they can not be changed between two requests. 
 Three ways are provided to declare annotations, which will be explained in the following chapters.
 
-== Use Java annotation EdmAnnotation
+== Use provided annotation EdmAnnotation
 
 [#vocabulary]
 === Providing the vocabulary 
@@ -38,7 +38,7 @@ public class MetadataPostProcessor implements JPAEdmMetadataPostProcessor {
 
 <1> URI of the vocabulary. This can be taken, for standard vocabularies, from the vocabulary file. 
 <2> Path to the vocabulary file within the resources of the project. The xml file can  be download from github: https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Core.V1.xml[OData Core] 
-<3> A representation of the vocabulary is returned.
+<3> Create representation of the vocabulary.
 <4> Provide the namespace of the schema of the vocabulary and the alias used within the metadata to reference the schema.
 
 An instance of the `MetadataPostProcessor` has to be added to the ServiceContext:
@@ -50,7 +50,7 @@ An instance of the `MetadataPostProcessor` has to be added to the ServiceContext
 
     return JPAODataServiceContext.with()
         ... 
-        .setMetadataPostProcessor(new MetadataPostProcessor())//<1>
+        .setMetadataPostProcessor(new MetadataPostProcessor())
         .build();
   }
 ----
@@ -69,7 +69,7 @@ The JPA Processor takes this information on the one hand to make the terms of th
 </edmx:Edmx>	
 ----
 
-<1> Vocabularies are part of the resource list within the metadata of a service. 
+<1> Vocabulary as part of the resource list within the metadata of a service. 
 
 === Annotate a property 
 
@@ -93,7 +93,7 @@ link:../../jpa/jpa-test/src/main/java/com/sap/olingo/jpa/processor/core/testmode
 
 [NOTE]
 ====
-Only constant expressions are supported.
+Please note that only constant expressions are supported.
 
 ====
 
@@ -137,13 +137,12 @@ As we want to annotate the entity container, we also need to override method `pr
 public void processEntityContainer(IntermediateEntityContainerAccess container) {
 	CsdlAnnotation batchSupport = new CsdlAnnotation()
 		.setTerm("Capabilities.BatchSupported") //<1>
-		.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));//<2>
-	container.addAnnotations(Collections.singletonList(batchSupport));//<3>
+		.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
+	container.addAnnotations(Collections.singletonList(batchSupport));//<2>
 }
 ----  
 <1> Provide the full qualified name of the annotation. Here the alias is used as namespace.
-<2> The annotation value. Only constant expressions are supported.
-<3> Add the annotation to the container metadata.
+<2> Add the annotation to the container metadata.
 
 As a result, the metadata of the service contain the corresponding annotation:
 
@@ -173,7 +172,7 @@ Module https://github.com/SAP/olingo-jpa-processor-v4/tree/main/jpa/odata-jpa-vo
 ----
 
 With module https://github.com/SAP/olingo-jpa-processor-v4/tree/main/jpa/odata-jpa-odata-vocabularies[odata-jpa-odata-vocabularies] an 
-implementation for some of the OData standard annotations of Core and Capabilities are provided. By adding the following dependency to the pom
+implementation for some of the standard OData annotations of Core and Capabilities are provided. By adding the following dependency to the pom
 they are made available:
 
 [source,xml]
@@ -185,8 +184,8 @@ they are made available:
 </dependency>
 ----
 
-Lets have a look, what we can do with it. Lets assume we like to state that the _Me_, so the _CurrentUser_ cannot be changed 
-via a rest call. In that case the corresponding annotations can be added to the entity: 
+Lets have a look, what can be done with it. Lets assume it shall be stated that the _Me_, so the _CurrentUser_ cannot be changed 
+via a rest call. To do so, the update restriction and the insert restriction annotation from the capabilities vocabulary has to be added to CurrentUser: 
 
 [source,java]
 ----
@@ -209,8 +208,8 @@ public class CurrentUser extends Person {
 }
 ----
 
-I case we would start now the service we would not see the annotation. We need to tell the JPA Processor to use 
-the annotations be providing a _JavaBasedODataAnnotationsProvider_ via the session context:
+I case the service would start now the annotations would not be visible. The JPA Processor 
+needs a _JavaBasedODataAnnotationsProvider_ to convert the Java into the corresponding OData annotation:
 
 [source,java]
 ----
@@ -228,10 +227,10 @@ public class ProcessorConfiguration {
   ...    	
 }
 ----
-<1> Annotation provider for some OData Capability annotations. _odata-jpa-odata-vocabularies_ provides with _JavaBasedCoreAnnotationsProvider_
-an annotation provider for some Core annotations
+<1> Annotation provider for some OData Capability annotations. _odata-jpa-odata-vocabularies_ provides beside _JavaBasedCapabilitiesAnnotationsProvider_
+also an annotation provider for some Core annotations.
 
-If we start now the service we can find the given annotation in the entity container:
+If the service is started now the given annotation can be found in the entity container:
 
 [source,json]
 ----
@@ -274,9 +273,9 @@ If we start now the service we can find the given annotation in the entity conta
     }
 ----
 
-The annotations can e.g., can be used to create checks on create, update and delete requests. They can also
-be used by a UI client to display or to hide a delete button. In stead of evaluating the annotation, the UI client 
-can also use the OPTION method to find out which verb is supported. To implement the OPTION method we can make use
+The annotations e.g., can be used to create checks on create, update and delete requests. They can also
+be used by a UI client to display or to hide e.g., a delete button. Instead of evaluating the annotation, the UI client 
+can also use the OPTION method to find out which verbs are supported. If an OPTION method shall be implemented, the implementation can make use
 of the annotations. The following extension of the spring controller shall given an idea how this scan be done:
 
 [source,java]
@@ -320,15 +319,15 @@ of the annotations. The following extension of the spring controller shall given
     return topLevelEntity.getAnnotationValue(Aliases.CAPABILITIES, term, property, Boolean.class); //<6>
   }
 ----
-<1> Tell Spring the the method shall handle all OPTION requests.
+<1> Tell Spring that the method shall handle all OPTION requests.
 <2> Get the top level entity, so the entity set or singleton from the URI.
 <3> Get the metadata of the top level entity.
 <4> All top level entities support GET requests. Therefore GET is put, without any check, into the result.
-<5> Capabilities.Insert Restrictions is not applicable for Singletons. Annotating _CurrentUser_ with the it would have no effect.
+<5> Capabilities.InsertRestrictions is not applicable for Singletons. Annotating _CurrentUser_ with it would have no effect.
 So it need to be handled here.
 <6> Get the annotated value. The API is provided with 2.1.0
 
-in opposite to the annotations used above, which restrict the change of an entity and are not monitored by the JPA Processor, the following annotations
+In opposite to the annotations used above, which restrict the change of an entity and are not monitored by the JPA Processor, the following annotations
 are:
 
  * CountRestrictions
