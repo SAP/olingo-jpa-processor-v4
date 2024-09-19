@@ -239,10 +239,22 @@ class TestJPAQueryNavigation extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/AdministrativeInformation");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
+    final ObjectNode info = helper.getValue();
 
-    assertNotNull(org.get("Created"));
-    assertNotNull(org.get("Updated"));
+    assertNotNull(info.get("Created"));
+    assertNotNull(info.get("Updated"));
+  }
+
+  @Test
+  void testSingletonNavigationComplexProperty() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "CurrentUser/AdministrativeInformation");
+    helper.assertStatus(200);
+
+    final ObjectNode info = helper.getValue();
+
+    assertNotNull(info.get("Created"));
+    assertNotNull(info.get("Updated"));
   }
 
   @Test

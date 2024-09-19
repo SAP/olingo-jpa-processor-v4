@@ -76,4 +76,9 @@ abstract class JPAAbstractProcessorAttributeImpl implements JPAProcessorAttribut
     return addOrderByExpression(cb, sortDescending(), getPath());
   }
 
+  @Override
+  public boolean requiresJoin() {
+    return !hops.isEmpty();
+  }
+
 }

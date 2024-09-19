@@ -1,11 +1,12 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,7 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     keyPredicates.put("3", "BusinessPartnerID='3',RoleCategory='C'");
 
     final EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
-        "BusinessPartnerRoles"), Collections.emptyList()), Collections.emptyList()).get(ROOT_RESULT_KEY);
+        "BusinessPartnerRoles"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());
     assertEquals("3", act.getEntities().get(0).getProperty("BusinessPartnerID").getValue().toString());
@@ -112,7 +113,7 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     keyPredicates.put("DEU", "CodePublisher='ISO',CodeID='3166-1',DivisionCode='DEU',Language='en'");
 
     final EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
-        "AdministrativeDivisionDescriptions"), Collections.emptyList()), Collections.emptyList()).get(ROOT_RESULT_KEY);
+        "AdministrativeDivisionDescriptions"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());
     assertEquals("ISO", act.getEntities().get(0).getProperty("CodePublisher").getValue().toString());

@@ -2,9 +2,6 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.Collections;
 
-import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.AbstractQuery;
-
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -12,7 +9,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 
-public class JPAJoinCountQuery extends JPAJoinQuery implements JPACountQuery {
+public class JPAJoinCountQuery extends JPAAbstractRootJoinQuery implements JPACountQuery {
 
   public JPAJoinCountQuery(final OData odata, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
@@ -48,16 +45,5 @@ public class JPAJoinCountQuery extends JPAJoinQuery implements JPACountQuery {
     } catch (final JPANoSelectionException e) {
       return 0L;
     }
-  }
-
-  @Override
-  public JPAConvertibleResult execute() throws ODataApplicationException {
-    // Pre-process URI parameter, so they can be used at different places
-    return null;
-  }
-
-  @Override
-  public AbstractQuery<Tuple> getQuery() {
-    return cq;
   }
 }

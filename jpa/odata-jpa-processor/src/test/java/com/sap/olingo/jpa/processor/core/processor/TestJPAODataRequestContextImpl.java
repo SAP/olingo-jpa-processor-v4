@@ -34,7 +34,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
@@ -73,15 +72,6 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testReturnsSetPage() throws ODataJPAIllegalAccessException {
-    final UriInfo uriInfo = mock(UriInfo.class);
-    final JPAODataPage exp = new JPAODataPage(uriInfo, 0, 10, "12354");
-    cut.setJPAODataPage(exp);
-    assertEquals(exp, cut.getPage());
-    assertEquals(uriInfo, cut.getUriInfo());
-  }
-
-  @Test
   void testReturnsSetUriInfo() throws ODataJPAIllegalAccessException {
     final UriInfo exp = mock(UriInfo.class);
     cut.setUriInfo(exp);
@@ -96,23 +86,9 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testThrowsExceptionOnSetPageIfUriInfoExists() throws ODataJPAIllegalAccessException {
-    final UriInfo uriInfo = mock(UriInfo.class);
-    final JPAODataPage page = new JPAODataPage(uriInfo, 0, 10, "12354");
-    cut.setUriInfo(uriInfo);
-    assertThrows(ODataJPAIllegalAccessException.class, () -> cut.setJPAODataPage(page));
-  }
-
-  @Test
-  void testThrowsExceptionOnPageIsNull() {
-    assertThrows(NullPointerException.class, () -> cut.setJPAODataPage(null));
-  }
-
-  @Test
   void testThrowsExceptionOnSetUriInfoIfUriInfoExists() throws ODataJPAIllegalAccessException {
     final UriInfo uriInfo = mock(UriInfo.class);
-    final JPAODataPage page = new JPAODataPage(uriInfo, 0, 10, "12354");
-    cut.setJPAODataPage(page);
+    cut.setUriInfo(uriInfo);
     assertThrows(ODataJPAIllegalAccessException.class, () -> cut.setUriInfo(uriInfo));
   }
 
@@ -127,23 +103,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testCopyConstructorCopysExternalAndAddsUriInfo() throws ODataJPAIllegalAccessException,
-      ODataJPAProcessorException {
-    fillContextForCopyConstructor();
-    final JPASerializer serializer = mock(JPASerializer.class);
-    final UriInfo uriInfo = mock(UriInfo.class);
-    final JPAODataPage page = new JPAODataPage(uriInfo, 0, 10, "12354");
-    final Map<String, List<String>> header = Collections.emptyMap();
-    final JPAODataInternalRequestContext act = new JPAODataInternalRequestContext(page, serializer, cut, header);
-
-    assertEquals(uriInfo, act.getUriInfo());
-    assertEquals(page, act.getPage());
-    assertEquals(serializer, act.getSerializer());
-    assertCopied(act);
-  }
-
-  @Test
-  void testCopyConstructorCopysExternalAndAddsPageSerializer() throws ODataJPAProcessorException {
+  void testCopyConstructorCopiesExternalAndAddsPageSerializer() throws ODataJPAProcessorException {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPAODataInternalRequestContext act = new JPAODataInternalRequestContext(uriInfo, cut);
@@ -153,7 +113,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testCopyConstructorCopysExternalAndAddsUriInfoSerializer() throws ODataJPAProcessorException {
+  void testCopyConstructorCopiesExternalAndAddsUriInfoSerializer() throws ODataJPAProcessorException {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPASerializer serializer = mock(JPASerializer.class);
@@ -167,7 +127,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testCopyConstructorCopysExternalAndAddsUriInfoSerializerNull() throws ODataJPAProcessorException {
+  void testCopyConstructorCopiesExternalAndAddsUriInfoSerializerNull() throws ODataJPAProcessorException {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final Map<String, List<String>> header = Collections.emptyMap();

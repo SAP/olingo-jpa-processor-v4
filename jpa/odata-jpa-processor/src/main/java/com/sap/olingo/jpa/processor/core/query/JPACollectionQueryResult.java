@@ -18,6 +18,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
@@ -90,7 +91,8 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
 
   @Override
   public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
-    this.collectionResult = converter.getCollectionResult(this, requestedSelection);
+    if (this.collectionResult == null)
+      this.collectionResult = converter.getCollectionResult(this, requestedSelection);
   }
 
   @Override
@@ -148,5 +150,11 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
       throws ODataApplicationException {
     // Not needed yet. Collections with navigation properties not supported
+  }
+
+  @Override
+  public String getSkipToken(final List<JPAODataPageExpandInfo> foreignKeyStack) {
+    // No paging support for collection properties yet
+    return null;
   }
 }

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.TestFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 
-class JPAExpandLevelWrapperTest {
+class JPAExpandLevelWrapperTest extends JPAExpandItemPageableTest {
 
   private static final String TEXT = "This is a text";
   private static final String NAME = "Name";
@@ -45,7 +45,6 @@ class JPAExpandLevelWrapperTest {
   private JPAServiceDocument sd;
   private ExpandOption option;
   private LevelsExpandOption levelOption;
-  private ExpandItem item;
   private FilterOption filterOption;
   private CountOption countOption;
   private OrderByOption orderByOption;
@@ -56,7 +55,6 @@ class JPAExpandLevelWrapperTest {
   private List<ExpandItem> itemList;
   private ExpandOption expandOption;
 
-  // return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : Collections.emptyList();
   @BeforeEach
   void setup() throws ODataApplicationException {
 
@@ -72,10 +70,10 @@ class JPAExpandLevelWrapperTest {
     topOption = mock(TopOption.class);
     expandOption = mock(ExpandOption.class);
     itemList = new ArrayList<>();
-    item = buildItem(null);
-    itemList.add(item);
+    expandItem = buildItem(null);
+    itemList.add(expandItem);
 
-    cut = new JPAExpandLevelWrapper(sd, option, item);
+    cut = new JPAExpandLevelWrapper(sd, option, expandItem);
   }
 
   private ExpandItem buildItem(final UriInfoResource infoResource) {
@@ -128,13 +126,13 @@ class JPAExpandLevelWrapperTest {
   }
 
   @Test
-  void checkLevelOption1() throws ODataApplicationException {
+  void checkLevelOption1() {
     when(levelOption.getValue()).thenReturn(1);
     assertNull(cut.getExpandOption());
   }
 
   @Test
-  void checkLevelOption2() throws ODataApplicationException {
+  void checkLevelOption2() {
     when(levelOption.getValue()).thenReturn(2);
     final ExpandOption act = cut.getExpandOption();
     assertNotNull(act);
@@ -142,7 +140,7 @@ class JPAExpandLevelWrapperTest {
   }
 
   @Test
-  void checkExpandOptionProperties() throws ODataApplicationException {
+  void checkExpandOptionProperties() {
     when(levelOption.getValue()).thenReturn(2);
     when(option.getKind()).thenReturn(SystemQueryOptionKind.APPLY);
     when(option.getName()).thenReturn(NAME);
@@ -154,15 +152,15 @@ class JPAExpandLevelWrapperTest {
   }
 
   @Test
-  void checkExpandItemProperties() throws ODataApplicationException {
+  void checkExpandItemProperties() {
     when(levelOption.getValue()).thenReturn(2);
 
     final ExpandOption itemExpandOption = mock(ExpandOption.class);
     final ExpandItem itemSecondLevel = mock(ExpandItem.class);
     final LevelsExpandOption secondLevelOptions = mock(LevelsExpandOption.class);
     final EdmType startTypeFilter = mock(EdmType.class);
-    when(item.getExpandOption()).thenReturn(itemExpandOption);
-    when(item.getStartTypeFilter()).thenReturn(startTypeFilter);
+    when(expandItem.getExpandOption()).thenReturn(itemExpandOption);
+    when(expandItem.getStartTypeFilter()).thenReturn(startTypeFilter);
     when(itemExpandOption.getExpandItems()).thenReturn(Arrays.asList(itemSecondLevel));
     when(itemSecondLevel.getLevelsOption()).thenReturn(secondLevelOptions);
     when(secondLevelOptions.getValue()).thenReturn(0);
@@ -182,7 +180,7 @@ class JPAExpandLevelWrapperTest {
   }
 
   @Test
-  void checkLevelsExpandOptionProperties() throws ODataApplicationException {
+  void checkLevelsExpandOptionProperties() {
     when(levelOption.getValue()).thenReturn(2);
     when(levelOption.isMax()).thenReturn(true);
     final LevelsExpandOption act = cut.getExpandOption().getExpandItems().get(0).getLevelsOption();
@@ -200,9 +198,9 @@ class JPAExpandLevelWrapperTest {
   }
 
   @Test
-  void checkEntityTypeViaConstructor() throws ODataApplicationException {
+  void checkEntityTypeViaConstructor() {
     final JPAEntityType et = mock(JPAEntityType.class);
-    cut = new JPAExpandLevelWrapper(option, et, null, item);
+    cut = new JPAExpandLevelWrapper(option, et, null, expandItem);
 
     when(levelOption.getValue()).thenReturn(2);
     when(levelOption.isMax()).thenReturn(false);
@@ -214,7 +212,7 @@ class JPAExpandLevelWrapperTest {
   }
 
   @Test
-  void checkTwoLevelItems() throws ODataApplicationException {
+  void checkTwoLevelItems() {
     final UriInfoResource infoResource = mock(UriInfoResource.class);
     final UriResource resource = mock(UriResource.class);
     final List<UriResource> resourceList = Collections.singletonList(resource);
@@ -231,11 +229,16 @@ class JPAExpandLevelWrapperTest {
     UriInfoResource resourcePath = act.get(0).getResourcePath();
     assertEquals(resourceList, resourcePath.getUriResourceParts());
 
-    cut = new JPAExpandLevelWrapper(option, et, null, item);
+    cut = new JPAExpandLevelWrapper(option, et, null, expandItem);
     final List<ExpandItem> act2 = cut.getExpandOption().getExpandItems();
     assertEquals(1, act2.size());
     resourcePath = act2.get(0).getResourcePath();
     assertEquals(Collections.emptyList(), resourcePath.getUriResourceParts());
 
+  }
+
+  @Override
+  JPAExpandItemPageable getCut() {
+    return cut;
   }
 }

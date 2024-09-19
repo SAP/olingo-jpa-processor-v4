@@ -10,3 +10,4 @@ target/
 .metadata
 *.log
 /old.project
+/Scripts/

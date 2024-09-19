@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.Expression;
@@ -27,16 +28,25 @@ import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSkipTokenProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
 
   protected final JPAAssociationPath association;
+  protected final Optional<JPAODataSkipTokenProvider> skipTokenProvider;
+
+  static List<JPANavigationPropertyInfo> copyHops(final List<JPANavigationPropertyInfo> hops) {
+    return hops.stream()
+        .map(JPANavigationPropertyInfo::new)
+        .toList();
+  }
 
   JPAAbstractExpandQuery(final OData odata,
       final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
@@ -44,13 +54,15 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
 
     super(odata, jpaEntityType, requestContext, emptyList());
     this.association = association;
+    this.skipTokenProvider = Optional.empty();
   }
 
   JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
       final JPAInlineItemInfo item) throws ODataException {
 
     super(odata, item.getEntityType(), item.getUriInfo(), requestContext, item.getHops());
-    this.association = getAssociation(item);
+    this.association = item.getExpandAssociation();
+    this.skipTokenProvider = item.getSkipTokenProvider();
   }
 
   JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext, final JPAEntityType et,
@@ -58,12 +70,8 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
 
     super(odata, et, requestContext, hops);
     this.association = association;
+    this.skipTokenProvider = Optional.empty();
   }
-
-  protected abstract JPAAssociationPath getAssociation(JPAInlineItemInfo item);
-
-  @Override
-  public abstract JPAExpandQueryResult execute() throws ODataApplicationException;
 
   @Override
   protected SelectionPathInfo<JPAPath> buildSelectionPathList(final UriInfoResource uriResource)
@@ -84,14 +92,14 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     if (!association.hasJoinTable()) {
       final List<JPAPath> joinColumns = association.getRightColumnsList();
       return joinColumns.stream()
-          .map(c -> (row.get(c
+          .map(column -> (row.get(column
               .getAlias()))
                   .toString())
           .collect(joining(JPAPath.PATH_SEPARATOR));
     } else {
       final List<JPAPath> joinColumns = association.getLeftColumnsList();
       return joinColumns.stream()
-          .map(c -> (row.get(association.getAlias() + ALIAS_SEPARATOR + c.getAlias())).toString())
+          .map(column -> (row.get(association.getAlias() + ALIAS_SEPARATOR + column.getAlias())).toString())
           .collect(joining(JPAPath.PATH_SEPARATOR));
     }
   }
@@ -128,13 +136,35 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
         HttpStatusCode.BAD_REQUEST);
   }
 
-  protected List<Expression<?>> buildExpandCountGroupBy(final From<?, ?> root)
+  protected List<Expression<?>> buildExpandCountGroupBy(final From<?, ?> root) throws ODataJPAQueryException {
+    if (association.hasJoinTable()) {
+      return buildExpandCountGroupByJoinTable(root);
+    } else
+      return buildExpandCountGroupByJoin(root);
+  }
+
+  private List<Expression<?>> buildExpandCountGroupByJoin(final From<?, ?> root)
       throws ODataJPAQueryException {
 
     final List<Expression<?>> groupBy = new ArrayList<>();
     try {
       final List<JPAOnConditionItem> associationPathList = association.getJoinColumnsList();
       for (final JPAOnConditionItem onCondition : associationPathList) {
+        groupBy.add(ExpressionUtility.convertToCriteriaPath(root, onCondition.getRightPath().getPath()));
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+    }
+    return groupBy;
+  }
+
+  private List<Expression<?>> buildExpandCountGroupByJoinTable(final From<?, ?> root)
+      throws ODataJPAQueryException {
+
+    final List<Expression<?>> groupBy = new ArrayList<>();
+    final JPAJoinTable joinTable = association.getJoinTable();
+    try {
+      for (final JPAOnConditionItem onCondition : joinTable.getJoinColumns()) {
         groupBy.add(ExpressionUtility.convertToCriteriaPath(root, onCondition.getRightPath().getPath()));
       }
     } catch (final ODataJPAModelException e) {

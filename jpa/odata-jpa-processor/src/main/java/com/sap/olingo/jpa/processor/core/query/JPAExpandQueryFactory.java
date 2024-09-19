@@ -22,10 +22,17 @@ public class JPAExpandQueryFactory {
     this.cb = cb;
   }
 
-  public JPAAbstractExpandQuery createQuery(final JPAExpandItemInfo item, final Optional<JPAKeyBoundary> keyBoundary)
+  public JPAExpandQuery createQuery(final JPAExpandItemInfo item, final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
     if (cb instanceof ProcessorCriteriaBuilder)
       return new JPAExpandSubQuery(odata, item, requestContext);
     return new JPAExpandJoinQuery(odata, item, requestContext, keyBoundary);
+  }
+
+  public JPAExpandCountQuery createCountQuery(final JPAExpandItemInfo item,
+      final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
+    if (cb instanceof ProcessorCriteriaBuilder)
+      return new JPAExpandSubCountQuery(odata, item, requestContext);
+    return new JPAExpandJoinCountQuery(odata, requestContext, item, keyBoundary);
   }
 }

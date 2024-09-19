@@ -47,11 +47,6 @@ class JPAProcessorCountAttributeImpl extends JPAAbstractProcessorAttributeImpl i
   }
 
   @Override
-  public boolean requiresJoin() {
-    return !hops.isEmpty();
-  }
-
-  @Override
   public JPAProcessorAttribute setTarget(final From<?, ?> target, final Map<String, From<?, ?>> joinTables,
       final CriteriaBuilder cb) {
     determineFrom(target, joinTables);
