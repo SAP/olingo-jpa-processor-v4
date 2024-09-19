@@ -45,6 +45,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   private JPAODataSessionContextAccess sessionContext;
   private UriInfo uriInfo;
   private JPAODataInternalRequestContext requestContext;
+  private JPAODataRequestContext externalContext;
   private OData odata;
 
   @BeforeEach
@@ -57,7 +58,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
         dataSource, null, null, null);
     odata = mock(OData.class);
-    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext, odata);
     requestContext.setUriInfo(uriInfo);
@@ -273,6 +274,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   @Test
   void checkSelectTransientWithKey() throws ODataException, ODataJPAIllegalAccessException {
     buildUriInfo("Persons", "Person");
+    requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext, odata);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, requestContext);
 

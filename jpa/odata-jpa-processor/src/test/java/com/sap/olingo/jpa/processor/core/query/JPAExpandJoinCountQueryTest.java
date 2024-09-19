@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,28 +59,6 @@ class JPAExpandJoinCountQueryTest extends TestBase {
   void testCreateCountQuery() {
     assertDoesNotThrow(() -> new JPAExpandJoinCountQuery(odata, requestContext, et, association, hops,
         keyBoundary));
-  }
-
-  @Test
-  void testExecuteReturnsNull() throws ODataException {
-    cut = new JPAExpandJoinCountQuery(odata, requestContext, et, association, hops, keyBoundary);
-    assertNull(cut.execute());
-  }
-
-  @Test
-  void testAssociationReturnsSecondLast() throws ODataException {
-    final JPAAssociationPath exp = mock(JPAAssociationPath.class);
-    final List<JPANavigationPropertyInfo> parentHops = new ArrayList<>();
-    final JPAExpandItem uriInfo = mock(JPAExpandItem.class);
-
-    parentHops.add(createHop());
-    parentHops.add(createHop());
-
-    final JPAInlineItemInfo itemInfo = new JPACollectionItemInfo(sd, uriInfo, exp, parentHops);
-
-    cut = new JPAExpandJoinCountQuery(odata, requestContext, et, association, hops, keyBoundary);
-    final JPAAssociationPath act = cut.getAssociation(itemInfo);
-    assertEquals(exp, act);
   }
 
   @Test

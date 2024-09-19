@@ -41,7 +41,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
-public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
+public class JPACollectionJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
   private final JPAAssociationPath association;
   private final Optional<JPAKeyBoundary> keyBoundary;
 

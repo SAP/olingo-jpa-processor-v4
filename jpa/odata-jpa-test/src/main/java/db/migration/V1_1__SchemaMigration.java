@@ -34,6 +34,7 @@ public class V1_1__SchemaMigration extends BaseJavaMigration { // NOSONAR
       case "HSQLDB" -> createFunctionHSQLDB(connection);
       case "PostgreSQL" -> createFunctionPostgres(connection);
       case "Derby" -> createFunctionDerby();
+      case "MySQL" -> createFunctionDerby();
       default -> raiseUnsupportedDbException(dbType);
 
     };

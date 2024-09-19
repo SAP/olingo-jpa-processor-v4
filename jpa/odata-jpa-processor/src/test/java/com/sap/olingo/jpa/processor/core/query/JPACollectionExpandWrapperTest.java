@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -82,6 +83,11 @@ class JPACollectionExpandWrapperTest {
   @Test
   void testGetValueForAliasReturnsNull() {
     assertNull(cut.getValueForAlias("Test"));
+  }
+
+  @Test
+  void testGetSkipTokenProvider() {
+    assertEquals(Optional.empty(), cut.getSkipTokenProvider());
   }
 
   @TestFactory

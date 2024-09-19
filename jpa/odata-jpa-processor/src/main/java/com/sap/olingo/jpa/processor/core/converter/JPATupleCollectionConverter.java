@@ -27,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -60,7 +61,8 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
           result.put(tuple.getKey(), convertTransientCollection(attribute, tuple));
         } else {
           result.put(tuple.getKey(),
-              convertPersistentCollection(jpaResult, attribute, st, prefix, tuple, requestedSelection));
+              convertPersistentCollection(jpaResult, attribute, st, prefix, tuple, requestedSelection, Collections
+                  .emptyList()));
         }
       }
     } catch (final ODataJPAModelException e) {
@@ -74,9 +76,8 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
 
   private List<Object> convertPersistentCollection(final JPACollectionResult jpaResult,
       final JPAAssociationAttribute attribute, final JPAStructuredType st, final String prefix,
-      final Entry<String, List<Tuple>> tuple, final Collection<JPAPath> requestedSelection)
-      throws ODataJPAModelException,
-      ODataApplicationException {
+      final Entry<String, List<Tuple>> tuple, final Collection<JPAPath> requestedSelection,
+      final List<JPAODataPageExpandInfo> expandInfo) throws ODataJPAModelException, ODataApplicationException {
 
     final List<Object> collection = new ArrayList<>();
     final List<Tuple> rows = tuple.getValue();
@@ -88,7 +89,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
         if (requestedSelection.isEmpty()) {
           convertWithOutSelection(st, prefix, row, value, complexValueBuffer);
         } else {
-          convertRowWithSelection(row, requestedSelection, complexValueBuffer, null, value.getValue());
+          convertRowWithSelection(row, requestedSelection, complexValueBuffer, null, value.getValue(), expandInfo);
         }
         collection.add(complexValueBuffer.get(jpaResult.getAssociation().getAlias()));
       } else {
@@ -109,7 +110,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
       if (alias != null) {
         final JPAPath path = st.getPath(alias);
         convertAttribute(row.get(element.getAlias()), path, complexValueBuffer,
-            value.getValue(), row, prefix, null);
+            value.getValue(), row, prefix, null, Collections.emptyList());
       }
     }
   }

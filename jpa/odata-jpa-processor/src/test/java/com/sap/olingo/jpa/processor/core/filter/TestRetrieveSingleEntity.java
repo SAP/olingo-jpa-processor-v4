@@ -14,36 +14,36 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 class TestRetrieveSingleEntity extends TestBase {
 
   @Test
-   void testRetrieveWithOneKey() throws IOException, ODataException {
+  void testRetrieveWithOneKey() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
-    assertEquals("3", org.get("ID").asText());
+    final ObjectNode organization = helper.getValue();
+    assertEquals("3", organization.get("ID").asText());
   }
 
   @Test
   void testRetrieveWithTwoKeys() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
-    assertEquals("1", org.get("BusinessPartnerID").asText());
-    assertEquals("A", org.get("RoleCategory").asText());
+    final ObjectNode organization = helper.getValue();
+    assertEquals("1", organization.get("BusinessPartnerID").asText());
+    assertEquals("A", organization.get("RoleCategory").asText());
   }
 
   @Test
-void testRetrieveWithEmbeddedKey() throws IOException, ODataException {
+  void testRetrieveWithEmbeddedKey() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisionDescriptions(DivisionCode='BE1',CodeID='NUTS1',CodePublisher='Eurostat',Language='en')");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
-    assertEquals("en", org.get("Language").asText());
-    assertEquals("NUTS1", org.get("CodeID").asText());
+    final ObjectNode description = helper.getValue();
+    assertEquals("en", description.get("Language").asText());
+    assertEquals("NUTS1", description.get("CodeID").asText());
   }
 }

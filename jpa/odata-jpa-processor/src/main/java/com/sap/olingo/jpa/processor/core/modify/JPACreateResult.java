@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -15,6 +17,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATuple;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
@@ -69,6 +72,12 @@ abstract class JPACreateResult implements JPAExpandResult {
   @Override
   public boolean hasCount() {
     return false;
+  }
+
+  @Override
+  public String getSkipToken(@Nonnull final List<JPAODataPageExpandInfo> expandInfo) {
+    // No paging for modifying requests
+    return null;
   }
 
   protected void addValueToTuple(final JPATuple tuple, final JPAPath path, final int index, final Object value)

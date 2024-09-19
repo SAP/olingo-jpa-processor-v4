@@ -308,7 +308,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertEqual(act);
   }
 
@@ -329,7 +329,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertLike(act);
   }
 
@@ -349,7 +349,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertBetween(act);
   }
 
@@ -370,7 +370,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
     attributes.add(aSpy);
 
-    assertThrows(ODataJPAQueryException.class, () -> ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(
+    assertThrows(ODataJPAQueryException.class, () -> ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(
         claims)));
 
   }
@@ -392,7 +392,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertEquals(BooleanOperator.OR, ((CompoundExpressionImpl) act).getOperator());
     for (final Expression<?> part : ((CompoundExpressionImpl) act).getChildExpressions())
       assertEqual(part);
@@ -414,7 +414,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertEqual(act);
   }
 
@@ -434,7 +434,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertBetween(act);
   }
 
@@ -455,7 +455,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     verify(cbSpy).and(any(), any());
     for (final Expression<?> part : ((CompoundExpressionImpl) act).getChildExpressions())
       assertEqual(part);
@@ -478,7 +478,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
     attributes.add(aSpy);
 
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     verify(cbSpy).and(any(), any());
     for (final Expression<?> part : ((Predicate) act).getExpressions())
       assertEqual(part);
@@ -492,7 +492,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     claims.add("BuildingNumber", new JPAClaimsPair<>("DEV"));
     claims.add("Floor", new JPAClaimsPair<>(Short.valueOf("12")));
     claims.add("RoomNumber", new JPAClaimsPair<>("*"));
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertNotNull(act);
     assertEquals(2, ((Predicate) act).getExpressions().size());
     verify(cbSpy).and(any(), any());
@@ -507,7 +507,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     claims.add("Floor", new JPAClaimsPair<>(Short.valueOf("12")));
     claims.add("RoomNumber", new JPAClaimsPair<>("*"));
     claims.add("RoomNumber", new JPAClaimsPair<>(1, 10));
-    ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     verify(cbSpy).and(any(), any());
   }
 
@@ -519,7 +519,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     claims.add("BuildingNumber", new JPAClaimsPair<>(JPAClaimsPair.ALL));
     claims.add("Floor", new JPAClaimsPair<>(Short.valueOf("12")));
     claims.add("RoomNumber", new JPAClaimsPair<>(JPAClaimsPair.ALL));
-    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    final Expression<Boolean> act = ((JPAAbstractRootJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertNotNull(act);
     verify(cbSpy, times(0)).and(any(), any());
   }

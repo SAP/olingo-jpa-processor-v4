@@ -822,8 +822,12 @@ insert into "JoinSource" values (1,-1);
 insert into "JoinSource" values (2,-2);
 insert into "JoinTarget" values (20);
 insert into "JoinTarget" values (21);
+insert into "JoinTarget" values (22);
+insert into "JoinTarget" values (23);
 insert into "JoinRelation" values (1, 20);
 insert into "JoinRelation" values (1, 21);
+insert into "JoinRelation" values (1, 22);
+insert into "JoinRelation" values (1, 23);
 
 CREATE TABLE "JoinHiddenRelation" (	 
 	"SourceID" INTEGER NOT NULL ,

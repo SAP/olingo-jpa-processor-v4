@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -26,7 +27,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.properties.JPAOrderByPropertyFactory;
 import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
  * @since 1.0.0
  */
 final class JPAOrderByBuilder {
+  private static final String ORDER_BY_LO_ENTRY = "Determined relationship and add corresponding to OrderBy";
   private static final Log LOGGER = LogFactory.getLog(JPAOrderByBuilder.class);
   private static final String LOG_ORDER_BY = "Determined $orderby: convert to Order By";
   private final JPAEntityType jpaEntity;
@@ -97,21 +98,21 @@ final class JPAOrderByBuilder {
    * @since 1.0.0
    * @param joinTables
    * @param uriResource
-   * @param page
+   * @param uriInfoResource
    * @param orderByPaths: A collection of paths to the properties within the ORDER BY clause
    * @return A list of generated orderby clauses
    * @throws ODataApplicationException
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
-      final List<JPAProcessorAttribute> orderByAttributes, final JPAODataPage page)
+      final List<JPAProcessorAttribute> orderByAttributes, final UriInfoResource uriInfoResource)
       throws ODataJPAQueryException {
 
     final List<Order> result = new ArrayList<>();
     try {
-      if (page != null
-          && (page.top() != Integer.MAX_VALUE
-              || page.skip() != 0)) {
+      if (uriInfoResource != null
+          && (uriInfoResource.getTopOption() != null
+              || uriInfoResource.getSkipOption() != null)) {
         LOGGER.trace("Determined $top/$skip or page: add primary key to Order By");
         final var factory = new JPAOrderByPropertyFactory();
         for (final var key : jpaEntity.getKey()) {
@@ -197,7 +198,7 @@ final class JPAOrderByBuilder {
   void addOrderByJoinConditionAlias(final JPAAssociationPath association, final List<Order> orders)
       throws ODataApplicationException {
 
-    LOGGER.trace("Determined relationship and add corresponding to OrderBy");
+    LOGGER.trace(ORDER_BY_LO_ENTRY);
     try {
       final List<JPAPath> joinColumns = association.hasJoinTable()
           ? asPathList(association) : association.getRightColumnsList();
@@ -214,7 +215,7 @@ final class JPAOrderByBuilder {
   void addOrderByJoinCondition(final List<JPAProcessorAttribute> orderByAttributes,
       final JPAAssociationPath association) throws ODataApplicationException {
 
-    LOGGER.trace("Determined relationship and add corresponding to OrderBy");
+    LOGGER.trace(ORDER_BY_LO_ENTRY);
     try {
       final var factory = new JPAOrderByPropertyFactory();
       final List<JPAPath> joinColumns = association.hasJoinTable()
@@ -232,7 +233,7 @@ final class JPAOrderByBuilder {
   void addOrderByInvertJoinCondition(final JPAAssociationPath association, final List<Order> orders)
       throws ODataApplicationException {
 
-    LOGGER.trace("Determined relationship and add corresponding to OrderBy");
+    LOGGER.trace(ORDER_BY_LO_ENTRY);
     try {
       final List<JPAPath> joinColumns = association.hasJoinTable()
           ? asInvertPathList(association) : association.getLeftColumnsList();

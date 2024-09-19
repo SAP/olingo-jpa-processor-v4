@@ -30,8 +30,6 @@ public interface JPAODataRequestContextAccess {
 
   public JPASerializer getSerializer();
 
-  public JPAODataPage getPage();
-
   public Optional<JPAODataClaimProvider> getClaimsProvider();
 
   public Optional<JPAODataGroupProvider> getGroupsProvider();
@@ -73,4 +71,6 @@ public interface JPAODataRequestContextAccess {
   public JPAODataQueryDirectives getQueryDirectives();
 
   public JPAODataEtagHelper getEtagHelper();
+
+  public Optional<JPAODataPagingProvider> getPagingProvider();
 }

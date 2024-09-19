@@ -6,16 +6,16 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 public abstract class JPASerializePrimitiveAbstract implements JPAOperationSerializer {
   protected static final char PATH_SEPARATOR = '/';
   protected final ServiceMetadata serviceMetadata;
-  protected final UriInfo uriInfo;
+  protected final UriInfoResource uriInfo;
 
-  protected JPASerializePrimitiveAbstract(final ServiceMetadata serviceMetadata, final UriInfo uriInfo) {
+  protected JPASerializePrimitiveAbstract(final ServiceMetadata serviceMetadata, final UriInfoResource uriInfo) {
     super();
     this.serviceMetadata = serviceMetadata;
     this.uriInfo = uriInfo;

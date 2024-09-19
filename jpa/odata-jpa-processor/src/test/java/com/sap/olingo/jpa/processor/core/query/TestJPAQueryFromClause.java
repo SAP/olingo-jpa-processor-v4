@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -112,9 +111,6 @@ class TestJPAQueryFromClause extends TestBase {
     final JPAEntityType entity = helper.getJPAEntityType("Organizations");
     descriptionPathList.add(entity.getPath("Address/CountryName"));
 
-    final JPAAttribute attri = helper.getJPAAttribute("Organizations", "address").get();
-    final JPAAttribute exp = attri.getStructuredType().getAttribute("countryName").get();
-
     final Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq, null);
     assertEquals(2, act.size());
     assertNotNull(act.get("Address/CountryName"));
@@ -127,9 +123,6 @@ class TestJPAQueryFromClause extends TestBase {
     final List<JPAPath> descriptionPathList = new ArrayList<>();
     final JPAEntityType entity = helper.getJPAEntityType("Organizations");
     descriptionPathList.add(entity.getPath("Address/RegionName"));
-
-    final JPAAttribute attri = helper.getJPAAttribute("Organizations", "address").get();
-    final JPAAttribute exp = attri.getStructuredType().getAttribute("regionName").get();
 
     final Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq, null);
     assertEquals(2, act.size());
