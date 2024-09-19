@@ -103,7 +103,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     this(uriInfo, null, context, header);
   }
 
-  JPAODataInternalRequestContext(final JPAODataPage page, final JPASerializer serializer,
+  public JPAODataInternalRequestContext(final JPAODataPage page, final JPASerializer serializer,
       final JPAODataRequestContextAccess context, final Map<String, List<String>> header)
       throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
 

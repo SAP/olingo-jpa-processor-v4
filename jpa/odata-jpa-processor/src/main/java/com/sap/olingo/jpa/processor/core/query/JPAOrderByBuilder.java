@@ -36,7 +36,7 @@ import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
  * @author Oliver Grande
  * @since 1.0.0
  */
-final class JPAOrderByBuilder {
+public final class JPAOrderByBuilder {
   private static final Log LOGGER = LogFactory.getLog(JPAOrderByBuilder.class);
   private static final String LOG_ORDER_BY = "Determined $orderby: convert to Order By";
   private final JPAEntityType jpaEntity;
@@ -45,7 +45,7 @@ final class JPAOrderByBuilder {
   private final List<String> groups;
   private final JPAOrderByBuilderWatchDog watchDog;
 
-  JPAOrderByBuilder(final JPAEntityType jpaEntity, final From<?, ?> target, final CriteriaBuilder cb,
+  public JPAOrderByBuilder(final JPAEntityType jpaEntity, final From<?, ?> target, final CriteriaBuilder cb,
       final List<String> groups) {
     super();
     this.jpaEntity = jpaEntity;
@@ -55,7 +55,7 @@ final class JPAOrderByBuilder {
     this.watchDog = new JPAOrderByBuilderWatchDog();
   }
 
-  JPAOrderByBuilder(final JPAAnnotatable annotatable, final JPAEntityType jpaEntity, final From<?, ?> target,
+  public JPAOrderByBuilder(final JPAAnnotatable annotatable, final JPAEntityType jpaEntity, final From<?, ?> target,
       final CriteriaBuilder cb, final List<String> groups) throws ODataJPAQueryException {
     super();
     this.jpaEntity = jpaEntity;
@@ -103,7 +103,7 @@ final class JPAOrderByBuilder {
    * @throws ODataApplicationException
    */
   @Nonnull
-  List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
+  public List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
       final List<JPAProcessorAttribute> orderByAttributes, final JPAODataPage page)
       throws ODataJPAQueryException {
 

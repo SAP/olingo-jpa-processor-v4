@@ -35,11 +35,11 @@ import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinCountQuery;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 
-public final class JPAProcessorFactory {
-  private final JPAODataSessionContextAccess sessionContext;
-  private final JPASerializerFactory serializerFactory;
-  private final OData odata;
-  private final ServiceMetadata serviceMetadata;
+public class JPAProcessorFactory {
+  protected final JPAODataSessionContextAccess sessionContext;
+  protected final JPASerializerFactory serializerFactory;
+  protected final OData odata;
+  protected final ServiceMetadata serviceMetadata;
 
   public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataSessionContextAccess context) {
@@ -112,13 +112,13 @@ public final class JPAProcessorFactory {
 
   }
 
-  private void checkFunctionPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
+  protected void checkFunctionPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
     if (resourceParts.size() > 2)
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_FUNC_WITH_NAVI,
           HttpStatusCode.NOT_IMPLEMENTED);
   }
 
-  private void checkNavigationPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
+  protected void checkNavigationPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
     for (final UriResource resourceItem : resourceParts) {
       if (resourceItem.getKind() != UriResourceKind.complexProperty
           && resourceItem.getKind() != UriResourceKind.primitiveProperty
@@ -132,7 +132,7 @@ public final class JPAProcessorFactory {
   }
 
   @Nonnull
-  private JPAODataPage getPage(final Map<String, List<String>> headers, final UriInfo uriInfo,
+  protected JPAODataPage getPage(final Map<String, List<String>> headers, final UriInfo uriInfo,
       final JPAODataRequestContextAccess requestContext, final JPAODataPathInformation pathInformation)
       throws ODataException {
 
@@ -159,7 +159,7 @@ public final class JPAProcessorFactory {
     return page;
   }
 
-  private Integer getPreferredPageSize(final Map<String, List<String>> headers) throws ODataJPAProcessorException {
+  protected Integer getPreferredPageSize(final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     final var preferredHeaders = getHeader("Prefer", headers);
     if (preferredHeaders != null) {
@@ -176,7 +176,7 @@ public final class JPAProcessorFactory {
     return null;
   }
 
-  private boolean serverDrivenPaging(final UriInfo uriInfo) throws ODataJPAProcessorException {
+  protected boolean serverDrivenPaging(final UriInfo uriInfo) throws ODataJPAProcessorException {
 
     for (final SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
       if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN
@@ -189,7 +189,7 @@ public final class JPAProcessorFactory {
         && resourceParts.get(resourceParts.size() - 1).getKind() != UriResourceKind.function;
   }
 
-  private String skipToken(final UriInfo uriInfo) {
+  protected String skipToken(final UriInfo uriInfo) {
     for (final SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
       if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN)
         return option.getText();
@@ -197,7 +197,7 @@ public final class JPAProcessorFactory {
     return null;
   }
 
-  private List<String> getHeader(final String name, final Map<String, List<String>> headers) {
+  protected List<String> getHeader(final String name, final Map<String, List<String>> headers) {
     for (final Entry<String, List<String>> header : headers.entrySet()) {
       if (header.getKey().equalsIgnoreCase(name)) {
         return header.getValue();

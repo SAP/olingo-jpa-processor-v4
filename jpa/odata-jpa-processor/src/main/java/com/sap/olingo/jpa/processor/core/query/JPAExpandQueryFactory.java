@@ -11,9 +11,9 @@ import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 
 public class JPAExpandQueryFactory {
-  private final OData odata;
-  private final JPAODataRequestContextAccess requestContext;
-  private final CriteriaBuilder cb;
+  protected final OData odata;
+  protected final JPAODataRequestContextAccess requestContext;
+  protected final CriteriaBuilder cb;
 
   public JPAExpandQueryFactory(final OData odata, final JPAODataRequestContextAccess requestContext,
       final CriteriaBuilder cb) {

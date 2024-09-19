@@ -11,7 +11,7 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-abstract class JPAInlineItemInfo {
+public abstract class JPAInlineItemInfo {
 
   protected final JPAExpandItem uriInfo;
   protected final JPAAssociationPath expandAssociation;

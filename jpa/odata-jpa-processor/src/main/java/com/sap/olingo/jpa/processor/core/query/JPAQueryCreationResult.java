@@ -5,7 +5,7 @@ import jakarta.persistence.TypedQuery;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 
-record JPAQueryCreationResult(TypedQuery<Tuple> query, SelectionPathInfo<JPAPath> selection) {
+public record JPAQueryCreationResult(TypedQuery<Tuple> query, SelectionPathInfo<JPAPath> selection) {
 
   @Override
   public String toString() {
