@@ -40,14 +40,8 @@ import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 abstract class JPAAbstractExpandSubQuery extends JPAAbstractExpandQuery {
 
-  JPAAbstractExpandSubQuery(final OData odata, final JPAEntityType jpaEntityType,
-      final JPAODataRequestContextAccess requestContext, final JPAAssociationPath association) throws ODataException {
-    super(odata, jpaEntityType, requestContext, association);
-  }
-
   JPAAbstractExpandSubQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
-      final JPAInlineItemInfo item)
-      throws ODataException {
+      final JPAInlineItemInfo item) throws ODataException {
     super(odata, requestContext, item);
   }
 

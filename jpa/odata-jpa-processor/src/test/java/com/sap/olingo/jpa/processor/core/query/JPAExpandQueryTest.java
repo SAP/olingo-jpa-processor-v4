@@ -120,7 +120,7 @@ abstract class JPAExpandQueryTest extends TestBase {
     assertNotNull(act.getResult("1"));
   }
 
-  abstract protected JPAExpandQuery createCut(JPAInlineItemInfo item) throws ODataException;
+  protected abstract JPAExpandQuery createCut(JPAInlineItemInfo item) throws ODataException;
 
   protected JPAInlineItemInfo createOrganizationExpandRoles(final List<UriParameter> keyPredicates)
       throws ODataJPAModelException,
@@ -224,9 +224,7 @@ abstract class JPAExpandQueryTest extends TestBase {
     final UriInfo uriInfo = mock(UriInfo.class);
     final UriResourceEntitySet uriEs = createEntitySetResource(keyPredicates, esName, et);
     when(uriInfo.getUriResourceParts()).thenReturn(Collections.singletonList(uriEs));
-    final JPANavigationPropertyInfo hop = new JPANavigationPropertyInfo(helper.sd, uriEs, jpaAssociationPath,
-        uriInfo);
-    return hop;
+    return new JPANavigationPropertyInfo(helper.sd, uriEs, jpaAssociationPath, uriInfo);
   }
 
   private UriResourceEntitySet createEntitySetResource(final List<UriParameter> keyPredicates, final String esName,
