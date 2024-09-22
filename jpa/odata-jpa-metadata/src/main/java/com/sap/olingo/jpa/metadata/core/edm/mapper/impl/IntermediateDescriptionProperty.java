@@ -227,6 +227,11 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     }
 
     @Override
+    public List<JPAPath> getForeignKeyColumns() throws ODataJPAModelException {
+      return List.of();
+    }
+
+    @Override
     public JPAAssociationAttribute getLeaf() {
       return null;
     }

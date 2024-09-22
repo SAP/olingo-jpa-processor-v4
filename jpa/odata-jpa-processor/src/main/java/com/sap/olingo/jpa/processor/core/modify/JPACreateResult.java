@@ -19,8 +19,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPATuple;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 
@@ -45,7 +45,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   }
 
   @Override
-  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
+  public void convert(final JPAResultConverter converter) throws ODataApplicationException {
     // No implementation required for CUD operations
   }
 

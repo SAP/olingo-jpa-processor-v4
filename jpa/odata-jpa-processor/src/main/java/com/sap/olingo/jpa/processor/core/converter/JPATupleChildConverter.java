@@ -2,14 +2,15 @@ package com.sap.olingo.jpa.processor.core.converter;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Stack;
 
 import javax.annotation.Nonnull;
 
@@ -58,19 +59,20 @@ import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
  */
 public class JPATupleChildConverter extends JPATupleResultConverter {
   private static final Log LOGGER = LogFactory.getLog(JPATupleChildConverter.class);
-  private final Stack<Result> resultStack;
+  private final Deque<Result> resultStack;
 
   public JPATupleChildConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
 
     super(sd, uriHelper, serviceMetadata, requestContext);
-    resultStack = new Stack<>();
+    resultStack = new ArrayDeque<>();
   }
 
   public JPATupleChildConverter(final JPATupleChildConverter converter) {
     this(converter.sd, converter.uriHelper, converter.serviceMetadata, converter.requestContext);
   }
 
+  @Override
   public Map<String, List<Object>> getCollectionResult(final JPACollectionResult jpaResult,
       final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 
@@ -107,6 +109,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     return result;
   }
 
+  @Override
   public EntityCollection getResult(@Nonnull final JPAExpandQueryResult jpaResult,
       @Nonnull final Collection<JPAPath> requestedSelection, @Nonnull final String parentKey,
       final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {

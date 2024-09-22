@@ -14,6 +14,7 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
+import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -31,6 +32,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 
 public class JPATupleCollectionConverter extends JPATupleResultConverter {
 
@@ -72,6 +74,19 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
       childResult.replaceAll((k, v) -> null);
     }
     return result;
+  }
+
+  @Override
+  public Map<String, List<Object>> getCollectionResult(final JPACollectionResult jpaResult,
+      final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
+    return Map.of();
+  }
+
+  @Override
+  public EntityCollection getResult(final JPAExpandQueryResult jpaExpandQueryResult,
+      final Collection<JPAPath> requestedSelection, final String parentKey,
+      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
+    return null;
   }
 
   private List<Object> convertPersistentCollection(final JPACollectionResult jpaResult,

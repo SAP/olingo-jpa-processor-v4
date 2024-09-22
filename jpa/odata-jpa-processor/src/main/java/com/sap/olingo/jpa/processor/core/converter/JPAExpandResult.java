@@ -35,7 +35,7 @@ public interface JPAExpandResult { // NOSONAR
 
   boolean hasCount();
 
-  void convert(final JPATupleChildConverter converter) throws ODataApplicationException;
+  void convert(final JPAResultConverter converter) throws ODataApplicationException;
 
   @CheckForNull
   String getSkipToken(@Nonnull final List<JPAODataPageExpandInfo> newInfo);

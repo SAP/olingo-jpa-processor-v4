@@ -17,11 +17,11 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
-import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
-import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
@@ -30,7 +30,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class TestJPAEntityResult extends TestJPACreateResult {
+class JPAEntityResultTest extends JPACreateResultTest {
   @BeforeEach
   public void setUp() throws Exception {
     headers = new HashMap<>();
@@ -113,6 +113,8 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     child.setCodeID("NUTS2");
     child.setDivisionCode("BE21");
     child.setCodePublisher("Eurostat");
+    child.setParentCodeID("NUTS1");
+    child.setParentDivisionCode("BE2");
 
     ((AdministrativeDivision) jpaEntity).setCodeID("NUTS1");
     ((AdministrativeDivision) jpaEntity).setDivisionCode("BE2");
@@ -132,6 +134,8 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     child.setCodeID("NUTS2");
     child.setDivisionCode("BE22");
     child.setCodePublisher("Eurostat");
+    child.setParentCodeID("NUTS1");
+    child.setParentDivisionCode("BE2");
 
     cut = new JPAEntityResult(et, jpaEntity, headers, converter);
 

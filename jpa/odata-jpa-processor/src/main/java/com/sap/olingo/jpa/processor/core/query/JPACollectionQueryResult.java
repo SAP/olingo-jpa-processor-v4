@@ -21,6 +21,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 
 public class JPACollectionQueryResult implements JPACollectionResult, JPAConvertibleResult {
@@ -69,7 +70,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public Map<String, EntityCollection> asEntityCollection(final JPATupleChildConverter converter)
+  public Map<String, EntityCollection> asEntityCollection(final JPAResultConverter converter)
       throws ODataApplicationException {
     this.collectionResult = converter.getCollectionResult(this, requestedSelection);
     final Map<String, EntityCollection> result = new HashMap<>(1);
@@ -90,7 +91,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
+  public void convert(final JPAResultConverter converter) throws ODataApplicationException {
     if (this.collectionResult == null)
       this.collectionResult = converter.getCollectionResult(this, requestedSelection);
   }
@@ -113,12 +114,6 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   @Override
   public Long getCount(final String key) {
     return counts != null ? counts.get(key) : null;
-  }
-
-  @Override
-  public EntityCollection getEntityCollection(final String key) {
-    // Not needed yet. Collections with navigation properties not supported
-    return new EntityCollection();
   }
 
   @Override

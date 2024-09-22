@@ -63,7 +63,7 @@ class TestFunctions {
   @Disabled("Not implemented")
   @Test
   void TestProcedure() throws SQLException {
-    final StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
+    final StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"Siblings\"");
 
     pc.registerStoredProcedureParameter("CodePublisher", String.class, ParameterMode.IN);
     pc.setParameter("CodePublisher", "Eurostat");
@@ -71,68 +71,65 @@ class TestFunctions {
     pc.setParameter("CodeID", "NUTS2");
     pc.registerStoredProcedureParameter("DivisionCode", String.class, ParameterMode.IN);
     pc.setParameter("DivisionCode", "BE25");
-//    pc.setParameter("CodePublisher", "Eurostat");
-//    pc.setParameter("CodeID", "NUTS2");
-//    pc.setParameter("DivisionCode", "BE25");
 
-    final Connection conn = ds.getConnection();
-    final DatabaseMetaData meta = conn.getMetaData();
-    final ResultSet metaR = meta.getProcedures(conn.getCatalog(), "OLINGO", "%");
-
-    while (metaR.next()) {
-      final String procedureCatalog = metaR.getString(1);
-      final String procedureSchema = metaR.getString(2);
-      final String procedureName = metaR.getString(3);
+    try (final Connection connection = ds.getConnection()) {
+      final DatabaseMetaData meta = connection.getMetaData();
+      try (final ResultSet metaR = meta.getProcedures(connection.getCatalog(), "OLINGO", "%")) {
+        while (metaR.next()) {
+          final String procedureCatalog = metaR.getString(1);
+          final String procedureSchema = metaR.getString(2);
+          final String procedureName = metaR.getString(3);
 //          reserved for future use
 //          reserved for future use
 //          reserved for future use
-      final String remarks = metaR.getString(7);
-      final Short procedureTYpe = metaR.getShort(8);
-//      String specificName = metaR.getString(9);
+          final String remarks = metaR.getString(7);
+          final Short procedureType = metaR.getShort(8);
+//        String specificName = metaR.getString(9);
 
-      System.out.println("procedureCatalog=" + procedureCatalog);
-      System.out.println("procedureSchema=" + procedureSchema);
-      System.out.println("procedureName=" + procedureName);
-      System.out.println("remarks=" + remarks);
-      System.out.println("procedureType=" + procedureTYpe);
-//      System.out.println("specificName=" + specificName);
+          System.out.println("procedureCatalog=" + procedureCatalog);
+          System.out.println("procedureSchema=" + procedureSchema);
+          System.out.println("procedureName=" + procedureName);
+          System.out.println("remarks=" + remarks);
+          System.out.println("procedureType=" + procedureType);
+//        System.out.println("specificName=" + specificName);
+        }
+        final ResultSet rs = meta.getProcedureColumns(connection.getCatalog(),
+            "OLINGO", "%", "%");
+
+        while (rs.next()) {
+          // get stored procedure metadata
+          final String procedureCatalog = rs.getString(1);
+          final String procedureSchema = rs.getString(2);
+          final String procedureName = rs.getString(3);
+          final String columnName = rs.getString(4);
+          final short columnReturn = rs.getShort(5);
+          final int columnDataType = rs.getInt(6);
+          final String columnReturnTypeName = rs.getString(7);
+          final int columnPrecision = rs.getInt(8);
+          final int columnByteLength = rs.getInt(9);
+          final short columnScale = rs.getShort(10);
+          final short columnRadix = rs.getShort(11);
+          final short columnNullable = rs.getShort(12);
+          final String columnRemarks = rs.getString(13);
+
+          System.out.println("storedProcedureName=" + procedureName);
+          System.out.println("procedureCatalog=" + procedureCatalog);
+          System.out.println("procedureSchema=" + procedureSchema);
+          System.out.println("procedureName=" + procedureName);
+          System.out.println("columnName=" + columnName);
+          System.out.println("columnReturn=" + columnReturn);
+          System.out.println("columnDataType=" + columnDataType);
+          System.out.println("columnReturnTypeName=" + columnReturnTypeName);
+          System.out.println("columnPrecision=" + columnPrecision);
+          System.out.println("columnByteLength=" + columnByteLength);
+          System.out.println("columnScale=" + columnScale);
+          System.out.println("columnRadix=" + columnRadix);
+          System.out.println("columnNullable=" + columnNullable);
+          System.out.println("columnRemarks=" + columnRemarks);
+        }
+        pc.execute();
+      }
     }
-    final ResultSet rs = meta.getProcedureColumns(conn.getCatalog(),
-        "OLINGO", "%", "%");
-
-    while (rs.next()) {
-      // get stored procedure metadata
-      final String procedureCatalog = rs.getString(1);
-      final String procedureSchema = rs.getString(2);
-      final String procedureName = rs.getString(3);
-      final String columnName = rs.getString(4);
-      final short columnReturn = rs.getShort(5);
-      final int columnDataType = rs.getInt(6);
-      final String columnReturnTypeName = rs.getString(7);
-      final int columnPrecision = rs.getInt(8);
-      final int columnByteLength = rs.getInt(9);
-      final short columnScale = rs.getShort(10);
-      final short columnRadix = rs.getShort(11);
-      final short columnNullable = rs.getShort(12);
-      final String columnRemarks = rs.getString(13);
-
-      System.out.println("stored Procedure name=" + procedureName);
-      System.out.println("procedureCatalog=" + procedureCatalog);
-      System.out.println("procedureSchema=" + procedureSchema);
-      System.out.println("procedureName=" + procedureName);
-      System.out.println("columnName=" + columnName);
-      System.out.println("columnReturn=" + columnReturn);
-      System.out.println("columnDataType=" + columnDataType);
-      System.out.println("columnReturnTypeName=" + columnReturnTypeName);
-      System.out.println("columnPrecision=" + columnPrecision);
-      System.out.println("columnByteLength=" + columnByteLength);
-      System.out.println("columnScale=" + columnScale);
-      System.out.println("columnRadix=" + columnRadix);
-      System.out.println("columnNullable=" + columnNullable);
-      System.out.println("columnRemarks=" + columnRemarks);
-    }
-    conn.close();
-    pc.execute();
     final List<?> r = pc.getResultList();
 
     final Object[] one = (Object[]) r.get(0);
