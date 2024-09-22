@@ -7,18 +7,15 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.UriResourceSingleton;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.LevelsExpandOption;
@@ -295,17 +292,6 @@ public class JPAUriInfoFactory {
             pathList.add(path);
           });
       return pathList;
-    }
-
-    private EdmStructuredType getEntityType(final UriResource last) {
-      return switch (last.getKind()) {
-        case entitySet -> ((UriResourceEntitySet) last).getEntityType();
-        case singleton -> ((UriResourceSingleton) last).getEntityType();
-        case navigationProperty -> ((UriResourceNavigation) last).getProperty().getType();
-        case function -> (EdmEntityType) ((UriResourceFunction) last).getFunction().getReturnType().getType();
-        case complexProperty -> ((UriResourceComplexProperty) last).getComplexType();
-        default -> throw new IllegalAccessError();
-      };
     }
   }
 }

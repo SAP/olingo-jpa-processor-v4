@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 
 class JPAUriParameterImplTest {
 
-  private static String ALIAS = "Alias";
-  private static String NAME = "Name";
+  private static final String ALIAS = "Alias";
+  private static final String NAME = "Name";
 
   private JPAUriParameterImpl cut;
   private EdmKeyPropertyRef propertyReference;

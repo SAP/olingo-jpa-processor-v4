@@ -15,7 +15,6 @@ import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -91,12 +90,4 @@ class JPAExpandJoinCountQueryTest extends TestBase {
     assertEquals(5L, act.get(""));
   }
 
-  private JPANavigationPropertyInfo createHop(final JPAAssociationPath exp) {
-    final UriInfoResource uriInfo = mock(UriInfoResource.class);
-    return new JPANavigationPropertyInfo(sd, exp, uriInfo, et);
-  }
-
-  private JPANavigationPropertyInfo createHop() {
-    return createHop(null);
-  }
 }

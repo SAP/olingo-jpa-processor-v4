@@ -354,11 +354,6 @@ class UtilityTest extends TestBase {
     return resourceItem;
   }
 
-  private UriResourceEntitySet createEntitySetResource(final String string, final EdmEntityType person) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   private UriResourceSingleton createSingletonResource(final EdmSingleton es) {
     final UriResourceSingleton resourceItem = mock(UriResourceSingleton.class);
     when(resourceItem.getKind()).thenReturn(UriResourceKind.singleton);
