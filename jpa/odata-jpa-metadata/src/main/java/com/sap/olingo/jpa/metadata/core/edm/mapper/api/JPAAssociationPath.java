@@ -57,4 +57,6 @@ public interface JPAAssociationPath extends ODataNavigationPath {
   boolean hasJoinTable();
 
   boolean isCollection();
+
+  List<JPAPath> getForeignKeyColumns() throws ODataJPAModelException;
 }

@@ -31,6 +31,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSkipTokenProvider;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -87,24 +88,25 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
   }
 
   @Override
-  public Map<String, EntityCollection> asEntityCollection(final JPATupleChildConverter converter)
+  public Map<String, EntityCollection> asEntityCollection(final JPAResultConverter converter)
       throws ODataApplicationException {
 
     convert(converter, ROOT_RESULT_KEY, new ArrayList<>());
     return odataResult;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
+  public void convert(final JPAResultConverter converter) throws ODataApplicationException {
     if (odataResult == null) {
       for (final var childResult : childrenResult.values()) {
         childResult.convert(converter);
       }
-      odataResult = converter.getResult(this, requestedSelection);
+      odataResult = (Map<String, EntityCollection>) converter.getResult(this, requestedSelection);
     }
   }
 
-  EntityCollection convert(final JPATupleChildConverter converter, final String parentKey,
+  EntityCollection convert(final JPAResultConverter converter, final String parentKey,
       final List<JPAODataPageExpandInfo> expandInfo)
       throws ODataApplicationException {
 
@@ -201,18 +203,8 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
     return jpaResult;
   }
 
-  /**
-   * no key --> empty collection
-   * @param key
-   * @return
-   */
   @Override
-  public EntityCollection getEntityCollection(final String key) {
-    return odataResult.containsKey(key) ? odataResult.get(key) : new EntityCollection();
-  }
-
-  @Override
-  public EntityCollection getEntityCollection(final String key, final JPATupleChildConverter converter,
+  public EntityCollection getEntityCollection(final String key, final JPAResultConverter converter,
       final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
 
     return jpaResult.containsKey(key)
@@ -286,7 +278,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
     return skipToken.toString();
   }
 
-  private void convertCollectionProperties(final JPATupleChildConverter converter) throws ODataApplicationException {
+  private void convertCollectionProperties(final JPAResultConverter converter) throws ODataApplicationException {
     for (final var childResult : childrenResult.values()) {
       if (childResult instanceof JPACollectionResult)
         childResult.convert(converter);
