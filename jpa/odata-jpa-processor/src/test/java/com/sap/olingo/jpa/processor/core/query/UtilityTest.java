@@ -16,8 +16,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.EdmComplexType;
+import org.apache.olingo.commons.api.edm.EdmElement;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmSingleton;
@@ -252,9 +254,18 @@ class UtilityTest extends TestBase {
     when(expandItem.isStar()).thenReturn(Boolean.TRUE);
     when(expandOption.getExpandItems()).thenReturn(Collections.singletonList(expandItem));
 
-    final UriResourceEntitySet es = createEntitySetResource("Persons");
+    final EdmNavigationProperty user = createNavigationProperty("User");
+    final EdmComplexType created = createComplexType("Created", "User", user);
+    final EdmComplexType updated = createComplexType("Updated", "User", user);
+    final EdmComplexType administrativeInformation = createComplexType("AdministrativeInformation", new Property(
+        "Created", created), new Property("Updated", updated));
+    final EdmEntityType person = createEntityType("Person", new Property("AdministrativeInformation",
+        administrativeInformation));
+    final EdmEntitySet persons = createEntitySet("Persons", person);
+    final UriResourceEntitySet es = createEntitySetResource(persons);
     final UriResourceComplexProperty property = createComplexPropertyResource("AdministrativeInformation");
 
+    when(property.getComplexType()).thenReturn(administrativeInformation);
     resourceParts.add(es);
     resourceParts.add(property);
 
@@ -332,9 +343,7 @@ class UtilityTest extends TestBase {
   }
 
   private UriResourceEntitySet createEntitySetResource(final String name) {
-    final EdmEntitySet es = mock(EdmEntitySet.class);
-    when(es.getName()).thenReturn(name);
-    return createEntitySetResource(es);
+    return createEntitySetResource(createEntitySet(name, null));
   }
 
   private UriResourceEntitySet createEntitySetResource(final EdmEntitySet es) {
@@ -370,5 +379,56 @@ class UtilityTest extends TestBase {
     when(resourceItem.getProperty()).thenReturn(property);
     when(resourceItem.getComplexType()).thenReturn(complexType);
     return resourceItem;
+  }
+
+  private EdmNavigationProperty createNavigationProperty(final String name) {
+    final var entityType = mock(EdmEntityType.class);
+    final var keyProperty = mock(EdmKeyPropertyRef.class);
+    final var navigationProperty = mock(EdmNavigationProperty.class);
+    when(navigationProperty.getName()).thenReturn(name);
+    when(navigationProperty.getType()).thenReturn(entityType);
+    when(entityType.getKeyPropertyRefs()).thenReturn(Collections.singletonList(keyProperty));
+    return navigationProperty;
+  }
+
+  private EdmComplexType createComplexType(final String name, final String navigationName,
+      final EdmNavigationProperty navigationProperty) {
+    final var complexType = mock(EdmComplexType.class);
+    when(complexType.getName()).thenReturn(name);
+    when(complexType.getNavigationProperty(navigationName)).thenReturn(navigationProperty);
+    return complexType;
+  }
+
+  private EdmComplexType createComplexType(final String name, final Property... properties) {
+    final var complexType = mock(EdmComplexType.class);
+    when(complexType.getName()).thenReturn(name);
+    for (final var property : properties) {
+      final var edmProperty = mock(EdmElement.class);
+      when(complexType.getProperty(property.name)).thenReturn(edmProperty);
+      when(edmProperty.getType()).thenReturn(property.type);
+    }
+    return complexType;
+  }
+
+  private EdmEntityType createEntityType(final String name, final Property... properties) {
+    final var entityType = mock(EdmEntityType.class);
+    when(entityType.getName()).thenReturn(name);
+    for (final var property : properties) {
+      final var edmProperty = mock(EdmElement.class);
+      when(entityType.getProperty(property.name)).thenReturn(edmProperty);
+      when(edmProperty.getType()).thenReturn(property.type);
+    }
+    return entityType;
+  }
+
+  private EdmEntitySet createEntitySet(final String name, final EdmEntityType et) {
+    final EdmEntitySet es = mock(EdmEntitySet.class);
+    when(es.getName()).thenReturn(name);
+    when(es.getEntityType()).thenReturn(et);
+    return es;
+  }
+
+  private static record Property(String name, EdmType type) {
+
   }
 }

@@ -20,7 +20,7 @@ import org.apache.olingo.server.api.serializer.FixedFormatSerializer;
 import org.apache.olingo.server.api.serializer.PrimitiveValueSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
@@ -32,7 +32,7 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
   private final FixedFormatSerializer serializer;
 
   JPASerializeValue(final ServiceMetadata serviceMetadata, final FixedFormatSerializer serializer,
-      final UriInfo uriInfo) {
+      final UriInfoResource uriInfo) {
 
     super(serviceMetadata, uriInfo);
     this.serializer = serializer;

@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class TestJPAMapResult extends TestJPACreateResult {
+public class JPAMapResultTest extends JPACreateResultTest {
   List<JPARequestEntity> children;
 
   @BeforeEach
@@ -40,7 +40,7 @@ public class TestJPAMapResult extends TestJPACreateResult {
   protected void createCutProvidesEmptyMap() throws ODataJPAModelException, ODataApplicationException {
     // Make Map equal to empty Organization instance
     ((Map<String, Object>) jpaEntity).put("type", "2");
-    ((Map<String, Object>) jpaEntity).put("comment", new ArrayList<String>(1));
+    ((Map<String, Object>) jpaEntity).put("comment", new ArrayList<>(1));
     cut = new JPAMapResult(et, (Map<String, Object>) jpaEntity, headers, converter);
   }
 
@@ -68,7 +68,7 @@ public class TestJPAMapResult extends TestJPACreateResult {
   @Override
   protected void createCutGetResultWithOneLevelEmbedded() throws ODataJPAModelException, ODataApplicationException {
 
-    Map<String, Object> key = new HashMap<>();
+    final Map<String, Object> key = new HashMap<>();
     key.put("codeID", "A");
     key.put("language", "en");
 
@@ -84,12 +84,12 @@ public class TestJPAMapResult extends TestJPACreateResult {
   protected void createCutGetResultWithTwoLevelEmbedded() throws ODataJPAModelException,
       ODataApplicationException {
 
-    long time = new Date().getTime();
-    Map<String, Object> created = new HashMap<>();
+    final long time = new Date().getTime();
+    final Map<String, Object> created = new HashMap<>();
     created.put("by", "99");
     created.put("at", new Timestamp(time));
 
-    Map<String, Object> admin = new HashMap<>();
+    final Map<String, Object> admin = new HashMap<>();
     admin.put("created", created);
     admin.put("updated", created);
 
@@ -136,13 +136,15 @@ public class TestJPAMapResult extends TestJPACreateResult {
   protected void createCutGetResultWithWithTwoLinked() throws ODataJPAModelException, ODataApplicationException {
     prepareAdminWithChildren();
 
-    Map<String, Object> childProperties = new HashMap<>();
-    JPARequestEntity child = mock(JPARequestEntity.class);
+    final Map<String, Object> childProperties = new HashMap<>();
+    final JPARequestEntity child = mock(JPARequestEntity.class);
     when(child.getEntityType()).thenReturn(et);
     when(child.getData()).thenReturn(childProperties);
     childProperties.put("codeID", "NUTS2");
     childProperties.put("divisionCode", "BE22");
     childProperties.put("codePublisher", "Eurostat");
+    childProperties.put("parentCodeID", "NUTS1");
+    childProperties.put("parentDivisionCode", "BE2");
     children.add(child);
 
     cut = new JPAMapResult(et, (Map<String, Object>) jpaEntity, headers, converter);
@@ -156,14 +158,16 @@ public class TestJPAMapResult extends TestJPACreateResult {
     ((Map<String, Object>) jpaEntity).put("divisionCode", "BE2");
     ((Map<String, Object>) jpaEntity).put("codePublisher", "Eurostat");
 
-    Map<String, Object> childProperties = new HashMap<>();
+    final Map<String, Object> childProperties = new HashMap<>();
 
-    JPARequestEntity child = mock(JPARequestEntity.class);
+    final JPARequestEntity child = mock(JPARequestEntity.class);
     when(child.getEntityType()).thenReturn(et);
     when(child.getData()).thenReturn(childProperties);
     childProperties.put("codeID", "NUTS2");
     childProperties.put("divisionCode", "BE21");
     childProperties.put("codePublisher", "Eurostat");
+    childProperties.put("parentCodeID", "NUTS1");
+    childProperties.put("parentDivisionCode", "BE2");
     children.add(child);
     ((Map<String, Object>) jpaEntity).put("children", children);
 

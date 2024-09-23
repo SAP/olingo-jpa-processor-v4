@@ -17,7 +17,7 @@ import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.PrimitiveSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -29,7 +29,8 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
   private final ContentType responseFormat;
   private final JPAODataSessionContextAccess serviceContext;
 
-  JPASerializePrimitive(final ServiceMetadata serviceMetadata, final ODataSerializer serializer, final UriInfo uriInfo,
+  JPASerializePrimitive(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
+      final UriInfoResource uriInfo,
       final ContentType responseFormat, final JPAODataSessionContextAccess context) {
 
     super(serviceMetadata, uriInfo);

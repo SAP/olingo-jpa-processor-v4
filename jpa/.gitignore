@@ -11,3 +11,4 @@ target/
 *.log
 /.dbeaver/
 /old.project
+/Scripts/

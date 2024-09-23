@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContex
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public abstract class TestJPACreateResult extends TestBase {
+abstract class JPACreateResultTest extends TestBase {
 
   protected JPAExpandResult cut;
   protected JPAEntityType et;
@@ -43,7 +43,7 @@ public abstract class TestJPACreateResult extends TestBase {
   protected JPAODataSessionContextAccess sessionContext;
   protected OData odata;
 
-  public TestJPACreateResult() {
+  JPACreateResultTest() {
     super();
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
@@ -52,7 +52,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetChildrenProvidesEmptyMap() throws ODataJPAModelException, ODataApplicationException {
+  void testGetChildrenProvidesEmptyMap() throws ODataJPAModelException, ODataApplicationException {
     converter = new JPATupleChildConverter(helper.sd, OData.newInstance()
         .createUriHelper(), new ServiceMetadataDouble(nameBuilder, "Organizations"), requestContext);
 
@@ -65,7 +65,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultSimpleEntity() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultSimpleEntity() throws ODataJPAModelException, ODataApplicationException {
     et = helper.getJPAEntityType("BusinessPartnerRoles");
 
     createCutGetResultSimpleEntity();
@@ -78,7 +78,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultEntityWithTransient() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultEntityWithTransient() throws ODataJPAModelException, ODataApplicationException {
     et = helper.getJPAEntityType("Persons");
 
     createCutGetResultEntityWithTransient();
@@ -91,7 +91,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithOneLevelEmbedded() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithOneLevelEmbedded() throws ODataJPAModelException, ODataApplicationException {
     et = helper.getJPAEntityType("AdministrativeDivisionDescriptions");
 
     createCutGetResultWithOneLevelEmbedded();
@@ -105,7 +105,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithTwoLevelEmbedded() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithTwoLevelEmbedded() throws ODataJPAModelException, ODataApplicationException {
 
     createCutGetResultWithTwoLevelEmbedded();
 
@@ -117,7 +117,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithOneLinked() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithOneLinked() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultWithWithOneLinked();
     final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
     assertNotNull(act);
@@ -126,11 +126,12 @@ public abstract class TestJPACreateResult extends TestBase {
       assertEquals("Children", actPath.getAlias());
       final List<Tuple> subResult = act.get(actPath).getResult("Eurostat/NUTS1/BE2");
       assertEquals(1, subResult.size());
+      assertEquals("BE21", subResult.get(0).get("DivisionCode"));
     }
   }
 
   @Test
-  public void testGetResultWithDescriptionProperty() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithDescriptionProperty() throws ODataJPAModelException, ODataApplicationException {
 
     createCutGetResultWithDescriptionProperty();
     final List<Tuple> act = cut.getResult("root");
@@ -141,7 +142,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithTwoLinked() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithTwoLinked() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultWithWithTwoLinked();
     final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
     assertNotNull(act);
@@ -154,7 +155,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithPrimitiveCollection() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithPrimitiveCollection() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultEntityWithSimpleCollection();
 
     final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
@@ -175,7 +176,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithComplexCollection() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithComplexCollection() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultEntityWithComplexCollection();
 
     final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
@@ -196,7 +197,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithComplexContainingCollection() throws ODataJPAModelException, ODataApplicationException {
+  void testGetResultWithComplexContainingCollection() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultEntityWithComplexWithCollection();
 
     final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
@@ -222,7 +223,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithContainingNestedComplexCollection() throws ODataJPAModelException,
+  void testGetResultWithContainingNestedComplexCollection() throws ODataJPAModelException,
       ODataApplicationException {
     createCutGetResultEntityWithNestedComplexCollection();
 
@@ -249,7 +250,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testGetResultWithDeepComplexContainingCollection() throws ODataJPAModelException,
+  void testGetResultWithDeepComplexContainingCollection() throws ODataJPAModelException,
       ODataApplicationException {
     createCutGetResultEntityWithDeepComplexWithCollection();
 
@@ -276,7 +277,7 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
-  public void testHasCountReturns() throws ODataJPAModelException, ODataApplicationException {
+  void testHasCountReturns() throws ODataJPAModelException, ODataApplicationException {
     createCutProvidesEmptyMap();
     assertFalse(cut.hasCount());
   }

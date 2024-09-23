@@ -19,6 +19,8 @@ import jakarta.persistence.metamodel.MapAttribute;
 import jakarta.persistence.metamodel.PluralAttribute;
 import jakarta.persistence.metamodel.SingularAttribute;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -55,6 +57,8 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     this.parent = Objects.requireNonNull(parent);
     this.st = type;
     this.tableAlias = Optional.ofNullable(tableAlias.orElseGet(this::tableAliasFromParent));
+    if (st == null)
+      LogFactory.getLog(getClass()).info("Type not provided for " + path);
   }
 
   @Override

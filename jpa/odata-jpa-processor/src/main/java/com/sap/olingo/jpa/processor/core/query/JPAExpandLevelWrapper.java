@@ -3,16 +3,14 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
@@ -34,16 +32,22 @@ import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataExpandPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSkipTokenProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.uri.JPASkipOptionImpl;
+import com.sap.olingo.jpa.processor.core.uri.JPATopOptionImpl;
+import com.sap.olingo.jpa.processor.core.uri.JPAUriResourceNavigationImpl;
 
 // TODO In case of second level $expand expandItem.getResourcePath() returns an empty UriInfoResource => Bug or
 // Feature?
-final class JPAExpandLevelWrapper implements JPAExpandItem {
+final class JPAExpandLevelWrapper implements JPAExpandItem, JPAExpandItemPageable {
   private final ExpandOption option;
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
   private final LevelsExpandOption levelOptions;
   private final EdmNavigationProperty navigationPath;
+  private Optional<JPAODataExpandPage> page;
 
   JPAExpandLevelWrapper(final JPAServiceDocument sd, final ExpandOption option, final ExpandItem item)
       throws ODataApplicationException {
@@ -53,6 +57,7 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
     this.item = item;
     this.levelOptions = determineLevel();
     this.navigationPath = null;
+    this.page = Optional.empty();
     try {
       this.jpaEntityType = sd.getEntity(Utility.determineTargetEntityType(getUriResourceParts()));
     } catch (final ODataJPAModelException e) {
@@ -75,6 +80,7 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
     this.levelOptions = determineLevel();
     this.jpaEntityType = jpaEntityType;
     this.navigationPath = edmNavigationProperty;
+    this.page = Optional.empty();
   }
 
   @Override
@@ -131,6 +137,8 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   @Override
   public SkipOption getSkipOption() {
+    if (page.isPresent())
+      return new JPASkipOptionImpl(page.get().skip());
     return item.getSkipOption();
   }
 
@@ -141,6 +149,8 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   @Override
   public TopOption getTopOption() {
+    if (page.isPresent())
+      return new JPATopOptionImpl(page.get().top());
     return item.getTopOption();
   }
 
@@ -169,13 +179,25 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
     return null;
   }
 
+  @Override
+  public Optional<JPAODataSkipTokenProvider> getSkipTokenProvider() {
+    if (page.isPresent())
+      return Optional.ofNullable(page.get().skipToken());
+    return Optional.empty();
+  }
+
+  @Override
+  public void setPage(final JPAODataExpandPage page) {
+    this.page = Optional.ofNullable(page);
+  }
+
   private LevelsExpandOption determineLevel() {
     return item.getLevelsOption();
   }
 
   private List<UriResource> buildResourceList() {
     if (navigationPath != null)
-      return Collections.singletonList(new UriResourceWrapper(navigationPath));
+      return Collections.singletonList(new JPAUriResourceNavigationImpl(navigationPath));
     return Collections.emptyList();
   }
 
@@ -337,63 +359,4 @@ final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   }
 
-  private static class UriResourceWrapper implements UriResourceNavigation {
-
-    private final EdmNavigationProperty path;
-
-    public UriResourceWrapper(final EdmNavigationProperty navigationPath) {
-      this.path = navigationPath;
-    }
-
-    @Override
-    public UriResourceKind getKind() {
-      return UriResourceKind.navigationProperty;
-    }
-
-    @Override
-    public String getSegmentValue() {
-      return null;
-    }
-
-    @Override
-    public EdmType getType() {
-      return path.getType();
-    }
-
-    @Override
-    public boolean isCollection() {
-      return path.isCollection();
-    }
-
-    @Override
-    public String getSegmentValue(final boolean includeFilters) {
-      return null;
-    }
-
-    @Override
-    public String toString(final boolean includeFilters) {
-      return null;
-    }
-
-    @Override
-    public EdmNavigationProperty getProperty() {
-      return path;
-    }
-
-    @Override
-    public List<UriParameter> getKeyPredicates() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public EdmType getTypeFilterOnCollection() {
-      return null;
-    }
-
-    @Override
-    public EdmType getTypeFilterOnEntry() {
-      return null;
-    }
-
-  }
 }

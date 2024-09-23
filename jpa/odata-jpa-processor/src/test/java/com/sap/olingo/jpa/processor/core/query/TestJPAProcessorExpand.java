@@ -6,14 +6,22 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.invocation.InvocationOnMock;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -21,7 +29,12 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCapabilitiesAnnotationsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataExpandPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSkipTokenProvider;
 import com.sap.olingo.jpa.processor.core.util.Assertions;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -48,6 +61,13 @@ class TestJPAProcessorExpand extends TestBase {
     organization = (ObjectNode) organizations.get(3);
     roles = (ArrayNode) organization.get("Roles");
     assertEquals(3, roles.size());
+  }
+
+  @Test
+  void testExpandCompleteEntitySet2() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$expand=Parent");
+
+    helper.assertStatus(200);
   }
 
   @Test
@@ -172,6 +192,18 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  void testExpandSingletonViaNonKeyFieldNavigation1Hop() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CurrentUser/AdministrativeInformation?$expand=Created/User");
+    helper.assertStatus(200);
+
+    final ObjectNode admin = helper.getValue();
+    final ObjectNode created = (ObjectNode) admin.get("Created");
+    assertNotNull(created.get("User"));
+  }
+
+  @Test
   void testNestedExpandNestedExpand2LevelsSelf() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE253',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($expand=Children)");
@@ -256,7 +288,6 @@ class TestJPAProcessorExpand extends TestBase {
     assertNotNull(parent.get("CodeID"));
     assertEquals("NUTS2", parent.get("CodeID").asText());
     // TODO: Check how to create the response correctly
-    // assertEquals(1, parent.size());
   }
 
   @Test
@@ -287,6 +318,13 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals("BE211", children.get(0).get("DivisionCode").asText());
     assertEquals("BE212", children.get(1).get("DivisionCode").asText());
     assertEquals("BE213", children.get(2).get("DivisionCode").asText());
+  }
+
+  @Test
+  void testExpandViaNavigationToOneFails() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Parent/Children");
+    helper.assertStatus(400);
   }
 
   @Test
@@ -405,6 +443,19 @@ class TestJPAProcessorExpand extends TestBase {
     assertNotNull(children);
     assertNotNull(parent.get("Children@odata.count"));
     assertEquals(children.size(), parent.get("Children@odata.count").asInt());
+  }
+
+  @Test
+  void testExpandWithCountViaJoinTable() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "JoinSources(1)?$expand=OneToMany($count=true)");
+    helper.assertStatus(200);
+
+    final ObjectNode source = helper.getValue();
+    assertNotNull(source.get("OneToMany"));
+    final ArrayNode targets = (ArrayNode) source.get("OneToMany");
+    assertNotNull(source.get("OneToMany@odata.count"));
+    assertEquals(targets.size(), source.get("OneToMany@odata.count").asInt());
   }
 
   @Test
@@ -587,20 +638,6 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  void testExpandAllNavigationPathOfPath() throws IOException, ODataException {
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=*");
-    helper.assertStatus(200);
-
-    final ObjectNode organization = helper.getValue();
-    assertNotNull(organization.get("Parent"));
-    final ObjectNode parent = (ObjectNode) organization.get("Parent");
-    assertNotNull(parent.get("DivisionCode"));
-    final ArrayNode children = (ArrayNode) organization.get("Children");
-    assertEquals(7, children.size());
-  }
-
-  @Test
   void testExpandLevel1() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($levels=1)");
@@ -710,13 +747,6 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  void testExpandCompleteEntitySet2() throws IOException, ODataException {
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$expand=Parent");
-
-    helper.assertStatus(200);
-  }
-
-  @Test
   void testExpandLevelAndRelated() throws IOException, ODataException {
     // Expected result would be one division plus parent plus children plus parent of children
     // As Olingo has a bug, the parent of children is missing
@@ -758,7 +788,7 @@ class TestJPAProcessorExpand extends TestBase {
   @Test
   void testExpandViaJoinTable2Levels() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations('1')?$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$expand=SupportedOrganizations)");
+        "Organizations('1')?$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$expand=SupportedOrganizations($select=ID))");
     helper.assertStatus(200);
 
     final ObjectNode organization = helper.getValue();
@@ -862,7 +892,7 @@ class TestJPAProcessorExpand extends TestBase {
     final ObjectNode organization = helper.getValue();
     assertNotNull(organization.get("OneToMany"));
     final ArrayNode oneToMany = (ArrayNode) organization.get("OneToMany");
-    assertEquals(2, oneToMany.size());
+    assertEquals(4, oneToMany.size());
   }
 
   @Test
@@ -896,7 +926,7 @@ class TestJPAProcessorExpand extends TestBase {
     final ObjectNode organization = helper.getValue();
     assertNotNull(organization.get("OneToManyComplex"));
     final ArrayNode oneToMany = (ArrayNode) organization.get("OneToManyComplex");
-    assertEquals(2, oneToMany.size());
+    assertEquals(4, oneToMany.size());
   }
 
   @Test
@@ -1102,5 +1132,172 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals(2, divisions.size());
     final ObjectNode parent = (ObjectNode) divisions.get(0).get("Parent");
     assertNotNull(parent);
+  }
+
+  @Test
+  void testExpandWithPagingOneLevel() throws IOException, ODataException {
+    final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
+    final JPAODataSkipTokenProvider skipTokens = mock(JPAODataSkipTokenProvider.class);
+    when(provider.getFirstPage(any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataPage((UriInfoResource) i.getArguments()[2], 0, 2, "Hugo")));
+    when(provider.getFirstPageExpand(any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataExpandPage((UriInfoResource) i.getArguments()[2], 0, 4, skipTokens)));
+    when(skipTokens.get(any())).thenAnswer(a -> {
+      return "Expand";
+    })
+
+        .thenReturn("Expand");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=DivisionCode eq 'BE2'&$top=2&$expand=Children($top=10)",
+        provider);
+    helper.assertStatus(200);
+    final ObjectNode division = (ObjectNode) helper.getValues().get(0);
+    final ArrayNode children = (ArrayNode) division.get("Children");
+
+    assertEquals(4, children.size());
+    assertTrue(division.get("Children@odata.nextLink").asText().endsWith("Expand"));
+
+  }
+
+  @Test
+  void testExpandWithPagingStarOneLevel() throws IOException, ODataException {
+    final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
+    final JPAODataSkipTokenProvider skipTokens = mock(JPAODataSkipTokenProvider.class);
+    when(provider.getFirstPage(any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataPage((UriInfoResource) i.getArguments()[2], 0, 2, "Hugo")));
+    when(provider.getFirstPageExpand(any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataExpandPage((UriInfoResource) i.getArguments()[2], 0, 4, skipTokens)));
+    when(skipTokens.get(any())).thenAnswer(this::getSkipToken);
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=DivisionCode eq 'BE2'&$top=2&$expand=*",
+        provider);
+    helper.assertStatus(200);
+    final ObjectNode division = (ObjectNode) helper.getValues().get(0);
+    final ArrayNode children = (ArrayNode) division.get("Children");
+
+    assertEquals(4, children.size());
+    assertTrue(division.get("Children@odata.nextLink").asText().endsWith("Expand"));
+
+  }
+
+  @Test
+  void testExpandWithPagingTwoLevel() throws IOException, ODataException {
+    final var provider = createPagingProvider();
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=DivisionCode eq 'BE2'&$expand=Children($expand=Children)",
+        provider);
+    helper.assertStatus(200);
+    final ObjectNode division = (ObjectNode) helper.getValues().get(0);
+    final ArrayNode children = (ArrayNode) division.get("Children");
+
+    assertEquals(4, children.size());
+    assertTrue(division.get("Children@odata.nextLink").asText().endsWith("Expand"));
+    for (final var subDivision : children) {
+      final var nextLink = subDivision.get("Children@odata.nextLink");
+      if (subDivision.get("DivisionCode").asText().equals("BE23"))
+        assertTrue(nextLink.asText().endsWith("Second"));
+      else
+        assertNull(nextLink, "For " + subDivision.get("DivisionCode").asText());
+    }
+
+  }
+
+  @Test
+  void testExpandWithPagingTwoLevelTop() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=DivisionCode eq 'BE2'&$expand=Children($expand=Parent;$top=2)");
+    helper.assertStatus(200);
+    final ObjectNode division = (ObjectNode) helper.getValues().get(0);
+    final ArrayNode children = (ArrayNode) division.get("Children");
+
+    assertEquals(2, children.size());
+    for (final var subDivision : children) {
+      final var parentDivision = subDivision.get("Parent").get("DivisionCode");
+      assertEquals("BE2", parentDivision.asText());
+    }
+
+  }
+
+  @Test
+  void testExpandLevels2WithPaging() throws IOException, ODataException {
+    final var provider = createPagingProvider();
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(CodePublisher='Eurostat',CodeID='NUTS1',DivisionCode='BE2')?$expand=Children($levels=2)",
+        provider);
+
+    helper.assertStatus(200);
+    final ObjectNode division = helper.getValue();
+    final ArrayNode children = (ArrayNode) division.get("Children");
+
+    assertEquals(4, children.size());
+    assertTrue(division.get("Children@odata.nextLink").asText().endsWith("Expand"));
+    for (final var subDivision : children) {
+      final var nextLink = subDivision.get("Children@odata.nextLink");
+      if (subDivision.get("DivisionCode").asText().equals("BE23"))
+        assertTrue(nextLink.asText().endsWith("Second"));
+      else
+        assertNull(nextLink);
+    }
+  }
+
+  @Test
+  void testExpandWithComplexWithPaging() throws IOException, ODataException {
+    final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
+    final JPAODataSkipTokenProvider skipTokens = mock(JPAODataSkipTokenProvider.class);
+    when(provider.getFirstPageExpand(any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataExpandPage((UriInfoResource) i.getArguments()[2], 0, 2, skipTokens)));
+    when(skipTokens.get(any())).thenAnswer(this::getSkipToken);
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "JoinSources(1)/Complex?$expand=OneToManyComplex",
+        provider);
+
+    helper.assertStatus(200);
+    final ObjectNode complex = helper.getValue();
+    assertEquals("JoinSources?$skiptoken=Complex/OneToManyComplex", complex.get("OneToManyComplex@odata.nextLink")
+        .asText());
+  }
+
+  @Test
+  void testExpandViaComplexWithPaging() throws IOException, ODataException {
+    final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
+    final JPAODataSkipTokenProvider skipTokens = mock(JPAODataSkipTokenProvider.class);
+    when(provider.getFirstPageExpand(any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataExpandPage((UriInfoResource) i.getArguments()[2], 0, 2, skipTokens)));
+    when(skipTokens.get(any())).thenAnswer(this::getSkipToken);
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "JoinSources(1)?$expand=Complex/OneToManyComplex",
+        provider);
+
+    helper.assertStatus(200);
+    final ObjectNode result = helper.getValue();
+    final ObjectNode complex = (ObjectNode) result.get("Complex");
+    assertEquals("JoinSources?$skiptoken=Complex/OneToManyComplex", complex.get("OneToManyComplex@odata.nextLink")
+        .asText());
+
+  }
+
+  private JPAODataPagingProvider createPagingProvider() throws ODataApplicationException {
+    final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
+    final JPAODataSkipTokenProvider skipTokens = mock(JPAODataSkipTokenProvider.class);
+    when(provider.getFirstPage(any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataPage((UriInfoResource) i.getArguments()[2], 0, 2, "Hugo")));
+    when(provider.getFirstPageExpand(any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenAnswer(i -> Optional.of(new JPAODataExpandPage((UriInfoResource) i.getArguments()[2], 0, 4, skipTokens)));
+    when(skipTokens.get(any())).thenAnswer(this::getSkipToken);
+    return provider;
+  }
+
+  private Object getSkipToken(final InvocationOnMock a) {
+    final var keys = a.getArgument(0, List.class);
+    final var keyPath = ((JPAODataPageExpandInfo) keys.get(keys.size() - 1)).keyPath();
+    return switch (keyPath) {
+      case "Eurostat/NUTS1/BE2" -> "Expand";
+      case "Eurostat/NUTS2/BE23" -> "Second";
+      case "1" -> ((JPAODataPageExpandInfo) keys.get(keys.size() - 1)).navigationPropertyPath();
+      default -> null;
+    };
   }
 }

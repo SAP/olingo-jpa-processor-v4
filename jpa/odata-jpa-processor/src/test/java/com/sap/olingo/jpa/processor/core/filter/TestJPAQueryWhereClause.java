@@ -129,7 +129,7 @@ class TestJPAQueryWhereClause extends TestBase {
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 2", 2),
         arguments("CountNavigationPropertyMultipleHopsNavigations zero",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 0", 0),
-        arguments("CountNavigationPropertyJoinTable not zero", "JoinSources?$filter=OneToMany/$count eq 2", 1),
+        arguments("CountNavigationPropertyJoinTable not zero", "JoinSources?$filter=OneToMany/$count eq 4", 1),
         // Filter collection property count
         arguments("CountCollectionPropertyOne", "Organizations?$select=ID&$filter=Comment/$count ge 1", 2),
         arguments("CountCollectionPropertyTwoJoinOne", "CollectionWithTwoKeys?$filter=Nested/$count eq 1", 1),
@@ -143,7 +143,7 @@ class TestJPAQueryWhereClause extends TestBase {
             "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 11),
         arguments("NavigationPropertyMixCountAndNull",
             "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 and Parent/Parent/Parent eq null", 2),
-        arguments("NavigationPropertyIsNullJoinTable", "JoinTargets?$filter=ManyToOne ne null", 2),
+        arguments("NavigationPropertyIsNullJoinTable", "JoinTargets?$filter=ManyToOne ne null", 4),
         // Filter to one association
         arguments("NavigationPropertyToOneValue", "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1'", 11),
         arguments("NavigationPropertyToOneValueAndEquals",

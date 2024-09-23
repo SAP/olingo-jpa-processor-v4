@@ -132,21 +132,10 @@ public abstract class BusinessPartner implements KeyAccess {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    final BusinessPartner other = (BusinessPartner) obj;
-    if (iD == null) {
-      if (other.iD != null)
-        return false;
-    } else if (!iD.equals(other.iD)) {
-      return false;
-    }
-    return true;
+  public boolean equals(final Object object) {
+    if (object instanceof final BusinessPartner other)
+      return iD != null ? iD.equals(other.iD) : other.iD == null;
+    return false;
   }
 
   public PostalAddressData getAddress() {

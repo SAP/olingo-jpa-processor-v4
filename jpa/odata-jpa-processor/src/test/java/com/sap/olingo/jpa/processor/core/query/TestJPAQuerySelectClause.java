@@ -44,6 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmPropertyDouble;
@@ -242,12 +243,14 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
   @Test
   void checkSelectCollectionProperty() throws ODataException, ODataJPAIllegalAccessException {
-    // Organizations$select=Comment
+    // Organizations?$select=Comment
+
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
     buildUriInfo("Organizations", "Organization");
+    requestContext = new JPAODataInternalRequestContext(externalContext, context, odata);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, requestContext);
 

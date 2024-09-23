@@ -20,7 +20,7 @@ import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriHelper;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -35,14 +35,14 @@ import com.sap.olingo.jpa.processor.core.query.Utility;
 
 public final class JPASerializeComplex implements JPAOperationSerializer {
   private final ServiceMetadata serviceMetadata;
-  private final UriInfo uriInfo;
+  private final UriInfoResource uriInfo;
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
   private final ContentType responseFormat;
   private final JPAODataSessionContextAccess serviceContext;
 
   JPASerializeComplex(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper, final UriInfo uriInfo, final ContentType responseFormat,
+      final UriHelper uriHelper, final UriInfoResource uriInfo, final ContentType responseFormat,
       final JPAODataSessionContextAccess serviceContext) {
 
     this.uriInfo = uriInfo;

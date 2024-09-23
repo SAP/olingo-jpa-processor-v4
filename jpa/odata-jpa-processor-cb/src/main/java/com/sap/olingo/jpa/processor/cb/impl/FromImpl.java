@@ -379,7 +379,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
       final JPAStructuredType source = determineSource();
       final JPAAttribute joinAttribute = source
           .getAttribute(Objects.requireNonNull(attributeName))
-          .orElse(getAssociation(source, attributeName));
+          .orElseGet(() -> getAssociation(source, attributeName));
 
       if (joinAttribute == null)
         throw new IllegalArgumentException(buildExceptionText(attributeName));

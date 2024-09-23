@@ -55,6 +55,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
@@ -64,6 +65,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalArgumentException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
@@ -176,7 +178,7 @@ public abstract class JPAAbstractQuery {
    * @param orderByTarget
    * @param joinTables
    */
-  protected void createFromClauseOrderBy2(final List<JPAProcessorAttribute> orderByTarget,
+  protected void createFromClauseOrderBy(final List<JPAProcessorAttribute> orderByTarget,
       final Map<String, From<?, ?>> joinTables, final From<?, ?> from) {
     orderByTarget.stream()
         .map(property -> property.setTarget(from, joinTables, cb))
@@ -286,7 +288,7 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  protected jakarta.persistence.criteria.Expression<Boolean> createProtectionWhereForEntityType(
+  protected Expression<Boolean> createProtectionWhereForEntityType(
       final Optional<JPAODataClaimProvider> claimsProvider, final JPAEntityType et, final From<?, ?> from)
       throws ODataJPAQueryException {
     try {
@@ -302,6 +304,7 @@ public abstract class JPAAbstractQuery {
           restriction = addWhereClause(restriction, createProtectionWhereForAttribute(values, path, protection
               .supportsWildcards()));
         }
+
       }
       return restriction;
     } catch (final NoSuchElementException e) {
@@ -322,7 +325,7 @@ public abstract class JPAAbstractQuery {
         .getEntityType());
   }
 
-  protected jakarta.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
+  protected Expression<Boolean> createWhereByKey(final From<?, ?> root,
       final List<UriParameter> keyPredicates, final JPAEntityType et) throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
@@ -428,9 +431,8 @@ public abstract class JPAAbstractQuery {
 
   protected abstract Locale getLocale();
 
-  protected jakarta.persistence.criteria.Expression<Boolean> orWhereClause(
-      jakarta.persistence.criteria.Expression<Boolean> whereCondition,
-      final jakarta.persistence.criteria.Expression<Boolean> additionalExpression) {
+  protected Expression<Boolean> orWhereClause(Expression<Boolean> whereCondition,
+      final Expression<Boolean> additionalExpression) {
 
     if (additionalExpression != null) {
       if (whereCondition == null) {
@@ -482,9 +484,8 @@ public abstract class JPAAbstractQuery {
   }
 
   @SuppressWarnings("unchecked")
-  private jakarta.persistence.criteria.Expression<Boolean> createProtectionWhereForAttribute(
-      final List<JPAClaimsPair<?>> values, final Path<?> path, final boolean wildcardsSupported)
-      throws ODataJPAQueryException {
+  private Expression<Boolean> createProtectionWhereForAttribute(final List<JPAClaimsPair<?>> values, final Path<?> path,
+      final boolean wildcardsSupported) throws ODataJPAQueryException {
 
     jakarta.persistence.criteria.Expression<Boolean> attributeRestriction = null;
     for (final JPAClaimsPair<?> value : values) { // for each given claim value
@@ -513,8 +514,7 @@ public abstract class JPAAbstractQuery {
         || min.contains("_");
   }
 
-  private jakarta.persistence.criteria.Expression<?> determineLocalePath(final Join<?, ?> join,
-      final JPAPath jpaPath) {
+  private Expression<?> determineLocalePath(final Join<?, ?> join, final JPAPath jpaPath) {
     Path<?> path = join;
     for (final JPAElement pathElement : jpaPath.getPath()) {
       path = path.get(pathElement.getInternalName());
@@ -554,8 +554,7 @@ public abstract class JPAAbstractQuery {
         final List<JPAOnConditionItem> joinColumns = useInverse ? jpaJoinTable.getInverseJoinColumns() : jpaJoinTable
             .getJoinColumns();
         debugger.trace(this, "Creating WHERE snipped for join table %s with join conditions %s and inverse: %s",
-            jpaJoinTable
-                .toString(), joinColumns, useInverse);
+            jpaJoinTable.toString(), joinColumns, useInverse);
         debugger.trace(this, "Creating WHERE snipped for join table, with target: '%s', root: '%s'", joinTable
             .getJavaType(), joinRoot.getJavaType());
         Expression<Boolean> whereCondition = null;
@@ -574,4 +573,59 @@ public abstract class JPAAbstractQuery {
     return null;
   }
 
+  /**
+   * Any resource path or path expression identifying a collection of entities or complex type instances can be appended
+   * with a path segment containing the qualified name of a type derived from the declared type of the collection.</br>
+   * The use of the unqualified name of a derived type is <b>not</b> supported.
+   * <p>
+   * See also:
+   * <a href="
+   * https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingDerivedTypes">
+   * 4.11 Addressing Derived Types
+   * </a>
+   *
+   * @param baseType
+   * @param potentialDerivedType
+   * @return true if potentialDerivedType is indeed a derived type of baseType
+   */
+  boolean derivedTypeRequested(@Nonnull final JPAStructuredType baseType,
+      @Nonnull final JPAStructuredType potentialDerivedType) {
+    JPAStructuredType type = potentialDerivedType;
+    while (type != null && type.getBaseType() != null) {
+      if (baseType.equals(type.getBaseType()))
+        return true;
+      type = type.getBaseType();
+    }
+    return false;
+  }
+
+  /**
+   * Add key restrictions as well as the filter enhancement from the entity definition from superordinate entities
+   * @param info
+   * @return
+   * @throws ODataApplicationException
+   */
+  protected final Expression<Boolean> createKeyWhere(final List<JPANavigationPropertyInfo> info)
+      throws ODataApplicationException {
+
+    Expression<Boolean> whereCondition = null;
+    // Given key: Organizations('1')/Roles(...)
+    for (final JPANavigationPropertyInfo naviInfo : info) {
+      try {
+        final JPAEntityType et = naviInfo.getEntityType();
+        final From<?, ?> from = naviInfo.getFromClause();
+        if (naviInfo.getKeyPredicates() != null) {
+          final List<UriParameter> keyPredicates = naviInfo.getKeyPredicates();
+          whereCondition = addWhereClause(whereCondition, createWhereByKey(from, keyPredicates, et));
+        }
+        whereCondition = addWhereClause(whereCondition, createWhereEnhancement(et, from));
+      } catch (final ODataJPAModelException e) {
+        throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
+      }
+    }
+    return whereCondition;
+  }
+
+  protected abstract Expression<Boolean> createWhereEnhancement(final JPAEntityType et, final From<?, ?> from)
+      throws ODataJPAProcessorException;
 }

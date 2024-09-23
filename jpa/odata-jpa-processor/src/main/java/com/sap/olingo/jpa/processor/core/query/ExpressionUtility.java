@@ -2,7 +2,6 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,7 +37,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAInvertibleVisitableExpression;
 
 public final class ExpressionUtility {
@@ -93,31 +91,6 @@ public final class ExpressionUtility {
     for (final JPAElement jpaPathElement : jpaPath)
       path = path.get(jpaPathElement.getInternalName());
     return (Path<T>) path;
-  }
-
-  /**
-   * Converts an OData attribute into an JPA path. Sets the alias to the alias of the OData path of the attribute.
-   * @param root From the path be derived from
-   * @param et OData Entity Type
-   * @param jpaAttributes Attribute to be converted into an JPA path
-   * @return
-   * @throws ODataJPAQueryException
-   */
-  public static List<Path<Object>> convertToCriteriaPathList(final From<?, ?> root, final JPAEntityType et,
-      final List<JPAAttribute> jpaAttributes) throws ODataJPAQueryException {
-
-    try {
-      final List<Path<Object>> result = new ArrayList<>(jpaAttributes.size());
-      for (final JPAAttribute attribute : jpaAttributes) {
-        final JPAPath path = getJPAPath(et, attribute.getExternalName());
-        final Path<Object> p = convertToCriteriaPath(root, path.getPath());
-        p.alias(path.getAlias());
-        result.add(p);
-      }
-      return result;
-    } catch (final ODataJPAModelException | ODataJPAProcessorException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
   }
 
   public static List<Path<Comparable<?>>> convertToCriteriaPaths(final From<?, ?> from, final List<JPAPath> jpaPaths) {

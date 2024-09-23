@@ -36,6 +36,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
@@ -100,6 +101,13 @@ class JPAAbstractQueryTest extends TestQueryBase {
     @Override
     JPAODataRequestContextAccess getContext() {
       throw new IllegalAccessError();
+    }
+
+    @Override
+    protected jakarta.persistence.criteria.Expression<Boolean> createWhereEnhancement(final JPAEntityType et,
+        final From<?, ?> from)
+        throws ODataJPAProcessorException {
+      return null;
     }
 
   }

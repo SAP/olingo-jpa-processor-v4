@@ -42,12 +42,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.properties.JPAOrderByPropertyFactory;
 import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
-import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -61,13 +59,11 @@ class JPAOrderByBuilderTest extends TestBase {
   private OrderByOption orderBy;
   private From<?, ?> adminTarget;
   private From<?, ?> organizationTarget;
-  private From<?, ?> toOneSourceTarget;
   private CriteriaBuilder cb;
   private JPAEntityType jpaAdminEntity;
   private JPAEntityType jpaOrganizationEntity;
-  private JPAEntityType toOneSourceEntity;
   private List<String> groups;
-  private JPAODataPage page;
+  private UriInfo uriInfo;
   private List<JPAProcessorAttribute> orderByAttributes;
 
   @BeforeEach
@@ -76,9 +72,7 @@ class JPAOrderByBuilderTest extends TestBase {
     jpaAdminEntity = getHelper().getJPAEntityType(AdministrativeDivisionDescription.class);
     adminTarget = cb.createQuery().from(getHelper().getEntityType(AdministrativeDivisionDescription.class));
     jpaOrganizationEntity = getHelper().getJPAEntityType(Organization.class);
-    toOneSourceEntity = getHelper().getJPAEntityType(AssociationOneToOneSource.class);
     organizationTarget = cb.createQuery().from(getHelper().getEntityType(Organization.class));
-    toOneSourceTarget = cb.createQuery().from(getHelper().getEntityType(AssociationOneToOneSource.class));
     groups = new ArrayList<>();
 
     cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
@@ -86,23 +80,26 @@ class JPAOrderByBuilderTest extends TestBase {
     skip = mock(SkipOption.class);
     orderBy = mock(OrderByOption.class);
     uriResource = mock(UriInfoResource.class);
-    page = mock(JPAODataPage.class);
+    uriInfo = mock(UriInfo.class);
     joinTables = new HashMap<>();
     orderByAttributes = new ArrayList<>();
-    when(page.top()).thenReturn(Integer.MAX_VALUE);
+
+    when(top.getValue()).thenReturn(5);
+    when(skip.getValue()).thenReturn(5);
+
   }
 
   @Test
   void testNoTopSkipOrderByReturnsEmptyList() throws ODataException {
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
     assertEquals(0, act.size());
   }
 
   @Test
   void testTopReturnsByPrimaryKey() throws ODataException {
-    when(page.top()).thenReturn(5);
+    when(uriInfo.getTopOption()).thenReturn(top);
 
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
 
     assertEquals(4, act.size());
     assertEquals(4, act.stream()
@@ -113,8 +110,8 @@ class JPAOrderByBuilderTest extends TestBase {
 
   @Test
   void testSkipReturnsByPrimaryKey() throws ODataException {
-    when(page.skip()).thenReturn(5);
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    when(uriInfo.getSkipOption()).thenReturn(skip);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
 
     assertEquals(4, act.size());
     assertEquals(4, act.stream()
@@ -125,10 +122,10 @@ class JPAOrderByBuilderTest extends TestBase {
 
   @Test
   void testTopSkipReturnsByPrimaryKey() throws ODataException {
-    when(page.top()).thenReturn(5);
-    when(page.skip()).thenReturn(5);
+    when(uriInfo.getTopOption()).thenReturn(top);
+    when(uriInfo.getSkipOption()).thenReturn(skip);
 
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
 
     assertEquals(4, act.size());
     assertEquals(4, act.stream()
@@ -140,7 +137,7 @@ class JPAOrderByBuilderTest extends TestBase {
   @Test
   void testOrderByOneProperty() throws ODataApplicationException {
     createOrderByItem("Name");
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
     assertEquals(1, act.size());
     assertFalse(act.get(0).isAscending());
   }
@@ -149,7 +146,7 @@ class JPAOrderByBuilderTest extends TestBase {
   void testOrderByNavigationCountDefault() throws ODataException {
     createCountOrderByItem(false);
     cut = new JPAOrderByBuilder(jpaOrganizationEntity, organizationTarget, cb, groups);
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
 
     assertEquals(1, act.size());
     assertTrue(act.get(0).isAscending());
@@ -160,7 +157,7 @@ class JPAOrderByBuilderTest extends TestBase {
   void testOrderByNavigationCountDescending() throws ODataException {
     createCountOrderByItem(true);
     cut = new JPAOrderByBuilder(jpaOrganizationEntity, organizationTarget, cb, groups);
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
 
     assertEquals(1, act.size());
     assertFalse(act.get(0).isAscending());
@@ -174,7 +171,7 @@ class JPAOrderByBuilderTest extends TestBase {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     when(uriResource.getTopOption()).thenReturn(top);
 
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
 
     assertFalse(act.isEmpty());
     assertEquals(String.class, act.get(0).getExpression().getJavaType());
@@ -189,82 +186,17 @@ class JPAOrderByBuilderTest extends TestBase {
     createOrderByItem("FullName", jpaEntity, target);
 
     final ODataJPAQueryException act = assertThrows(ODataJPAQueryException.class,
-        () -> cut.createOrderByList(joinTables, orderByAttributes, page));
+        () -> cut.createOrderByList(joinTables, orderByAttributes, uriInfo));
     assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), act.getStatusCode());
-  }
-
-  @Test
-  void testPagePresentOnlyTopValue() throws ODataException {
-    page = new JPAODataPage(null, 0, 10, skip);
-
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
-
-    assertEquals(4, act.size());
-    assertEquals(4, act.stream()
-        .filter(Order::isAscending)
-        .toList().size());
-    assertOrder(act);
-  }
-
-  @Test
-  void testPagePresentMaxTopValueNoOrdering() throws ODataException {
-    page = new JPAODataPage(null, 0, Integer.MAX_VALUE, skip);
-
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
-
-    assertEquals(0, act.size());
-  }
-
-  @Test
-  void testPagePresentOnlySkipValue() throws ODataException {
-    page = new JPAODataPage(null, 10, 0, null);
-
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
-
-    assertEquals(4, act.size());
-    assertEquals(4, act.stream()
-        .filter(Order::isAscending)
-        .toList().size());
-    assertOrder(act);
-  }
-
-  @Test
-  void testPageAndTopPresent() throws ODataException {
-    page = new JPAODataPage(null, 10, 0, null);
-    when(top.getValue()).thenReturn(5);
-    when(uriResource.getTopOption()).thenReturn(top);
-
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
-
-    assertEquals(4, act.size());
-    assertEquals(4, act.stream()
-        .filter(Order::isAscending)
-        .toList().size());
-    assertOrder(act);
-  }
-
-  @Test
-  void testPageMaxTopValueAndTopPresent() throws ODataException {
-    page = new JPAODataPage(null, Integer.MAX_VALUE, 0, null);
-    when(top.getValue()).thenReturn(5);
-    when(uriResource.getTopOption()).thenReturn(top);
-
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
-
-    assertEquals(4, act.size());
-    assertEquals(4, act.stream()
-        .filter(Order::isAscending)
-        .toList().size());
-    assertOrder(act);
   }
 
   @Test
   void testOrderByPropertyAndPage() throws ODataException {
     createOrderByItem("DivisionCode");
-    page = new JPAODataPage(null, 10, 0, null);
+    when(uriInfo.getTopOption()).thenReturn(top);
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
 
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, page);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
 
     assertFalse(act.isEmpty());
     assertEquals(String.class, act.get(0).getExpression().getJavaType());
@@ -275,7 +207,6 @@ class JPAOrderByBuilderTest extends TestBase {
   private List<UriResource> createOrderByClause(final Boolean isDescending) {
     final OrderByItem item = mock(OrderByItem.class);
     final Member expression = mock(Member.class);
-    final UriInfo uriInfo = mock(UriInfo.class);
     final List<UriResource> pathParts = new ArrayList<>();
     when(item.getExpression()).thenReturn(expression);
     if (isDescending != null) {
@@ -311,7 +242,6 @@ class JPAOrderByBuilderTest extends TestBase {
     final var navigation = mock(UriResourceNavigation.class);
     final var count = mock(UriResourceCount.class);
     final var edmNavigation = mock(EdmNavigationProperty.class);
-    final var uriInfo = mock(UriInfo.class);
     final Member expression = mock(Member.class);
     when(uriInfo.getUriResourceParts()).thenReturn(Arrays.asList(navigation, count));
     when(navigation.getProperty()).thenReturn(edmNavigation);
@@ -331,12 +261,6 @@ class JPAOrderByBuilderTest extends TestBase {
     final EdmProperty edmPrimitiveProperty = mock(EdmProperty.class);
     when(primitivePart.getProperty()).thenReturn(edmPrimitiveProperty);
     when(edmPrimitiveProperty.getName()).thenReturn(name);
-  }
-
-  private void createComplexEdmProperty(final UriResourceProperty complexPart, final String name) {
-    final EdmProperty edmComplexProperty = mock(EdmProperty.class);
-    when(complexPart.getProperty()).thenReturn(edmComplexProperty);
-    when(edmComplexProperty.getName()).thenReturn(name);
   }
 
   private void assertOrder(final List<Order> act) {

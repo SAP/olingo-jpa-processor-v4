@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
@@ -10,8 +11,9 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSkipTokenProvider;
 
-abstract class JPAInlineItemInfo {
+public abstract class JPAInlineItemInfo {
 
   protected final JPAExpandItem uriInfo;
   protected final JPAAssociationPath expandAssociation;
@@ -41,6 +43,10 @@ abstract class JPAInlineItemInfo {
 
   public JPAEntityType getEntityType() {
     return uriInfo.getEntityType();
+  }
+
+  public Optional<JPAODataSkipTokenProvider> getSkipTokenProvider() {
+    return uriInfo.getSkipTokenProvider();
   }
 
 }

@@ -13,7 +13,7 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
@@ -35,14 +35,14 @@ public final class JPASerializerFactory {
     this.serviceContext = serviceContext;
   }
 
-  public JPASerializer createCUDSerializer(final ContentType responseFormat, final UriInfo uriInfo,
+  public JPASerializer createCUDSerializer(final ContentType responseFormat, final UriInfoResource uriInfo,
       final Optional<List<String>> responseVersion) throws SerializerException {
     final ODataSerializer serializer = odata.createSerializer(responseFormat,
         responseVersion.orElse(Collections.emptyList()));
     return new JPASerializeCreate(serviceMetadata, serializer, uriInfo, serviceContext);
   }
 
-  public JPASerializer createSerializer(final ContentType responseFormat, final UriInfo uriInfo,
+  public JPASerializer createSerializer(final ContentType responseFormat, final UriInfoResource uriInfo,
       final Optional<List<String>> responseVersion) throws ODataApplicationException, SerializerException {
 
     // Assumption: Type of last resource path item rules the type of the response
@@ -57,7 +57,8 @@ public final class JPASerializerFactory {
     return serviceMetadata;
   }
 
-  JPASerializer createSerializer(final ContentType responseFormat, final UriInfo uriInfo, final EdmTypeKind edmTypeKind,
+  JPASerializer createSerializer(final ContentType responseFormat, final UriInfoResource uriInfo,
+      final EdmTypeKind edmTypeKind,
       final boolean isCollection, final Optional<List<String>> responseVersion) throws SerializerException,
       ODataJPASerializerException {
 
@@ -88,7 +89,7 @@ public final class JPASerializerFactory {
     }
   }
 
-  JPASerializer createSerializer(final ContentType responseFormat, final UriInfo uriInfo,
+  JPASerializer createSerializer(final ContentType responseFormat, final UriInfoResource uriInfo,
       final UriResourceKind uriResourceKind, final boolean isCollection, final Optional<List<String>> responseVersion)
       throws SerializerException, ODataJPASerializerException {
 
@@ -111,7 +112,8 @@ public final class JPASerializerFactory {
     }
   }
 
-  private JPASerializer createSerializerCollectionRequest(final ContentType responseFormat, final UriInfo uriInfo,
+  private JPASerializer createSerializerCollectionRequest(final ContentType responseFormat,
+      final UriInfoResource uriInfo,
       final boolean isCollection, final Optional<List<String>> responseVersion) throws SerializerException {
 
     final ODataSerializer serializer = odata.createSerializer(responseFormat,
@@ -123,7 +125,8 @@ public final class JPASerializerFactory {
       return new JPASerializeEntity(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat, serviceContext);
   }
 
-  private JPASerializer createSerializerComplexPropertyRequest(final ContentType responseFormat, final UriInfo uriInfo,
+  private JPASerializer createSerializerComplexPropertyRequest(final ContentType responseFormat,
+      final UriInfoResource uriInfo,
       final Optional<List<String>> responseVersion) throws SerializerException {
 
     final ODataSerializer serializer = odata.createSerializer(responseFormat,
@@ -132,7 +135,7 @@ public final class JPASerializerFactory {
   }
 
   private JPASerializer createSerializerPrimitivePropertyRequest(final ContentType responseFormat,
-      final UriInfo uriInfo, final Optional<List<String>> responseVersion) throws SerializerException {
+      final UriInfoResource uriInfo, final Optional<List<String>> responseVersion) throws SerializerException {
 
     final ODataSerializer serializer = odata.createSerializer(responseFormat,
         responseVersion.orElse(Collections.emptyList()));
