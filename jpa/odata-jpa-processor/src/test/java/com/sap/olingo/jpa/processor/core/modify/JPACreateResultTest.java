@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -280,6 +281,12 @@ abstract class JPACreateResultTest extends TestBase {
   void testHasCountReturns() throws ODataJPAModelException, ODataApplicationException {
     createCutProvidesEmptyMap();
     assertFalse(cut.hasCount());
+  }
+
+  @Test
+  void testConvertNoException() throws ODataJPAModelException, ODataApplicationException {
+    createCutProvidesEmptyMap();
+    assertDoesNotThrow(() -> cut.convert(converter));
   }
 
   private void assertDoesNotContain(final List<Tuple> result, final String prefix) {

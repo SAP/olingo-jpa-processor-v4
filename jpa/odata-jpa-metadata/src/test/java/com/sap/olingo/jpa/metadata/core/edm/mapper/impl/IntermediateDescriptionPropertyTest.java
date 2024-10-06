@@ -262,7 +262,6 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
 
   @Test
   void checkPostProcessorCalled() throws ODataJPAModelException {
-    // PostProcessorSpy spy = new PostProcessorSpy();
     IntermediateModelElement.setPostProcessor(processor);
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "countryName");
@@ -285,8 +284,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
   @Test
   void checkEmptyAssociationThrowsException() throws ODataJPAModelException {
 
-    final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
-        false, false, 0), et, helper.schema);
+    cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(false, false, 0), et, helper.schema);
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> cut.lazyBuildEdmItem());
     assertEquals(ODataJPAModelException.MessageKeys.DESCRIPTION_ANNOTATION_MISSING.getKey(), act.getId());
   }
@@ -294,8 +292,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
   @Test
   void checkUnknownAttributeAtTargetThrowsException() throws ODataJPAModelException {
 
-    final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
-        true, false, 0), et, helper.schema);
+    cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(true, false, 0), et, helper.schema);
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> cut.lazyBuildEdmItem());
     assertEquals(ODataJPAModelException.MessageKeys.INVALID_DESCRIPTION_PROPERTY.getKey(), act.getId());
   }
@@ -303,8 +300,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
   @Test
   void checkNoLocationAtTargetThrowsException() throws ODataJPAModelException {
 
-    final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
-        true, true, 0), et, helper.schema);
+    cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(true, true, 0), et, helper.schema);
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> cut.lazyBuildEdmItem());
     assertEquals(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING.getKey(), act.getId());
   }
@@ -312,8 +308,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
   @Test
   void checkLocationAndLanguageAtTargetThrowsException() throws ODataJPAModelException {
 
-    final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
-        true, true, 2), et, helper.schema);
+    cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(true, true, 2), et, helper.schema);
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> cut.lazyBuildEdmItem());
     assertEquals(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING.getKey(), act.getId());
   }
@@ -393,17 +388,24 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
     assertNull(act.getJoinTable());
   }
 
-  private class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
+  @Test
+  void checkPathGetForeignKeyColumns() throws ODataJPAModelException {
+    createDefaultCut();
+    final var act = cut.getPath().getForeignKeyColumns();
+    assertNotNull(act);
+    assertTrue(act.isEmpty());
+  }
+
+  private static class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(ADDR_CANONICAL_NAME)) {
-        if (property.getInternalName().equals("countryName")) {
-          final CsdlAnnotation annotation = new CsdlAnnotation();
-          annotation.setTerm("Immutable");
-          annotation.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
-          property.addAnnotations(Collections.singletonList(annotation));
-        }
+      if (jpaManagedTypeClassName.equals(ADDR_CANONICAL_NAME)
+          && property.getInternalName().equals("countryName")) {
+        final CsdlAnnotation annotation = new CsdlAnnotation();
+        annotation.setTerm("Immutable");
+        annotation.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
+        property.addAnnotations(Collections.singletonList(annotation));
       }
     }
 
@@ -430,7 +432,7 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
   }
 
   private Attribute<?, ?> createAttributeMock(final boolean association, final boolean associationName,
-      final int langFields) {
+      final int languageFields) {
     final Attribute<?, ?> attribute = mock(Attribute.class);
     final ManagedType<?> managedType = mock(ManagedType.class);
     final Member member = mock(AnnotatedMember.class);
@@ -461,9 +463,9 @@ class IntermediateDescriptionPropertyTest extends TestMappingRoot {
       when(((AnnotatedElement) member).getAnnotation(EdmDescriptionAssociation.class)).thenReturn(a);
       if (associationName)
         when(a.descriptionAttribute()).thenReturn("name");
-      if (langFields > 0)
+      if (languageFields > 0)
         when(a.languageAttribute()).thenReturn("language");
-      if (langFields > 1)
+      if (languageFields > 1)
         when(a.localeAttribute()).thenReturn("location");
     }
     return attribute;

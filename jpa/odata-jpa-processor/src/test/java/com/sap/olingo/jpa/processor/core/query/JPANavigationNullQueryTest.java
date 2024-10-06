@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -148,5 +149,12 @@ class JPANavigationNullQueryTest extends TestBase {
     assertNotNull(cut);
     verify(cb).equal(idPath, idPath);
     verify(cb).equal(userNamePath, "Willi");
+  }
+
+  @Test
+  void testCreateWhereEnhancementReturnsNull() throws ODataApplicationException {
+    cut = new JPANavigationNullQuery(odata, helper.sd, jpaEntityType, em, parent, from, association, Optional.of(
+        claimsProvider), Collections.emptyList());
+    assertNull(cut.createWhereEnhancement(jpaEntityType, from));
   }
 }
