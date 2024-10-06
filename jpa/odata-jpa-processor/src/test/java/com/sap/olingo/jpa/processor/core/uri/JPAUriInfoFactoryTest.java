@@ -130,6 +130,9 @@ class JPAUriInfoFactoryTest {
     final var act = cut.build();
 
     assertFirstPagedResourceParts(act);
+    assertEquals(20, act.getSkipOption().getValue());
+    assertEquals(10, act.getTopOption().getValue());
+    assertEquals("New", act.getSkipTokenOption().getValue());
   }
 
   @Test

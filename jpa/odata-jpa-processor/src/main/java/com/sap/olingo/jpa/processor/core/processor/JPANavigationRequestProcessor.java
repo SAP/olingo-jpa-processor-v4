@@ -82,7 +82,6 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final ContentType responseFormat) throws ODataException {
 
     try (var measurement = debugger.newMeasurement(this, "retrieveData")) {
-
       checkRequestSupported();
       // Create a JPQL Query and execute it
       JPAJoinQuery query = null;

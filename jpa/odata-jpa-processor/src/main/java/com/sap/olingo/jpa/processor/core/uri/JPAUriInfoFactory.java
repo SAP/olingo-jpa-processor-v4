@@ -36,23 +36,23 @@ public class JPAUriInfoFactory {
   }
 
   public JPAUriInfoResource build() {
-    if (page.expandInfo().isEmpty())
+    if (page.expandInformation().isEmpty())
       // Standard pagination not resolving the $levels, as JPA Processor supports ODatas max option,
       // so depth is not known up-front and a late resolution has to be done anyhow. This also prevent the early
       // resolution of *
       return new JPAUriInfoBuilder(page.uriInfo())
-          // .withResolvedStars()
           .withTop(page.top())
           .withSkip(page.skip())
           .withSkipToken(page.skipToken())
           .build();
     else
       return new JPAUriInfoBuilder(page.uriInfo())
-          .withResolvedStars(page.expandInfo())
-          .withExpandInfo(page.expandInfo())
+          .withResolvedStars(page.expandInformation())
+          .withExpandInfo(page.expandInformation())
           .withExpandOrderBy()
           .withTop(page.top())
           .withSkip(page.skip())
+          .withSkipToken(page.skipToken())
           .build();
   }
 
