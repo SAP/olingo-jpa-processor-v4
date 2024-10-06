@@ -72,7 +72,8 @@ public final class JPAExpandItemInfoFactory {
         final Optional<JPAODataExpandPage> page;
         if (provider.isPresent())
           page = provider.get().getFirstPageExpand(requestContext.getRequestParameter(),
-              null, requestContext.getUriInfo(), item.getKey().getTopOption(), item.getKey().getSkipOption(),
+              requestContext.getPathInformation(), requestContext.getUriInfo(), item.getKey().getTopOption(), item
+                  .getKey().getSkipOption(),
               item.getValue().getLeaf(), count, requestContext.getEntityManager());
         else
           page = Optional.empty();

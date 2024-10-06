@@ -55,7 +55,7 @@ public final class JPAProcessorFactory {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo, serializerFactory
         .createCUDSerializer(responseFormat, uriInfo, Optional.ofNullable(header.get(HttpHeader.ODATA_MAX_VERSION))),
-        context, header);
+        context, header, null);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, new JPAConversionHelper());
   }
@@ -73,7 +73,7 @@ public final class JPAProcessorFactory {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo,
         responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo, Optional.ofNullable(header
-            .get(HttpHeader.ODATA_MAX_VERSION))) : null, context, header);
+            .get(HttpHeader.ODATA_MAX_VERSION))) : null, context, header, null);
 
     return new JPAActionRequestProcessor(odata, requestContext);
 
@@ -88,7 +88,7 @@ public final class JPAProcessorFactory {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(newUriInfo, serializerFactory
         .createSerializer(responseFormat, newUriInfo, Optional.ofNullable(header.get(
-            HttpHeader.ODATA_MAX_VERSION))), context, header);
+            HttpHeader.ODATA_MAX_VERSION))), context, header, pathInformation);
 
     return switch (newUriInfo.getLastResourcePart().getKind()) {
       case count -> new JPACountRequestProcessor(odata, requestContext);

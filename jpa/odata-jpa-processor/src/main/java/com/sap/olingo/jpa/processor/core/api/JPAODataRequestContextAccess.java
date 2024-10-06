@@ -73,4 +73,6 @@ public interface JPAODataRequestContextAccess {
   public JPAODataEtagHelper getEtagHelper();
 
   public Optional<JPAODataPagingProvider> getPagingProvider();
+
+  public JPAODataPathInformation getPathInformation();
 }
