@@ -1,0 +1,542 @@
+= How to build server-driven paging for $expand?
+
+== Introduction
+
+In xref:HowToBuildServerDrivenPaging.adoc[How to build server-driven paging?] we learned how we can implement server-driven paging for the root of a request.
+In addition there are use cases that lead to the need to protect a service e.g. against an out of memory exception by restricting the number of returned related entities.
+To support this, with version 2.2.0 JPA Processor supports server-driven paging for $expand requests.
+
+[WARNING]
+====
+There is no support for paging of collection properties and it is not planned. In case you expect 
+a large number of related entries and you like to have server-driven paging, you have to model a navigation. 
+It is possible to suppress the generation of an entity set for the target entity by using `@EdmEntityType` 
+with `as = AS_ENTITY_TYPE`.
+
+====
+
+
+[NOTE]
+====
+To gain benefit from this feature module https://github.com/SAP/olingo-jpa-processor-v4/tree/main/jpa/odata-jpa-processor-cb[odata-jpa-processor-cb] 
+is required. In case the module is not present, all related entities will be read from the database. The restriction takes place afterwards.
+
+This also means that the database used must support window functions. 
+To be more precise the database has to support: `ROW_NUMBER() OVER( PARTITION BY ... ORDER BY ...)`
+
+====
+
+For this tutorial we want to assume that people using Trippin may have made a lot of trips and each trip may contain a lot of related data. 
+Therefore, we like to restrict the number of trips per person returned by a request, let's say by two. Among others there are Sally
+and Scott using Trippin. sally has made 5 trips already and Scott 3 Having server-driven paging in place the following request:
+
+http://localhost:9010/Trippin/v1/People?$filter=UserName%20eq%20%27scottketchum%27%20or%20UserName%20eq%20%27sallysampson%27&$expand=Trips[.../People?$filter=UserName eq 'scottketchum' or UserName eq 'sallysampson'&$expand=Trips] 
+
+will give the following response:
+[source,json]
+----
+{
+  "@odata.context": "$metadata#People(Trips())",
+  "value": [
+    {
+      "FirstName": "Sally",
+      "LastName": "Sampson",
+      ...
+      "Trips": [
+        {
+          "Name": "Study trip",
+          ...
+        },
+        {
+          "Name": "Business trip Munich",
+          ...
+        }
+      ],
+      "Trips@odata.nextLink": "People?$skiptoken=2cc56d67-c957-4f31-8357-40cd951edd8b" <!--1-->
+    },
+    {
+      "FirstName": "Scott",
+      "LastName": "Ketchum",
+      ...
+      "Trips": [
+        {
+          "Name": "Trip in US",
+          ...
+        },
+        {
+          "Name": "Trip in Beijing",
+          ...
+        }
+      ],
+      "Trips@odata.nextLink": "People?$skiptoken=397f5165-7f37-443a-aae0-293534158488" <!--1-->
+    }
+  ]
+}
+----
+<1> Next link to retrieve further trips. It is placed at the super-ordinated entity.
+
+When the next trips shall be retrieved for Scott, the client will send:
+http://localhost:9010/Trippin/v1/People?$skiptoken=397f5165-7f37-443a-aae0-293534158488[.../Trippin/v1/People?$skiptoken=397f5165-7f37-443a-aae0-293534158488].
+The server must convert this request into the following:
+http://localhost:9010/Trippin/v1/People('scottketchum')/Trips?$skip=2&$top=1[.../Trippin/v1/People('scottketchum')/Trips?$skip=2&$top=1].
+The response would contain the last trip. In case we retrieve the next trips of Sally, using the following request:
+http://localhost:9010/Trippin/v1/People?$skiptoken=2cc56d67-c957-4f31-8357-40cd951edd8b[.../Trippin/v1/People?$skiptoken=2cc56d67-c957-4f31-8357-40cd951edd8b], 
+which as to be converted into http://localhost:9010/Trippin/v1/People('scottketchum')/Trips?$skip=2&$top=1[.../Trippin/v1/People('scottketchum')/Trips?$skip=2&$top=1],
+the response would contain another next link:
+
+[source,json]
+----
+{
+  "@odata.context": "$metadata#Trips",
+  "value": [
+    {
+      "Name": "Business trip New York",
+	  ...
+    },
+    {
+      "Name": "Business trip Mombasa",
+	  ...
+    }
+  ],
+  "@odata.nextLink": "Trips?$skiptoken=fb0babcf-d770-45bc-9d7e-31679308526e"
+}
+---- 
+
+As in xref:HowToBuildServerDrivenPaging.adoc[How to build server-driven paging?] different variants of an implementation will be discussed.
+
+== Single service[[single]]
+To understand the way thinks are done it is helpful to start with the implementation of `nextPage` and the enhancements done to 
+https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPage.java[`JPAODataPage`].
+
+Record `JPAODataPage` has a new field, a list of 
+https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPageExpandInfo.java[`JPAODataPageExpandInfo`],
+which is a pair of a path and the keys for that path. This pair is needed to perform the conversion of the original request mentioned above. It must be a list to be able to handle nested $expand
+request that are restricted on a deeper level. For Sally the expand information would look like this: 
+
+`[JPAODataPageExpandInfo[navigationPropertyPath=Trips, keyPath=sallysampson]]`
+
+
+Knowing this, we can adopt `nextPage`. In fact, the change is very small: 
+
+[source, java]
+----
+  @Override
+  public Optional<JPAODataPage> getNextPage(@Nonnull final String skipToken, final OData odata,
+      final ServiceMetadata serviceMetadata, final JPARequestParameterMap requestParameter, final EntityManager em) {
+    final CacheEntry previousPage = pageCache.get(skipToken.replace("'", ""));
+    if (previousPage != null) {
+      // Calculate next page
+      final Integer skip = previousPage.page().skip() + previousPage.page().top();
+      // Create a new skip token if next page is not the last one
+      String nextToken = null;
+      if (skip + previousPage.page().top() < previousPage.last())
+        nextToken = UUID.randomUUID().toString();
+      final int top = (int) ((skip + previousPage.page().top()) < previousPage.last()
+          ? previousPage.page().top() : previousPage.last() - skip);
+      final JPAODataPage page = new JPAODataPage(previousPage.page().uriInfo(), skip, top, nextToken,
+          previousPage.page().expandInfo()); //<1>
+      if (nextToken != null)
+        addToCache(page, previousPage.last());
+      return Optional.of(page);
+    }
+    // skip token not found => let JPA Processor handle this by return http.gone
+    return Optional.empty();
+  }
+----
+<1> Forward the expand information, the list of `JPAODataPageExpandInfo`, to the next page.
+
+To be able to forward the expand information, it must be stored in the page in our cache. As this information is not known by the paging provider, it has to be provided by the JPA Processor. The JPA Processor
+knows the keys late, during the conversion of the query results and not up front, when pages are defined. So, an option is needed for the JPA Processor to inject the expand information. 
+The option is provided by an implementation of interface  
+https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataSkipTokenProvider.java[`JPAODataSkipTokenProvider`]. As this
+is only required for service-driven paging on $expand, interface https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPagingProvider.java[`JPAODataPagingProvider`]
+got a new method `getFirstPageExpand`, which is called to get the initial page for the sub-ordinate entities.
+
+We can now extend the paging provider implementation:
+
+[source, java]
+----
+public class PagingProvider implements JPAODataPagingProvider {
+  ...
+  private static final int MAX_TRIPS = 2; //<1>
+  
+  ...
+  
+  @Override
+  public Optional<JPAODataExpandPage> getFirstPageExpand(final JPARequestParameterMap requestParameter,
+      final JPAODataPathInformation pathInformation, final UriInfoResource uriInfo, final TopOption top,
+      final SkipOption skip, final JPAAssociationAttribute association, final JPAExpandCountQuery count,
+      final EntityManager em) throws ODataApplicationException {
+
+    try {
+      if (association.getTargetEntity().getTypeClass().equals(Trip.class) //<2>
+          && association.isCollection()) { //<3>
+        return createExpandPage(uriInfo, top, skip, count, MAX_TRIPS);
+      }
+    } catch (final ODataJPAModelException e) {
+      e.printStackTrace();
+    }
+    return Optional.empty();
+  }
+----
+<1> Constants with maximum number of sub entities.
+<2> The method interface provides some information helpful to decide about the paging. With `association` we get information about the navigation property. 
+Here we use the target entity type to know that trips are requested.
+<3> As we want to create pages only if Trips is the target of a _to many_ association, this is checked.
+
+The page is then created by:
+
+[source, java]
+----
+  private Optional<JPAODataExpandPage> createExpandPage(final UriInfoResource uriInfo, final TopOption top,
+      final SkipOption skip, final JPAExpandCountQuery count, final int maxPageSize) throws ODataApplicationException {
+
+    final Integer skipValue = skip != null ? skip.getValue() : 0; //<1>
+    final Integer topValue = top != null ? top.getValue() : Integer.MAX_VALUE;
+    if (topValue >= maxPageSize) {
+      final var countResult = count.count(); //<2>
+      return Optional.of(new JPAODataExpandPage(uriInfo, skipValue, maxPageSize, new SkipTokenProvider(countResult, //<3>
+          pageCache, uriInfo, skipValue, maxPageSize)));
+    }
+    return Optional.empty();
+  }
+----
+<1> Determine actual skip and top value.
+<2> Get a map of count values to be able to determine the last page per parent entity.
+<3> The https://github.wdf.sap.corp/odata-jpa/odata-v4-jpa-processor/blob/master/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataExpandPage.java[`JPAODataExpandPage`] does not contain
+a skip token. It will be requested later. 
+
+Now we have to implement `JPAODataSkipTokenProvider`. Our implementation is called `SkipTokenProvider`.
+
+[source, java]
+----
+record SkipTokenProvider(Map<String, Long> countResult, Map<String, CacheEntry> pageCache, UriInfoResource uriInfo,
+    Integer skipValue, Integer topValue) implements JPAODataSkipTokenProvider {
+
+  @Override
+  public String get(final List<JPAODataPageExpandInfo> foreignKeyStack) { //<1>
+    final var foreignKey = foreignKeyStack.get(foreignKeyStack.size() - 1);
+    final var count = countResult.get(foreignKey.keyPath());
+    if (count != null) {
+      if (count > topValue) { //<2>
+        final var skipToken = UUID.randomUUID().toString(); //<3>
+        final var page = new JPAODataPage(uriInfo, skipValue, topValue, skipToken, foreignKeyStack);//<4>
+        pageCache.put(skipToken, new CacheEntry(count, page)); //<5>
+        return skipToken;
+      }
+      return null;
+    } else {
+      throw new IllegalStateException("No count result found for: " + foreignKey);
+    }
+  }
+}
+
+----
+<1> A list of parent keys. In our expamle this is only the username. In case the second level expand is paged the list would contain of two entries.
+<2> Check paging is required.
+<3> Generate skip token.
+<4> Create a page containing the keys, as they are needed when the next page is requested to perform the request mapping.
+<5> Add the page to the cache.
+
+Now that we have all peaces together, we can start the service and execute our requests. 
+
+== Multiple service instances
+
+In case we have multiple server, we need an external storage for the pages. In xref:HowToBuildServerDrivenPaging.adoc[How to build server-driven paging?] we had a look at the options of using the database or using Redis. 
+Here we only look at Redis. Assuming that an adoption for an alternative should not be too difficult.
+
+The extension made, lead to two places to store the pages:
+
+* The implementation of JPAODataPagingProvider.
+* The implementation of JPAODataSkipTokenProvider.
+
+This makes is it appropriate to encapsulate the interaction with Redis in a separate class. We should also have to think about the number 
+of round trips to the cache, as we may create multiple page and do not want to store page by page.
+
+The first thing we do, is to create a DAO for the communication between the paging provider and the new class for the Redis communication.
+
+[source, java]
+----
+public record RedisPage(JPAODataPathInformation pathInformation, Integer skipValue,
+    Integer topValue, Integer lastValue, List<JPAODataPageExpandInfo> expandInfo) {
+}
+----
+
+Now we take the corresponding code from our PagingProvider and put it to our new class.
+
+[source, java]
+----
+public class RedisPageStorage {
+  private static final int EXPIRES_AFTER = 300; // Lifetime in seconds
+  private static final String FRAGMENTS = "fragments";
+  private static final String QUERY_PATH = "queryPath";
+  private static final String O_DATA_PATH = "oDataPath";
+  private static final String BASE_URI = "baseUri";
+  private static final String LAST = "last";
+  private static final String TOP = "top";
+  private static final String SKIP = "skip";
+  private static final String EXPAND_INFO = "expandInfo";
+
+  private final JedisPool jedisPool;
+  private final Map<String, Map<String, String>> cache;
+
+  RedisPageStorage(final JedisPool jedisPool) {
+    super();
+    this.jedisPool = jedisPool;
+    this.cache = new HashMap<>(); //<1>
+  }
+  
+  public void savePage(final JPAODataPathInformation pathInformation, final Long last,
+      final JPAODataPage page) {
+    savePage(pathInformation, last, page, page.expandInformation());
+  }
+  
+  
+  public void savePage(final JPAODataPathInformation pathInformation, final Long last,
+      final JPAODataPage page, final List<JPAODataPageExpandInfo> foreignKeyStack) {
+
+    if (page.skipToken() != null) {
+      final String expandInfo = foreignKeyStack.stream()
+          .map(info -> info.navigationPropertyPath() + "#" + info.keyPath())
+          .collect(Collectors.joining(","));
+      final Map<String, String> values = new HashMap<>();
+      putIfNotNull(values, SKIP, page.skip());
+      putIfNotNull(values, TOP, page.top());
+      putIfNotNull(values, LAST, last > Integer.MAX_VALUE ? Integer.MAX_VALUE : last.intValue());
+      putIfNotNull(values, BASE_URI, pathInformation.baseUri());
+      putIfNotNull(values, O_DATA_PATH, pathInformation.oDataPath());
+      putIfNotNull(values, QUERY_PATH, pathInformation.queryPath());
+      putIfNotNull(values, FRAGMENTS, pathInformation.fragments());
+      putIfNotNull(values, EXPAND_INFO, expandInfo);
+      cache.put((String) page.skipToken(), values); //<2>
+    }
+  }
+  
+  public void flush() { //<3>
+    final var log = LogFactory.getLog(this.getClass());
+    if (!cache.isEmpty()) {
+	  try (final var jedis = jedisPool.getResource()) {
+        final Pipeline pipeline = jedis.pipelined();
+        for (final var entry : cache.entrySet()) {
+          pipeline.hset(entry.getKey(), entry.getValue());
+          pipeline.expire(entry.getKey(), EXPIRES_AFTER);
+        }
+        pipeline.sync();
+      } catch (final JedisConnectionException e) {
+          log.error("Redis exception", e);
+          throw e;
+      }
+    }  
+  }
+
+  public Optional<RedisPage> getPreviousPage(final String skipToken) {
+    if (skipToken != null) {
+      try (var jedis = jedisPool.getResource()) {
+        final Map<String, String> previousPage = jedis.hgetAll(skipToken.replace("'", ""));
+        if (previousPage != null && !previousPage.isEmpty()) {
+
+          final String oDataPath = getString(previousPage, O_DATA_PATH);
+          final String queryPath = getString(previousPage, QUERY_PATH);
+          final String fragments = getString(previousPage, FRAGMENTS);
+          final String baseUri = getString(previousPage, BASE_URI);
+          final Integer skipValue = getInteger(previousPage, SKIP);
+          final Integer topValue = getInteger(previousPage, TOP);
+          final Integer lastValue = getInteger(previousPage, LAST);
+          final var expandInfo = getExpandInfo(previousPage);
+          final var pathInformation = new JPAODataPathInformation(baseUri, oDataPath, queryPath, fragments);
+          return Optional.of(new RedisPage(pathInformation, skipValue, topValue, lastValue, expandInfo));
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  private List<JPAODataPageExpandInfo> getExpandInfo(final Map<String, String> previousPage) {
+    final var expandInfoString = previousPage.get(EXPAND_INFO);
+    if (expandInfoString != null) {
+      final List<JPAODataPageExpandInfo> expandInfo = new ArrayList<>();
+      for (final String info : expandInfoString.split(",")) {
+        final var values = info.split("#");
+        expandInfo.add(new JPAODataPageExpandInfo(values[0], values[1]));
+      }
+      return expandInfo;
+    }
+    return List.of();
+  }
+
+  @CheckForNull
+  private String getString(@Nonnull final Map<String, String> values, @Nonnull final String name) {
+    return values.get(name);
+  }
+
+  @Nonnull
+  private Integer getInteger(@Nonnull final Map<String, String> values, @Nonnull final String name) {
+    return Integer.valueOf(Objects.requireNonNull(values.get(name), "Missing value for " + name));
+  }
+
+  private void putIfNotNull(@Nonnull final Map<String, String> values, @Nonnull final String name,
+      @Nullable final Integer value) {
+    if (value != null)
+      values.put(name, Integer.toString(value));
+
+  }
+
+  private void putIfNotNull(@Nonnull final Map<String, String> values, @Nonnull final String name,
+      @Nullable final String value) {
+    if (value != null)
+      values.put(name, value);
+  }
+}
+----
+
+<1> Definition of an intermediate cache. That need to send to Redis later.
+<2> Add pages to intermediate cache.
+<3> Flush cache.
+
+An instance of the new Redis handler needs to be injected in to the paging provider:
+
+[source, java]
+----
+@Configuration
+public class ProcessorConfiguration {
+
+  ...
+  
+  @Bean
+  RedisPageStorage jedisPool() {
+    final JedisPoolConfig poolConfig = new JedisPoolConfig();
+    poolConfig.setJmxEnabled(false);
+    return new RedisPageStorage(new JedisPool(poolConfig, "localhost", 6379)); //<1>
+  }
+  
+  ...
+    @Bean
+  @Scope(scopeName = SCOPE_REQUEST)
+  JPAODataRequestContext requestContext(final EntityManagerFactory emf, final RedisPageStorage jedisPool) {//<2>
+  ...
+}
+----
+
+<1> Create the storage handler.
+<2> Adopt the type of parameter `jedisPool`.
+
+Next we create the corresponding skip-token provider:
+
+[source, java] 
+----
+public record RedisSkipTokenProvider(
+	Map<String, Long> countResult, 
+	RedisPageStorage storageHandler, //<1>
+    JPAODataPathInformation pathInformation, 
+    UriInfoResource uriInfo, 
+    Integer skipValue, 
+    Integer topValue)
+    implements JPAODataSkipTokenProvider {
+
+  @Override
+  public String get(final List<JPAODataPageExpandInfo> foreignKeyStack) {
+    final var foreignKey = foreignKeyStack.get(foreignKeyStack.size() - 1);
+    final var count = countResult.get(foreignKey.keyPath());
+    if (count != null) {
+      if (count > topValue) {
+        final var skipToken = UUID.randomUUID().toString();
+        final var page = new JPAODataPage(uriInfo, skipValue, topValue, skipToken, foreignKeyStack);
+        storageHandler.savePage(pathInformation, count, page, foreignKeyStack); //<2>
+        return skipToken;
+      }
+      return null;
+    } else {
+      throw new IllegalStateException("No count result found for: " + foreignKey);
+    }
+  }
+
+}
+----
+
+<1> The constructor takes the storage handler.
+<2> The page is handed over to the storage handler.
+
+Having all the additional parts together, we can start to adopt the Redis based paging provider. We start with `getNextPage`. Here we replace the call of method `getPrevousPage`,
+which we have moved to `RedisPageStorage` and can delete it together with `getString` and `getInteger`.
+
+[source, java]
+----
+  @Override
+  public Optional<JPAODataPage> getNextPage(@Nonnull final String skipToken, final OData odata,
+      final ServiceMetadata serviceMetadata, final JPARequestParameterMap requestParameter, final EntityManager em) {
+
+    final RedisPageStorage storage = (RedisPageStorage) requestParameter.get(ProcessorConfiguration.REDIS); //<1>
+    final Optional<RedisPage> previousPage = storage.getPreviousPage(skipToken);//<2>
+	...
+----
+
+<1> Get the storage handler from the request parameter.
+<2> Retrieve the page.
+
+A corresponding adoption has to be made to `getFirstPage`. Here we have to replace the call of `savePage and can delete the method together with the two
+of `putIfNotNull` methods.
+
+[source, java]
+----
+  public Optional<JPAODataPage> getFirstPage(final JPARequestParameterMap requestParameter,
+  	...
+        if (skipToken != null) {
+          final RedisPageStorage storage = (RedisPageStorage) requestParameter.get(ProcessorConfiguration.REDIS);
+          storage.savePage(pathInformation, last, page);
+        }
+    ...
+  }  
+----
+
+Next we implement `getFirstPageExpand` and re-implement `createExpandPage`, similar to what we did in <<single,Single service>> :
+
+[source, java]
+----
+  @Override
+  public Optional<JPAODataExpandPage> getFirstPageExpand(final JPARequestParameterMap requestParameter,
+      final JPAODataPathInformation pathInformation, final UriInfoResource uriInfo, final TopOption top,
+      final SkipOption skip, final JPAAssociationAttribute association, final JPAExpandCountQuery count,
+      final EntityManager em) throws ODataApplicationException {
+
+    ...
+        return createExpandPage(uriInfo, pathInformation, top, skip, count, MAX_TRIPS, requestParameter); //<1>
+    ...    
+  }
+
+  private Optional<JPAODataExpandPage> createExpandPage(final UriInfoResource uriInfo,
+      final JPAODataPathInformation pathInformation, final TopOption top, final SkipOption skip,
+      final JPAExpandCountQuery count, final int maxPageSize, final JPARequestParameterMap requestParameter)
+      throws ODataApplicationException {
+
+    final RedisPageStorage storageHandler = (RedisPageStorage) requestParameter.get(ProcessorConfiguration.REDIS); //<2>
+    final Integer skipValue = skip != null ? skip.getValue() : 0;
+    final Integer topValue = top != null ? top.getValue() : Integer.MAX_VALUE;
+    if (topValue >= maxPageSize) {
+      final var countResult = count.count();
+      return Optional.of(new JPAODataExpandPage(uriInfo, skipValue, maxPageSize, new RedisSkipTokenProvider(countResult, 
+          storageHandler, pathInformation, uriInfo, skipValue, maxPageSize))); //<3>
+    }
+    return Optional.empty();
+  }
+----
+
+<1> Forward the request parameter to `createExpandPage`.
+<2> Get the storage handler.
+<3> Create an instance of `RedisSkipTokenProvider` and forward the storage handler.
+
+Redis has not been updated yet. As this shall be done at the end of the request. To do so, the storage handler needs to be injected into 
+the controller:
+
+[source, java]
+----
+public class ODataController {
+  ...
+  public void crud(final HttpServletRequest request, final HttpServletResponse response) throws ODataException {
+
+    new JPAODataRequestHandler(serviceContext, requestContext).process(request, response);
+    if (response.getStatus() < 300)
+      storage.flush();
+  }
+----
+
+All parts are there and we can start our server and test the paging.
