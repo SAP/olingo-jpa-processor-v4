@@ -203,7 +203,7 @@ The page is then created by:
 ----
 <1> Determine actual skip and top value.
 <2> Get a map of count values to be able to determine the last page per parent entity.
-<3> The https://github.wdf.sap.corp/odata-jpa/odata-v4-jpa-processor/blob/master/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataExpandPage.java[`JPAODataExpandPage`] does not contain
+<3> The https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataExpandPage.java[`JPAODataExpandPage`] does not contain
 a skip token. It will be requested later. 
 
 Now we have to implement `JPAODataSkipTokenProvider`. Our implementation is called `SkipTokenProvider`.
