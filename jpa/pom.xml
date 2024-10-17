@@ -19,7 +19,7 @@
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <cf-logging.version>3.8.4</cf-logging.version>
-        <flyway.version>10.18.0</flyway.version>
+        <flyway.version>10.19.0</flyway.version>
         <jakarta.version>6.1.0</jakarta.version>
         <javax.version>4.0.1</javax.version>
         <jpa.version>3.1.0</jpa.version>
@@ -29,8 +29,8 @@
         <hibernate.version>6.4.0.Final</hibernate.version>
         <openjpa.version>4.0.0</openjpa.version>
         <derby.version>10.16.1.1</derby.version>
-        <junit.version>5.11.1</junit.version>
-        <junit-platform.version>1.11.1</junit-platform.version>
+        <junit.version>5.11.2</junit.version>
+        <junit-platform.version>1.11.2</junit-platform.version>
         <mockito.version>5.13.0</mockito.version>
         <jacoco.version>0.8.12</jacoco.version>
         <netty.version>4.1.113.Final</netty.version>
@@ -287,7 +287,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.5.1</version>
                     <configuration>
                         <properties>
                             <configurationParameters>
@@ -332,7 +332,7 @@
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
-                    <version>1.16.1</version>
+                    <version>1.17.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.pitest</groupId>
