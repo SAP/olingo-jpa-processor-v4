@@ -9,6 +9,9 @@ Having done that, we are ready to go ahead:
 . xref:HowToUpgradeTo1.adoc[What needs to be done to come from 0.3.x to 1.x?]
 . xref:NameBuilding.adoc[How to get own names for the OData artifacts?]
 . xref:HowToMakeASingleton.adoc[How to create a Singleton?]
+. xref:HowToMakeUseOfAnnotations.adoc[How to make use of Annotations?]
+. xref:HowToBuildServerDrivenPaging.adoc[How to build server-driven paging?]
+. xref:HowToBuildServerDrivenPagingExpand.adoc[How to build server driven-paging for $expand?]
 
 Some things that are good to know:
 
