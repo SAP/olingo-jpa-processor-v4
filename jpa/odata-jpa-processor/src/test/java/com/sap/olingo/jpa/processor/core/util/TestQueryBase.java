@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -38,7 +35,6 @@ public class TestQueryBase extends TestBase {
 
   protected JPAAbstractJoinQuery cut;
   protected JPAEntityType jpaEntityType;
-  protected HashMap<String, From<?, ?>> joinTables;
   protected Root<?> root;
   protected JPAODataSessionContextAccess context;
   protected UriInfo uriInfo;
@@ -59,8 +55,7 @@ public class TestQueryBase extends TestBase {
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        dataSource,
-        null, null);
+        dataSource, null, null, null);
     externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     requestContext = new JPAODataInternalRequestContext(externalContext, context, odata);
@@ -100,16 +95,4 @@ public class TestQueryBase extends TestBase {
     requestContext.setUriInfo(uriInfo);
     return odataType;
   }
-
-  protected void fillJoinTable(final Root<?> joinRoot) {
-    Join<?, ?> join = joinRoot.join("locationName", JoinType.LEFT);
-    joinTables.put("locationName", join);
-    join = joinRoot.join("address", JoinType.LEFT);
-    join = join.join("countryName", JoinType.LEFT);
-    joinTables.put("countryName", join);
-    join = joinRoot.join("address", JoinType.LEFT);
-    join = join.join("regionName", JoinType.LEFT);
-    joinTables.put("regionName", join);
-  }
-
 }

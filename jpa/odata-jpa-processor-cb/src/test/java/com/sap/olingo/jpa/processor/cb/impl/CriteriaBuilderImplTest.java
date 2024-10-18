@@ -224,7 +224,6 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     return Stream.of(
         arguments(c.getMethod("lower", Expression.class), "LOWER(E0.\"Name\")"),
         arguments(c.getMethod("upper", Expression.class), "UPPER(E0.\"Name\")"),
-        arguments(c.getMethod("length", Expression.class), "LENGTH(E0.\"Name\")"),
         arguments(c.getMethod("trim", Expression.class), "TRIM(E0.\"Name\")"));
   }
 
@@ -243,7 +242,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @BeforeEach
   void setup() {
-    cut = new CriteriaBuilderImpl(sd, new ParameterBuffer());
+    cut = new CriteriaBuilderImpl(sd, new ParameterBuffer(), new SqlDefaultPattern());
     statement = new StringBuilder();
     query = cut.createTupleQuery();
   }
@@ -500,6 +499,15 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   @Test
   void testLiteralThrowsExceptionOnNullValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.literal(null));
+  }
+
+  @Test
+  void testCreateLengthFunction() {
+    final String exp = "LENGTH(E0.\"Name\")";
+    final Root<?> administrativeDivision = query.from(AdministrativeDivisionDescription.class);
+    final Expression<Integer> act = cut.length(administrativeDivision.get("name"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
+
   }
 
   @Test
@@ -851,6 +859,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   void testCreateRowNumberWithPartitionBy() {
     final String exp = "ROW_NUMBER() OVER( PARTITION BY E0.\"CodeID\")";
     final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    @SuppressWarnings("unchecked")
     final Selection<Long> act = cut.rowNumber().partitionBy(administrativeDivision.get("codeID"));
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
   }
@@ -859,6 +868,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   void testCreateRowNumberWithPartitionAndOrder() {
     final String exp = "ROW_NUMBER() OVER( PARTITION BY E0.\"CodeID\" ORDER BY E0.\"CodeID\" ASC)";
     final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
+    @SuppressWarnings("unchecked")
     final Selection<Long> act = cut.rowNumber()
         .partitionBy(administrativeDivision.get("codeID"))
         .orderBy(cut.asc(administrativeDivision.get("codeID")));

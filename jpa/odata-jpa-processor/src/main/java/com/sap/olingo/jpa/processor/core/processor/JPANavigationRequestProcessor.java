@@ -43,7 +43,6 @@ import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
@@ -67,7 +66,6 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private static final Log LOGGER = LogFactory.getLog(JPANavigationRequestProcessor.class);
   private final ServiceMetadata serviceMetadata;
   private final UriResource lastItem;
-  private final JPAODataPage page;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataRequestContextAccess requestContext)
@@ -77,7 +75,6 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     this.serviceMetadata = serviceMetadata;
     final var resourceParts = uriInfo.getUriResourceParts();
     this.lastItem = resourceParts.get(resourceParts.size() - 1);
-    this.page = requestContext.getPage();
   }
 
   @Override
@@ -85,7 +82,6 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final ContentType responseFormat) throws ODataException {
 
     try (var measurement = debugger.newMeasurement(this, "retrieveData")) {
-
       checkRequestSupported();
       // Create a JPQL Query and execute it
       JPAJoinQuery query = null;
@@ -101,8 +97,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       // Read Expand and Collection
       EntityCollection entityCollection;
       if (conditionValidationResult == JPAETagValidationResult.SUCCESS) {
-        final var keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(),
-            page);
+        final var keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo());
         final var watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
         watchDog.watch(uriInfo.getExpandOption(), uriInfo.getUriResourceParts());
         result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary,
@@ -116,7 +111,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         throw new ODataJPAProcessorException(QUERY_RESULT_CONV_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
       // Set Next Link
-      entityCollection.setNext(buildNextLink(page));
+      entityCollection.setNext(buildNextLink(uriInfo));
       // Count results if requested
       final var countOption = uriInfo.getCountOption();
       if (countOption != null && countOption.getValue())
@@ -234,15 +229,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return list == null || list.isEmpty();
   }
 
-  private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {
-    if (page != null && page.skipToken() != null) {
+  private URI buildNextLink(final UriInfoResource uriInfo) throws ODataJPAProcessorException {
+    if (uriInfo != null && uriInfo.getSkipTokenOption() != null) {
       try {
-        if (page.skipToken() instanceof String)
-          return new URI(Utility.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
-              + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.skipToken() + "'");
-        else
-          return new URI(Utility.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
-              + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + page.skipToken().toString());
+        final var skipToken = uriInfo.getSkipTokenOption().getValue();
+        return new URI(Utility.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
+            + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + skipToken);
       } catch (final URISyntaxException e) {
         throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
@@ -362,8 +354,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         // sub-query used within EXISTS.
         // Solution: Forward the highest and lowest key from the root and create a "between" those.
 
-        final var itemInfoList = new JPAExpandItemInfoFactory()
-            .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
+        final var itemInfoList = new JPAExpandItemInfoFactory(requestContext)
+            .buildExpandItemInfo(sd, uriResourceInfo, parentHops, keyBoundary, factory);
         for (final JPAExpandItemInfo item : watchDog.filter(itemInfoList)) {
           final var expandQuery = factory.createQuery(item, keyBoundary);
           final var expandResult = expandQuery.execute();
@@ -376,7 +368,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         watchDog.levelProcessed();
       }
       // process collection attributes
-      final var collectionInfoList = new JPAExpandItemInfoFactory()
+      final var collectionInfoList = new JPAExpandItemInfoFactory(requestContext)
           .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
       for (final JPACollectionItemInfo item : collectionInfoList) {
         final var collectionQuery = new JPACollectionJoinQuery(odata, item,

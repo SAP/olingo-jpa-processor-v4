@@ -29,6 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -119,5 +120,11 @@ public abstract class JPANavigationSubQuery extends JPAAbstractSubQuery {
   @Override
   public List<Path<Comparable<?>>> getLeftPaths() throws ODataJPAIllegalAccessException {
     return Collections.emptyList();
+  }
+
+  @Override
+  protected Expression<Boolean> createWhereEnhancement(final JPAEntityType et, final From<?, ?> from)
+      throws ODataJPAProcessorException {
+    return null;
   }
 }

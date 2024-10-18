@@ -11,9 +11,14 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.queryoption.SkipOption;
+import org.apache.olingo.server.api.uri.queryoption.TopOption;
 
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAExpandCountQuery;
 
 /**
  * Supporting
@@ -78,8 +83,8 @@ public interface JPAODataPagingProvider {
    * @param uriInfo
    * @param preferredPageSize Value of the odata.maxpagesize preference header
    * @param countQuery A query that can be used to determine the maximum number of results that can be
-   * expected. Only if the number of expected results is bigger then the page size a next link
-   * @param em An instenace of the entity manager
+   * expected. Only if the number of expected results is bigger then the page size a page should be generated.
+   * @param em An instance of the entity manager
    * @return An optional of the page that shall be read. In case the optional is empty, all records are read from the
    * database.
    * @throws ODataApplicationException
@@ -88,6 +93,25 @@ public interface JPAODataPagingProvider {
       final JPAODataPathInformation pathInformation, final UriInfo uriInfo, @Nullable final Integer preferredPageSize,
       final JPACountQuery countQuery, final EntityManager em) throws ODataApplicationException {
     return Optional.ofNullable(getFirstPage(uriInfo, preferredPageSize, countQuery, em));// NOSONAR
+  }
+
+  /**
+   * Requires module {@code odata-jpa-processor-cb}
+   * @param requestParameter The parameter from the request context
+   * @param pathInformation Fragmented string representation of the URI, to be able to rebuild the uri info.
+   * @param uriInfo Java representation of the request URI
+   * @param association Metadata of the 
+   * @param preferredPageSize
+   * @param count A query that can be used to determine the maximum number of results that can be
+   * expected per parent. Only if the number of expected results is bigger then the page size a page should be generated.
+   * @param em An instance of the entity manager
+   * @return
+   */
+  default Optional<JPAODataExpandPage> getFirstPageExpand(final JPARequestParameterMap requestParameter,
+      final JPAODataPathInformation pathInformation, final UriInfoResource uriInfo, final TopOption top,
+      final SkipOption skip, final JPAAssociationAttribute association, final JPAExpandCountQuery count,
+      final EntityManager em) throws ODataApplicationException {
+    return Optional.empty();
   }
 
 }

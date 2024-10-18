@@ -16,7 +16,6 @@ import java.util.Set;
 
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
@@ -26,7 +25,6 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -35,6 +33,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 /**
  * A query to retrieve the expand entities.
@@ -55,24 +54,21 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @author Oliver Grande
  *
  */
-public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
+public final class JPAExpandJoinQuery extends JPAAbstractExpandJoinQuery implements JPAExpandQuery {
 
-  private final Optional<JPAKeyBoundary> keyBoundary;
   private JPAQueryCreationResult tupleQuery;
 
   public JPAExpandJoinQuery(final OData odata, final JPAInlineItemInfo item,
       final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
 
-    super(odata, requestContext, item);
-    this.keyBoundary = keyBoundary;
+    super(odata, requestContext, item, keyBoundary);
   }
 
   public JPAExpandJoinQuery(final OData odata, final JPAAssociationPath association, final JPAEntityType entityType,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     super(odata, entityType, requestContext, association);
-    this.keyBoundary = Optional.empty();
   }
 
   /**
@@ -100,9 +96,10 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
       // Simplest solution for the top/skip problem. Read all and throw away, what is not requested
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, association, determineSkip(),
           determineTop());
-      return new JPAExpandQueryResult(result, count(), jpaEntity, tupleQuery.selection().joinedRequested());
+      return new JPAExpandQueryResult(result, count(), jpaEntity, tupleQuery.selection().joinedRequested(),
+          skipTokenProvider);
     } catch (final JPANoSelectionException e) {
-      return new JPAExpandQueryResult(emptyMap(), emptyMap(), this.jpaEntity, emptyList());
+      return new JPAExpandQueryResult(emptyMap(), emptyMap(), this.jpaEntity, emptyList(), Optional.empty());
     }
   }
 
@@ -229,8 +226,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   private JPAQueryCreationResult createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
 
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createTupleQuery")) {
-      final List<JPAAssociationPath> orderByAttributes = extractOrderByNavigationAttributes(uriResource
-          .getOrderByOption());
+      final var orderByAttributes = getOrderByAttributes(uriResource.getOrderByOption());
       final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(),
           cq, lastInfo);
@@ -243,11 +239,11 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
 
       final Set<Path<?>> orderByPaths = new HashSet<>();
       final List<Order> orderBy = createOrderByJoinCondition(association);
-      orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource,
-          page, orderByPaths));
+      orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables,
+          orderByAttributes, lastInfo.getUriInfo()));
 
       cq.orderBy(orderBy);
-      if (!orderByAttributes.isEmpty()) {
+      if (orderByAttributes.stream().anyMatch(JPAProcessorAttribute::requiresJoin)) {
         cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(), orderByPaths));
       }
 
@@ -257,37 +253,4 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
     }
   }
 
-  private Expression<Boolean> createWhere() throws ODataApplicationException {
-
-    try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createWhere")) {
-      jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
-      // Given keys: Organizations('1')/Roles(...)
-      whereCondition = createKeyWhere(navigationInfo);
-      whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
-      whereCondition = addWhereClause(whereCondition, createExpandWhere());
-      whereCondition = addWhereClause(whereCondition, createProtectionWhere(claimsProvider));
-      return whereCondition;
-    }
-  }
-
-  private jakarta.persistence.criteria.Expression<Boolean> createExpandWhere() throws ODataApplicationException {
-
-    jakarta.persistence.criteria.Expression<Boolean> whereCondition = null;
-    for (final JPANavigationPropertyInfo info : this.navigationInfo) {
-      if (info.getFilterCompiler() != null) {
-        try {
-          whereCondition = addWhereClause(whereCondition, info.getFilterCompiler().compile());
-        } catch (final ExpressionVisitException e) {
-          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
-              HttpStatusCode.BAD_REQUEST, e);
-        }
-      }
-    }
-    return whereCondition;
-  }
-
-  @Override
-  protected JPAAssociationPath getAssociation(final JPAInlineItemInfo item) {
-    return item.getExpandAssociation();
-  }
 }

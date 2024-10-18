@@ -31,6 +31,7 @@ import jakarta.persistence.criteria.Subquery;
 import jakarta.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
@@ -53,11 +54,12 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   private Optional<Integer> firstResult;
 
   SubqueryImpl(@Nonnull final Class<T> type, @Nonnull final CriteriaQuery<?> parent, final AliasBuilder ab,
-      final CriteriaBuilder cb) {
+      final CriteriaBuilder cb, final ProcessorSqlPatternProvider sqlPattern) {
     super();
     this.type = Objects.requireNonNull(type);
     this.parent = Objects.requireNonNull(parent);
-    this.inner = new CriteriaQueryImpl<>(type, ((CriteriaQueryImpl<?>) parent).getServiceDocument(), ab, cb);
+    this.inner = new CriteriaQueryImpl<>(type, ((CriteriaQueryImpl<?>) parent).getServiceDocument(), ab, cb,
+        sqlPattern);
     maxResult = Optional.empty();
     firstResult = Optional.empty();
   }

@@ -33,7 +33,7 @@ class SimpleJoinTest extends BuilderBaseTest {
   @BeforeEach
   void setup() throws ODataJPAModelException {
     ab = new AliasBuilder();
-    cb = new CriteriaBuilderImpl(sd, new ParameterBuffer());
+    cb = new CriteriaBuilderImpl(sd, new ParameterBuffer(), new SqlDefaultPattern());
     final ProcessorCriteriaQuery<Tuple> q = cb.createTupleQuery();
     final JPAAssociationPath path = sd.getEntity(BusinessPartner.class).getAssociationPath("Roles");
     cut = new SimpleJoin<>(path, JoinType.INNER, q.from(BusinessPartner.class), ab, cb);

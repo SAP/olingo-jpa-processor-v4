@@ -8,17 +8,18 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 
 public final class JPACreateResultFactory {
-  private final JPATupleChildConverter converter;
+  private final JPAResultConverter converter;
 
-  public JPACreateResultFactory(JPATupleChildConverter converter) {
+  public JPACreateResultFactory(final JPAResultConverter converter) {
     this.converter = converter;
   }
 
   @SuppressWarnings("unchecked")
-  public JPAExpandResult getJPACreateResult(JPAEntityType et, Object result, Map<String, List<String>> requestHeaders)
+  public JPAExpandResult getJPACreateResult(final JPAEntityType et, final Object result,
+      final Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException, ODataApplicationException {
 
     if (result instanceof Map<?, ?>)

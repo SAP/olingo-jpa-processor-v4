@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import jakarta.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
@@ -210,53 +212,58 @@ public class JPAConversionHelper {
       } catch (final ODataJPAModelException e) {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
-      switch (odataProperty.getValueType()) {
-        case COMPLEX:
-          try {
-            final String name = path.getPath().get(0).getInternalName();
-            final JPAStructuredType a = st.getAttribute(name)
-                .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
-                    HttpStatusCode.INTERNAL_SERVER_ERROR, name))
-                .getStructuredType();
-            internalName = name;
-            jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
-          } catch (final ODataJPAModelException e) {
-            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-          }
-          break;
-        case PRIMITIVE, ENUM:
-          final JPAAttribute attribute = path.getLeaf();
-          internalName = attribute.getInternalName();
-          jpaAttribute = processAttributeConverter(odataProperty.getValue(), attribute);
-          break;
-        case COLLECTION_PRIMITIVE, COLLECTION_ENUM:
-          final JPAAttribute attribute2 = path.getLeaf();
-          internalName = attribute2.getInternalName();
-          jpaAttribute = new ArrayList<>();
-          for (final Object property : (List<?>) odataProperty.getValue())
-            ((List<Object>) jpaAttribute).add(processAttributeConverter(property, attribute2));
+      if (path != null) {
+        switch (odataProperty.getValueType()) {
+          case COMPLEX:
+            try {
+              final String name = path.getPath().get(0).getInternalName();
+              final JPAStructuredType a = st.getAttribute(name)
+                  .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
+                      HttpStatusCode.INTERNAL_SERVER_ERROR, name))
+                  .getStructuredType();
+              internalName = name;
+              jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
+            } catch (final ODataJPAModelException e) {
+              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+            }
+            break;
+          case PRIMITIVE, ENUM:
+            final JPAAttribute attribute = path.getLeaf();
+            internalName = attribute.getInternalName();
+            jpaAttribute = processAttributeConverter(odataProperty.getValue(), attribute);
+            break;
+          case COLLECTION_PRIMITIVE, COLLECTION_ENUM:
+            final JPAAttribute attribute2 = path.getLeaf();
+            internalName = attribute2.getInternalName();
+            jpaAttribute = new ArrayList<>();
+            for (final Object property : (List<?>) odataProperty.getValue())
+              ((List<Object>) jpaAttribute).add(processAttributeConverter(property, attribute2));
 
-          break;
-        case COLLECTION_COMPLEX:
-          final String name = path.getPath().get(0).getInternalName();
-          jpaAttribute = new ArrayList<>();
-          try {
-            final JPAStructuredType a = st.getAttribute(name)
-                .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
-                    HttpStatusCode.INTERNAL_SERVER_ERROR, name))
-                .getStructuredType();
-            internalName = name;
-            for (final ComplexValue property : (List<ComplexValue>) odataProperty.getValue())
-              ((List<Object>) jpaAttribute).add(convertProperties(odata, a, property.getValue()));
-          } catch (final ODataJPAModelException e) {
-            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-          }
-          break;
-        default:
-          throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
-              odataProperty.getValueType().name());
+            break;
+          case COLLECTION_COMPLEX:
+            final String name = path.getPath().get(0).getInternalName();
+            jpaAttribute = new ArrayList<>();
+            try {
+              final JPAStructuredType a = st.getAttribute(name)
+                  .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
+                      HttpStatusCode.INTERNAL_SERVER_ERROR, name))
+                  .getStructuredType();
+              internalName = name;
+              for (final ComplexValue property : (List<ComplexValue>) odataProperty.getValue())
+                ((List<Object>) jpaAttribute).add(convertProperties(odata, a, property.getValue()));
+            } catch (final ODataJPAModelException e) {
+              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+            }
+            break;
+          default:
+            throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
+                odataProperty.getValueType().name());
+        }
+        jpaAttributes.put(internalName, jpaAttribute);
+      } else {
+        throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
+            odataProperty.getValueType().name());
       }
-      jpaAttributes.put(internalName, jpaAttribute);
     }
     return jpaAttributes;
   }
@@ -275,7 +282,7 @@ public class JPAConversionHelper {
     String internalName;
     for (final UriParameter key : keyPredicates) {
       try {
-        final JPAAttribute attribute = st.getPath(key.getName()).getLeaf();
+        final JPAAttribute attribute = getJPAPath(st, key.getName()).getLeaf();
         internalName = attribute.getInternalName();
         final Object jpaAttribute = ExpressionUtility.convertValueOnAttribute(odata, attribute, key.getText(), true);
         result.put(internalName, jpaAttribute);
@@ -284,6 +291,16 @@ public class JPAConversionHelper {
       }
     }
     return result;
+  }
+
+  @Nonnull
+  private JPAPath getJPAPath(final JPAStructuredType st, final String name) throws ODataJPAModelException,
+      ODataJPAProcessorException {
+    final var jpaPath = st.getPath(name);
+    if (jpaPath != null)
+      return jpaPath;
+    else
+      throw new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR);
   }
 
   /**

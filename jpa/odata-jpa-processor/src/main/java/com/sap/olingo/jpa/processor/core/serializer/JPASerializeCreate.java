@@ -17,7 +17,6 @@ import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
@@ -38,12 +37,12 @@ import com.sap.olingo.jpa.processor.core.query.Utility;
 
 final class JPASerializeCreate implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
-  private final UriInfo uriInfo;
+  private final UriInfoResource uriInfo;
   private final ODataSerializer serializer;
   private final JPAODataSessionContextAccess serviceContext;
 
   public JPASerializeCreate(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriInfo uriInfo, final JPAODataSessionContextAccess serviceContext) {
+      final UriInfoResource uriInfo, final JPAODataSessionContextAccess serviceContext) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -82,7 +81,7 @@ final class JPASerializeCreate implements JPASerializer {
     }
   }
 
-  private class ExpandItemWrapper implements ExpandItem {
+  private static class ExpandItemWrapper implements ExpandItem {
 
     @Override
     public ApplyOption getApplyOption() {
@@ -161,7 +160,7 @@ final class JPASerializeCreate implements JPASerializer {
 
   }
 
-  private class ExpandOptionWrapper implements ExpandOption {
+  private static class ExpandOptionWrapper implements ExpandOption {
 
     private final List<ExpandItem> items = new ArrayList<>(1);
 

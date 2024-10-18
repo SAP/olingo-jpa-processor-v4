@@ -9,6 +9,10 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.AfterAll;
@@ -28,6 +32,7 @@ public class TestBase {
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
   protected static DataSource dataSource;
+  protected HashMap<String, From<?, ?>> joinTables;
 
   @BeforeAll
   public static void setupClass() {
@@ -59,5 +64,16 @@ public class TestBase {
     if (helper == null)
       helper = new TestHelper(emf, PUNIT_NAME);
     return helper;
+  }
+
+  protected void fillJoinTable(final Root<?> joinRoot) {
+    Join<?, ?> join = joinRoot.join("locationName", JoinType.LEFT);
+    joinTables.put("LocationName", join);
+    join = joinRoot.join("address", JoinType.LEFT);
+    join = join.join("countryName", JoinType.LEFT);
+    joinTables.put("Address/CountryName", join);
+    join = joinRoot.join("address", JoinType.LEFT);
+    join = join.join("regionName", JoinType.LEFT);
+    joinTables.put("Address/RegionName", join);
   }
 }

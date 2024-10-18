@@ -105,7 +105,6 @@
 			<property name="eclipselink.weaving" value="static" />
 			<property name="eclipse.weaving" value="true"/>
 			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
-
 			<!--  -->
 			<property name="openjpa.DynamicEnhancementAgent" value="true"/>
 			<property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>

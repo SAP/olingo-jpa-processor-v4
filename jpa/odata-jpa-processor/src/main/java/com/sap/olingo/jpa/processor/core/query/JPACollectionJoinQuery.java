@@ -41,7 +41,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
-public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
+public class JPACollectionJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
   private final JPAAssociationPath association;
   private final Optional<JPAKeyBoundary> keyBoundary;
 
@@ -145,7 +145,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       // Build select clause
       for (final JPAPath jpaPath : jpaPathList) {
         if (jpaPath.isPartOfGroups(groups)) {
-          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, target, jpaPath);
           path.alias(jpaPath.getAlias());
           selections.add(path);
         }

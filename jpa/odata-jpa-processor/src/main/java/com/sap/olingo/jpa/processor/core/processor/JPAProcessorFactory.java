@@ -28,12 +28,12 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPathInformation;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinCountQuery;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
+import com.sap.olingo.jpa.processor.core.uri.JPAUriInfoFactory;
 
 public final class JPAProcessorFactory {
   private final JPAODataSessionContextAccess sessionContext;
@@ -55,7 +55,7 @@ public final class JPAProcessorFactory {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo, serializerFactory
         .createCUDSerializer(responseFormat, uriInfo, Optional.ofNullable(header.get(HttpHeader.ODATA_MAX_VERSION))),
-        context, header);
+        context, header, null);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, new JPAConversionHelper());
   }
@@ -73,7 +73,7 @@ public final class JPAProcessorFactory {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo,
         responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo, Optional.ofNullable(header
-            .get(HttpHeader.ODATA_MAX_VERSION))) : null, context, header);
+            .get(HttpHeader.ODATA_MAX_VERSION))) : null, context, header, null);
 
     return new JPAActionRequestProcessor(odata, requestContext);
 
@@ -83,32 +83,27 @@ public final class JPAProcessorFactory {
       final Map<String, List<String>> header, final JPAODataRequestContextAccess context,
       final JPAODataPathInformation pathInformation) throws ODataException {
 
-    final var resourceParts = uriInfo.getUriResourceParts();
-    final var lastItem = resourceParts.get(resourceParts.size() - 1);
     final var page = getPage(header, uriInfo, context, pathInformation);
+    final var newUriInfo = new JPAUriInfoFactory(page).build();
 
-    try {
-      final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(page, serializerFactory
-          .createSerializer(responseFormat, page.uriInfo(), Optional.ofNullable(header.get(
-              HttpHeader.ODATA_MAX_VERSION))), context, header);
+    final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(newUriInfo, serializerFactory
+        .createSerializer(responseFormat, newUriInfo, Optional.ofNullable(header.get(
+            HttpHeader.ODATA_MAX_VERSION))), context, header, pathInformation);
 
-      return switch (lastItem.getKind()) {
-        case count -> new JPACountRequestProcessor(odata, requestContext);
-        case function -> {
-          checkFunctionPathSupported(resourceParts);
-          yield new JPAFunctionRequestProcessor(odata, requestContext);
-        }
-        case complexProperty, primitiveProperty, navigationProperty, entitySet, singleton, value -> {
-          checkNavigationPathSupported(resourceParts);
-          yield new JPANavigationRequestProcessor(odata, serviceMetadata, requestContext);
-        }
-        default -> throw new ODataJPAProcessorException(
-            ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-            HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
-      };
-    } catch (final ODataJPAIllegalAccessException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
+    return switch (newUriInfo.getLastResourcePart().getKind()) {
+      case count -> new JPACountRequestProcessor(odata, requestContext);
+      case function -> {
+        checkFunctionPathSupported(newUriInfo.getUriResourceParts());
+        yield new JPAFunctionRequestProcessor(odata, requestContext);
+      }
+      case complexProperty, primitiveProperty, navigationProperty, entitySet, singleton, value -> {
+        checkNavigationPathSupported(newUriInfo.getUriResourceParts());
+        yield new JPANavigationRequestProcessor(odata, serviceMetadata, requestContext);
+      }
+      default -> throw new ODataJPAProcessorException(
+          ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.NOT_IMPLEMENTED, newUriInfo.getLastResourcePart().getKind().toString());
+    };
 
   }
 

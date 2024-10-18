@@ -2,8 +2,10 @@ package com.sap.olingo.jpa.processor.core.converter;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +41,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 
 /**
  * Converts the query result based on Tuples from JPA format into Olingo format.
@@ -55,17 +59,20 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 public class JPATupleChildConverter extends JPATupleResultConverter {
   private static final Log LOGGER = LogFactory.getLog(JPATupleChildConverter.class);
+  private final Deque<Result> resultStack;
 
   public JPATupleChildConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
 
     super(sd, uriHelper, serviceMetadata, requestContext);
+    resultStack = new ArrayDeque<>();
   }
 
   public JPATupleChildConverter(final JPATupleChildConverter converter) {
     this(converter.sd, converter.uriHelper, converter.serviceMetadata, converter.requestContext);
   }
 
+  @Override
   public Map<String, List<Object>> getCollectionResult(final JPACollectionResult jpaResult,
       final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 
@@ -80,7 +87,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     jpaQueryResult = jpaResult;
     this.setName = determineSetName(jpaQueryResult);
     this.jpaConversionTargetEntity = jpaQueryResult.getEntityType();
-    this.edmType = determineEdmType();
+    this.edmType = determineEdmType(jpaConversionTargetEntity);
     final Map<String, List<Tuple>> childResult = jpaResult.getResults();
 
     final Map<String, EntityCollection> result = new HashMap<>(childResult.size());
@@ -91,18 +98,60 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
 
       for (int i = 0; i < rows.size(); i++) {
         final Tuple row = rows.set(i, null);
-        final Entity odataEntity = convertRow(jpaConversionTargetEntity, row, requestedSelection);
+        final Entity odataEntity = convertRow(jpaConversionTargetEntity, row, requestedSelection, Collections
+            .emptyList());
         odataEntity.setMediaContentType(determineContentType(jpaConversionTargetEntity, row));
         entities.add(odataEntity);
       }
       result.put(tuple.getKey(), entityCollection);
+      childResult.replace(tuple.getKey(), null);
     }
-    childResult.replaceAll((key, value) -> null);
     return result;
   }
 
+  @Override
+  public EntityCollection getResult(@Nonnull final JPAExpandQueryResult jpaResult,
+      @Nonnull final Collection<JPAPath> requestedSelection, @Nonnull final String parentKey,
+      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
+
+    pushResult();
+    jpaQueryResult = jpaResult;
+    this.setName = determineSetName(jpaResult);
+    this.jpaConversionTargetEntity = jpaResult.getEntityType();
+    this.edmType = determineEdmType(jpaConversionTargetEntity);
+
+    final List<Tuple> rows = jpaResult.getResults().get(parentKey);
+    final EntityCollection entityCollection = new EntityCollection();
+    final List<Entity> entities = entityCollection.getEntities();
+    for (int i = 0; i < rows.size(); i++) {
+      final Tuple row = rows.set(i, null);
+      final Entity odataEntity = convertRow(jpaConversionTargetEntity, row, requestedSelection, expandInfo);
+      odataEntity.setMediaContentType(determineContentType(jpaConversionTargetEntity, row));
+      entities.add(odataEntity);
+    }
+    popResult();
+    return entityCollection;
+  }
+
+  private void popResult() {
+    if (!resultStack.isEmpty()) {
+      final var result = resultStack.pop();
+      jpaQueryResult = result.jpaResult;
+      this.setName = result.esName;
+      this.jpaConversionTargetEntity = jpaQueryResult.getEntityType();
+      this.edmType = result.edmType;
+    }
+
+  }
+
+  private void pushResult() {
+    if (jpaQueryResult != null)
+      resultStack.push(new Result(jpaQueryResult, setName, edmType));
+  }
+
   protected Entity convertRow(final JPAEntityType rowEntity, final Tuple row,
-      final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
+      final Collection<JPAPath> requestedSelection, final List<JPAODataPageExpandInfo> expandInfo)
+      throws ODataApplicationException {
 
     final Map<String, ComplexValue> complexValueBuffer = new HashMap<>();
     final Entity odataEntity = new Entity();
@@ -111,14 +160,15 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     final List<Property> properties = odataEntity.getProperties();
     // Creates and add the key of an entity. In general OData allows a server to add additional properties that are not
     // part of $select. As Olingo adds the key properties (with null) anyhow this can be done here already
-    createId(rowEntity, row, odataEntity);
+    createId(rowEntity, row, odataEntity, expandInfo);
     createEtag(rowEntity, row, odataEntity);
     if (requestedSelection.isEmpty())
-      convertRowWithOutSelection(rowEntity, row, complexValueBuffer, odataEntity, properties);
+      convertRowWithOutSelection(rowEntity, row, complexValueBuffer, odataEntity, properties, expandInfo);
     else
-      convertRowWithSelection(row, requestedSelection, complexValueBuffer, odataEntity, properties);
+      convertRowWithSelection(row, requestedSelection, complexValueBuffer, odataEntity, properties, expandInfo);
     createCollectionProperties(rowEntity, row, properties);
-    odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX, odataEntity.getId().toString()));
+    odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX, odataEntity.getId().toString(),
+        expandInfo));
 
     return odataEntity;
   }
@@ -227,14 +277,14 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     }
   }
 
-  protected void createId(final JPAEntityType rowEntity, final Tuple row, final Entity odataEntity)
-      throws ODataApplicationException {
+  protected void createId(final JPAEntityType rowEntity, final Tuple row, final Entity odataEntity,
+      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
 
     final Map<String, ComplexValue> complexValueBuffer = Collections.emptyMap();
     try {
       for (final JPAAttribute path : rowEntity.getKey()) {
         convertAttribute(row.get(path.getExternalName()), rowEntity.getPath(path.getExternalName()), complexValueBuffer,
-            odataEntity.getProperties(), row, EMPTY_PREFIX, null);
+            odataEntity.getProperties(), row, EMPTY_PREFIX, null, expandInfo);
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
@@ -261,8 +311,8 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     }
   }
 
-  protected EdmEntityType determineEdmType() {
-    return serviceMetadata.getEdm().getEntityType(jpaQueryResult.getEntityType().getExternalFQN());
+  protected EdmEntityType determineEdmType(final JPAEntityType jpaEntityType) {
+    return serviceMetadata.getEdm().getEntityType(jpaEntityType.getExternalFQN());
   }
 
   /**
@@ -275,6 +325,18 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       throws ODataJPAQueryException {
     try {
       final JPAEntitySet es = sd.getEntitySet(jpaQueryResult.getEntityType());
+      return es != null ? es.getExternalName() : "";
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_SET_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e, jpaQueryResult.getEntityType().getExternalFQN()
+              .getFullQualifiedNameAsString());
+    }
+  }
+
+  protected String determineSetName(@Nonnull final JPAEntityType jpaEntityType) throws ODataJPAQueryException {
+
+    try {
+      final JPAEntitySet es = sd.getEntitySet(jpaEntityType);
       return es != null ? es.getExternalName() : "";
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_SET_ERROR,
@@ -301,5 +363,9 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private static record Result(JPAExpandResult jpaResult, String esName, EdmEntityType edmType) {
+
   }
 }

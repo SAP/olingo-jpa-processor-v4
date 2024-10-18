@@ -13,7 +13,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 
-@SuppressWarnings("unused")
 public class TestFunctionActionConstructor implements ODataFunction, ODataAction {
 
   private final EntityManager em;

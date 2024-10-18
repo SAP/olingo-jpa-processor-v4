@@ -562,6 +562,8 @@ class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     final AdministrativeDivisionKey childKey = new AdministrativeDivisionKey("Eurostat", "NUTS3", "DE600");
     final AdministrativeDivision childEntity = new AdministrativeDivision(childKey);
+    childEntity.setParentCodeID("NUTS2");
+    childEntity.setParentDivisionCode("DE600");
 
     final JPAUpdateResult result = new JPAUpdateResult(false, resultEntity);
     final ODataResponse response = new ODataResponse();

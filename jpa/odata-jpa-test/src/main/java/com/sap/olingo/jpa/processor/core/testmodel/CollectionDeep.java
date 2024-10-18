@@ -43,15 +43,11 @@ public class CollectionDeep {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    final CollectionDeep other = (CollectionDeep) obj;
-    if (iD == null) {
-      if (other.iD != null) return false;
-    } else if (!iD.equals(other.iD)) return false;
-    return true;
+  public boolean equals(final Object object) {
+    if (object instanceof final CollectionDeep other) {
+      return iD != null ? iD.equals(other.iD) : other.iD == null;
+    }
+    return false;
   }
 
 }

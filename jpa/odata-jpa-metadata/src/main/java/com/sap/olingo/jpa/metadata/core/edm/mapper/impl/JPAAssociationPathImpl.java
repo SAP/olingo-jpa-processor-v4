@@ -268,4 +268,9 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   public boolean hasJoinTable() {
     return joinTable != null;
   }
+
+  @Override
+  public List<JPAPath> getForeignKeyColumns() throws ODataJPAModelException {
+    return hasJoinTable() ? getLeftColumnsList() : getRightColumnsList();
+  }
 }

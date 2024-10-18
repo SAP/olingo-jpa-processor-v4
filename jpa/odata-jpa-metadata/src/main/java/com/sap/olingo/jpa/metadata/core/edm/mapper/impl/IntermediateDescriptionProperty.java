@@ -195,6 +195,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   }
 
   private class AssociationPath implements JPAAssociationPath {
+
     private List<IntermediateJoinColumn> joinColumns = null;
 
     @Override
@@ -223,6 +224,11 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     @Override
     public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
       return Collections.emptyList();
+    }
+
+    @Override
+    public List<JPAPath> getForeignKeyColumns() throws ODataJPAModelException {
+      return List.of();
     }
 
     @Override

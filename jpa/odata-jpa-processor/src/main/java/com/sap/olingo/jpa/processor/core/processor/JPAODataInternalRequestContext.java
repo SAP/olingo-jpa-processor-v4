@@ -35,7 +35,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPathInformation;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -57,7 +58,6 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private EntityManager em;
   private UriInfoResource uriInfo;
   private JPASerializer serializer;
-  private JPAODataPage page;
   private JPACUDRequestHandler cudRequestHandler;
   private JPAServiceDebugger debugger;
   private JPADebugSupportWrapper debugSupport;
@@ -71,6 +71,8 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private JPAODataDatabaseOperations operationConverter;
   private JPAODataQueryDirectives queryDirectives;
   private JPAODataEtagHelper etagHelper;
+  private Optional<JPAODataPagingProvider> pagingProvider;
+  private JPAODataPathInformation pathInformation;
 
   public JPAODataInternalRequestContext(@Nonnull final JPAODataRequestContext requestContext,
       @Nonnull final JPAODataSessionContextAccess sessionContext, final OData odata) {
@@ -89,7 +91,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
    */
   public JPAODataInternalRequestContext(final UriInfoResource uriInfo, final JPAODataRequestContextAccess context)
       throws ODataJPAProcessorException {
-    this(uriInfo, null, context, context.getHeader());
+    this(uriInfo, null, context, context.getHeader(), null);
   }
 
   /**
@@ -100,25 +102,12 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
    */
   public JPAODataInternalRequestContext(final UriInfoResource uriInfo, final JPAODataRequestContextAccess context,
       final Map<String, List<String>> header) throws ODataJPAProcessorException {
-    this(uriInfo, null, context, header);
-  }
-
-  JPAODataInternalRequestContext(final JPAODataPage page, final JPASerializer serializer,
-      final JPAODataRequestContextAccess context, final Map<String, List<String>> header)
-      throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
-
-    copyContextValues(context);
-    this.serializer = serializer;
-    this.cudRequestHandler = this.cudRequestHandler == null ? new JPADefaultCUDRequestHandler()
-        : this.cudRequestHandler;
-    this.header = new JPAHttpHeaderHashMap(header);
-    this.customParameter = new JPARequestParameterHashMap(context.getRequestParameter());
-    this.hookFactory = new JPAHookFactory(em, this.header, customParameter);
-    setJPAODataPage(page);
+    this(uriInfo, null, context, header, null);
   }
 
   JPAODataInternalRequestContext(final UriInfoResource uriInfo, @Nullable final JPASerializer serializer,
-      final JPAODataRequestContextAccess context, final Map<String, List<String>> header)
+      final JPAODataRequestContextAccess context, final Map<String, List<String>> header,
+      final JPAODataPathInformation pathInformation)
       throws ODataJPAProcessorException {
 
     copyContextValues(context);
@@ -129,6 +118,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     this.header = new JPAHttpHeaderHashMap(header);
     this.customParameter = new JPARequestParameterHashMap(context.getRequestParameter());
     this.hookFactory = new JPAHookFactory(em, this.header, customParameter);
+    this.pathInformation = pathInformation != null ? pathInformation : this.pathInformation;
   }
 
   @Override
@@ -187,11 +177,6 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   }
 
   @Override
-  public JPAODataPage getPage() {
-    return page;
-  }
-
-  @Override
   public JPASerializer getSerializer() {
     return serializer;
   }
@@ -230,21 +215,13 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   }
 
   @Override
-  public void setJPAODataPage(@Nonnull final JPAODataPage page) throws ODataJPAIllegalAccessException {
-    if (this.uriInfo != null)
-      throw new ODataJPAIllegalAccessException();
-    this.setUriInfo(page.uriInfo());
-    this.page = Objects.requireNonNull(page);
-  }
-
-  @Override
   public void setJPASerializer(@Nonnull final JPASerializer serializer) {
     this.serializer = Objects.requireNonNull(serializer);
   }
 
   @Override
   public void setUriInfo(@Nonnull final UriInfo uriInfo) throws ODataJPAIllegalAccessException {
-    if (this.page != null)
+    if (this.uriInfo != null)
       throw new ODataJPAIllegalAccessException();
     this.uriInfo = Objects.requireNonNull(uriInfo);
   }
@@ -270,6 +247,16 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     return queryDirectives;
   }
 
+  @Override
+  public Optional<JPAODataPagingProvider> getPagingProvider() {
+    return pagingProvider;
+  }
+
+  @Override
+  public JPAODataPathInformation getPathInformation() {
+    return pathInformation;
+  }
+
   private void copyContextValues(final JPAODataRequestContextAccess context)
       throws ODataJPAProcessorException {
     this.em = context.getEntityManager();
@@ -285,6 +272,8 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     this.operationConverter = context.getOperationConverter();
     this.queryDirectives = context.getQueryDirectives();
     this.etagHelper = context.getEtagHelper();
+    this.pagingProvider = context.getPagingProvider();
+    this.pathInformation = context.getPathInformation();
   }
 
   private void copyRequestContext(@Nonnull final JPAODataRequestContext requestContext,
@@ -304,6 +293,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     operationConverter = sessionContext.getOperationConverter();
     edmProvider = determineEdmProvider(sessionContext, em);
     queryDirectives = sessionContext.getQueryDirectives();
+    pagingProvider = Optional.ofNullable(sessionContext.getPagingProvider());
   }
 
   private Optional<JPAEdmProvider> determineEdmProvider(final JPAODataSessionContextAccess sessionContext,

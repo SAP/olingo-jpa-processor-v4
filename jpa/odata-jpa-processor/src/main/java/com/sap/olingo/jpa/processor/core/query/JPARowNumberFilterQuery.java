@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,6 +63,10 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
  * 'NUTS1'&$top=4&$skip=1&$expand=Children($top=2;$expand=Children($top=1;$skip=1))
  * }</li>
  * <li>{@code
+ * AdministrativeDivisions?$filter=CodeID eq
+ * 'NUTS1'&$top=4&$skip=1&$expand=Children($top=2;$expand=Parent($top=1;$skip=1))
+ * }</li>
+ * <li>{@code
  * Organizations?$top=1&$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$top=1;$expand=SupportedOrganizations($top=1))
  * }</li>
  * </ul>
@@ -80,28 +85,29 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
   private final boolean useInverse;
 
   JPARowNumberFilterQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
-      final JPANavigationPropertyInfo naviInfo, final JPAAbstractQuery parent,
-      final Optional<JPAAssociationPath> childAssociation, final List<JPAPath> selections) throws ODataException {
+      final JPANavigationPropertyInfo navigationInfo, final JPAAbstractQuery parent,
+      final Optional<JPAAssociationPath> childAssociation) throws ODataException {
 
-    super(odata, requestContext, new JPANavigationPropertyInfo(naviInfo), parent, childAssociation
+    super(odata, requestContext, new JPANavigationPropertyInfo(navigationInfo), parent, childAssociation
         .orElse(null));
 
-    this.outerSelections = selections.stream().collect(toSet());
+    this.outerSelections = navigationInfo.getAssociationPath().getLeftColumnsList().stream().collect(toSet());
     this.useInverse = false;
-    filter = navigationInfo.getFilterCompiler();
+    filter = lastInfo.getFilterCompiler();
     filter.compile();
+
   }
 
   JPARowNumberFilterQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
-      final JPANavigationPropertyInfo naviInfo, final JPAAbstractQuery parent, final JPAAssociationPath association,
+      final JPANavigationPropertyInfo navigationInfo, final JPAAbstractQuery parent, final JPAAssociationPath association,
       final JPAAssociationPath childAssociation, final SelectionPathInfo<JPAPath> selectionPath) throws ODataException {
 
-    super(odata, requestContext, new JPANavigationPropertyInfo(naviInfo), parent, association,
+    super(odata, requestContext, new JPANavigationPropertyInfo(navigationInfo), parent, association,
         childAssociation);
 
     this.outerSelections = selectionPath.joinedPersistent();
     this.useInverse = true;
-    filter = navigationInfo.getFilterCompiler();
+    filter = lastInfo.getFilterCompiler();
     filter.compile();
   }
 
@@ -118,7 +124,6 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
     try (JPARuntimeMeasurement measurement = debugger.newMeasurement(this, "createSubQuery")) {
       final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
       this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
-      this.navigationInfo.setFromClause(queryRoot);
       buildJoinTable(emptyList(), outerSelections, null);
       final List<Selection<?>> selections = createSelectForParent();
       selections.addAll(crateSelectionJoinTable());
@@ -157,7 +162,7 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
       // Build select clause
       for (final JPAPath jpaPath : this.outerSelections) {
         if (jpaPath.isPartOfGroups(groups)) {
-          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, queryRoot, jpaPath.getPath());
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, queryRoot, jpaPath);
           path.alias(jpaPath.getAlias());
           selections.add(path);
         }
@@ -199,6 +204,9 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
 
   private List<Order> createOrderBy() throws ODataApplicationException {
     final JPAOrderByBuilder orderBy = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-    return orderBy.createOrderByList(emptyMap(), navigationInfo.getUriInfo().getOrderByOption());
+    final var orderByAttributes = getOrderByAttributes(lastInfo.getUriInfo().getOrderByOption()).stream()
+        .map(attribute -> attribute.setTarget(queryRoot, joinTables, cb))
+        .collect(Collectors.toList()); // NOSONAR get mutable list
+    return orderBy.createOrderByList(emptyMap(), orderByAttributes);
   }
 }

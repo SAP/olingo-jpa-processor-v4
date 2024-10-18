@@ -11,7 +11,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceAction;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 final class JPASerializeFunction implements JPAOperationSerializer {
   private final JPAOperationSerializer serializer;
 
-  public JPASerializeFunction(final UriInfo uriInfo, final ContentType responseFormat,
+  public JPASerializeFunction(final UriInfoResource uriInfo, final ContentType responseFormat,
       final JPASerializerFactory jpaSerializerFactory, final Optional<List<String>> responseVersion)
       throws ODataJPASerializerException, SerializerException {
 
@@ -47,7 +47,7 @@ final class JPASerializeFunction implements JPAOperationSerializer {
   }
 
   private JPASerializer createSerializer(final JPASerializerFactory jpaSerializerFactory,
-      final ContentType responseFormat, final UriInfo uriInfo, final Optional<List<String>> responseVersion)
+      final ContentType responseFormat, final UriInfoResource uriInfo, final Optional<List<String>> responseVersion)
       throws ODataJPASerializerException, SerializerException {
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();

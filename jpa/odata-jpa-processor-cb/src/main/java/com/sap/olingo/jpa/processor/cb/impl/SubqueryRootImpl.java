@@ -18,10 +18,10 @@ class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
 
   private final Subquery<X> query;
 
-  SubqueryRootImpl(@Nonnull final ProcessorSubquery<X> inner, @Nonnull final AliasBuilder ab,
+  SubqueryRootImpl(@Nonnull final ProcessorSubquery<X> inner, @Nonnull final AliasBuilder aliasBuilder,
       @Nonnull final JPAServiceDocument sd) throws ODataJPAModelException {
 
-    super(sd.getEntity(inner.getJavaType()), ab, null);
+    super(sd.getEntity(inner.getJavaType()), aliasBuilder, null);
     this.query = inner;
   }
 

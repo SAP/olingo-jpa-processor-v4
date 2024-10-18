@@ -3,14 +3,11 @@ package com.sap.olingo.jpa.processor.core.query;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.MISSING_CLAIM;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.MISSING_CLAIMS_PROVIDER;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ORDER_BY_NOT_SUPPORTED;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ORDER_BY_TRANSIENT;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.WILDCARD_UPPER_NOT_SUPPORTED;
 import static java.util.stream.Collectors.toList;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
-import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +20,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -39,24 +37,16 @@ import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
-import org.apache.olingo.server.api.uri.queryoption.OrderByItem;
 import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
-import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -65,6 +55,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
@@ -73,9 +64,13 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalArgumentException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
+import com.sap.olingo.jpa.processor.core.properties.JPAOrderByPropertyFactory;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
 
 public abstract class JPAAbstractQuery {
   protected static final String PERMISSIONS_REGEX = ".*[\\*\\%\\+\\_].*";
@@ -183,31 +178,49 @@ public abstract class JPAAbstractQuery {
    * @param orderByTarget
    * @param joinTables
    */
-  protected void createFromClauseOrderBy(final List<JPAAssociationPath> orderByTarget,
+  protected void createFromClauseOrderBy(final List<JPAProcessorAttribute> orderByTarget,
       final Map<String, From<?, ?>> joinTables, final From<?, ?> from) {
-    for (final JPAAssociationPath orderBy : orderByTarget) {
-      From<?, ?> join = from;
-      for (final JPAElement o : orderBy.getPath()) {
-        join = join.join(o.getInternalName(), JoinType.LEFT);
-      }
-      // Take on condition from JPA metadata; no explicit on
-      joinTables.put(orderBy.getAlias(), join);
-    }
+    orderByTarget.stream()
+        .map(property -> property.setTarget(from, joinTables, cb))
+        .filter(JPAProcessorAttribute::requiresJoin)
+        .forEach(property -> joinTables.put(property.getAlias(), property.createJoin()));
   }
 
   protected List<jakarta.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables, // NOSONAR
-      final From<?, ?> from, final Collection<JPAPath> selectionPathList, @Nonnull Set<Path<?>> orderByPaths) {
+      final From<?, ?> from, final Collection<JPAPath> selectionPathList, @Nonnull final Set<Path<?>> orderByPaths) {
 
     try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "createGroupBy")) {
       final List<jakarta.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
       for (final JPAPath jpaPath : selectionPathList) {
-        var path = ExpressionUtility.convertToCriteriaPath(joinTables, from, jpaPath.getPath());
+        final var path = ExpressionUtility.convertToCriteriaPath(joinTables, from, jpaPath);
         orderByPaths.remove(path);
         groupBy.add(path);
       }
 
-      for (var path : orderByPaths) {
+      for (final var path : orderByPaths) {
         groupBy.add(path);
+      }
+      return groupBy;
+    }
+  }
+
+  protected List<jakarta.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
+      final From<?, ?> from, final Collection<JPAPath> selectionPathList,
+      @Nonnull final List<JPAProcessorAttribute> orderByAttributes) {
+
+    try (JPARuntimeMeasurement serializerMeasurement = debugger.newMeasurement(this, "createGroupBy")) {
+      final Set<Path<?>> orderByPaths = new HashSet<>();
+      final List<jakarta.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
+      for (final JPAPath jpaPath : selectionPathList) {
+        final var path = ExpressionUtility.convertToCriteriaPath(joinTables, from, jpaPath);
+        orderByPaths.add(path);
+        groupBy.add(path);
+      }
+
+      for (final var attribute : orderByAttributes) {
+        final var path = attribute.getPath();
+        if (path != null && !orderByPaths.contains(path))
+          groupBy.add(path);
       }
       return groupBy;
     }
@@ -266,7 +279,7 @@ public abstract class JPAAbstractQuery {
       // Build select clause
       for (final JPAPath jpaPath : requestedProperties) {
         if (jpaPath.isPartOfGroups(groups)) {
-          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(joinTables, target, jpaPath);
           path.alias(jpaPath.getAlias());
           selections.add(path);
         }
@@ -275,7 +288,7 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  protected jakarta.persistence.criteria.Expression<Boolean> createProtectionWhereForEntityType(
+  protected Expression<Boolean> createProtectionWhereForEntityType(
       final Optional<JPAODataClaimProvider> claimsProvider, final JPAEntityType et, final From<?, ?> from)
       throws ODataJPAQueryException {
     try {
@@ -287,11 +300,11 @@ public abstract class JPAAbstractQuery {
           throw new ODataJPAQueryException(MISSING_CLAIM, HttpStatusCode.FORBIDDEN);
         }
         if (!(containsAll(values))) {
-          final Path<?> path = ExpressionUtility.convertToCriteriaPath(dummyJoinTables, from, protection.getPath()
-              .getPath());
+          final Path<?> path = ExpressionUtility.convertToCriteriaPath(dummyJoinTables, from, protection.getPath());
           restriction = addWhereClause(restriction, createProtectionWhereForAttribute(values, path, protection
               .supportsWildcards()));
         }
+
       }
       return restriction;
     } catch (final NoSuchElementException e) {
@@ -312,7 +325,7 @@ public abstract class JPAAbstractQuery {
         .getEntityType());
   }
 
-  protected jakarta.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
+  protected Expression<Boolean> createWhereByKey(final From<?, ?> root,
       final List<UriParameter> keyPredicates, final JPAEntityType et) throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
@@ -378,56 +391,26 @@ public abstract class JPAAbstractQuery {
     return result;
   }
 
-  /**
-   *
-   * @param orderBy
-   * @return
-   * @throws ODataApplicationException
-   */
-  protected List<JPAAssociationPath> extractOrderByNavigationAttributes(final OrderByOption orderBy)
+  protected List<JPAProcessorAttribute> getOrderByAttributes(final OrderByOption orderBy)
       throws ODataApplicationException {
-
-    final List<JPAAssociationPath> navigationAttributes = new ArrayList<>();
     if (orderBy != null) {
-      for (final OrderByItem orderByItem : orderBy.getOrders()) {
-        final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression =
-            orderByItem.getExpression();
-        if (expression instanceof final Member member) {
-          final UriInfoResource resourcePath = member.getResourcePath();
-          final StringBuilder pathString = new StringBuilder();
-          for (final UriResource uriResource : resourcePath.getUriResourceParts()) {
-            try {
-              if (uriResource instanceof final UriResourceNavigation resourceNavigation) {
-                final EdmNavigationProperty edmNavigationProperty = resourceNavigation.getProperty();
-                navigationAttributes.add(jpaEntity.getAssociationPath(edmNavigationProperty.getName()));
-              } else if (uriResource instanceof final UriResourceProperty resourceProperty && resourceProperty
-                  .isCollection()) {
-                pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
-                final JPAPath jpaPath = jpaEntity.getPath(pathString.toString());
-                if (jpaPath.isTransient()) {
-                  throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_TRANSIENT, NOT_IMPLEMENTED, jpaPath
-                      .getLeaf().toString());
-                }
-                navigationAttributes.add(((JPACollectionAttribute) jpaPath.getLeaf()).asAssociation());
-
-              } else if (uriResource instanceof final UriResourceProperty resourceProperty) {
-                pathString.append(resourceProperty.getProperty().getName());
-                pathString.append(JPAPath.PATH_SEPARATOR);
-              }
-            } catch (final ODataJPAModelException e) {
-              throw new ODataJPAQueryException(QUERY_RESULT_CONV_ERROR, INTERNAL_SERVER_ERROR, e);
-            }
-          }
-        } else {
-          // TODO Support methods like tolower for order by as well
-          throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_NOT_SUPPORTED, BAD_REQUEST,
-              expression.toString());
+      try {
+        final var factory = new JPAOrderByPropertyFactory();
+        final var orderByAttributes = orderBy.getOrders().stream()
+            .map(o -> factory.createProperty(o, jpaEntity, getLocale()))
+            .collect(Collectors.toList()); // NOSONAR
+        for (final var orderByAttribute : orderByAttributes) {
+          if (!orderByAttribute.isSortable())
+            throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_NOT_SUPPORTED, BAD_REQUEST, orderByAttribute
+                .getAlias());
         }
+        return orderByAttributes;
+
+      } catch (final ODataJPAIllegalArgumentException e) {
+        throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_NOT_SUPPORTED, BAD_REQUEST, e.getParams());
       }
     }
-    debugger.trace(this, "The following navigation attributes in order by were found: %s", navigationAttributes
-        .toString());
-    return navigationAttributes;
+    return new ArrayList<>();
   }
 
   protected void generateDescriptionJoin(final Map<String, From<?, ?>> joinTables, final Set<JPAPath> pathSet,
@@ -442,15 +425,14 @@ public abstract class JPAAbstractQuery {
       } else {
         join.on(createOnCondition(join, descriptionField, getLocale().getLanguage()));
       }
-      joinTables.put(descriptionField.getInternalName(), join);
+      joinTables.put(descriptionFieldPath.getAlias(), join);
     }
   }
 
   protected abstract Locale getLocale();
 
-  protected jakarta.persistence.criteria.Expression<Boolean> orWhereClause(
-      jakarta.persistence.criteria.Expression<Boolean> whereCondition,
-      final jakarta.persistence.criteria.Expression<Boolean> additionalExpression) {
+  protected Expression<Boolean> orWhereClause(Expression<Boolean> whereCondition,
+      final Expression<Boolean> additionalExpression) {
 
     if (additionalExpression != null) {
       if (whereCondition == null) {
@@ -502,9 +484,8 @@ public abstract class JPAAbstractQuery {
   }
 
   @SuppressWarnings("unchecked")
-  private jakarta.persistence.criteria.Expression<Boolean> createProtectionWhereForAttribute(
-      final List<JPAClaimsPair<?>> values, final Path<?> path, final boolean wildcardsSupported)
-      throws ODataJPAQueryException {
+  private Expression<Boolean> createProtectionWhereForAttribute(final List<JPAClaimsPair<?>> values, final Path<?> path,
+      final boolean wildcardsSupported) throws ODataJPAQueryException {
 
     jakarta.persistence.criteria.Expression<Boolean> attributeRestriction = null;
     for (final JPAClaimsPair<?> value : values) { // for each given claim value
@@ -533,8 +514,7 @@ public abstract class JPAAbstractQuery {
         || min.contains("_");
   }
 
-  private jakarta.persistence.criteria.Expression<?> determineLocalePath(final Join<?, ?> join,
-      final JPAPath jpaPath) {
+  private Expression<?> determineLocalePath(final Join<?, ?> join, final JPAPath jpaPath) {
     Path<?> path = join;
     for (final JPAElement pathElement : jpaPath.getPath()) {
       path = path.get(pathElement.getInternalName());
@@ -574,8 +554,7 @@ public abstract class JPAAbstractQuery {
         final List<JPAOnConditionItem> joinColumns = useInverse ? jpaJoinTable.getInverseJoinColumns() : jpaJoinTable
             .getJoinColumns();
         debugger.trace(this, "Creating WHERE snipped for join table %s with join conditions %s and inverse: %s",
-            jpaJoinTable
-                .toString(), joinColumns, useInverse);
+            jpaJoinTable.toString(), joinColumns, useInverse);
         debugger.trace(this, "Creating WHERE snipped for join table, with target: '%s', root: '%s'", joinTable
             .getJavaType(), joinRoot.getJavaType());
         Expression<Boolean> whereCondition = null;
@@ -594,4 +573,59 @@ public abstract class JPAAbstractQuery {
     return null;
   }
 
+  /**
+   * Any resource path or path expression identifying a collection of entities or complex type instances can be appended
+   * with a path segment containing the qualified name of a type derived from the declared type of the collection.</br>
+   * The use of the unqualified name of a derived type is <b>not</b> supported.
+   * <p>
+   * See also:
+   * <a href="
+   * https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingDerivedTypes">
+   * 4.11 Addressing Derived Types
+   * </a>
+   *
+   * @param baseType
+   * @param potentialDerivedType
+   * @return true if potentialDerivedType is indeed a derived type of baseType
+   */
+  boolean derivedTypeRequested(@Nonnull final JPAStructuredType baseType,
+      @Nonnull final JPAStructuredType potentialDerivedType) {
+    JPAStructuredType type = potentialDerivedType;
+    while (type != null && type.getBaseType() != null) {
+      if (baseType.equals(type.getBaseType()))
+        return true;
+      type = type.getBaseType();
+    }
+    return false;
+  }
+
+  /**
+   * Add key restrictions as well as the filter enhancement from the entity definition from superordinate entities
+   * @param info
+   * @return
+   * @throws ODataApplicationException
+   */
+  protected final Expression<Boolean> createKeyWhere(final List<JPANavigationPropertyInfo> info)
+      throws ODataApplicationException {
+
+    Expression<Boolean> whereCondition = null;
+    // Given key: Organizations('1')/Roles(...)
+    for (final JPANavigationPropertyInfo naviInfo : info) {
+      try {
+        final JPAEntityType et = naviInfo.getEntityType();
+        final From<?, ?> from = naviInfo.getFromClause();
+        if (naviInfo.getKeyPredicates() != null) {
+          final List<UriParameter> keyPredicates = naviInfo.getKeyPredicates();
+          whereCondition = addWhereClause(whereCondition, createWhereByKey(from, keyPredicates, et));
+        }
+        whereCondition = addWhereClause(whereCondition, createWhereEnhancement(et, from));
+      } catch (final ODataJPAModelException e) {
+        throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
+      }
+    }
+    return whereCondition;
+  }
+
+  protected abstract Expression<Boolean> createWhereEnhancement(final JPAEntityType et, final From<?, ?> from)
+      throws ODataJPAProcessorException;
 }

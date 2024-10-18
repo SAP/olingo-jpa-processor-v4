@@ -7,6 +7,7 @@ import java.util.Map;
 
 import jakarta.persistence.Tuple;
 
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -17,14 +18,14 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPATuple;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 final class JPAMapResult extends JPAMapBaseResult {
   JPAMapResult(final JPAEntityType et, final Map<String, Object> jpaEntity,
-      final Map<String, List<String>> requestHeaders, final JPATupleChildConverter converter)
+      final Map<String, List<String>> requestHeaders, final JPAResultConverter converter)
       throws ODataJPAModelException, ODataApplicationException {
 
     super(et, requestHeaders);
@@ -35,7 +36,7 @@ final class JPAMapResult extends JPAMapBaseResult {
   }
 
   @SuppressWarnings("unchecked")
-  private void createChildren(final JPATupleChildConverter converter) throws ODataJPAModelException,
+  private void createChildren(final JPAResultConverter converter) throws ODataJPAModelException,
       ODataApplicationException {
     for (final JPAAssociationPath path : et.getAssociationPathList()) {
       final String pathPropertyName = path.getPath().get(0).getInternalName();
@@ -43,7 +44,7 @@ final class JPAMapResult extends JPAMapBaseResult {
         children.put(path,
             new JPAMapNavigationLinkResult((JPAEntityType) path.getTargetType(),
                 (List<JPARequestEntity>) valuePairedResult.get(
-                    pathPropertyName), requestHeaders, converter));
+                    pathPropertyName), requestHeaders, converter, getForeignKeyColumns(path)));
       }
     }
     for (final JPAPath path : et.getCollectionAttributesPath()) {
@@ -77,5 +78,14 @@ final class JPAMapResult extends JPAMapBaseResult {
     }
     tupleResult.add(tuple);
     return tupleResult;
+  }
+
+  private List<JPAPath> getForeignKeyColumns(final JPAAssociationPath association) throws ODataJPAProcessorException {
+    try {
+      return association.getForeignKeyColumns();
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
   }
 }

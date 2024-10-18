@@ -47,7 +47,7 @@ class CriteriaBuilderH2Test extends CriteriaBuilderOverallTest {
 
   @BeforeEach
   public void setup() {
-    super.setup(emf, sd);
+    super.setup(emf, sd, null);
   }
 
   @Test
