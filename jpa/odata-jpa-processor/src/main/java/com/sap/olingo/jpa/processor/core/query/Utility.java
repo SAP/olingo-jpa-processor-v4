@@ -23,6 +23,7 @@ import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
+import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -49,6 +50,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
+import com.sap.olingo.jpa.processor.core.uri.JPAUriResourceNavigationImpl;
 
 public final class Utility {
 
@@ -140,6 +142,9 @@ public final class Utility {
               startResourceItem), item);
           // For example8 Olingo only provides one ExpandItem next level has to expand Parent
         }
+        if (item.getLevelsOption() != null && item.getLevelsOption().isMax())
+          LOGGER.warn(
+              "Client requested expand with $levels=max. This is depricated. The support will be stop in the future");
       }
     }
     return pathList;
@@ -165,13 +170,16 @@ public final class Utility {
 
   private static UriResource createAssociationNamePrefix(final List<UriResource> startResourceList,
       final StringBuilder associationNamePrefix) {
-    // Example1 : /Organizations('3')/AdministrativeInformation?$expand=Created/User
-    // Example2 : /Organizations('3')/AdministrativeInformation?$expand=*
+    // Example1: /Organizations('3')/AdministrativeInformation?$expand=Created/User
+    // Example2: /Organizations('3')/AdministrativeInformation?$expand=*
+    // Example3: /CurrentUser/AdministrativeInformation?$expand=Created/User
     // Association name needs AdministrativeInformation as prefix
     UriResource startResourceItem = null;
     for (int i = startResourceList.size() - 1; i >= 0; i--) {
       startResourceItem = startResourceList.get(i);
-      if (startResourceItem instanceof UriResourceEntitySet || startResourceItem instanceof UriResourceNavigation) {
+      if (startResourceItem instanceof UriResourceEntitySet
+          || startResourceItem instanceof UriResourceNavigation
+          || startResourceItem instanceof UriResourceSingleton) {
         break;
       }
       associationNamePrefix.insert(0, PATH_SEPARATOR);
@@ -219,6 +227,7 @@ public final class Utility {
       final ExpandOption expandOption, final Map<JPAExpandItem, JPAAssociationPath> pathList,
       final StringBuilder associationNamePrefix, final ExpandItem item) throws ODataJPAUtilException {
 
+    // As olingo does not resolve the Star operator the expand Item does not contain a resource path
     final EdmBindingTarget edmBindingTarget = determineBindingTarget(startResourceList);
     try {
       final JPAStructuredType jpaStructuredType = sd.getEntity(edmBindingTarget.getName());
@@ -228,11 +237,12 @@ public final class Utility {
       for (final JPAAssociationPath path : associationPaths) {
         if (associationNamePrefix.length() == 0 ||
             path.getAlias().startsWith(associationNamePrefix.toString())) {
+          final var uriInfo = new JPAUriResourceNavigationImpl(findNavigationProperty(edmBindingTarget, path));
           if (item.getLevelsOption() != null && path.getSourceType() == path.getTargetType())
             pathList.put(new JPAExpandLevelWrapper(expandOption, (JPAEntityType) path.getTargetType(),
                 findNavigationProperty(edmBindingTarget, path), item), path);
           else
-            pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
+            pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType(), uriInfo), path);
         }
       }
     } catch (final ODataJPAModelException e) {
@@ -413,14 +423,17 @@ public final class Utility {
    * Example2 : /Organizations('3')/AdministrativeInformation -> 1<br>
    * Example3 : /Organizations('3')/Roles -> -1<br>
    * Example4 : /Organizations('3')/Roles/RoleCategory -> 2<br>
-   * Example4 : /Organizations('3')/AdministrativeInformation/Created/User/LastName -> 4
+   * Example5 : /Organizations('3')/AdministrativeInformation/Created/User/LastName -> 4
+   * Example6 : /CurrentUser/AdministrativeInformation -> 1
    */
   public static int determineStartNavigationIndex(final List<UriResource> resources) {
 
     if (resources != null) {
       for (int i = resources.size() - 1; i >= 0; i--) {
         final UriResource resourceItem = resources.get(i);
-        if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation)
+        if (resourceItem instanceof UriResourceEntitySet
+            || resourceItem instanceof UriResourceNavigation
+            || resourceItem instanceof UriResourceSingleton)
           return i == resources.size() ? -1 : i + 1;
       }
     }
@@ -534,7 +547,15 @@ public final class Utility {
 
   private static EdmNavigationProperty findNavigationProperty(final EdmBindingTarget bindingTarget,
       final JPAAssociationPath path) {
-    // Is this sufficient for path via complex types?
-    return bindingTarget.getEntityType().getNavigationProperty(path.getAlias());
+
+    EdmStructuredType type = bindingTarget.getEntityType();
+    final var last = path.getLeaf();
+    for (final var item : path.getPath()) {
+      if (item == last)
+        return type.getNavigationProperty(item.getExternalName());
+      else
+        type = (EdmStructuredType) type.getProperty(item.getExternalName()).getType();
+    }
+    return type.getNavigationProperty(path.getAlias());
   }
 }

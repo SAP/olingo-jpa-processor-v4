@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -97,7 +98,8 @@ class TestJPAServerDrivenPaging extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
     assertEquals(5, helper.getValues().size());
-    assertEquals("Organizations?$skiptoken='Hugo'", helper.getValue().get("@odata.nextLink").asText());
+    // No difference between Sting an other types of skip tokens
+    assertEquals("Organizations?$skiptoken=Hugo", helper.getValue().get("@odata.nextLink").asText());
   }
 
   @Test
@@ -244,6 +246,7 @@ class TestJPAServerDrivenPaging extends TestBase {
     final SelectItem selectItem = mock(SelectItem.class);
 
     when(uriInfo.getSelectOption()).thenReturn(selectOpt);
+    when(uriInfo.getSystemQueryOptions()).thenReturn(Collections.singletonList(selectOpt));
     when(selectOpt.getKind()).thenReturn(SystemQueryOptionKind.SELECT);
     when(selectOpt.getSelectItems()).thenReturn(selectItems);
     selectItems.add(selectItem);
@@ -328,12 +331,14 @@ class TestJPAServerDrivenPaging extends TestBase {
     when(orderExpression.getResourcePath()).thenReturn(orderResourcePath);
     when(orderResourcePath.getUriResourceParts()).thenReturn(orderResourcePathItems);
     when(orderResourcePathItem.getProperty()).thenReturn(orderProperty);
+    when(orderResourcePathItem.getKind()).thenReturn(UriResourceKind.primitiveProperty);
     when(orderProperty.getName()).thenReturn("ID");
     when(order.getOrders()).thenReturn(orderItems);
     final List<UriResource> resourceParts = new ArrayList<>();
     resourceParts.add(uriEs);
     when(uriInfo.getUriResourceParts()).thenReturn(resourceParts);
     when(uriInfo.getOrderByOption()).thenReturn(order);
+    when(uriInfo.getSystemQueryOptions()).thenReturn(Arrays.asList(order));
     return uriInfo;
   }
 }

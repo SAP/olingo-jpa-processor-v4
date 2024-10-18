@@ -15,14 +15,10 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.apache.olingo.server.api.uri.queryoption.expression.Binary;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
@@ -39,11 +35,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
-import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
-import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAVisitableExpression;
 
 public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
 
@@ -73,13 +65,6 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
       final JPAAssociationPath association) {
 
     this(odata, sd, jpaEntity, em, parent, from, association, Optional.empty());
-  }
-
-  JPAAbstractSubQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType type,
-      final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
-      final JPAAssociationPath association, final Optional<JPAODataClaimProvider> claimsProvider)
-      throws ODataJPAQueryException {
-    this(odata, sd, asJPAEntityType(type, sd), em, parent, from, association, claimsProvider);
   }
 
   public abstract <T extends Object> Subquery<T> getSubQuery(final Subquery<?> childQuery,
@@ -172,15 +157,6 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
       subQuery.select((Expression<T>) selections.get(0));
   }
 
-  private static JPAEntityType asJPAEntityType(final EdmEntityType edmEntityType, final JPAServiceDocument sd)
-      throws ODataJPAQueryException {
-    try {
-      return sd.getEntity(edmEntityType);
-    } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
-    }
-  }
-
   protected Expression<Boolean> createWhereByAssociation(final From<?, ?> subRoot, final From<?, ?> parentFrom,
       final List<JPAOnConditionItem> conditionItems) {
 
@@ -216,31 +192,6 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
     return whereCondition;
   }
 
-  /**
-   * Self Join
-   * @param subRoot
-   * @param parentFrom
-   * @param jpaEntity
-   * @return
-   * @throws ODataJPAModelException
-   */
-  protected Expression<Boolean> createWhereSelfJoin(final From<?, ?> subRoot, final From<?, ?> parentFrom,
-      final JPAEntityType jpaEntity) throws ODataJPAModelException {
-    Expression<Boolean> whereCondition = null;
-
-    for (final JPAPath onItem : jpaEntity.getKeyPath()) {
-      Path<?> parentPath = parentFrom;
-      Path<?> subPath = subRoot;
-      for (final JPAElement jpaPathElement : onItem.getPath()) {
-        parentPath = parentPath.get(jpaPathElement.getInternalName());
-        subPath = subPath.get(jpaPathElement.getInternalName());
-      }
-      final Expression<Boolean> equalCondition = cb.equal(parentPath, subPath);
-      whereCondition = addWhereClause(whereCondition, equalCondition);
-    }
-    return whereCondition;
-  }
-
   protected void handleAggregation(final Subquery<?> subQuery, final From<?, ?> groupByRoot,
       final List<JPAPath> groupByPath) throws ODataApplicationException {
 
@@ -258,26 +209,6 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
-  }
-
-  protected UriResourceKind getAggregationType(final VisitableExpression expression) {
-    UriInfoResource member = null;
-    if (expression instanceof final Binary binary) {
-      if (binary.getLeftOperand() instanceof final JPAMemberOperator leftMemberOperator)
-        member = leftMemberOperator.getMember().getResourcePath();
-      else if (binary.getRightOperand() instanceof final JPAMemberOperator rightMemberOperator)
-        member = rightMemberOperator.getMember().getResourcePath();
-    } else if (expression instanceof JPAFilterExpression
-        || expression instanceof JPACountExpression) {
-      member = ((JPAVisitableExpression) expression).getMember();
-    }
-    if (member != null) {
-      for (final UriResource r : member.getUriResourceParts()) {
-        if (r.getKind() == UriResourceKind.count)
-          return r.getKind();
-      }
-    }
-    return null;
   }
 
   protected List<JPAPath> determineAggregationRightColumns() throws ODataJPAQueryException {

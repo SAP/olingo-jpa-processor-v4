@@ -113,7 +113,7 @@ class EntityManagerWrapperTest {
   @BeforeEach
   void setup() {
     sd = mock(JPAServiceDocument.class);
-    cut = new EntityManagerWrapper(em, sd);
+    cut = new EntityManagerWrapper(em, sd, null);
   }
 
   static Stream<Arguments> parameterFreeMethod() throws NoSuchMethodException, SecurityException {

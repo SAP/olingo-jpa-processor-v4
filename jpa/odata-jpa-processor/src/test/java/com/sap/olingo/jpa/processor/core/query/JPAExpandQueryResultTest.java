@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -49,7 +49,6 @@ class JPAExpandQueryResultTest extends TestBase {
   private final List<Tuple> tuples = new ArrayList<>();
   private JPAEntityType et;
   private List<JPANavigationPropertyInfo> hops;
-  private JPAODataPage page;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -66,7 +65,6 @@ class JPAExpandQueryResultTest extends TestBase {
     top = mock(TopOption.class);
     skip = mock(SkipOption.class);
     expand = mock(ExpandOption.class);
-    page = new JPAODataPage(null, 0, Integer.MAX_VALUE, hop1);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     queryResult.put("root", tuples);
   }
@@ -75,8 +73,8 @@ class JPAExpandQueryResultTest extends TestBase {
   void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageEmpty() throws ODataJPAModelException, ODataJPAProcessException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
-        Collections.emptyList());
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+        emptyList(), empty());
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
@@ -85,9 +83,9 @@ class JPAExpandQueryResultTest extends TestBase {
       ODataJPAProcessException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
-        Collections.emptyList());
+        emptyList(), empty());
     when(uriInfo.getExpandOption()).thenReturn(expand);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
@@ -99,10 +97,10 @@ class JPAExpandQueryResultTest extends TestBase {
     tuples.add(tuple);
     key.put("ID", Integer.valueOf(10));
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
-        Collections.emptyList());
+        emptyList(), empty());
     when(uriInfo.getTopOption()).thenReturn(top);
     when(top.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
@@ -111,22 +109,22 @@ class JPAExpandQueryResultTest extends TestBase {
       NumberFormatException, ODataApplicationException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
-        Collections.emptyList());
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+        emptyList(), empty());
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
   @Test
   void checkGetKeyBoundaryEmptyBoundaryNoResult() throws ODataJPAModelException, ODataJPAProcessException {
 
-    queryResult.put("root", Collections.emptyList());
+    queryResult.put("root", emptyList());
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
-        Collections.emptyList());
+        emptyList(), empty());
     when(uriInfo.getTopOption()).thenReturn(top);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(top.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
@@ -137,11 +135,11 @@ class JPAExpandQueryResultTest extends TestBase {
     final TupleDouble tuple = new TupleDouble(key);
     tuples.add(tuple);
     key.put("ID", Integer.valueOf(10));
-    cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
+    cut = new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty());
     when(uriInfo.getTopOption()).thenReturn(top);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(top.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
     assertEquals(10, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
   }
@@ -150,24 +148,24 @@ class JPAExpandQueryResultTest extends TestBase {
   void checkGetKeyBoundaryOneResultWithSkip() throws ODataJPAModelException, ODataJPAProcessException {
 
     addTuple(12);
-    cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
+    cut = new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty());
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(skip.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
     assertEquals(12, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
   }
 
   @Test
-  void checkGetKeyBoundaryContainsNoHops() throws ODataJPAModelException, ODataJPAProcessException {
+  void checkGetKeyBoundaryContainsNoHops() throws ODataJPAProcessException {
 
     addTuple(12);
-    cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
+    cut = new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty());
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(skip.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
     assertEquals(2, act.get().getNoHops());
   }
@@ -177,11 +175,11 @@ class JPAExpandQueryResultTest extends TestBase {
 
     addTuple(12);
     addTuple(15);
-    cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
+    cut = new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty());
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(skip.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
     assertEquals(12, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
     assertEquals(15, act.get().getKeyBoundary().getMax().get(et.getKey().get(0)));
@@ -197,29 +195,14 @@ class JPAExpandQueryResultTest extends TestBase {
     key.put("codeID", "3166-1");
     key.put("divisionCode", "BEL");
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
-        Collections.emptyList());
+        emptyList(), empty());
     when(uriInfo.getTopOption()).thenReturn(top);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(top.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
     assertNotNull(act.get().getKeyBoundary().getMin());
     assertNull(act.get().getKeyBoundary().getMax());
-  }
-
-  @Test
-  void checkGetKeyBoundaryCollectionRequested() throws ODataJPAModelException, ODataJPAProcessException {
-
-    addTuple(12);
-    addTuple(15);
-    cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
-    when(uriInfo.getSkipOption()).thenReturn(skip);
-    when(uriInfo.getExpandOption()).thenReturn(expand);
-    when(skip.getValue()).thenReturn(2);
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
-    assertTrue(act.isPresent());
-    assertEquals(12, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
-    assertEquals(15, act.get().getKeyBoundary().getMax().get(et.getKey().get(0)));
   }
 
   @Test
@@ -227,23 +210,10 @@ class JPAExpandQueryResultTest extends TestBase {
 
     addTuple(12);
     when(uriInfo.getExpandOption()).thenReturn(expand);
-    page = new JPAODataPage(null, 10, Integer.MAX_VALUE, null);
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
-        Collections.emptyList());
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
-    assertTrue(act.isPresent());
-  }
-
-  @Test
-  void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageTop() throws ODataJPAModelException, ODataJPAProcessException {
-
-    addTuple(12);
-    when(uriInfo.getExpandOption()).thenReturn(expand);
-    page = new JPAODataPage(null, 0, 10, null);
-    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
-        Collections.emptyList());
-    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops, page);
-    assertTrue(act.isPresent());
+        emptyList(), empty());
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
+    assertFalse(act.isPresent());
   }
 
   private void addTuple(final Integer value) {

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
@@ -39,8 +40,8 @@ abstract class CriteriaBuilderOverallTest {
   protected StringBuilder stmt;
   protected CriteriaQuery<Tuple> q;
 
-  void setup(final EntityManagerFactory emf, final JPAServiceDocument sd) {
-    em = new EntityManagerWrapper(emf.createEntityManager(), sd);
+  void setup(final EntityManagerFactory emf, final JPAServiceDocument sd, final ProcessorSqlPatternProvider sqlPattern) {
+    em = new EntityManagerWrapper(emf.createEntityManager(), sd, sqlPattern);
     cb = (ProcessorCriteriaBuilder) em.getCriteriaBuilder();
     assertNotNull(cb);
     stmt = new StringBuilder();
@@ -194,7 +195,7 @@ abstract class CriteriaBuilderOverallTest {
     q.where(cb.and(equal, lower));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivisionDescription\" E0 WHERE ((E0.\"LanguageISO\" = ?1) AND (LOWER(SUBSTRING(E0.\"Name\", ?2, ?3)) = ?4))",
+        expectedQuerySubstring(),
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -225,13 +226,13 @@ abstract class CriteriaBuilderOverallTest {
   @Test
   void testSimpleConcatQuery() {
     final Root<?> person = q.from(Person.class);
-    final Expression<String> locate = cb.concat(cb.concat(person.get("lastName"), ","), person.get("firstName"));
+    final Expression<String> concat = cb.concat(cb.concat(person.get("lastName"), ","), person.get("firstName"));
 
     q.multiselect(person.get("iD"));
-    q.where(cb.equal(locate, "Mustermann,Max"));
+    q.where(cb.equal(concat, "Mustermann,Max"));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"ID\" S0 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((CONCAT(CONCAT(E0.\"NameLine2\", ?1), E0.\"NameLine1\") = ?2) AND (E0.\"Type\" = ?3))",
+        expectedQueryConcat(),
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -265,7 +266,6 @@ abstract class CriteriaBuilderOverallTest {
     comment.alias("Comment");
     q.multiselect(id, comment);
     q.where(cb.equal(id, '1'));
-    // ((SqlConvertible) q).asSQL(stmt);
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
     assertEquals(2, act.size());
@@ -280,7 +280,6 @@ abstract class CriteriaBuilderOverallTest {
     addr.alias("inhouseAddress");
     q.multiselect(id, addr);
     q.where(cb.equal(id, "99"));
-    // ((SqlConvertible) q).asSQL(stmt);
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
     assertEquals(2, act.size());
@@ -295,7 +294,7 @@ abstract class CriteriaBuilderOverallTest {
     qc.multiselect(cb.countDistinct(org));
     qc.where(cb.equal(org.get("userName"), "Willi"));
     final TypedQuery<Long> tq = em.createQuery(qc);
-    final Long act = tq.getSingleResult();
+    final Long act = ((Number) tq.getSingleResult()).longValue();
     assertEquals(3L, act);
   }
 
@@ -310,5 +309,32 @@ abstract class CriteriaBuilderOverallTest {
     assertEquals(1, act.size());
     assertEquals(LocalDate.parse("1999-04-01"), act.get(0).get("S2"));
     assertEquals(LocalDateTime.parse("2016-01-20T09:21:23"), act.get(0).get("S1"));
+  }
+
+  @Test
+  void testSelectLimitOffset() {
+    final Root<?> person = q.from(Person.class);
+
+    q.multiselect(person.get("iD"));
+    final TypedQuery<Tuple> tq = em.createQuery(q);
+    tq.setFirstResult(1);
+    tq.setMaxResults(1);
+    ((SqlConvertible) q).asSQL(stmt);
+    assertEquals(expectedQueryLimitOffset(), stmt.toString().trim());
+    final List<Tuple> act = tq.getResultList();
+    assertEquals(1, act.size());
+    assertNotNull(act.get(0));
+  }
+
+  protected String expectedQueryLimitOffset() {
+    return "SELECT E0.\"ID\" S0 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE (E0.\"Type\" = ?1) LIMIT 1 OFFSET 1";
+  }
+
+  protected String expectedQueryConcat() {
+    return "SELECT E0.\"ID\" S0 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((CONCAT(CONCAT(E0.\"NameLine2\", ?1), E0.\"NameLine1\") = ?2) AND (E0.\"Type\" = ?3))";
+  }
+
+  protected String expectedQuerySubstring() {
+    return "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivisionDescription\" E0 WHERE ((E0.\"LanguageISO\" = ?1) AND (LOWER(SUBSTRING(E0.\"Name\", ?2, ?3)) = ?4))";
   }
 }

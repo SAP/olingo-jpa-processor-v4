@@ -1,4 +1,4 @@
-= How to build server driven paging?
+= How to build server-driven paging?
 
 == Introduction
 
@@ -51,7 +51,7 @@ it is worth to read the chapter, as it contains some general hints.
 
 == Single service instance single thread
 
-Implementing server driven paging, we must answer some questions. The first, general question, is how the skip-token should look like. 
+Implementing server-driven paging, we must answer some questions. The first, general question, is how the skip-token should look like. 
 There are two obvious options: 
 
 . The skip-token is a string that contains all the information needed to build the next page and to determine the last page.
@@ -241,7 +241,7 @@ Last step is to implement `getNextPage`:
 <2> Check if this is the last page.
 <3> Calculate the value of $top, which may be different for the last page.
 
-We are done and can test our complete server driven paging.
+We are done and can test our complete server-driven paging.
 
 == Single service instance multiple threads
 
@@ -277,7 +277,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
 
 == Multiple service instances
 In case we have multiple instances of our service, the standard situation for microservices, we usually do not know which instance
-will handle a request. It may or may not be the same that has handled the request before. This holds also true for server driven paging.
+will handle a request. It may or may not be the same that has handled the request before. This holds also true for server-driven paging.
 Therefore, we need to make the query information available for all instances, which requires a central backing service 
 that can be reached from each instance of our service. Two options will be described below.
 

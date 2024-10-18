@@ -27,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
@@ -34,11 +35,13 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 class CriteriaQueryImplTest extends BuilderBaseTest {
   private CriteriaQueryImpl<Object> cut;
   private CriteriaBuilder cb;
+  private ProcessorSqlPatternProvider sqlPattern;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
-    cb = new CriteriaBuilderImpl(sd, new ParameterBuffer());
-    cut = new CriteriaQueryImpl<>(Object.class, sd, cb);
+    sqlPattern = new SqlDefaultPattern();
+    cb = new CriteriaBuilderImpl(sd, new ParameterBuffer(), sqlPattern);
+    cut = new CriteriaQueryImpl<>(Object.class, sd, cb, sqlPattern);
   }
 
   @Test
@@ -163,7 +166,7 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
   void testFromRethrowsException() throws ODataJPAModelException {
     final JPAServiceDocument serviceDocument = mock(JPAServiceDocument.class);
     when(serviceDocument.getEntity(any(Class.class))).thenThrow(ODataJPAModelException.class);
-    cut = new CriteriaQueryImpl<>(Object.class, serviceDocument, cb);
+    cut = new CriteriaQueryImpl<>(Object.class, serviceDocument, cb, sqlPattern);
     assertThrows(InternalServerError.class, () -> cut.from(AdministrativeDivision.class));
   }
 

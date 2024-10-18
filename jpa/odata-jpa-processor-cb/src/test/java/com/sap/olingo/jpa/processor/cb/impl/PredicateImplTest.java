@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
@@ -37,6 +36,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.impl.PredicateImpl.In;
 import com.sap.olingo.jpa.processor.cb.impl.PredicateImpl.NotPredicate;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -62,7 +62,7 @@ class PredicateImplTest extends BuilderBaseTest {
   void setup() {
     cut = new PredicateImpl.NotPredicate(mock(SqlConvertible.class));
 
-    final CriteriaBuilder cb = new CriteriaBuilderImpl(sd, new ParameterBuffer());
+    final CriteriaBuilder cb = new CriteriaBuilderImpl(sd, new ParameterBuffer(), new SqlDefaultPattern());
     statement = new StringBuilder();
     query = cb.createTupleQuery();
   }

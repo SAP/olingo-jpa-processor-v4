@@ -16,8 +16,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
+import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPATuple;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JPACollectionResult { // JPACollectionQueryResult
@@ -55,7 +55,7 @@ final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JP
   }
 
   @Override
-  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
+  public void convert(final JPAResultConverter converter) throws ODataApplicationException {
     converted = converter.getCollectionResult(this, Collections.emptySet());
   }
 

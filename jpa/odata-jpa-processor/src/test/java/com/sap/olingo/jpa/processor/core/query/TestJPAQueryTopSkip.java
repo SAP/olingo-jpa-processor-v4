@@ -108,6 +108,7 @@ class TestJPAQueryTopSkip extends TestBase {
     assertNull(value.get("@odata.nextLink"));
 
   }
+  
   @Tag(Assertions.CB_ONLY_TEST)
   @Test
   void testExpandTopSkipWithoutError() throws IOException, ODataException {

@@ -1,0 +1,369 @@
+= How to make use of Annotations
+
+OData provides the option to extend the metadata of a  service to your own needs, by introducing 
+annotations. Annotations can either be metadata annotations or instance annotations. 
+Vocabularies describe by Terms the semantic of annotations, there structure and which OData artifact can be annotated. OData provides a set of 
+https://github.com/oasis-tcs/odata-vocabularies/tree/main/vocabularies[Standardized Vocabularies],
+but everyone is free to define own once. More insides into vocabularies and annotation can be found in the OData documentation in 
+https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html#_Toc31358852[Part 1: Vocabulary Extensibility] and  
+https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html#sec_Annotations[Part 1: Annotations], as well as in the CSDL documentations
+https://docs.oasis-open.org/odata/odata-csdl-json/v4.01/odata-csdl-json-v4.01.html#_Toc38466459[Json: Vocabulary and Annotation] and 
+https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#_Toc38530401[XML: Vocabulary and Annotation]
+
+The JPA Processor supports, as of now, only metadata annotations. These are seen as static. That is, they can not be changed between two requests. 
+Three ways are provided to declare annotations, which will be explained in the following chapters.
+
+== Use provided annotation EdmAnnotation
+
+[#vocabulary]
+=== Providing the vocabulary 
+
+To make use of annotations the first step is to provide the corresponding vocabulary. A vocabulary is provided via an implementation of https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-metadata/src/main/java/com/sap/olingo/jpa/metadata/api/JPAEdmMetadataPostProcessor.java[`JPAEdmMetadataPostProcessor`].
+Method `provideReferences` has to be overridden, which takes an instance of `IntermediateReferenceList`. A reference to the vocabulary that shall be used has to be added to it:
+
+[source,java]
+----
+public class MetadataPostProcessor implements JPAEdmMetadataPostProcessor {
+
+  @Override
+  public void provideReferences(final IntermediateReferenceList referenceList) throws ODataJPAModelException {
+    String uri = "http://docs.oasis-open.org/odata/odata-vocabularies/v4.0/vocabularies/Org.OData.Validation.V1.xml"; //<1>
+    final String path = "annotations/Org.OData.Core.V1.xml"; //<2>
+    IntermediateReferenceAccess vocabulary = referenceList.addReference(uri, path); //<3>
+    vocabulary.addInclude("Org.OData.Core.V1", "Core"); //<4>
+  }
+  ...
+}
+----
+
+<1> URI of the vocabulary. This can be taken, for standard vocabularies, from the vocabulary file. 
+<2> Path to the vocabulary file within the resources of the project. The xml file can  be download from github: https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Core.V1.xml[OData Core] 
+<3> Create representation of the vocabulary.
+<4> Provide the namespace of the schema of the vocabulary and the alias used within the metadata to reference the schema.
+
+An instance of the `MetadataPostProcessor` has to be added to the ServiceContext:
+
+[source,java]
+----
+  @Bean
+  public JPAODataSessionContextAccess sessionContext(@Autowired final EntityManagerFactory emf) throws ODataException {
+
+    return JPAODataServiceContext.with()
+        ... 
+        .setMetadataPostProcessor(new MetadataPostProcessor())
+        .build();
+  }
+----
+
+The JPA Processor takes this information on the one hand to make the terms of the vocabulary accessible for Olingo and on the other hand adds the reference of the vocabulary to the service document and the metadata:
+
+[source,xml]
+----
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+	<edmx:Reference Uri="http://docs.oasis-open.org/odata/odata-vocabularies/v4.0/vocabularies/Org.OData.Validation.V1.xml"> <!--1-->
+		<edmx:Include Namespace="Org.OData.Core.V1" Alias="Core"/>
+	</edmx:Reference>
+	<edmx:DataServices>
+	...
+	</edmx:DataServices>
+</edmx:Edmx>	
+----
+
+<1> Vocabulary as part of the resource list within the metadata of a service. 
+
+=== Annotate a property 
+
+After the vocabulary has been provided, we can annotate e.g. a property. The following example is taken from the test data model, from entity 
+link:../../jpa/jpa-test/src/main/java/com/sap/olingo/jpa/processor/core/testmodel/BusinessPartner.java[BusinessPartner]. It indicates, that the location name is laguage dependent:
+
+[source,java]
+----
+  @EdmAnnotation(term = "Core.IsLanguageDependent", //<1>
+      constantExpression = @EdmAnnotation.ConstantExpression(type = ConstantExpressionType.Bool, value = "true")) //<2>
+  @EdmDescriptionAssociation(languageAttribute = "key/language", descriptionAttribute = "name",
+      valueAssignments = {
+          @EdmDescriptionAssociation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
+          @EdmDescriptionAssociation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Country\"")
+  private Collection<AdministrativeDivisionDescription> locationName;
+----
+<1> Full qualified name of the term the annotation is based on. The name is build from the alias of the vocabulary and the name of the term.
+<2> The annotation value.
+
+[NOTE]
+====
+Please note that only constant expressions are supported.
+
+====
+
+== Use JPAEdmMetadataPostProcessor
+
+The annotation `@EdmAnnotation` gives an easy, generic way to provide simple OData annotations, but it does not give the ability to make use of the full capabilities that OData provides. 
+Therefore another mechanism exists. `JPAEdmMetadataPostProcessor` give the option to override methods to provide additional information e.g. about an entity type. Part of this additional information are annotations.
+
+[NOTE]
+====
+This is the *only* way to annotate the Entity Container, as it has no java representation. 
+====
+
+As an example the entity container shall be annotated to tell a client that the service supports $batch processing. The corresponding term is part of the Capabilities vocabulary:
+  
+[source,xml]
+----      
+<Term Name="BatchSupported" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="EntityContainer">
+	<Annotation Term="Core.Description" String="Supports $batch requests. Services that apply the BatchSupported term should also apply the more comprehensive BatchSupport term." />
+</Term>
+----
+Org.OData.Capabilities.V1 has to be added to `MetadataPostProcessor` created in <<vocabulary>>.
+[source,java]
+----  
+@Override
+public void provideReferences(IntermediateReferenceList referenceList) throws ODataJPAModelException {
+
+	...
+	uri = "http://docs.oasis-open.org/odata/odata-vocabularies/v4.0/Org.OData.Capabilities.V1.xml";
+	path = "annotations/Org.OData.Capabilities.V1.xml";
+	vocabulary = referenceList.addReference(uri, path);
+	vocabulary.addInclude("Org.OData.Capabilities.V1", "Capabilities");   
+}
+----  
+
+    
+As we want to annotate the entity container, we also need to override method `processEntityContainer`:
+[source,java]
+----      
+@Override
+public void processEntityContainer(IntermediateEntityContainerAccess container) {
+	CsdlAnnotation batchSupport = new CsdlAnnotation()
+		.setTerm("Capabilities.BatchSupported") //<1>
+		.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
+	container.addAnnotations(Collections.singletonList(batchSupport));//<2>
+}
+----  
+<1> Provide the full qualified name of the annotation. Here the alias is used as namespace.
+<2> Add the annotation to the container metadata.
+
+As a result, the metadata of the service contain the corresponding annotation:
+
+[source,xml]
+---- 
+<EntityContainer Name="TrippinContainer">
+	...
+	<Annotation Term="Capabilities.BatchSupported">
+		<Bool>true</Bool>
+	</Annotation>
+</EntityContainer>
+----
+
+== Predefined Java annotations
+The options described above have draw backs. `@EdmAnnotation` only supports simple use cases and if the metadata post processor `JPAEdmMetadataPostProcessor`
+is used, the annotation is not visible at the annotated artifact. In addition in both case the JPA Processor makes no use of the information provided by the annotations. 
+With version 1.1.1 a third option is provided. Starting with that release it is possible to provide a converter that take (own) Java annotations and converts them into OData annotations. 
+Module https://github.com/SAP/olingo-jpa-processor-v4/tree/main/jpa/odata-jpa-vocabularies[odata-jpa-vocabularies] provides the necessary APIs:
+
+[source,xml]
+----
+<dependency>
+	<groupId>com.sap.olingo</groupId>
+	<artifactId>odata-jpa-vocabularies</artifactId>
+	<version>...</version>
+</dependency>
+----
+
+With module https://github.com/SAP/olingo-jpa-processor-v4/tree/main/jpa/odata-jpa-odata-vocabularies[odata-jpa-odata-vocabularies] an 
+implementation for some of the standard OData annotations of Core and Capabilities are provided. By adding the following dependency to the pom
+they are made available:
+
+[source,xml]
+----
+<dependency>
+	<groupId>com.sap.olingo</groupId>
+	<artifactId>odata-jpa-odata-vocabularies</artifactId>
+	<version>...</version>
+</dependency>
+----
+
+Lets have a look, what can be done with it. Lets assume it shall be stated that the _Me_, so the _CurrentUser_ cannot be changed 
+via a rest call. To do so, the update restriction and the insert restriction annotation from the capabilities vocabulary has to be added to CurrentUser: 
+
+[source,java]
+----
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation;
+import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.DeleteRestrictions;
+import com.sap.olingo.jpa.metadata.odata.v4.capabilities.terms.UpdateRestrictions;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@UpdateRestrictions(updatable = false)
+@DeleteRestrictions(deletable = false)
+@Entity(name = "Me")
+@EdmEntityType(as = EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY,
+    extensionProvider = CurrentUserQueryExtension.class)
+@Table(schema = "\"Trippin\"", name = "\"Person\"")
+public class CurrentUser extends Person {
+
+}
+----
+
+I case the service would start now the annotations would not be visible. The JPA Processor 
+needs a _JavaBasedODataAnnotationsProvider_ to convert the Java into the corresponding OData annotation:
+
+[source,java]
+----
+@Configuration
+public class ProcessorConfiguration {
+...
+  @Bean
+  public JPAODataSessionContextAccess sessionContext(@Autowired final EntityManagerFactory emf) throws ODataException {
+
+    return JPAODataServiceContext.with()
+    	...
+        .setAnnotationProvider(new JavaBasedCapabilitiesAnnotationsProvider()) //<1>
+        .build();
+  }
+  ...    	
+}
+----
+<1> Annotation provider for some OData Capability annotations. _odata-jpa-odata-vocabularies_ provides beside _JavaBasedCapabilitiesAnnotationsProvider_
+also an annotation provider for some Core annotations.
+
+If the service is started now the given annotation can be found in the entity container:
+
+[source,json]
+----
+    "TrippinContainer": {
+      ...
+      "Me": {
+        "$Kind": "Singleton",
+        "$Type": "Trippin.Person",
+        "$NavigationPropertyBinding": {
+          "Trips": "Trips"
+        },
+        "@Capabilities.UpdateRestrictions": {
+          "$Type": "Capabilities.UpdateRestrictionsType",
+          "Updatable": false,
+          "Upsertable": false,
+          "UpdateMethod": {
+            "$EnumMember": "null"
+          },
+          "NonUpdatableProperties": [],
+          "NonUpdatableNavigationProperties": [],
+          "RequiredProperties": [],
+          "MaxLevels": {
+            "$Int": "-1"
+          },
+          "Description": "",
+          "LongDescription": ""
+        },
+        "@Capabilities.DeleteRestrictions": {
+          "$Type": "Capabilities.DeleteRestrictionsType",
+          "Deletable": false,
+          "NonDeletableNavigationProperties": [],
+          "MaxLevels": {
+            "$Int": "-1"
+          },
+          "Description": "",
+          "LongDescription": ""
+        }
+      },
+      ...
+    }
+----
+
+The annotations e.g., can be used to create checks on create, update and delete requests. They can also
+be used by a UI client to display or to hide e.g., a delete button. Instead of evaluating the annotation, the UI client 
+can also use the OPTION method to find out which verbs are supported. If an OPTION method shall be implemented, the implementation can make use
+of the annotations. The following extension of the spring controller shall given an idea how this scan be done:
+
+[source,java]
+----
+  @RequestMapping(value = "**", method = { RequestMethod.OPTIONS }) //<1>
+  public ResponseEntity<Object> options(final HttpServletRequest request) throws ODataException {
+    var pathParts = request.getServletPath().split("/"); //<2>
+    if (pathParts.length <= 0) {
+      return ResponseEntity.status(400).build();
+    }
+
+    var serviceDocument = serviceContext.getEdmProvider().getServiceDocument();
+    var topLevelEntity = serviceDocument.getTopLevelEntity(pathParts[pathParts.length - 1]); //<3>
+    if (topLevelEntity.isEmpty()) {
+      return ResponseEntity.status(400).build();
+    }
+    return ResponseEntity.ok().allow(fillAllowedMethods(topLevelEntity.get()).toArray(new HttpMethod[] {})).build();
+  }
+
+  private ArrayList<HttpMethod> fillAllowedMethods(JPATopLevelEntity topLevelEntity) throws ODataJPAModelException {
+    var allowedMethods = new ArrayList<HttpMethod>();
+    allowedMethods.add(HttpMethod.GET); //<4>
+
+    var insertable = getAnnotationValue(topLevelEntity, Terms.INSERT_RESTRICTIONS, InsertRestrictionsProperties.INSERTABLE); 
+    if (topLevelEntity instanceof JPAEntitySet && (insertable == null || insertable)) //<5>
+      allowedMethods.add(HttpMethod.POST);
+  
+    var updatable = getAnnotationValue(topLevelEntity, Terms.UPDATE_RESTRICTIONS, UpdateRestrictionsProperties.UPDATEABLE);
+    if (updatable == null || updatable)
+      allowedMethods.add(HttpMethod.PATCH);
+
+    var deletable = getAnnotationValue(topLevelEntity, Terms.DELETE_RESTRICTIONS, DeleteRestrictionsProperties.DELETABLE);
+    if (deletable == null || deletable)
+      allowedMethods.add(HttpMethod.DELETE);
+
+    return allowedMethods;
+  }
+
+  private Boolean getAnnotationValue(JPATopLevelEntity topLevelEntity, Terms term, PropertyAccess property)
+      throws ODataJPAModelException {
+    return topLevelEntity.getAnnotationValue(Aliases.CAPABILITIES, term, property, Boolean.class); //<6>
+  }
+----
+<1> Tell Spring that the method shall handle all OPTION requests.
+<2> Get the top level entity, so the entity set or singleton from the URI.
+<3> Get the metadata of the top level entity.
+<4> All top level entities support GET requests. Therefore GET is put, without any check, into the result.
+<5> Capabilities.InsertRestrictions is not applicable for Singletons. Annotating _CurrentUser_ with it would have no effect.
+So it need to be handled here.
+<6> Get the annotated value. The API is provided with 2.1.0
+
+In opposite to the annotations used above, which restrict the change of an entity and are not monitored by the JPA Processor, the following annotations
+are:
+
+ * CountRestrictions
+ * ExpandRestrictions
+ * SortRestrictions
+ * FilterRestrictions
+ 
+All restrict the retrieval. In case a client shall not be able to count the People, we need to annotate the person 
+entity as follows:
+
+[source,java]
+----
+@CountRestrictions(countable = false)
+@Entity(name = "Person")
+@Table(schema = "\"Trippin\"", name = "\"Person\"")
+public class Person {
+  ...
+}
+----
+
+A request like _.../Trippin/v1/People?$count=true_ would the return:
+[source,json]
+----
+HTTP/1.1 400 
+OData-Version: 4.0
+Content-Type: application/json;odata.metadata=minimal
+Content-Length: 72
+Date: ...
+Connection: close
+
+{
+  "error": {
+    "code": null,
+    "message": "Count is not supported for 'People'."
+  }
+}
+----
+
+

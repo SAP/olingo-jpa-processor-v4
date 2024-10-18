@@ -36,7 +36,7 @@ public @interface ExpandRestrictions {
    * These properties cannot be used in expand expressions.
    * <p>
    * The properties are given as an array attributes path. In case the path
-   * is composed, path segments joined together by forward slashes (/) e.g <i>address/cityName</i>.
+   * is composed, path segments joined together by forward slashes (/) e.g. <i>address/cityName</i>.
    */
   String[] nonExpandableProperties() default {};
 

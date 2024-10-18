@@ -379,22 +379,22 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
       final JPAStructuredType source = determineSource();
       final JPAAttribute joinAttribute = source
           .getAttribute(Objects.requireNonNull(attributeName))
-          .orElse(getAssociation(source, attributeName));
+          .orElseGet(() -> getAssociation(source, attributeName));
 
       if (joinAttribute == null)
         throw new IllegalArgumentException(buildExceptionText(attributeName));
-      final JPAPath joinPath = determinePath(joinAttribute);
       @SuppressWarnings("rawtypes")
       Join join;
       if (joinAttribute instanceof final JPADescriptionAttribute attribute) {
         final JoinType joinType = jt == null ? JoinType.LEFT : jt;
         final Optional<JPAAssociationPath> path = Optional.ofNullable(attribute.asAssociationAttribute().getPath());
-        join = new SimpleJoin<>(path.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(attributeName))),
+        join = new SimpleJoin<>(path.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(
+            attributeName))),
             joinType, determineParent(), aliasBuilder, cb);
       } else if (joinAttribute instanceof JPACollectionAttribute) {
-        join = new CollectionJoinImpl<>(joinPath, determineParent(), aliasBuilder, cb, jt);
+        join = new CollectionJoinImpl<>(getJPAPath(joinAttribute), determineParent(), aliasBuilder, cb, jt);
       } else if (joinAttribute.isComplex()) {
-        join = new PathJoin<>((FromImpl<X, Y>) determineParent(), joinPath, aliasBuilder, cb);
+        join = new PathJoin<>((FromImpl<X, Y>) determineParent(), getJPAPath(joinAttribute), aliasBuilder, cb);
       } else {
         final JoinType joinType = jt == null ? JoinType.INNER : jt;
         Optional<JPAAssociationPath> associationPath;
@@ -405,8 +405,9 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
           associationPath = Optional.ofNullable(source.getAssociationPath(joinAttribute.getExternalName()));
         if (associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(attributeName)))
             .hasJoinTable())
-          join = new JoinTableJoin<>(associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(
-              attributeName))), joinType, determineParent(), aliasBuilder, cb);
+          join = new JoinTableJoin<>(associationPath.orElseThrow(() -> new IllegalArgumentException(
+              buildExceptionText(
+                  attributeName))), joinType, determineParent(), aliasBuilder, cb);
         else
           join = new SimpleJoin<>(associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(
               attributeName))), joinType, determineParent(), aliasBuilder, cb);
@@ -581,6 +582,15 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     if (path.isPresent())
       return st.getPath(path.get().getAlias() + JPAPath.PATH_SEPARATOR + joinAttribute.getExternalName());
     return st.getPath(joinAttribute.getExternalName());
+  }
+
+  @Nonnull
+  private JPAPath getJPAPath(final JPAAttribute joinAttribute) throws ODataJPAModelException {
+    final var jpaPath = determinePath(joinAttribute);
+    if (jpaPath != null)
+      return jpaPath;
+    else
+      throw new IllegalStateException();
   }
 
   private JPAAssociationAttribute getAssociation(final JPAStructuredType source, final String attributeName) {

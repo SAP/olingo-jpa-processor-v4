@@ -6,7 +6,6 @@ package com.sap.olingo.jpa.metadata.core.edm.annotation;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.beans.Transient;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 

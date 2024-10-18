@@ -29,6 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationPro
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.JPAODataQueryDirectivesImpl;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
@@ -55,6 +56,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
   private final boolean useAbsoluteContextURL;
   private final List<AnnotationProvider> annotationProvider;
   private final JPAODataQueryDirectives queryDirectives;
+  private final ProcessorSqlPatternProvider sqlPattern;
 
   public static JPAODataServiceContextBuilder with() {
     return new Builder();
@@ -78,6 +80,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     useAbsoluteContextURL = builder.useAbsoluteContextURL;
     annotationProvider = Arrays.asList(builder.annotationProvider);
     queryDirectives = builder.queryDirectives;
+    sqlPattern = builder.sqlPattern;
   }
 
   @Override
@@ -153,6 +156,11 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     return queryDirectives;
   }
 
+  @Override
+  public ProcessorSqlPatternProvider getSqlPatternProvider() {
+    return sqlPattern;
+  }
+
   static class Builder implements JPAODataServiceContextBuilder {
 
     private String namespace;
@@ -172,6 +180,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     private boolean useAbsoluteContextURL = false;
     private AnnotationProvider[] annotationProvider;
     private JPAODataQueryDirectivesImpl queryDirectives;
+    private ProcessorSqlPatternProvider sqlPattern;
 
     private Builder() {
       super();
@@ -398,7 +407,8 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
             jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays
                 .asList(annotationProvider));
           emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
-              JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument()));
+              JPAServiceDocument.class, ProcessorSqlPatternProvider.class)
+              .newInstance(emf.get(), jpaEdm.getServiceDocument(), sqlPattern));
           LOGGER.trace("Criteria Builder Extension found. It will be used");
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
             | NoSuchMethodException | SecurityException e) {
@@ -419,6 +429,12 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
 
     public JPAODataServiceContextBuilder setQueryDirectives(final JPAODataQueryDirectivesImpl queryDirectives) {
       this.queryDirectives = queryDirectives;
+      return this;
+    }
+
+    @Override
+    public JPAODataServiceContextBuilder setSqlPatternProvider(final ProcessorSqlPatternProvider sqlPattern) {
+      this.sqlPattern = sqlPattern;
       return this;
     }
   }

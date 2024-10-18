@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Subquery;
@@ -39,6 +40,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -226,6 +228,12 @@ class JPAAbstractSubQueryTest extends TestBase {
 
     @Override
     public List<Path<Comparable<?>>> getLeftPaths() throws ODataJPAIllegalAccessException {
+      return null;
+    }
+
+    @Override
+    protected Expression<Boolean> createWhereEnhancement(final JPAEntityType et, final From<?, ?> from)
+        throws ODataJPAProcessorException {
       return null;
     }
 

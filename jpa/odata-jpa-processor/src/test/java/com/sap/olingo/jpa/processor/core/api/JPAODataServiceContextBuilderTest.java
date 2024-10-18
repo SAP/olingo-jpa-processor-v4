@@ -39,9 +39,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigat
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.api.example.JPAExamplePagingProvider;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
+import com.sap.olingo.jpa.processor.core.database.JPAPostgresqlSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 class JPAODataServiceContextBuilderTest {
@@ -172,6 +174,20 @@ class JPAODataServiceContextBuilderTest {
   }
 
   @Test
+  void checkReturnsSqlPatternProvider() throws ODataException {
+
+    final ProcessorSqlPatternProvider provider = new JPAPostgresqlSqlPatternProvider();
+    cut = JPAODataServiceContext.with()
+        .setDataSource(dataSource)
+        .setPUnit(PUNIT_NAME)
+        .setSqlPatternProvider(provider)
+        .build();
+
+    assertNotNull(cut.getSqlPatternProvider());
+    assertEquals(provider, cut.getSqlPatternProvider());
+  }
+
+  @Test
   void checkJPAEdmContainsPostProcessor() throws ODataException {
 
     final JPAEdmMetadataPostProcessor processor = new TestEdmPostProcessor();
@@ -201,7 +217,7 @@ class JPAODataServiceContextBuilderTest {
   }
 
   @Test
-  void checkThrowsExceptionOnDBConnectionProblem() throws ODataException, SQLException {
+  void checkThrowsExceptionOnDBConnectionProblem() throws SQLException {
     final DataSource dataSourceSpy = spy(dataSource);
     when(dataSourceSpy.getConnection()).thenThrow(SQLException.class);
     assertThrows(ODataException.class, () -> JPAODataServiceContext.with()
@@ -212,7 +228,7 @@ class JPAODataServiceContextBuilderTest {
   }
 
   @Test
-  void checkJPAEdmContainsDefaultNameBuilder() throws ODataException, SQLException {
+  void checkJPAEdmContainsDefaultNameBuilder() throws ODataException {
 
     cut = JPAODataServiceContext.with()
         .setDataSource(dataSource)
@@ -226,7 +242,7 @@ class JPAODataServiceContextBuilderTest {
   }
 
   @Test
-  void checkJPAEdmContainsCustomNameBuilder() throws ODataException, SQLException {
+  void checkJPAEdmContainsCustomNameBuilder() throws ODataException {
 
     final JPAEdmNameBuilder nameBuilder = mock(JPAEdmNameBuilder.class);
     when(nameBuilder.getNamespace()).thenReturn("unit.test");
@@ -344,7 +360,7 @@ class JPAODataServiceContextBuilderTest {
     assertTrue(cut.getAnnotationProvider().contains(provider2));
   }
 
-  private class TestEdmPostProcessor implements JPAEdmMetadataPostProcessor {
+  private static class TestEdmPostProcessor implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
@@ -373,7 +389,7 @@ class JPAODataServiceContextBuilderTest {
     }
   }
 
-  private class TestBatchProcessorFactory implements JPAODataBatchProcessorFactory<JPAODataBatchProcessor> {
+  private static class TestBatchProcessorFactory implements JPAODataBatchProcessorFactory<JPAODataBatchProcessor> {
 
     @Override
     public JPAODataBatchProcessor getBatchProcessor(@Nonnull final JPAODataSessionContextAccess serviceContext,

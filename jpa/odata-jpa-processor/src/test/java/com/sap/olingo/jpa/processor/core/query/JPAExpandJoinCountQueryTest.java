@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +15,6 @@ import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,28 +61,6 @@ class JPAExpandJoinCountQueryTest extends TestBase {
   }
 
   @Test
-  void testExecuteReturnsNull() throws ODataException {
-    cut = new JPAExpandJoinCountQuery(odata, requestContext, et, association, hops, keyBoundary);
-    assertNull(cut.execute());
-  }
-
-  @Test
-  void testAssociationReturnsSecondLast() throws ODataException {
-    final JPAAssociationPath exp = mock(JPAAssociationPath.class);
-    final List<JPANavigationPropertyInfo> parentHops = new ArrayList<>();
-    final JPAExpandItem uriInfo = mock(JPAExpandItem.class);
-
-    parentHops.add(createHop());
-    parentHops.add(createHop());
-
-    final JPAInlineItemInfo itemInfo = new JPACollectionItemInfo(sd, uriInfo, exp, parentHops);
-
-    cut = new JPAExpandJoinCountQuery(odata, requestContext, et, association, hops, keyBoundary);
-    final JPAAssociationPath act = cut.getAssociation(itemInfo);
-    assertEquals(exp, act);
-  }
-
-  @Test
   void testConvertCountResultCanHandleInteger() throws ODataException {
     final List<Tuple> intermediateResult = new ArrayList<>();
     final Tuple row = mock(Tuple.class);
@@ -114,12 +90,4 @@ class JPAExpandJoinCountQueryTest extends TestBase {
     assertEquals(5L, act.get(""));
   }
 
-  private JPANavigationPropertyInfo createHop(final JPAAssociationPath exp) {
-    final UriInfoResource uriInfo = mock(UriInfoResource.class);
-    return new JPANavigationPropertyInfo(sd, exp, uriInfo, et);
-  }
-
-  private JPANavigationPropertyInfo createHop() {
-    return createHop(null);
-  }
 }
