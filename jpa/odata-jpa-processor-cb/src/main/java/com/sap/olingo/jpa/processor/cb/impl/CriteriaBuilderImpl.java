@@ -286,7 +286,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
 
   @Override
   public <T> CriteriaUpdate<T> createCriteriaUpdate(final Class<T> targetEntity) {
-    throw new NotImplementedException();
+    return new CriteriaUpdateImpl<>(sd, this, parameter, targetEntity, sqlPattern);
   }
 
   @Override

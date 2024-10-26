@@ -28,6 +28,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
   private final EntityManager em;
   private final JPACUDRequestHandler cudRequestHandler;
   private final List<Locale> locales;
+  private final String version;
 
   public JPAODataExternalRequestContext(final Builder builder) {
 
@@ -39,6 +40,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     this.cudRequestHandler = builder.cudRequestHandler;
     this.customParameter = builder.customParameter;
     this.locales = builder.locales;
+    this.version = builder.version;
   }
 
   @Override
@@ -76,6 +78,16 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     return locales;
   }
 
+  @Override
+  public JPARequestParameterMap getRequestParameter() {
+    return customParameter;
+  }
+
+  @Override
+  public String getVersion() {
+    return version;
+  }
+
   public static class Builder {
     public static final int CONTAINS_ONLY_LANGU = 1;
     public static final int CONTAINS_LANGU_COUNTRY = 2;
@@ -89,6 +101,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     private EntityManager em;
     private JPACUDRequestHandler cudRequestHandler;
     private List<Locale> locales = emptyList();
+    private String version = JPAODataApiVersionAccess.DEFAULT_VERSION;
 
     public JPAODataRequestContext build() {
       return new JPAODataExternalRequestContext(this);
@@ -188,10 +201,10 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
       this.locales = Collections.singletonList(requireNonNull(locale));
       return this;
     }
-  }
 
-  @Override
-  public JPARequestParameterMap getRequestParameter() {
-    return customParameter;
+    public Builder setVersion(final String version) {
+      this.version = version;
+      return this;
+    }
   }
 }

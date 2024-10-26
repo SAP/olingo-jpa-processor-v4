@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
 public interface JPAODataRequestContextAccess {
 
-  public @Nonnull EntityManager getEntityManager();
+  public EntityManager getEntityManager();
 
   public UriInfoResource getUriInfo();
 
@@ -75,4 +75,6 @@ public interface JPAODataRequestContextAccess {
   public Optional<JPAODataPagingProvider> getPagingProvider();
 
   public JPAODataPathInformation getPathInformation();
+
+  public String getMappingPath();
 }

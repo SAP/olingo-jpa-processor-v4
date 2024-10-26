@@ -15,11 +15,11 @@
         <project.build.target>17</project.build.target>
         <maven.compiler.version>3.13.0</maven.compiler.version>
         <odata.version>5.0.0</odata.version>
-        <jackson.version>2.16.0</jackson.version>
+        <jackson.version>2.18.0</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <cf-logging.version>3.8.4</cf-logging.version>
-        <flyway.version>10.19.0</flyway.version>
+        <flyway.version>10.20.0</flyway.version>
         <jakarta.version>6.1.0</jakarta.version>
         <javax.version>4.0.1</javax.version>
         <jpa.version>3.1.0</jpa.version>
@@ -33,7 +33,7 @@
         <junit-platform.version>1.11.2</junit-platform.version>
         <mockito.version>5.13.0</mockito.version>
         <jacoco.version>0.8.12</jacoco.version>
-        <netty.version>4.1.113.Final</netty.version>
+        <netty.version>4.1.114.Final</netty.version>
         <org.slf4j.version>2.0.16</org.slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,

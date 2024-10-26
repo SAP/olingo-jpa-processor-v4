@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
@@ -95,7 +96,8 @@ class TestJPAQueryTopSkip extends TestBase {
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final var requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext, odata);
 
-    final var handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
+    final var handler = odata.createHandler(odata.createServiceMetadata(sessionContext
+        .getApiVersion(JPAODataApiVersionAccess.DEFAULT_VERSION).getEdmProvider(),
         new ArrayList<>()));
 
     final var request = IntegrationTestHelper.getRequestMock(IntegrationTestHelper.uriPrefix + "Persons?$top=5000");

@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.test.util;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,7 @@ import org.mockito.Answers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
@@ -54,15 +56,18 @@ public class IntegrationTestHelper {
     final OData odata = OData.newInstance();
     final EntityManager em = emf.createEntityManager();
     final Map<String, List<String>> headers = Collections.emptyMap();
+    final JPAODataApiVersionAccess version = mock(JPAODataApiVersionAccess.class);
     this.req = getRequestMock(uriPrefix + urlPath, requestBody, headers);
     this.resp = getResponseMock();
     this.customContext = mock(JPAODataRequestContext.class);
     this.sessionContext = mock(JPAODataSessionContextAccess.class);
     final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
-    when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
+    when(version.getEdmProvider()).thenReturn(edmProvider);
     when(sessionContext.getDatabaseProcessor()).thenReturn(new JPADefaultDatabaseProcessor());
     when(sessionContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
+    when(sessionContext.getApiVersion(anyString())).thenReturn(version);
     when(customContext.getEntityManager()).thenReturn(em);
+    when(customContext.getVersion()).thenReturn("V1");
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(edmProvider,
         new ArrayList<>()));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(customContext,
@@ -184,7 +189,7 @@ public class IntegrationTestHelper {
 
     @Override
     public void setWriteListener(final WriteListener writeListener) {
-
+      // Not needed
     }
   }
 

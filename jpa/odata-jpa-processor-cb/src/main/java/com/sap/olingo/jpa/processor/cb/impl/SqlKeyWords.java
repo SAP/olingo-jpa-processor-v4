@@ -24,11 +24,13 @@ enum SqlKeyWords {
   OVER("OVER"),
   PARTITION("PARTITION BY"),
   SELECT("SELECT"),
+  SET("SET"),
   SOME("SOME"),
   UNION("UNION"),
+  UPDATE("UPDATE"),
   WHERE("WHERE");
 
-  private String keyWord;
+  private final String keyWord;
 
   private SqlKeyWords(final String keyWord) {
     this.keyWord = keyWord;

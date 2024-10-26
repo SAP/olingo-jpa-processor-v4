@@ -378,7 +378,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @Test
   void testCreateCriteriaUpdateThrowsNotImplemented() {
-    assertThrows(NotImplementedException.class, () -> cut.createCriteriaUpdate(Organization.class));
+    assertNotNull(cut.createCriteriaUpdate(Organization.class));
   }
 
   @Test

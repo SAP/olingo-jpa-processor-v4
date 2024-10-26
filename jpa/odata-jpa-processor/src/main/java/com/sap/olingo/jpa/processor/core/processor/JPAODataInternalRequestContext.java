@@ -30,6 +30,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
@@ -73,6 +74,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private JPAODataEtagHelper etagHelper;
   private Optional<JPAODataPagingProvider> pagingProvider;
   private JPAODataPathInformation pathInformation;
+  private String mappingPath;
 
   public JPAODataInternalRequestContext(@Nonnull final JPAODataRequestContext requestContext,
       @Nonnull final JPAODataSessionContextAccess sessionContext, final OData odata) {
@@ -210,10 +212,6 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     return etagHelper;
   }
 
-  public void setEntityManager(@Nonnull final EntityManager em) {
-    this.em = Objects.requireNonNull(em);
-  }
-
   @Override
   public void setJPASerializer(@Nonnull final JPASerializer serializer) {
     this.serializer = Objects.requireNonNull(serializer);
@@ -257,6 +255,11 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     return pathInformation;
   }
 
+  @Override
+  public String getMappingPath() {
+    return mappingPath;
+  }
+
   private void copyContextValues(final JPAODataRequestContextAccess context)
       throws ODataJPAProcessorException {
     this.em = context.getEntityManager();
@@ -279,30 +282,53 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private void copyRequestContext(@Nonnull final JPAODataRequestContext requestContext,
       @Nonnull final JPAODataSessionContextAccess sessionContext) {
 
-    em = requestContext.getEntityManager();
+    final var version = sessionContext.getApiVersion(requestContext.getVersion());
+    em = determineEntityManager(requestContext, version);
     claims = requestContext.getClaimsProvider();
     groups = requestContext.getGroupsProvider();
     cudRequestHandler = requestContext.getCUDRequestHandler();
-    debugSupport = requestContext.getDebuggerSupport() != null ? new JPADebugSupportWrapper(requestContext
-        .getDebuggerSupport()) : null;
+    debugSupport = requestContext.getDebuggerSupport() != null
+        ? new JPADebugSupportWrapper(requestContext.getDebuggerSupport())
+        : null;
     transactionFactory = requestContext.getTransactionFactory();
     locales = requestContext.getLocales();
-    customParameter = requestContext.getRequestParameter() != null ? requestContext.getRequestParameter()
+    customParameter = requestContext.getRequestParameter() != null
+        ? requestContext.getRequestParameter()
         : new JPARequestParameterHashMap();
     dbProcessor = sessionContext.getDatabaseProcessor();
     operationConverter = sessionContext.getOperationConverter();
-    edmProvider = determineEdmProvider(sessionContext, em);
+    edmProvider = determineEdmProvider(version, sessionContext, em);
     queryDirectives = sessionContext.getQueryDirectives();
     pagingProvider = Optional.ofNullable(sessionContext.getPagingProvider());
+    mappingPath = version != null
+        ? version.getMappingPath()
+        : null;
   }
 
-  private Optional<JPAEdmProvider> determineEdmProvider(final JPAODataSessionContextAccess sessionContext,
-      final EntityManager em) {
+  private EntityManager determineEntityManager(final JPAODataRequestContext requestContext,
+      final JPAODataApiVersionAccess version) {
+    return requestContext.getEntityManager() != null
+        ? requestContext.getEntityManager()
+        : createEntityManager(version);
+  }
+
+  private EntityManager createEntityManager(final JPAODataApiVersionAccess version) {
+    return version != null
+        ? version.getEntityManagerFactory().createEntityManager()
+        : null;
+  }
+
+  private Optional<JPAEdmProvider> determineEdmProvider(final JPAODataApiVersionAccess apiVersion,
+      final JPAODataSessionContextAccess sessionContext, final EntityManager em) {
+
     try {
-      return sessionContext.getEdmProvider() == null
-          && sessionContext instanceof final JPAODataServiceContext serviceContext
-              ? Optional.ofNullable(serviceContext.getEdmProvider(em))
-              : Optional.ofNullable(sessionContext.getEdmProvider());
+      if (apiVersion == null) {
+        if (em != null
+            && sessionContext instanceof final JPAODataServiceContext context)
+          return Optional.of(context.getEdmProvider(em));
+        return Optional.empty();
+      }
+      return Optional.ofNullable(apiVersion.getEdmProvider());
     } catch (final ODataException e) {
       debugger.debug(this, Arrays.toString(e.getStackTrace()));
       return Optional.empty();
