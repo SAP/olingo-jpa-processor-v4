@@ -159,6 +159,20 @@ public abstract class JPAAbstractQuery {
     return whereCondition;
   }
 
+  protected jakarta.persistence.criteria.Expression<Boolean> disjunctWhereClause(
+      jakarta.persistence.criteria.Expression<Boolean> whereCondition,
+      final jakarta.persistence.criteria.Expression<Boolean> additionalExpression) {
+
+    if (additionalExpression != null) {
+      if (whereCondition == null) {
+        whereCondition = additionalExpression;
+      } else {
+        whereCondition = cb.or(whereCondition, additionalExpression);
+      }
+    }
+    return whereCondition;
+  }
+
   protected final void createFromClauseDescriptionFields(final Collection<JPAPath> selectionPath,
       final Map<String, From<?, ?>> joinTables, final From<?, ?> from,
       final List<JPANavigationPropertyInfo> navigationInfo)
