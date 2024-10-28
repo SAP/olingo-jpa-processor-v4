@@ -127,4 +127,15 @@ class JPAODataExternalRequestContextTest {
     final List<Locale> act = cut.build().getLocales();
     assertTrue(act.contains(Locale.ENGLISH));
   }
+
+  @Test
+  void testSetVersion() {
+    assertEquals(cut, cut.setVersion("V10"));
+    assertEquals("V10", cut.build().getVersion());
+  }
+
+  @Test
+  void testVersionIsDefaultIfNotSet() {
+    assertEquals(JPAODataApiVersionAccess.DEFAULT_VERSION, cut.build().getVersion());
+  }
 }

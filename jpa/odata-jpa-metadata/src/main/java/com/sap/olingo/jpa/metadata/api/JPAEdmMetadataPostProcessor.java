@@ -32,7 +32,7 @@ public interface JPAEdmMetadataPostProcessor {
 
   /**
    * Option to provide references to external CSDL documents. The document must be an XML document
-   * @param references List of refernces to external CSDL documents.
+   * @param references List of references to external CSDL documents.
    * @throws ODataJPAModelException
    */
   public default void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}

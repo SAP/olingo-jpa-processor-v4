@@ -10,6 +10,7 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.processor.ErrorProcessor;
 
+import com.sap.olingo.jpa.metadata.api.JPAApiVersion;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -148,4 +149,14 @@ public interface JPAODataServiceContextBuilder {
    * @since 2.2.0
    */
   JPAODataServiceContextBuilder setSqlPatternProvider(ProcessorSqlPatternProvider sqlPattern);
+
+  /**
+   * No default version
+   * emf, ... will be ignored
+   * @param apiVersion
+   * @return
+   * @since 2.3.0
+   */
+  JPAODataServiceContextBuilder setVersions(JPAApiVersion... apiVersions);
+
 }

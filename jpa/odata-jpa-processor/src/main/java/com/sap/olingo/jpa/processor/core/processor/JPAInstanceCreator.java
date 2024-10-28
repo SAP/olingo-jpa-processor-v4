@@ -67,7 +67,7 @@ class JPAInstanceCreator<E extends JPAEntityType> {
    * @throws ODataJPAProcessorException
    */
   @SuppressWarnings("unchecked")
-  <T> Optional<Constructor<T>> determinePreferedConstructor() throws ODataJPAProcessorException {
+  <T> Optional<Constructor<T>> determinePreferredConstructor() throws ODataJPAProcessorException {
     try {
       Constructor<T> result = null;
       final Constructor<T>[] constructors = (Constructor<T>[]) entityClass.getConstructors();
@@ -83,7 +83,7 @@ class JPAInstanceCreator<E extends JPAEntityType> {
   }
 
   Optional<Object> createInstance(final List<UriParameter> keyPredicates) throws ODataJPAProcessorException {
-    final Optional<Constructor<Object>> c = determinePreferedConstructor();
+    final Optional<Constructor<Object>> c = determinePreferredConstructor();
     try {
       if (c.isPresent()) {
         final Map<String, Object> jpaAttributes = helper.convertUriKeys(odata, type, keyPredicates);
@@ -101,7 +101,10 @@ class JPAInstanceCreator<E extends JPAEntityType> {
         } else {
           return Optional.of(c.get().newInstance(jpaAttributes.values().toArray()));
         }
+      } else {
+        LOGGER.warn("No constructor found taking the key for: " + entityClass.getName());
       }
+
     } catch (ODataJPAFilterException | ODataJPAProcessorException | ODataJPAInvocationTargetException
         | ODataJPAModelException | InstantiationException | IllegalAccessException | IllegalArgumentException
         | InvocationTargetException | NoSuchMethodException | SecurityException e) {

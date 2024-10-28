@@ -80,7 +80,6 @@ class JPAODataRequestHandlerTest extends TestBase {
         .setTypePackage(enumPackages)
         .build();
     cut = new JPAODataRequestHandler(sessionContext);
-    // cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
     cut.process(request, response);
     assertEquals(200, getStatus());
   }

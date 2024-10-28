@@ -49,6 +49,7 @@ import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
@@ -163,10 +164,12 @@ public class IntegrationTestHelper {
       packages = ArrayUtils.add(packages, functionPackage);
 
     final JPAEdmProvider edmProvider = buildEdmProvider(localEmf, annotationsProvider, packages);
-    final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, dataSource,
-        pagingProvider, annotationsProvider, sqlPattern, functionPackage);
+    final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, localEmf,
+        dataSource, pagingProvider, annotationsProvider, sqlPattern, functionPackage);
 
-    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
+    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(sessionContext
+        .getApiVersion(JPAODataApiVersionAccess.DEFAULT_VERSION)
+        .getEdmProvider(),
         new ArrayList<>()));
 
     final JPAODataInternalRequestContext requestContext = buildRequestContext(localEmf, claims, groups, edmProvider,
@@ -192,16 +195,13 @@ public class IntegrationTestHelper {
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
     when(externalContext.getDebuggerSupport()).thenReturn(new DefaultDebugSupport());
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
-        sessionContext, odata);
-    return requestContext;
+    return new JPAODataInternalRequestContext(externalContext, sessionContext, odata);
   }
 
   public JPAEdmProvider buildEdmProvider(final EntityManagerFactory localEmf,
       final AnnotationProvider annotationsProvider, final String[] packages) throws ODataException {
-    final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages,
+    return new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages,
         annotationsProvider == null ? Collections.emptyList() : Collections.singletonList(annotationsProvider));
-    return edmProvider;
   }
 
   public HttpServletResponse getResponse() {
