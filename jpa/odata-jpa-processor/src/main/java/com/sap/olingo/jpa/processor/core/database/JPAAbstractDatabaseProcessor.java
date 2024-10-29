@@ -2,9 +2,11 @@ package com.sap.olingo.jpa.processor.core.database;
 
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException.MessageKeys.PARAMETER_MISSING;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_FUNC_WITH_NAVI;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
@@ -27,6 +29,8 @@ import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -47,6 +51,30 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
     throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
         HttpStatusCode.NOT_IMPLEMENTED);
 
+  }
+
+  @Override
+  public Object executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final EntityManager em, final JPAHttpHeaderMap headers,
+      final JPARequestParameterMap parameters) throws ODataApplicationException {
+    final UriResource last = uriResourceParts.get(uriResourceParts.size() - 1);
+
+    if (last.getKind() == UriResourceKind.count) {
+      final List<Long> countResult = new ArrayList<>();
+      countResult.add(executeCountQuery(uriResourceParts, jpaFunction, em, functionCountPattern()));
+      return countResult;
+    }
+    if (last.getKind() == UriResourceKind.function)
+      return executeQuery(uriResourceParts, jpaFunction, em, functionSelectPattern());
+    throw new ODataJPAProcessorException(NOT_SUPPORTED_FUNC_WITH_NAVI, HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  protected String functionSelectPattern() {
+    throw new IllegalAccessError();
+  }
+
+  protected String functionCountPattern() {
+    throw new IllegalAccessError();
   }
 
   protected UriResourceEntitySet determineTargetEntitySet(final List<UriResource> uriParts) {
