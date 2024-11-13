@@ -68,8 +68,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private final UriResource lastItem;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataRequestContextAccess requestContext)
-      throws ODataException {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     super(odata, requestContext);
     this.serviceMetadata = serviceMetadata;

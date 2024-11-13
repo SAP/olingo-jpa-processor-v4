@@ -59,6 +59,7 @@ class JPAExpandQueryFactoryTest {
   @Test
   void testExpandSubQueryProvidedForProcessor() throws ODataException {
     final var processorCb = mock(ProcessorCriteriaBuilder.class);
+    when(em.getCriteriaBuilder()).thenReturn(processorCb);
     cut = new JPAExpandQueryFactory(odata, requestContext, processorCb);
     assertTrue(cut.createQuery(item, Optional.empty()) instanceof JPAExpandSubQuery);
   }
@@ -72,6 +73,7 @@ class JPAExpandQueryFactoryTest {
   @Test
   void testExpandSubCountQueryProvidedForProcessor() throws ODataException {
     final var processorCb = mock(ProcessorCriteriaBuilder.class);
+    when(em.getCriteriaBuilder()).thenReturn(processorCb);
     cut = new JPAExpandQueryFactory(odata, requestContext, processorCb);
     assertTrue(cut.createCountQuery(item, Optional.empty()) instanceof JPAExpandSubCountQuery);
   }

@@ -242,7 +242,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @BeforeEach
   void setup() {
-    cut = new CriteriaBuilderImpl(sd, new ParameterBuffer(), new SqlDefaultPattern());
+    cut = new CriteriaBuilderImpl(sd, new SqlDefaultPattern());
     statement = new StringBuilder();
     query = cut.createTupleQuery();
   }
@@ -264,7 +264,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Predicate act = (Predicate) m.invoke(cut, params);
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(0, cut.getParameter().getParameters().size());
+    assertEquals(0, cut.getParameterBuffer().getParameters().size());
   }
 
   @ParameterizedTest
@@ -279,8 +279,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(1, cut.getParameter().getParameters().size());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
+    assertEquals(1, cut.getParameterBuffer().getParameters().size());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameterBuffer().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals("NUTS2", parameter.getValue());
     }
@@ -296,7 +296,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(0, cut.getParameter().getParameters().size());
+    assertEquals(0, cut.getParameterBuffer().getParameters().size());
   }
 
   @ParameterizedTest
@@ -310,8 +310,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(1, cut.getParameter().getParameters().size());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
+    assertEquals(1, cut.getParameterBuffer().getParameters().size());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameterBuffer().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals(1000, parameter.getValue());
     }
@@ -329,8 +329,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(1, cut.getParameter().getParameters().size());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
+    assertEquals(1, cut.getParameterBuffer().getParameters().size());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameterBuffer().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals(1000, parameter.getValue());
     }
@@ -398,7 +398,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     assertNotNull(act);
     assertEquals("(E0.\"Area\" >= E0.\"Population\")", ((SqlConvertible) act).asSQL(statement).toString());
-    assertEquals(0, cut.getParameter().getParameters().size());
+    assertEquals(0, cut.getParameterBuffer().getParameters().size());
   }
 
   @Test
@@ -492,8 +492,8 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "?1";
     final Expression<LocalDate> act = cut.literal(LocalDate.now());
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    assertNotNull(cut.getParameter());
-    assertEquals(1, cut.getParameter().getParameters().size());
+    assertNotNull(cut.getParameterBuffer());
+    assertEquals(1, cut.getParameterBuffer().getParameters().size());
   }
 
   @Test
@@ -767,7 +767,6 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @Test
   void testCreateFunctionExpression() {
-    // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     final String exp = "\"OLINGO\".\"PopulationDensity\"(E0.\"Area\", E0.\"Population\")";
     final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
 
@@ -779,13 +778,12 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @Test
   void testCreateEqualWithValueAndConverter() {
-    // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     final String exp = "(E0.\"AccessRights\" = ?1)";
     final Root<?> person = query.from(Person.class);
     final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), rights);
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
+    for (final ParameterExpression<?, ?> parameter : cut.getParameterBuffer().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals((short) 9, parameter.getValue());
     }
@@ -793,14 +791,13 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @Test
   void testCreateEqualWithLiteralAndConverter() {
-    // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     // AccessRights[] accessRights
     final String exp = "(E0.\"AccessRights\" = ?1)";
     final Root<?> person = query.from(Person.class);
     final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), cut.literal(rights));
     assertEquals(exp, ((SqlConvertible) act).asSQL(statement).toString());
-    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameters().values()) {
+    for (final ParameterExpression<?, ?> parameter : cut.getParameterBuffer().getParameters().values()) {
       if (parameter.getPosition() == 1)
         assertEquals((short) 9, parameter.getValue());
     }
@@ -892,7 +889,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final StringBuilder builder = new StringBuilder();
     assertTrue(act instanceof ConcatExpression);
     assertEquals("CONCAT(?1, ?2)", ((ExpressionImpl<String>) act).asSQL(builder).toString());
-    final Map<Integer, ParameterExpression<Object, Object>> actMap = cut.getParameter().getParameters();
+    final Map<Integer, ParameterExpression<Object, Object>> actMap = cut.getParameterBuffer().getParameters();
     assertEquals(2, actMap.size());
     boolean aFound = false;
     boolean bFound = false;

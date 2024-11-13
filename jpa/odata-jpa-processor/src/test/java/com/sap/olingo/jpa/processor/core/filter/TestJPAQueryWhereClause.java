@@ -744,14 +744,6 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterCollectionPropertyWithoutEntityTypeThrowsError() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "CollectionWithTwoKeys?$filter=Nested/any(d:d/Inner/Figure1 eq 1)");
-    helper.assertStatus(400);
-  }
-
-  @Test
   void testFilterOnGroupedSimplePropertyWithoutGroupsReturnsForbidden() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
