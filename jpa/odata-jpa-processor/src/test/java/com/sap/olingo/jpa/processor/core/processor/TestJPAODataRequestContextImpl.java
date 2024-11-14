@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,8 +18,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
-import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -30,6 +31,7 @@ import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
@@ -50,17 +52,26 @@ class TestJPAODataRequestContextImpl {
   private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContext requestContext;
   private JPAEdmProvider edmProvider;
+  private EntityManagerFactory emf;
+  private EntityManager em;
+  private JPAODataApiVersionAccess version;
   private OData odata;
   private JPAODataPathInformation pathInformation;
 
   @BeforeEach
-  void setup() throws ODataException {
+  void setup() {
     edmProvider = mock(JPAEdmProvider.class);
+    emf = mock(EntityManagerFactory.class);
+    em = mock(EntityManager.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContext.class);
     pathInformation = new JPAODataPathInformation("", "", "", "");
+    version = mock(JPAODataApiVersionAccess.class);
     odata = mock(OData.class);
-    when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
+    when(sessionContext.getApiVersion(any())).thenReturn(version);
+    when(version.getEdmProvider()).thenReturn(edmProvider);
+    when(version.getEntityManagerFactory()).thenReturn(emf);
+    when(emf.createEntityManager()).thenReturn(em);
     cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
   }
 

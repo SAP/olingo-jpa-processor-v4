@@ -33,7 +33,7 @@ class JoinTableJoinTest extends BuilderBaseTest {
   void setup() throws ODataJPAModelException {
     sqlPattern = new SqlDefaultPattern();
     ab = new AliasBuilder();
-    cb = new CriteriaBuilderImpl(sd, new ParameterBuffer(), sqlPattern);
+    cb = new CriteriaBuilderImpl(sd, sqlPattern);
     query = cb.createTupleQuery();
     path = sd.getEntity(Person.class).getAssociationPath("Teams");
     cut = new JoinTableJoin<>(path, JoinType.LEFT, query.from(Person.class), ab, cb);
@@ -67,7 +67,8 @@ class JoinTableJoinTest extends BuilderBaseTest {
 
   @Test
   void testGetParentReturnsInnerJoin() throws ODataJPAModelException {
-    final JoinTableJoin<Person, Team> other = new JoinTableJoin<>(path, JoinType.RIGHT, query.from(Person.class), ab, cb);
+    final JoinTableJoin<Person, Team> other = new JoinTableJoin<>(path, JoinType.RIGHT, query.from(Person.class), ab,
+        cb);
     final AbstractJoinImp<?, Person> act = (AbstractJoinImp<?, Person>) cut.getParent();
     assertNotNull(act);
     assertFalse(act.equals(cut)); // NOSONAR

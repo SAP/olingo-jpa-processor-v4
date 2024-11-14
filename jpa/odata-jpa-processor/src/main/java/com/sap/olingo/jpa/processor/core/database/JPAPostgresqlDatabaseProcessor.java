@@ -14,15 +14,14 @@ public class JPAPostgresqlDatabaseProcessor extends JPAAbstractDatabaseProcessor
   public JPAPostgresqlDatabaseProcessor() {
     super();
   }
-  
+
   @Override
   protected String functionSelectPattern() {
     return SELECT_BASE_PATTERN;
   }
-  
+
   @Override
   protected String functionCountPattern() {
     return SELECT_COUNT_PATTERN;
   }
-
 }

@@ -34,7 +34,6 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
   private Optional<ProcessorCriteriaBuilder> cb;
   private final EntityManager em;
   private final JPAServiceDocument sd;
-  private final ParameterBuffer parameterBuffer;
   private final ProcessorSqlPatternProvider sqlPattern;
 
   public EntityManagerWrapper(final EntityManager em, final JPAServiceDocument sd,
@@ -44,7 +43,6 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
     this.sd = sd;
     this.sqlPattern = sqlPattern != null ? sqlPattern : new SqlDefaultPattern();
     this.cb = Optional.empty();
-    this.parameterBuffer = new ParameterBuffer();
   }
 
   /**
@@ -308,7 +306,8 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    */
   @Override
   public <T> TypedQuery<T> createQuery(final CriteriaQuery<T> criteriaQuery) {
-    return new TypedQueryImpl<>(criteriaQuery, this, parameterBuffer);
+    final var builder = getCriteriaBuilder();
+    return new TypedQueryImpl<>(criteriaQuery, this, (ParameterBuffer) builder.getParameterBuffer());
   }
 
   /**
@@ -680,7 +679,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
     if (!em.isOpen())
       throw new IllegalStateException("Entity Manager had been closed");
     return cb.orElseGet(() -> {
-      cb = Optional.of(new CriteriaBuilderImpl(sd, parameterBuffer, sqlPattern));
+      cb = Optional.of(new CriteriaBuilderImpl(sd, sqlPattern));
       return cb.get();
     });
   }

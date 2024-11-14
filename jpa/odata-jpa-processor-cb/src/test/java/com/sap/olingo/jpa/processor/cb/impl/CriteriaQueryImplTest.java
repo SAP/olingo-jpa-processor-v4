@@ -40,7 +40,7 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
   @BeforeEach
   void setup() throws ODataJPAModelException {
     sqlPattern = new SqlDefaultPattern();
-    cb = new CriteriaBuilderImpl(sd, new ParameterBuffer(), sqlPattern);
+    cb = new CriteriaBuilderImpl(sd, sqlPattern);
     cut = new CriteriaQueryImpl<>(Object.class, sd, cb, sqlPattern);
   }
 

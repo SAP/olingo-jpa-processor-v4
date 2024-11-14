@@ -50,27 +50,32 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
 
     throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
         HttpStatusCode.NOT_IMPLEMENTED);
+
   }
-  
+
   @Override
   public Object executeFunctionQuery(final List<UriResource> uriResourceParts,
       final JPADataBaseFunction jpaFunction, final EntityManager em, final JPAHttpHeaderMap headers,
       final JPARequestParameterMap parameters) throws ODataApplicationException {
     final UriResource last = uriResourceParts.get(uriResourceParts.size() - 1);
-  
+
     if (last.getKind() == UriResourceKind.count) {
       final List<Long> countResult = new ArrayList<>();
       countResult.add(executeCountQuery(uriResourceParts, jpaFunction, em, functionCountPattern()));
       return countResult;
     }
     if (last.getKind() == UriResourceKind.function)
-      return executeQuery(uriResourceParts, jpaFunction, em,functionSelectPattern());
+      return executeQuery(uriResourceParts, jpaFunction, em, functionSelectPattern());
     throw new ODataJPAProcessorException(NOT_SUPPORTED_FUNC_WITH_NAVI, HttpStatusCode.NOT_IMPLEMENTED);
   }
-  
-  protected abstract String functionSelectPattern();
 
-  protected abstract String functionCountPattern();
+  protected String functionSelectPattern() {
+    throw new IllegalAccessError();
+  }
+
+  protected String functionCountPattern() {
+    throw new IllegalAccessError();
+  }
 
   protected UriResourceEntitySet determineTargetEntitySet(final List<UriResource> uriParts) {
     for (int i = uriParts.size() - 1; i >= 0; i--) {

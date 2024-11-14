@@ -38,6 +38,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionWithTwoKey;
 import com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollection;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -48,7 +49,6 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   private JPAEdmMetadataPostProcessor processor;
 
   private JPADefaultEdmNameBuilder nameBuilder;
-  private PluralAttribute<?, ?, ?> jpaAttribute;
   private ManagedType<?> managedType;
   private IntermediateSchema schema;
   private IntermediateAnnotationInformation annotationInfo;
@@ -58,7 +58,6 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
-    jpaAttribute = mock(PluralAttribute.class);
     managedType = mock(ManagedType.class);
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
     schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(Reflections.class), annotationInfo);
@@ -67,6 +66,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   @SuppressWarnings("unchecked")
   @Test
   void checkSimpleCollectionPropertyType() throws ODataJPAModelException {
+    final PluralAttribute<?, ?, ?> jpaAttribute = mock(PluralAttribute.class);
     when(jpaAttribute.getName()).thenReturn("Text");
     @SuppressWarnings("rawtypes")
     final jakarta.persistence.metamodel.Type type = mock(jakarta.persistence.metamodel.Type.class);
@@ -110,6 +110,16 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
     final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertEquals(PUNIT_NAME + ".InhouseAddress", property.getEdmItem().getType());
+  }
+
+  @Test
+  void checkGetPropertyNestedComplexType() throws ODataJPAModelException {
+
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        CollectionWithTwoKey.class), "nested");
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(CollectionWithTwoKey.class));
+    assertNotNull(property.asAssociation().getTargetType());
   }
 
   @Test
@@ -181,8 +191,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   void checkAnnotations() throws ODataJPAModelException {
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty<?> cut = new IntermediateCollectionProperty<>(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME),
+    cut = new IntermediateCollectionProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     final List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
@@ -202,7 +211,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
         CollectionFirstLevelComplex.class.getDeclaredField("transientCollection"),
         schema);
 
-    final IntermediateCollectionProperty<?> cut = new IntermediateCollectionProperty<>(nameBuilder,
+    cut = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getStructuredType(CollectionFirstLevelComplex.class));
     assertTrue(cut.isTransient());
     assertEquals("Edm.String", cut.getEdmItem().getType());
@@ -213,14 +222,14 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
-    final IntermediateCollectionProperty<?> cut = new IntermediateCollectionProperty<>(nameBuilder,
+    cut = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getStructuredType(ComplexWithTransientComplexCollection.class));
     assertTrue(cut.isTransient());
     assertEquals("com.sap.olingo.jpa.InhouseAddress", cut.getEdmItem().getType());
   }
 
   @Test
-  void checkTransientCollectionType() throws ODataJPAModelException, NoSuchFieldException,
+  void checkTransientCollectionType() throws NoSuchFieldException,
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
@@ -228,7 +237,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkTransientBindableTypeNull() throws ODataJPAModelException, NoSuchFieldException,
+  void checkTransientBindableTypeNull() throws NoSuchFieldException,
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
@@ -236,7 +245,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkTransientBindableJavaTypeNull() throws ODataJPAModelException, NoSuchFieldException,
+  void checkTransientBindableJavaTypeNull() throws NoSuchFieldException,
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
@@ -244,7 +253,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkTransientPersistentAttributeType() throws ODataJPAModelException, NoSuchFieldException,
+  void checkTransientPersistentAttributeType() throws NoSuchFieldException,
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
@@ -252,7 +261,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkTransientIsCollectionTrue() throws ODataJPAModelException, NoSuchFieldException,
+  void checkTransientIsCollectionTrue() throws NoSuchFieldException,
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
@@ -260,8 +269,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPartnerReturnsNull() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
+  void checkGetPartnerReturnsNull() throws ODataJPAModelException, SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -272,8 +280,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkIsAssociationFalse() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
+  void checkIsAssociationFalse() throws ODataJPAModelException, SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -284,8 +291,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkIsSearchableFalse() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
+  void checkIsSearchableFalse() throws ODataJPAModelException, SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -296,8 +302,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkIsEtagFalse() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
+  void checkIsEtagFalse() throws ODataJPAModelException, SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -308,8 +313,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetTargetEntity() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
+  void checkGetTargetEntity() throws ODataJPAModelException, SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -320,8 +324,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetTargetAttributeOfSimpleNotNull() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
+  void checkGetTargetAttributeOfSimpleNotNull() throws ODataJPAModelException, SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
@@ -336,8 +339,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetTargetAttributeOfComplexNull() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
+  void checkGetTargetAttributeOfComplexNull() throws ODataJPAModelException, SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -382,10 +384,9 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   }
 
   private PluralAttribute<?, ?, ?> createTransientPluralAttribute() throws NoSuchFieldException {
-    final PluralAttribute<?, ?, ?> jpaAttribute = new IntermediateStructuredType.TransientPluralAttribute<>(
+    return new IntermediateStructuredType.TransientPluralAttribute<>(
         helper.getEmbeddableType(ComplexWithTransientComplexCollection.class),
         ComplexWithTransientComplexCollection.class.getDeclaredField("transientCollection"),
         schema);
-    return jpaAttribute;
   }
 }

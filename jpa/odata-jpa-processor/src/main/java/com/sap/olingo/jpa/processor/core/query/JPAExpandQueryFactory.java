@@ -24,6 +24,7 @@ public class JPAExpandQueryFactory {
 
   public JPAExpandQuery createQuery(final JPAExpandItemInfo item, final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
+
     if (cb instanceof ProcessorCriteriaBuilder)
       return new JPAExpandSubQuery(odata, item, requestContext);
     return new JPAExpandJoinQuery(odata, item, requestContext, keyBoundary);
