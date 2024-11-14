@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
@@ -15,7 +16,10 @@ import jakarta.persistence.metamodel.EntityType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
+import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -30,7 +34,7 @@ class CriteriaUpdateImplTest extends BuilderBaseTest {
   void setup() {
     final var parameterBuffer = new ParameterBuffer();
     sqlPattern = new SqlDefaultPattern();
-    cb = new CriteriaBuilderImpl(sd, parameterBuffer, sqlPattern);
+    cb = new CriteriaBuilderImpl(sd, sqlPattern);
     cut = new CriteriaUpdateImpl<>(sd, cb, parameterBuffer, AdministrativeDivision.class, sqlPattern);
   }
 
@@ -83,5 +87,20 @@ class CriteriaUpdateImplTest extends BuilderBaseTest {
   @Test
   void testSubqueryNotNull() {
     assertNotNull(cut.subquery(AdministrativeDivision.class));
+  }
+
+  @Test
+  void testParameterBufferReturned() {
+    assertNotNull(((CriteriaUpdateImpl<AdministrativeDivision>) cut).getParameterBuffer());
+  }
+
+  @Test
+  void testConstructorThrowsExceptionOnUnknowEt() throws ODataJPAModelException {
+    final var parameters = new ParameterBuffer();
+    final JPAServiceDocument service = mock(JPAServiceDocument.class);
+    when(service.getEntity(AdministrativeDivision.class)).thenThrow(ODataJPAModelException.class);
+
+    assertThrows(InternalServerError.class, () -> new CriteriaUpdateImpl<>(service, cb, parameters,
+        AdministrativeDivision.class, sqlPattern));
   }
 }

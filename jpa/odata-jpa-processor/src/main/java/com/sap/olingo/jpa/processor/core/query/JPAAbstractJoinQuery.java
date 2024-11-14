@@ -645,7 +645,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       final BoundaryInfo<Y> info = getBoundaryInfo(et, from, jpaKeyPair, keyElements, primaryIndex);
       expression = addWhereClause(expression, cb.greaterThan(info.keyPath, info.lowerBoundary));
       expression = addWhereClause(expression, cb.lessThan(info.keyPath, info.upperBoundary));
-      boundaryExpression = disjunctWhereClause(boundaryExpression, expression);
+      boundaryExpression = orWhereClause(boundaryExpression, expression);
     }
     // Handle last key attribute
     jakarta.persistence.criteria.Expression<Boolean> lowerExpression = null;
@@ -662,8 +662,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       boundaryExpression = addWhereClause(boundaryExpression, lowerExpression);
       boundaryExpression = addWhereClause(boundaryExpression, upperExpression);
     } else {
-      boundaryExpression = disjunctWhereClause(boundaryExpression, lowerExpression);
-      boundaryExpression = disjunctWhereClause(boundaryExpression, upperExpression);
+      boundaryExpression = orWhereClause(boundaryExpression, lowerExpression);
+      boundaryExpression = orWhereClause(boundaryExpression, upperExpression);
     }
     return boundaryExpression;
   }
@@ -674,13 +674,13 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       throws ODataJPAModelException, ODataJPAQueryException {
 
     final JPAAttribute keyElement = keyElements.get(secondaryIndex);
-    return new BoundaryInfo<Y>(getKeyPAth(et, from, keyElement),
+    return new BoundaryInfo<Y>(getKeyPath(et, from, keyElement),
         jpaKeyPair.getMinElement(keyElement),
         jpaKeyPair.getMaxElement(keyElement));
   }
 
   @SuppressWarnings("unchecked")
-  private <Y extends Comparable<? super Y>> Path<Y> getKeyPAth(final JPAEntityType et, final From<?, ?> from,
+  private <Y extends Comparable<? super Y>> Path<Y> getKeyPath(final JPAEntityType et, final From<?, ?> from,
       final JPAAttribute keyElement) throws ODataJPAModelException, ODataJPAQueryException {
     final var jpaPath = et.getPath(keyElement.getExternalName());
     if (jpaPath != null) {
