@@ -96,7 +96,7 @@ class SubqueryImplTest extends BuilderBaseTest {
     ab = mock(AliasBuilder.class);
     parent = mock(CriteriaQueryImpl.class);
     when(parent.getServiceDocument()).thenReturn(sd);
-    cut = new SubqueryImpl<>(Long.class, parent, ab, cb, new SqlDefaultPattern());
+    cut = new SubqueryImpl<>(Long.class, parent, ab, cb, new SqlDefaultPattern(), sd);
   }
 
   @ParameterizedTest

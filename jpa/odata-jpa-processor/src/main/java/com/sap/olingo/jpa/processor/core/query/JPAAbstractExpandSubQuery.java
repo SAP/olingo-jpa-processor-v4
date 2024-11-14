@@ -33,6 +33,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -43,6 +44,7 @@ abstract class JPAAbstractExpandSubQuery extends JPAAbstractExpandQuery {
   JPAAbstractExpandSubQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
       final JPAInlineItemInfo item) throws ODataException {
     super(odata, requestContext, item);
+    ((ProcessorCriteriaBuilder) cb).resetParameterBuffer();
   }
 
   JPAAbstractExpandSubQuery(final OData odata, final JPAODataRequestContextAccess requestContext,

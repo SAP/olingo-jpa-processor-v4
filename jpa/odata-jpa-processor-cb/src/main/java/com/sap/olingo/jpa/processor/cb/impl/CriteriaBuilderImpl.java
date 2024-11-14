@@ -48,14 +48,23 @@ import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
 
   private final JPAServiceDocument sd;
-  private final ParameterBuffer parameter;
+  private ParameterBuffer parameter;
   private final ProcessorSqlPatternProvider sqlPattern;
 
-  CriteriaBuilderImpl(final JPAServiceDocument sd, final ParameterBuffer parameterBuffer,
-      final ProcessorSqlPatternProvider sqlPattern) {
+  CriteriaBuilderImpl(final JPAServiceDocument sd, final ProcessorSqlPatternProvider sqlPattern) {
     this.sd = sd;
-    this.parameter = parameterBuffer;
+    this.parameter = new ParameterBuffer();
     this.sqlPattern = sqlPattern;
+  }
+
+  @Override
+  public ParameterBuffer getParameterBuffer() {
+    return parameter;
+  }
+
+  @Override
+  public void resetParameterBuffer() {
+    this.parameter = new ParameterBuffer();
   }
 
   /**
@@ -286,7 +295,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
 
   @Override
   public <T> CriteriaUpdate<T> createCriteriaUpdate(final Class<T> targetEntity) {
-    throw new NotImplementedException();
+    return new CriteriaUpdateImpl<>(sd, this, parameter, targetEntity, sqlPattern);
   }
 
   @Override
@@ -447,10 +456,6 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
   @Override
   public Predicate ge(@Nonnull final Expression<? extends Number> x, @Nonnull final Number y) {
     return binaryExpression(x, y, PredicateImpl.BinaryExpressionPredicate.Operation.GE);
-  }
-
-  public ParameterBuffer getParameter() {
-    return parameter;
   }
 
   /**

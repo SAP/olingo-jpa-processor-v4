@@ -1,9 +1,5 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import java.util.Optional;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +13,6 @@ import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContex
 
 public class JPAODataRequestHandler {
   private static final String REQUEST_MAPPING_ATTRIBUTE = "requestMapping";
-  public final Optional<? extends EntityManagerFactory> emf;
   private final JPAODataServiceContext serviceContext;
   private final JPAODataInternalRequestContext requestContext;
   final OData odata;
@@ -51,24 +46,13 @@ public class JPAODataRequestHandler {
 
   JPAODataRequestHandler(final JPAODataSessionContextAccess serviceContext, final JPAODataRequestContext requestContext,
       final OData odata) {
-    this.emf = serviceContext.getEntityManagerFactory();
     this.serviceContext = (JPAODataServiceContext) serviceContext;
     this.requestContext = new JPAODataInternalRequestContext(requestContext, serviceContext, odata);
     this.odata = odata;
   }
 
   public void process(final HttpServletRequest request, final HttpServletResponse response) throws ODataException {
-    if (emf.isPresent() && this.requestContext.getEntityManager() == null) {
-      final EntityManager em = emf.get().createEntityManager();
-      try {
-        this.requestContext.setEntityManager(em);
-        processInternal(request, response);
-      } finally {
-        em.close();
-      }
-    } else {
-      processInternal(request, response);
-    }
+    processInternal(request, response);
   }
 
   private void processInternal(final HttpServletRequest request, final HttpServletResponse response)
@@ -76,12 +60,12 @@ public class JPAODataRequestHandler {
 
     final JPAEdmProvider jpaEdm = requestContext.getEdmProvider();
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm, jpaEdm.getReferences()));
-    serviceContext.getEdmProvider().setRequestLocales(request.getLocales());
-    final HttpServletRequest mappedRequest = prepareRequestMapping(request, serviceContext.getMappingPath());
+    jpaEdm.setRequestLocales(request.getLocales());
+    final HttpServletRequest mappedRequest = prepareRequestMapping(request, requestContext.getMappingPath());
     handler.register(requestContext.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(serviceContext, requestContext));
     handler.register(serviceContext.getBatchProcessorFactory().getBatchProcessor(serviceContext, requestContext));
-    handler.register(serviceContext.getEdmProvider().getServiceDocument());
+    handler.register(jpaEdm.getServiceDocument());
     handler.register(serviceContext.getErrorProcessor());
     handler.register(new JPAODataServiceDocumentProcessor(serviceContext));
     handler.process(mappedRequest, response);

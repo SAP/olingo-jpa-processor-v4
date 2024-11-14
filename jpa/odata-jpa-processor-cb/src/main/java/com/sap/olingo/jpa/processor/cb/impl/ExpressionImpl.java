@@ -184,7 +184,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
     @Nonnull
     private JPAPath getJPAPath(final FromImpl<?, ?> from, final List<JPAAttribute> keys) throws ODataJPAModelException {
-      final var jpaPath = from.st.getPath(keys.get(0).getExternalName());
+      final var jpaPath = from.st.getPath(keys.get(0).getExternalName(), false);
       if (jpaPath != null)
         return jpaPath;
       else

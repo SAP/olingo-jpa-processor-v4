@@ -16,10 +16,9 @@ public class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { 
   protected String functionSelectPattern() {
     return SELECT_BASE_PATTERN;
   }
-  
+
   @Override
   protected String functionCountPattern() {
     return SELECT_COUNT_PATTERN;
   }
-
 }

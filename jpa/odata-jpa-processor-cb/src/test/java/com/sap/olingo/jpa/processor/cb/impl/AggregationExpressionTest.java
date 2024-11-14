@@ -56,7 +56,7 @@ class AggregationExpressionTest extends BuilderBaseTest {
   @Test
   void testAsSQLGeneratesForFrom() {
     final String exp = "COUNT(E0.\"CodePublisher\")";
-    // The following is not supported by DB :E0.\"CodePublisher\", E0.\"CodeID\", E0.\"DivisionCode\")";
+    // The following is not supported by DB: E0.\"CodePublisher\", E0.\"CodeID\", E0.\"DivisionCode\")";
     cut = new ExpressionImpl.AggregationExpression<>(SqlAggregation.COUNT, root);
     assertEquals(exp, cut.asSQL(stmt).toString());
   }
@@ -79,6 +79,6 @@ class AggregationExpressionTest extends BuilderBaseTest {
     when(mockEt.getKey()).thenReturn(Arrays.asList(mockPath));
     when(mockPath.getExternalName()).thenReturn("Test");
     when(mockEt.getPath("Test")).thenThrow(ODataJPAModelException.class);
-    assertThrows(IllegalArgumentException.class, () -> cut.asSQL(stmt));
+    assertThrows(IllegalStateException.class, () -> cut.asSQL(stmt));
   }
 }

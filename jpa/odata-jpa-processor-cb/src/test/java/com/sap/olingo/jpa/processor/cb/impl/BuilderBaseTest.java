@@ -59,6 +59,8 @@ abstract class BuilderBaseTest {
       for (int i = 0; i < method.getParameterCount(); i++) {
         if (params[i] == char.class)
           paramValues.add(' ');
+        else if (params[i] == int.class)
+          paramValues.add(2);
         else
           paramValues.add(null);
       }

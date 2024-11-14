@@ -1,10 +1,11 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,12 +23,13 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.processor.ErrorProcessor;
 
+import com.sap.olingo.jpa.metadata.api.JPAApiVersion;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.JPAODataQueryDirectivesImpl;
@@ -49,14 +51,13 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
   private final String[] packageName;
   private final ErrorProcessor errorProcessor;
   private final JPAODataPagingProvider pagingProvider;
-  private final Optional<? extends EntityManagerFactory> emf;
   private final String namespace;
-  private final String mappingPath;
   private final JPAODataBatchProcessorFactory<JPAODataBatchProcessor> batchProcessorFactory;
   private final boolean useAbsoluteContextURL;
   private final List<AnnotationProvider> annotationProvider;
   private final JPAODataQueryDirectives queryDirectives;
   private final ProcessorSqlPatternProvider sqlPattern;
+  private final Map<String, JPAODataApiVersionAccess> versions;
 
   public static JPAODataServiceContextBuilder with() {
     return new Builder();
@@ -69,28 +70,22 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     databaseProcessor = builder.databaseProcessor;
     references = builder.references;
     postProcessor = builder.postProcessor;
-    packageName = builder.packageName;
+    packageName = builder.packageNames;
     errorProcessor = builder.errorProcessor;
     pagingProvider = builder.pagingProvider;
     jpaEdm = builder.jpaEdm;
-    emf = builder.emf;
     namespace = builder.namespace;
-    mappingPath = builder.mappingPath;
     batchProcessorFactory = (JPAODataBatchProcessorFactory<JPAODataBatchProcessor>) builder.batchProcessorFactory;
     useAbsoluteContextURL = builder.useAbsoluteContextURL;
     annotationProvider = Arrays.asList(builder.annotationProvider);
     queryDirectives = builder.queryDirectives;
     sqlPattern = builder.sqlPattern;
+    versions = builder.versions;
   }
 
   @Override
   public JPAODataDatabaseProcessor getDatabaseProcessor() {
     return databaseProcessor;
-  }
-
-  @Override
-  public JPAEdmProvider getEdmProvider() throws ODataException {
-    return jpaEdm;
   }
 
   public JPAEdmProvider getEdmProvider(@Nonnull final EntityManager em) throws ODataException {
@@ -99,11 +94,6 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
       jpaEdm = new JPAEdmProvider(this.namespace, em.getMetamodel(), postProcessor, packageName, annotationProvider);
     }
     return jpaEdm;
-  }
-
-  @Override
-  public Optional<? extends EntityManagerFactory> getEntityManagerFactory() {
-    return emf;
   }
 
   @Override
@@ -116,12 +106,6 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     return operationConverter;
   }
 
-  @Override
-  public List<String> getPackageName() {
-    return Arrays.asList(packageName);
-  }
-
-  @Override
   public JPAODataPagingProvider getPagingProvider() {
     return pagingProvider;
   }
@@ -129,11 +113,6 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
   @Override
   public List<EdmxReference> getReferences() {
     return references;
-  }
-
-  @Override
-  public String getMappingPath() {
-    return mappingPath;
   }
 
   @Override
@@ -161,6 +140,11 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     return sqlPattern;
   }
 
+  @Override
+  public JPAODataApiVersionAccess getApiVersion(final String id) {
+    return versions.get(id);
+  }
+
   static class Builder implements JPAODataServiceContextBuilder {
 
     private String namespace;
@@ -168,7 +152,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     private JPAODataDatabaseOperations operationConverter = new JPADefaultDatabaseProcessor();
     private JPAODataDatabaseProcessor databaseProcessor;
     private JPAEdmMetadataPostProcessor postProcessor;
-    private String[] packageName;
+    private String[] packageNames;
     private ErrorProcessor errorProcessor;
     private JPAODataPagingProvider pagingProvider;
     private Optional<? extends EntityManagerFactory> emf = Optional.empty();
@@ -181,46 +165,96 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     private AnnotationProvider[] annotationProvider;
     private JPAODataQueryDirectivesImpl queryDirectives;
     private ProcessorSqlPatternProvider sqlPattern;
+    private List<JPAApiVersion> apiVersions;
+    private final Map<String, JPAODataApiVersionAccess> versions;
 
     private Builder() {
       super();
+      apiVersions = List.of();
+      versions = new HashMap<>(2);
     }
 
     @Override
     public JPAODataSessionContextAccess build() throws ODataException {
       try {
-        if (nameBuilder == null) {
-          LOGGER.trace("No name-builder provided, use JPADefaultEdmNameBuilder");
-          nameBuilder = new JPADefaultEdmNameBuilder(namespace);
-        }
-        if (annotationProvider == null || annotationProvider.length == 0) {
-          LOGGER.trace("No annotation provider provided, use default factory to create one");
-          annotationProvider = new AnnotationProvider[] {};
-        }
-        if (packageName == null)
-          packageName = new String[0];
-        if (!emf.isPresent() && dataSource != null && namespace != null)
-          emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, dataSource));
-        createEmfWrapper();
-        if (emf.isPresent() && jpaEdm == null)
-          jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays.asList(
-              annotationProvider));
-        if (databaseProcessor == null) {
-          LOGGER.trace("No database-processor provided, use JPAODataDatabaseProcessorFactory to create one");
-          databaseProcessor = new JPAODataDatabaseProcessorFactory().create(dataSource);
-        }
-        if (batchProcessorFactory == null) {
-          LOGGER.trace("No batch-processor-factory provided, use default factory to create one");
-          batchProcessorFactory = new JPADefaultBatchProcessorFactory();
-        }
-        if (pagingProvider == null)
-          pagingProvider = new JPADefaultPagingProvider();
-        if (queryDirectives == null)
-          useQueryDirectives().build();
+        createDefaultNameBuilder();
+        createDefaultAnnotationProvider();
+        createDefaultPackageNames();
+        createDefaultApiVersion();
+        convertApiVersion();
+        createDatabaseProcessor();
+        createDefaultBatchProcessorFactory();
+        createDefaultPagingProvider();
+        createDefaultQueryDirectives();
       } catch (SQLException | PersistenceException e) {
         throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       return new JPAODataServiceContext(this);
+    }
+
+    private void createDefaultPackageNames() {
+      if (packageNames == null)
+        packageNames = new String[0];
+    }
+
+    private void createDefaultBatchProcessorFactory() {
+      if (batchProcessorFactory == null) {
+        LOGGER.trace("No batch-processor-factory provided, use default factory to create one");
+        batchProcessorFactory = new JPADefaultBatchProcessorFactory();
+      }
+    }
+
+    private void createDefaultPagingProvider() {
+      if (pagingProvider == null)
+        pagingProvider = new JPADefaultPagingProvider();
+    }
+
+    private void createDefaultAnnotationProvider() {
+      if (annotationProvider == null || annotationProvider.length == 0) {
+        LOGGER.trace("No annotation provider provided, use default factory to create one");
+        annotationProvider = new AnnotationProvider[] {};
+      }
+    }
+
+    private void createDatabaseProcessor() throws SQLException {
+      if (databaseProcessor == null) {
+        LOGGER.trace("No database-processor provided, use JPAODataDatabaseProcessorFactory to create one");
+        databaseProcessor = new JPAODataDatabaseProcessorFactory().create(dataSource);
+      }
+    }
+
+    private void convertApiVersion() throws ODataException {
+      for (final var version : apiVersions)
+        versions.put(version.getId(), new JPAODataApiVersion(version, nameBuilder, Arrays.asList(annotationProvider),
+            sqlPattern));
+    }
+
+    private void createDefaultApiVersion() throws ODataJPAModelException {
+      if (apiVersions.isEmpty()) {
+        if (!emf.isPresent() && dataSource != null && namespace != null)
+          emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, dataSource));
+        if (emf.isPresent())
+          apiVersions = List.of(
+              JPAApiVersion.with()
+                  .setId(JPAODataApiVersionAccess.DEFAULT_VERSION)
+                  .setEntityManagerFactory(emf.get())
+                  .setMetadataPostProcessor(postProcessor)
+                  .setRequestMappingPath(mappingPath)
+                  .setTypePackage(packageNames)
+                  .build());
+      }
+    }
+
+    private void createDefaultNameBuilder() {
+      if (nameBuilder == null) {
+        LOGGER.trace("No name-builder provided, use JPADefaultEdmNameBuilder");
+        nameBuilder = new JPADefaultEdmNameBuilder(namespace);
+      }
+    }
+
+    private void createDefaultQueryDirectives() {
+      if (queryDirectives == null)
+        useQueryDirectives().build();
     }
 
     /**
@@ -336,7 +370,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
      */
     @Override
     public JPAODataServiceContextBuilder setTypePackage(final String... packageName) {
-      this.packageName = packageName;
+      this.packageNames = packageName;
       return this;
     }
 
@@ -397,31 +431,6 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
       return this;
     }
 
-    @SuppressWarnings("unchecked")
-    private void createEmfWrapper() {
-      if (emf.isPresent()) {
-        try {
-          final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class
-              .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
-          if (jpaEdm == null)
-            jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder, Arrays
-                .asList(annotationProvider));
-          emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
-              JPAServiceDocument.class, ProcessorSqlPatternProvider.class)
-              .newInstance(emf.get(), jpaEdm.getServiceDocument(), sqlPattern));
-          LOGGER.trace("Criteria Builder Extension found. It will be used");
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-            | NoSuchMethodException | SecurityException e) {
-          LOGGER.debug("Exception thrown while trying to create instance of emf wrapper", e);
-        } catch (final ClassNotFoundException e) {
-          // No Criteria Extension: everything is fine
-          LOGGER.trace("No Criteria Builder Extension found: use provided Entity Manager Factory");
-        } catch (final ODataException e) {
-          LOGGER.debug("Exception thrown while trying to create EdmProvider", e);
-        }
-      }
-    }
-
     @Override
     public JPAODataQueryDirectivesBuilder useQueryDirectives() {
       return JPAODataQueryDirectives.with(this);
@@ -437,5 +446,12 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
       this.sqlPattern = sqlPattern;
       return this;
     }
+
+    @Override
+    public JPAODataServiceContextBuilder setVersions(final JPAApiVersion... apiVersion) {
+      this.apiVersions = Arrays.asList(apiVersion);
+      return this;
+    }
   }
+
 }

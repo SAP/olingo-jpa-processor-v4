@@ -53,7 +53,7 @@ public class TestGroupBase extends TestBase {
     jpaEntityType = helper.getJPAEntityType("BusinessPartnerWithGroupss");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        dataSource, null, null, null);
+        emf, dataSource, null, null, null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     odata = OData.newInstance();

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -55,9 +56,10 @@ public class TestQueryBase extends TestBase {
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        dataSource, null, null, null);
+        emf, dataSource, null, null, null);
     externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    when(externalContext.getVersion()).thenReturn(JPAODataApiVersionAccess.DEFAULT_VERSION);
     requestContext = new JPAODataInternalRequestContext(externalContext, context, odata);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, requestContext);

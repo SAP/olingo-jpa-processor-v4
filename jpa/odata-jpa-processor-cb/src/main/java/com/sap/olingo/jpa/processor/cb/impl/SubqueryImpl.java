@@ -17,7 +17,6 @@ import jakarta.persistence.criteria.CollectionJoin;
 import jakarta.persistence.criteria.CommonAbstractCriteria;
 import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.ListJoin;
@@ -30,6 +29,7 @@ import jakarta.persistence.criteria.SetJoin;
 import jakarta.persistence.criteria.Subquery;
 import jakarta.persistence.metamodel.EntityType;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
@@ -48,18 +48,17 @@ import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
  */
 class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   private final Class<T> type;
-  private final CriteriaQuery<?> parent;
+  private final CommonAbstractCriteria parent;
   private final ProcessorCriteriaQuery<T> inner;
   private Optional<Integer> maxResult;
   private Optional<Integer> firstResult;
 
-  SubqueryImpl(@Nonnull final Class<T> type, @Nonnull final CriteriaQuery<?> parent, final AliasBuilder ab,
-      final CriteriaBuilder cb, final ProcessorSqlPatternProvider sqlPattern) {
+  SubqueryImpl(@Nonnull final Class<T> type, @Nonnull final CommonAbstractCriteria parent, final AliasBuilder ab,
+      final CriteriaBuilder cb, final ProcessorSqlPatternProvider sqlPattern, final JPAServiceDocument sd) {
     super();
     this.type = Objects.requireNonNull(type);
     this.parent = Objects.requireNonNull(parent);
-    this.inner = new CriteriaQueryImpl<>(type, ((CriteriaQueryImpl<?>) parent).getServiceDocument(), ab, cb,
-        sqlPattern);
+    this.inner = new CriteriaQueryImpl<>(type, sd, ab, cb, sqlPattern);
     maxResult = Optional.empty();
     firstResult = Optional.empty();
   }
@@ -148,9 +147,17 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
     throw new NotImplementedException();
   }
 
+  /**
+   * Return the query of which this is a subquery.
+   * This must be a CriteriaQuery or a Subquery.
+   * Not supported for subqueries of update or delete
+   * @return the enclosing query or subquery
+   */
   @Override
   public AbstractQuery<?> getParent() {
-    return parent;
+    if (!(parent instanceof AbstractQuery))
+      throw new IllegalStateException("Only supported for sub-queries of queries");
+    return (AbstractQuery<?>) parent;
   }
 
   @Override

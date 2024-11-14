@@ -63,6 +63,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithThreeProtec
 import com.sap.olingo.jpa.processor.core.testmodel.InstanceRestrictionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinRelationKey;
 import com.sap.olingo.jpa.processor.core.testmodel.MembershipKey;
+import com.sap.olingo.jpa.processor.core.testmodel.NestedComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.NestedComplexKey;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -135,6 +137,8 @@ class TestStandardMethodsOfTestModel {
         arguments(InstanceRestrictionKey.class),
         arguments(JoinRelationKey.class),
         arguments(MembershipKey.class),
+        arguments(NestedComplex.class),
+        arguments(NestedComplexKey.class),
         arguments(Organization.class),
         arguments(OrganizationImage.class),
         arguments(Person.class),

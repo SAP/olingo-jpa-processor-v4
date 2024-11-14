@@ -39,6 +39,12 @@ public interface ProcessorCriteriaBuilder extends CriteriaBuilder {
    */
   public <T> In<T> in(final Path<?> path);
 
+  public default void resetParameterBuffer() {}
+
+  public default Object getParameterBuffer() {
+    return null;
+  }
+
   public static interface WindowFunction<T> extends Expression<T> {
     /**
      *
