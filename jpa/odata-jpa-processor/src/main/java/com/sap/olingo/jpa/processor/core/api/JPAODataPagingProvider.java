@@ -83,11 +83,7 @@ public interface JPAODataPagingProvider {
    * @param uriInfo
    * @param preferredPageSize Value of the odata.maxpagesize preference header
    * @param countQuery A query that can be used to determine the maximum number of results that can be
-<<<<<<< HEAD
-   * expected. Only if the number of expected results is bigger then the page size a page should be generated.
-=======
    * expected. Only if the number of expected results is bigger then the page size a next link
->>>>>>> jpa-processor/master
    * @param em An instance of the entity manager
    * @return An optional of the page that shall be read. In case the optional is empty, all records are read from the
    * database.
@@ -102,20 +98,11 @@ public interface JPAODataPagingProvider {
   /**
    * Requires module {@code odata-jpa-processor-cb}
    * @param requestParameter The parameter from the request context
-<<<<<<< HEAD
-   * @param pathInformation Fragmented string representation of the URI, to be able to rebuild the uri info.
-   * @param uriInfo Java representation of the request URI
-   * @param association Metadata of the 
-   * @param preferredPageSize
-   * @param count A query that can be used to determine the maximum number of results that can be
-   * expected per parent. Only if the number of expected results is bigger then the page size a page should be generated.
-=======
    * @param pathInformation
    * @param uriInfo
    * @param association
    * @param preferredPageSize
    * @param count
->>>>>>> jpa-processor/master
    * @param em An instance of the entity manager
    * @return
    */
