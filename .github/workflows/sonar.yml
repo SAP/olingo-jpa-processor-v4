@@ -38,6 +38,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_PROJECT: ${{secrets.SONAR_PROJECT}}
-          SONAR_ORG: ${{vars.SONAR_ORG}}
+          SONAR_ORG: ${{secrets.SONAR_ORG}}
           SONAR_URL: https://sonarcloud.io
         run: cd ./jpa && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=${SONAR_ORG} -Dsonar.projectKey=${SONAR_PROJECT} -Dsonar.host.url=${SONAR_URL} -Dsonar.projectKey=SAP_olingo-jpa-processor-v4 -Dsonar.token=${SONAR_TOKEN}
