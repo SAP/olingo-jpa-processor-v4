@@ -151,8 +151,10 @@ public interface JPAODataServiceContextBuilder {
   JPAODataServiceContextBuilder setSqlPatternProvider(ProcessorSqlPatternProvider sqlPattern);
 
   /**
-   * No default version
-   * emf, ... will be ignored
+   * Set an API version. If no version is provided, a version is created from the corresponding setters.
+   * @see <a href=
+   * "https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa-tutorial/Questions/HowToHandleApiVersions.adoc">How
+   * to handle API versions?<a>
    * @param apiVersion
    * @return
    * @since 2.3.0
