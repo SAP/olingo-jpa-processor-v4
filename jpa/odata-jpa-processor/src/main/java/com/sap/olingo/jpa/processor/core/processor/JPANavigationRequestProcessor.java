@@ -95,7 +95,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final var conditionValidationResult = validateEntityTag(result, requestContext.getHeader());
       // Read Expand and Collection
       EntityCollection entityCollection;
-      if (conditionValidationResult == JPAETagValidationResult.SUCCESS && !isRootEmpty(result)) {
+      if (conditionValidationResult == JPAETagValidationResult.SUCCESS && !isRootResultEmpty(result)) {
         final var keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo());
         final var watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
         watchDog.watch(uriInfo.getExpandOption(), uriInfo.getUriResourceParts());
@@ -213,7 +213,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return JPAETagValidationResult.SUCCESS;
   }
 
-  private boolean isRootEmpty(final JPAConvertibleResult result) {
+  private boolean isRootResultEmpty(final JPAConvertibleResult result) {
     if (result instanceof final JPAExpandResult expandResult) {
       return expandResult.getResult(ROOT_RESULT_KEY).isEmpty();
     }
