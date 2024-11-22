@@ -56,7 +56,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     createHeaders();
     sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        dataSource, null, null, null);
+        emf, dataSource, null, null, null);
     odata = mock(OData.class);
     externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());

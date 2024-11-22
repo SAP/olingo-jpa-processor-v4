@@ -9,6 +9,6 @@ target/
 .settings/
 .metadata
 *.log
-/.dbeaver/
 /old.project
 /Scripts/
+/.dbeaver/

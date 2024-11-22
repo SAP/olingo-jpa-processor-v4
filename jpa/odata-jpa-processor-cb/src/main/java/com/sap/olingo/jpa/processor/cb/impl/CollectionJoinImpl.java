@@ -51,7 +51,9 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
     return (JPAEntityType) Optional.ofNullable(((JPACollectionAttribute) path.getLeaf())
         .asAssociation()
         .getTargetType())
-        .orElse(parent.st);
+        .orElseThrow(() -> new IllegalStateException("Entity type for collection attribute '&1' of '&2' not found"
+            .replace("&1", path.getLeaf().getInternalName())
+            .replace("&2", parent.st.getInternalName())));
   }
 
   @Override
@@ -70,7 +72,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
       statement.append(" ON ");
       return ((SqlConvertible) on).asSQL(statement);
     } catch (final ODataJPAModelException e) {
-      throw new IllegalStateException("Target DB table of collection attribute &1 of &2"
+      throw new IllegalStateException("Target DB table of collection attribute '&1' of '&2'"
           .replace("&1", attribute.getInternalName())
           .replace("&2", st.getInternalName()), e);
     }

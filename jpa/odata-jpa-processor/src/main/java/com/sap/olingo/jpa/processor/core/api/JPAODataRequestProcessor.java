@@ -423,8 +423,7 @@ public final class JPAODataRequestProcessor
       final ContentType requestFormat) throws ODataApplicationException, ODataLibraryException {
     try {
       final JPAActionRequestProcessor processor = this.factory.createActionProcessor(uriInfo, null, request
-          .getAllHeaders(),
-          requestContext);
+          .getAllHeaders(), requestContext);
       processor.performAction(request, response, requestFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;

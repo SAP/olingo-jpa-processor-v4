@@ -628,45 +628,69 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     return whereCondition;
   }
 
-  @SuppressWarnings("unchecked")
   private <Y extends Comparable<? super Y>> jakarta.persistence.criteria.Expression<Boolean> createBoundaryWithUpper( // NOSONAR
       final JPAEntityType et, final From<?, ?> from, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException,
       ODataJPAQueryException {
 
+    jakarta.persistence.criteria.Expression<Boolean> boundaryExpression = null;
     final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
-    Collections.reverse(keyElements);
+    // For all key attributes expect the last one
+    for (int primaryIndex = 0; primaryIndex < keyElements.size() - 1; primaryIndex++) {
+      jakarta.persistence.criteria.Expression<Boolean> expression = null;
+      for (int secondaryIndex = 0; secondaryIndex < primaryIndex; secondaryIndex++) {
+        final BoundaryInfo<Y> info = getBoundaryInfo(et, from, jpaKeyPair, keyElements, secondaryIndex);
+        expression = addWhereClause(expression, cb.equal(info.keyPath, info.lowerBoundary));
+        expression = addWhereClause(expression, cb.equal(info.keyPath, info.upperBoundary));
+      }
+      final BoundaryInfo<Y> info = getBoundaryInfo(et, from, jpaKeyPair, keyElements, primaryIndex);
+      expression = addWhereClause(expression, cb.greaterThan(info.keyPath, info.lowerBoundary));
+      expression = addWhereClause(expression, cb.lessThan(info.keyPath, info.upperBoundary));
+      boundaryExpression = orWhereClause(boundaryExpression, expression);
+    }
+    // Handle last key attribute
     jakarta.persistence.criteria.Expression<Boolean> lowerExpression = null;
     jakarta.persistence.criteria.Expression<Boolean> upperExpression = null;
-    for (int primaryIndex = 0; primaryIndex < keyElements.size(); primaryIndex++) {
-      for (int secondaryIndex = primaryIndex; secondaryIndex < keyElements.size(); secondaryIndex++) {
-        final JPAAttribute keyElement = keyElements.get(secondaryIndex);
-        final var jpaPath = et.getPath(keyElement.getExternalName());
-        if (jpaPath != null) {
-          final Path<Y> keyPath = (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from,
-              jpaPath.getPath());
-          final Y lowerBoundary = jpaKeyPair.getMinElement(keyElement);
-          final Y upperBoundary = jpaKeyPair.getMaxElement(keyElement);
-          if (secondaryIndex == primaryIndex) {
-            if (primaryIndex == 0) {
-              lowerExpression = cb.greaterThanOrEqualTo(keyPath, lowerBoundary);
-              upperExpression = cb.lessThanOrEqualTo(keyPath, upperBoundary);
-            } else {
-              lowerExpression = cb.or(lowerExpression, cb.greaterThan(keyPath, lowerBoundary));
-              upperExpression = cb.or(upperExpression, cb.lessThan(keyPath, upperBoundary));
-            }
-          } else {
-            lowerExpression = cb.and(lowerExpression, cb.equal(keyPath, lowerBoundary));
-            upperExpression = cb.and(upperExpression, cb.equal(keyPath, upperBoundary));
-          }
-        } else {
-          throw new ODataJPAQueryException(QUERY_RESULT_KEY_PROPERTY_ERROR, INTERNAL_SERVER_ERROR, et
-              .getExternalName());
-        }
-
-      }
-
+    for (int secondaryIndex = 0; secondaryIndex < keyElements.size() - 1; secondaryIndex++) {
+      final BoundaryInfo<Y> info = getBoundaryInfo(et, from, jpaKeyPair, keyElements, secondaryIndex);
+      lowerExpression = addWhereClause(lowerExpression, cb.equal(info.keyPath, info.lowerBoundary));
+      upperExpression = addWhereClause(upperExpression, cb.equal(info.keyPath, info.upperBoundary));
     }
-    return cb.and(lowerExpression, upperExpression);
+    final BoundaryInfo<Y> info = getBoundaryInfo(et, from, jpaKeyPair, keyElements, keyElements.size() - 1);
+    lowerExpression = addWhereClause(lowerExpression, cb.greaterThanOrEqualTo(info.keyPath, info.lowerBoundary));
+    upperExpression = addWhereClause(upperExpression, cb.lessThanOrEqualTo(info.keyPath, info.upperBoundary));
+    if (keyElements.size() == 1) {
+      boundaryExpression = addWhereClause(boundaryExpression, lowerExpression);
+      boundaryExpression = addWhereClause(boundaryExpression, upperExpression);
+    } else {
+      boundaryExpression = orWhereClause(boundaryExpression, lowerExpression);
+      boundaryExpression = orWhereClause(boundaryExpression, upperExpression);
+    }
+    return boundaryExpression;
+  }
+
+  private <Y extends Comparable<? super Y>> BoundaryInfo<Y> getBoundaryInfo(final JPAEntityType et,
+      final From<?, ?> from, final JPAKeyPair jpaKeyPair, final List<JPAAttribute> keyElements,
+      final int secondaryIndex)
+      throws ODataJPAModelException, ODataJPAQueryException {
+
+    final JPAAttribute keyElement = keyElements.get(secondaryIndex);
+    return new BoundaryInfo<Y>(getKeyPath(et, from, keyElement),
+        jpaKeyPair.getMinElement(keyElement),
+        jpaKeyPair.getMaxElement(keyElement));
+  }
+
+  @SuppressWarnings("unchecked")
+  private <Y extends Comparable<? super Y>> Path<Y> getKeyPath(final JPAEntityType et, final From<?, ?> from,
+      final JPAAttribute keyElement) throws ODataJPAModelException, ODataJPAQueryException {
+    final var jpaPath = et.getPath(keyElement.getExternalName());
+    if (jpaPath != null) {
+      return (Path<Y>) ExpressionUtility.<Comparable<?>> convertToCriteriaPath(from,
+          jpaPath.getPath());
+    } else {
+      throw new ODataJPAQueryException(QUERY_RESULT_KEY_PROPERTY_ERROR, INTERNAL_SERVER_ERROR, et
+          .getExternalName());
+    }
+
   }
 
   private void createFromClauseCollectionsJoins(final Map<String, From<?, ?>> joinTables)
@@ -801,5 +825,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       collectionPath.append(JPAPath.PATH_SEPARATOR);
     }
     return collection;
+  }
+
+  protected static record BoundaryInfo<Y>(Path<Y> keyPath, Y lowerBoundary, Y upperBoundary) {
+
   }
 }

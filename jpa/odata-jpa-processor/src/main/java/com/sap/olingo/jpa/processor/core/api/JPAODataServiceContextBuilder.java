@@ -10,6 +10,7 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.processor.ErrorProcessor;
 
+import com.sap.olingo.jpa.metadata.api.JPAApiVersion;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -148,4 +149,16 @@ public interface JPAODataServiceContextBuilder {
    * @since 2.2.0
    */
   JPAODataServiceContextBuilder setSqlPatternProvider(ProcessorSqlPatternProvider sqlPattern);
+
+  /**
+   * Set an API version. If no version is provided, a version is created from the corresponding setters.
+   * @see <a href=
+   * "https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa-tutorial/Questions/HowToHandleApiVersions.adoc">How
+   * to handle API versions?<a>
+   * @param apiVersion
+   * @return
+   * @since 2.3.0
+   */
+  JPAODataServiceContextBuilder setVersions(JPAApiVersion... apiVersions);
+
 }

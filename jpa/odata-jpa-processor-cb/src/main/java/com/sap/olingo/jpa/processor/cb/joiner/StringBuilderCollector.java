@@ -64,4 +64,10 @@ public abstract class StringBuilderCollector<T> implements Collector<T, StringBu
       super(statement, delimiter);
     }
   }
+
+  public static class SetCollector extends StringBuilderCollector<SetExpression> {
+    public SetCollector(@Nonnull final StringBuilder statement, @Nonnull final String delimiter) {
+      super(statement, delimiter);
+    }
+  }
 }

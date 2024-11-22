@@ -412,7 +412,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
 
   @Override
   public <U> ProcessorSubquery<U> subquery(@Nonnull final Class<U> type) {
-    return new SubqueryImpl<>(type, this, aliasBuilder, cb, sqlPattern);
+    return new SubqueryImpl<>(type, this, aliasBuilder, cb, sqlPattern, sd);
   }
 
   /**

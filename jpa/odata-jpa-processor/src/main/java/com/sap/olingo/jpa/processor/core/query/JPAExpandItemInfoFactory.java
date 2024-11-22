@@ -53,8 +53,7 @@ public final class JPAExpandItemInfoFactory {
 
   public List<JPAExpandItemInfo> buildExpandItemInfo(final JPAServiceDocument sd, final UriInfoResource uriResourceInfo,
       final List<JPANavigationPropertyInfo> grandParentHops, final Optional<JPAKeyBoundary> keyBoundary,
-      final JPAExpandQueryFactory factory)
-      throws ODataException {
+      final JPAExpandQueryFactory factory) throws ODataException {
 
     final List<JPAExpandItemInfo> itemList = new ArrayList<>();
     final List<UriResource> startResourceList = uriResourceInfo.getUriResourceParts();

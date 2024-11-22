@@ -3,8 +3,10 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -38,6 +41,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
@@ -85,12 +89,14 @@ class JPAODataInternalRequestContextTest {
   private OData odata;
   private ETagHelper olingoEtagHelper;
   private JPAODataPathInformation pathInformation;
+  private JPAODataApiVersionAccess version;
 
   @BeforeEach
-  void setup() throws ODataException {
+  void setup() {
     contextAccess = mock(JPAODataRequestContextAccess.class);
     requestContext = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
+    version = mock(JPAODataApiVersionAccess.class);
     odata = mock(OData.class);
     olingoEtagHelper = mock(ETagHelper.class);
     uriInfoResource = mock(UriInfoResource.class);
@@ -138,13 +144,17 @@ class JPAODataInternalRequestContextTest {
     when(requestContext.getLocales()).thenReturn(locales);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getDebuggerSupport()).thenReturn(debugSupport);
+    when(requestContext.getVersion()).thenReturn(JPAODataApiVersionAccess.DEFAULT_VERSION);
     when(debugSupport.isUserAuthorized()).thenReturn(Boolean.TRUE);
 
+    when(version.getId()).thenReturn(JPAODataApiVersionAccess.DEFAULT_VERSION);
+    when(version.getEdmProvider()).thenReturn(edmProvider);
+
     when(sessionContext.getDatabaseProcessor()).thenReturn(dbProcessor);
-    when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
     when(sessionContext.getOperationConverter()).thenReturn(operationConverter);
     when(sessionContext.getQueryDirectives()).thenReturn(queryDirectives);
     when(sessionContext.getPagingProvider()).thenReturn(pagingProvider);
+    when(sessionContext.getApiVersion(anyString())).thenReturn(version);
   }
 
   @Test
@@ -317,15 +327,6 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testSetEntityManager() throws ODataJPAProcessorException {
-    final EntityManager entityManager = mock(EntityManager.class);
-    cut = new JPAODataInternalRequestContext(uriInfo, serializer, contextAccess, header, pathInformation);
-    cut.setEntityManager(entityManager);
-
-    assertEquals(entityManager, cut.getEntityManager());
-  }
-
-  @Test
   void testSetSerializer() throws ODataJPAProcessorException {
     final JPASerializer jpaSerializer = mock(JPASerializer.class);
     cut = new JPAODataInternalRequestContext(uriInfo, serializer, contextAccess, header, pathInformation);
@@ -357,4 +358,38 @@ class JPAODataInternalRequestContextTest {
     cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     assertNotNull(cut.getEtagHelper());
   }
+
+  @Test
+  void testTakesVersion() throws ODataJPAProcessorException {
+    final var emf = mock(EntityManagerFactory.class);
+    when(emf.createEntityManager()).thenReturn(em);
+
+    when(requestContext.getEntityManager()).thenReturn(null);
+    when(requestContext.getVersion()).thenReturn("V10");
+
+    when(version.getId()).thenReturn("V10");
+    when(version.getEdmProvider()).thenReturn(edmProvider);
+    when(version.getEntityManagerFactory()).thenReturn(emf);
+
+    when(sessionContext.getApiVersion("V10")).thenReturn(version);
+    when(sessionContext.getApiVersion(JPAODataApiVersionAccess.DEFAULT_VERSION)).thenReturn(null);
+
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
+    assertNotNull(cut.getEdmProvider());
+    assertNotNull(cut.getEntityManager());
+  }
+
+  @Test
+  void testGetMappingPathNullIfNotProvided() {
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
+    assertNull(cut.getMappingPath());
+  }
+
+  @Test
+  void testGetMappingPathReturnsProvided() {
+    when(version.getMappingPath()).thenReturn("test/v1");
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
+    assertEquals("test/v1", cut.getMappingPath());
+  }
+
 }
