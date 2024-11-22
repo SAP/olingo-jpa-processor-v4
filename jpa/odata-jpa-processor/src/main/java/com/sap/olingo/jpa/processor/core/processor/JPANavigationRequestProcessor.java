@@ -334,8 +334,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a> boundary
    * @param headers
    * @param parentHops
-   * @param parentHops
    * @param uriResourceInfo
+   * @param keyBoundary
    * @param watchDog
    * @return
    * @throws ODataException
