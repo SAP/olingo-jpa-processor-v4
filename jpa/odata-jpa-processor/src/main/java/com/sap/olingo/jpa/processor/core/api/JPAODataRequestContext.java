@@ -31,4 +31,6 @@ public interface JPAODataRequestContext {
   public JPARequestParameterMap getRequestParameter();
 
   public List<Locale> getLocales();
+
+  public String getVersion();
 }

@@ -68,8 +68,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private final UriResource lastItem;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataRequestContextAccess requestContext)
-      throws ODataException {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     super(odata, requestContext);
     this.serviceMetadata = serviceMetadata;
@@ -96,7 +95,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final var conditionValidationResult = validateEntityTag(result, requestContext.getHeader());
       // Read Expand and Collection
       EntityCollection entityCollection;
-      if (conditionValidationResult == JPAETagValidationResult.SUCCESS) {
+      if (conditionValidationResult == JPAETagValidationResult.SUCCESS && !isRootResultEmpty(result)) {
         final var keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo());
         final var watchDog = new JPAExpandWatchDog(determineTargetEntitySet(requestContext));
         watchDog.watch(uriInfo.getExpandOption(), uriInfo.getUriResourceParts());
@@ -214,6 +213,13 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return JPAETagValidationResult.SUCCESS;
   }
 
+  boolean isRootResultEmpty(JPAConvertibleResult result) {
+    if (result instanceof JPAExpandResult expandResult) {
+      return expandResult.getResult(ROOT_RESULT_KEY).isEmpty();
+    }
+    return false;
+  }
+
   private List<String> getMatchHeader(final JPAHttpHeaderMap headers, final String matchHeader) {
     return Optional.ofNullable(headers.get(matchHeader)).orElseGet(() -> headers.get(
         matchHeader.toLowerCase(Locale.ENGLISH)));
@@ -327,10 +333,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398162"
    * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a> boundary
    * @param headers
-   * @param naviStartEdmEntitySet
    * @param parentHops
    * @param uriResourceInfo
-   * @param parentWhere
+   * @param keyBoundary
+   * @param watchDog
    * @return
    * @throws ODataException
    */

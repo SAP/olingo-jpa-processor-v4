@@ -41,7 +41,7 @@ public class JPA_POSTSQL_DatabaseProcessor extends JPAAbstractDatabaseProcessor 
   protected String functionSelectPattern() {
     return SELECT_BASE_PATTERN;
   }
-  
+
   @Override
   protected String functionCountPattern() {
     return SELECT_COUNT_PATTERN;

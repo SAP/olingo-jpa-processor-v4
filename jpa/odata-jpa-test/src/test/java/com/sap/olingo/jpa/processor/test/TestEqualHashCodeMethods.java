@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -130,7 +129,7 @@ abstract class TestEqualHashCodeMethods {
   private static Set<SingularAttribute> getKeyAttributes(final EntityType<?> et) {
     final Set<SingularAttribute> keyElements = new HashSet<>();
     try {
-      Set<?> attributes = Collections.emptySet();
+      Set<?> attributes;
       if (et.getIdType().getPersistenceType() == PersistenceType.EMBEDDABLE) {
         attributes = model.embeddable(et.getIdType().getJavaType()).getSingularAttributes();
       } else {
@@ -172,8 +171,7 @@ abstract class TestEqualHashCodeMethods {
         .append("set")
         .append(keyElement.getName().substring(0, 1).toUpperCase())
         .append(keyElement.getName().substring(1));
-    final Method setter = keyClass.getMethod(setterName.toString(), keyElement.getJavaType());
-    return setter;
+    return keyClass.getMethod(setterName.toString(), keyElement.getJavaType());
   }
 
   @ParameterizedTest

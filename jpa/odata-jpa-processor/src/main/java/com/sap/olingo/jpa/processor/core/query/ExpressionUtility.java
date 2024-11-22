@@ -54,8 +54,7 @@ public final class ExpressionUtility {
       final JPAAttribute attribute = path.getLeaf();
 
       return cb.equal(convertToCriteriaPath(root, path.getPath()), convertValueOnAttribute(odata, attribute,
-          keyPredicate
-              .getText()));
+          keyPredicate.getText()));
     } catch (final ODataJPAProcessorException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }

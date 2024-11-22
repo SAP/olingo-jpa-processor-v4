@@ -137,7 +137,7 @@ public final class JPAProcessorFactory {
       final var skipToken = skipToken(uriInfo);
       if (skipToken != null && !skipToken.isEmpty()) {
         return sessionContext.getPagingProvider().getNextPage(skipToken, odata,
-            odata.createServiceMetadata(sessionContext.getEdmProvider(), sessionContext.getEdmProvider()
+            odata.createServiceMetadata(requestContext.getEdmProvider(), requestContext.getEdmProvider()
                 .getReferences()), requestContext.getRequestParameter(), requestContext.getEntityManager())
             .orElseThrow(() -> new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE,
                 skipToken));

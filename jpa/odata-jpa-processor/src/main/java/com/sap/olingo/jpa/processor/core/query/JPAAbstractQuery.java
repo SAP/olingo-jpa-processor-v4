@@ -145,15 +145,27 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  protected jakarta.persistence.criteria.Expression<Boolean> addWhereClause(
-      jakarta.persistence.criteria.Expression<Boolean> whereCondition,
-      final jakarta.persistence.criteria.Expression<Boolean> additionalExpression) {
+  protected Expression<Boolean> addWhereClause(Expression<Boolean> whereCondition,
+      final Expression<Boolean> additionalExpression) {
 
     if (additionalExpression != null) {
       if (whereCondition == null) {
         whereCondition = additionalExpression;
       } else {
         whereCondition = cb.and(whereCondition, additionalExpression);
+      }
+    }
+    return whereCondition;
+  }
+
+  protected Expression<Boolean> orWhereClause(Expression<Boolean> whereCondition,
+      final Expression<Boolean> additionalExpression) {
+
+    if (additionalExpression != null) {
+      if (whereCondition == null) {
+        whereCondition = additionalExpression;
+      } else {
+        whereCondition = cb.or(whereCondition, additionalExpression);
       }
     }
     return whereCondition;
@@ -430,19 +442,6 @@ public abstract class JPAAbstractQuery {
   }
 
   protected abstract Locale getLocale();
-
-  protected Expression<Boolean> orWhereClause(Expression<Boolean> whereCondition,
-      final Expression<Boolean> additionalExpression) {
-
-    if (additionalExpression != null) {
-      if (whereCondition == null) {
-        whereCondition = additionalExpression;
-      } else {
-        whereCondition = cb.or(whereCondition, additionalExpression);
-      }
-    }
-    return whereCondition;
-  }
 
   public JPAEntityType getJpaEntity() {
     return jpaEntity;

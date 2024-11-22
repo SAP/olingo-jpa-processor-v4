@@ -90,7 +90,10 @@ public class ODataJPAModelException extends ODataJPAException {
     DB_TYPE_NOT_DETERMINED,
     FILE_NOT_FOUND,
     MISSING_ONE_TO_ONE_ANNOTATION,
-    ENTITY_TYPE_NOT_FOUND;
+    ENTITY_TYPE_NOT_FOUND,
+
+    VERSION_ID_MISSING,
+    VERSION_EMF_MISSING;
 
     @Override
     public String getKey() {

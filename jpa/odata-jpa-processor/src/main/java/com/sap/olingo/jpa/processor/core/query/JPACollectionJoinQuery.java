@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -53,6 +54,8 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery implements JPAQ
         item.getHops().size() - 1)));
     this.association = item.getExpandAssociation();
     this.keyBoundary = keyBoundary;
+    if (this.cb instanceof final ProcessorCriteriaBuilder processorCb)
+      processorCb.resetParameterBuffer();
   }
 
   @Override

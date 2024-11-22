@@ -640,7 +640,6 @@ class JPAODataRequestProcessorTest {
   private JPAServiceDocument createServiceDocument() throws ODataException {
     final JPAServiceDocument sd = mock(JPAServiceDocument.class);
     final JPAEdmProvider edmProvider = mock(JPAEdmProvider.class);
-    when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
     when(requestContext.getEdmProvider()).thenReturn(edmProvider);
     when(edmProvider.getServiceDocument()).thenReturn(sd);
     return sd;

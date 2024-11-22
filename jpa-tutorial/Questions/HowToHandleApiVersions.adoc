@@ -1,0 +1,274 @@
+= How to handle multiple API versions?
+
+== Introduction
+
+During the lifetime  of an API it can happen that the API needs to be adopted. Some of these adoptions are incompatible.
+That is, a client needs to be adopted as well to be able to handle the change. Typical incompatible changes are:
+
+* Making a property mandatory. 
+* Changing the name of a property.
+* Combining two properties or splitting a property.
+* Removing an entity or an operation.
+* ...
+
+But even adding a non mandatory property can be incompatible in case a client can not handle unknown properties. 
+In all these cases the server has to provide two versions of the API till all clients have been adopted. 
+Starting with release 2.3.0 the JPA Processor supports multiple versions.
+
+== Basic Idea
+
+Instead of having a version annotation at the entities, the JPA Processor make use of multiple sets of JPA metadata. 
+An annotation has the risks that all entities need to be copied if one must be changed.
+
+Metadata are (mainly) provided by the entity manager factory, so multiple entity manager factory are needed. 
+An option is to create multiple persistence units in the persistence.xml. 
+Using Spring Boot, we have also another option, which will be described below.
+
+== Implementation
+
+
+We assume that each entity or each aggregate has an own package e.g. `...model.tip` for the Trip entity and `...model.person` for the Person.
+In case we like to create a new version of Trip, we need to create a new package e.g. `...model.v2.trip` and create the new version of the entity within it.  
+
+Using Spring Boot we need to make some preparation. First step is to deactivate https://www.baeldung.com/spring-open-session-in-vie[spring open session in view], 
+as we may get trouble having multiple beans for the entity manager factory. So we add the following to the application.yml or the corresponding to the application.properties:
+
+[source, yaml]
+----
+spring:
+  jpa:
+    open-in-view: false   
+----
+
+Next, we need to rearrange the creation of the entity manager factory. 
+First step is to create an abstract super class with the basic settings and a creation of the transaction manager:
+
+[source, java]
+----
+public abstract class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
+
+  protected EclipseLinkJpaConfiguration(final DataSource dataSource, final JpaProperties properties,
+      final ObjectProvider<JtaTransactionManager> jtaTransactionManager) {
+    super(dataSource, properties, jtaTransactionManager);
+  }
+
+  @Override
+  protected AbstractJpaVendorAdapter createJpaVendorAdapter() {
+    return new EclipseLinkJpaVendorAdapter();
+  }
+
+  @Override
+  protected Map<String, Object> getVendorProperties() {
+    // https://stackoverflow.com/questions/10769051/eclipselinkjpavendoradapter-instead-of-hibernatejpavendoradapter-issue
+    final HashMap<String, Object> jpaProperties = new HashMap<>();
+    jpaProperties.put(WEAVING, "false");
+    // No table generation by JPA
+    jpaProperties.put(DDL_GENERATION, "none");
+    jpaProperties.put(LOGGING_LEVEL, SessionLog.FINE_LABEL);
+    jpaProperties.put(TRANSACTION_TYPE, "RESOURCE_LOCAL");
+    // do not cache entities locally, as this causes problems if multiple application instances are used
+    jpaProperties.put(CACHE_SHARED_DEFAULT, "false");
+    // You can also tweak your application performance by configuring your database connection pool.
+    // https://www.eclipse.org/eclipselink/documentation/2.7/jpa/extensions/persistenceproperties_ref.htm#connectionpool
+    jpaProperties.put(CONNECTION_POOL_MAX, 50);
+    return jpaProperties;
+  }
+
+  String[] getMapping() {
+    final List<String> mappingResources = this.getProperties().getMappingResources();
+    return (!ObjectUtils.isEmpty(mappingResources) ? StringUtils.toStringArray(mappingResources) : null);
+  }
+
+  PlatformTransactionManager createTransactionManager(
+      final ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers,
+      final EntityManagerFactory entityManagerFactory) {
+
+    final JpaTransactionManager transactionManager = new JpaTransactionManager();
+    transactionManager.setEntityManagerFactory(entityManagerFactory);
+    transactionManagerCustomizers
+        .ifAvailable((customizers) -> customizers.customize((TransactionManager) transactionManager));
+    return transactionManager;
+  }
+
+  Builder basicSettings(final EntityManagerFactoryBuilder factoryBuilder) {
+    final Map<String, Object> vendorProperties = getVendorProperties();
+    customizeVendorProperties(vendorProperties);
+    return factoryBuilder
+        .dataSource(this.getDataSource())
+        .properties(vendorProperties)
+        .mappingResources(getMapping())
+        .jta(false);
+  }
+}
+----
+
+Then we need to create the version specific entity manager factories. 
+Please note that with each version of the entity manager factory we also have to create a transaction manager. 
+It is also important that one of the beans for the factory has the name `entityManagerFactory`. 
+First the entity manager factory for the old version:
+
+[source, java]
+----
+...
+import org.example.model.planitem.PlanItem;
+import org.example.model.trip.Trip;
+...
+@Configuration
+public class JpaConfigurationV1 extends EclipseLinkJpaConfiguration {
+
+  protected JpaConfigurationV1(final DataSource dataSource, final JpaProperties properties,
+      final ObjectProvider<JtaTransactionManager> jtaTransactionManager) {
+    super(dataSource, properties, jtaTransactionManager);
+  }
+
+  @Bean("transactionManagerFactoryV1")
+  PlatformTransactionManager transactionManager(
+      final ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers,
+      @Qualifier("entityManagerFactory") final EntityManagerFactory entityManagerFactory) {
+
+    return createTransactionManager(transactionManagerCustomizers, entityManagerFactory);
+  }
+
+  @Override
+  @Bean("entityManagerFactory") // A bean with this name is needed
+  public LocalContainerEntityManagerFactoryBean entityManagerFactory(final EntityManagerFactoryBuilder factoryBuilder,
+      final PersistenceManagedTypes persistenceManagedTypes) {
+
+    return basicSettings(factoryBuilder)
+        .packages(Trip.class, PlanItem.class, OffsetDateTimeConverter.class)
+        .build();
+  }
+}
+----
+
+And then the entity manager factory for the new version. 
+You need to look carefully to see the difference beside the bean names. 
+The important call here is in `entityManagerFactory`. 
+We provide the `EntityManagerFactoryBuilder` classes that represent the packages that contain the JPA entities. 
+The difference is that Trip is now in a different package. 
+
+[source, java]
+----
+...
+import org.example.model.planitem.PlanItem;
+import org.example.model.v2.trip.Trip;
+...
+@Configuration
+public class JpaConfigurationV2 extends EclipseLinkJpaConfiguration {
+
+  protected JpaConfigurationV2(final DataSource dataSource, final JpaProperties properties,
+      final ObjectProvider<JtaTransactionManager> jtaTransactionManager) {
+    super(dataSource, properties, jtaTransactionManager);
+  }
+
+  @Bean("transactionManagerFactoryV2")
+  PlatformTransactionManager transactionManager(
+      final ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers,
+      @Qualifier("entityManagerFactoryV2") final EntityManagerFactory entityManagerFactoryV2) {
+
+    return createTransactionManager(transactionManagerCustomizers, entityManagerFactoryV2);
+  }
+
+  @Override
+  @Bean("entityManagerFactoryV2")
+  public LocalContainerEntityManagerFactoryBean entityManagerFactory(final EntityManagerFactoryBuilder factoryBuilder,
+      final PersistenceManagedTypes persistenceManagedTypes) {
+
+    return basicSettings(factoryBuilder)
+        .packages(Trip.class, PlanItem.class, OffsetDateTimeConverter.class)
+        .build();
+  }
+}
+----
+
+Now the JPA Processor needs to know that it has to handle multiple versions. 
+The versions are defined in the session context, which we create in `ProcessorConfiguration`. 
+A description for a versions contains of:
+
+* An id to identify the version later.
+* The instance of the version specific entity manager factory.
+* The version specific request mapping path, which is needed to make Olingo work together with Spring.
+* The (type) packages containing the enumerations and operations.
+* The metadata post processor
+
+[IMPORTANT]
+====
+In case there are bound operations, so functions or actions, for the changed entity, also these 
+need to be adjusted and the corresponding packages need to be provided.
+
+====
+
+Here we only look at the bare minimum:
+
+[source, java]
+----
+  @Bean
+  JPAODataSessionContextAccess sessionContext(
+      @Qualifier("entityManagerFactoryV2") final EntityManagerFactory entityManagerFactoryV2,
+      @Qualifier("entityManagerFactory") final EntityManagerFactory entityManagerFactoryV1) throws ODataException {
+
+    return JPAODataServiceContext.with()
+    	...
+        .setVersions(
+            JPAApiVersion.with()
+                .setId("V1")
+                .setEntityManagerFactory(entityManagerFactoryV1)
+                .setRequestMappingPath("Trippin/v1")
+                .build(),
+            JPAApiVersion.with()
+                .setId("V2")
+                .setEntityManagerFactory(entityManagerFactoryV2)
+                .setRequestMappingPath("Trippin/v2")
+                .build())
+		...                
+----
+
+[NOTE]
+====
+There are also setters for all the information provided with a version. 
+In case a version is provided this is taken. 
+Otherwise, the information from the setter.
+====
+
+
+With this the design time part is finished and we have to adopt the runtime part. 
+For each request we need to decide if it is for version one or for version two. 
+This is done by checking if the request URI is for version one or two. 
+The version id we have determined is provided to the request context:
+
+[source, java]
+----
+  @Bean
+  @Scope(scopeName = SCOPE_REQUEST)
+  JPAODataRequestContext requestContext() {
+  
+    final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+        .getRequest();
+
+    return JPAODataRequestContext.with()
+        ...
+        .setVersion(determineVersion(request))
+        .build();
+  }
+
+  private String determineVersion(final HttpServletRequest request) {
+    return request.getRequestURI().toUpperCase().startsWith("/TRIPPIN/V2/") ? "V2" : "V1";
+  }
+----
+
+As a last step we have to adopt the controller, so that it accepts requests for all versions. 
+Alternatively, we could also create a separate controller, so we would have one accepting requests 
+for version 1 and one accepting requests for version 2. 
+But to keep things simple, we just change annotation `@RequestMapping`:
+
+[source, java]
+----
+@RestController
+@RequestMapping("Trippin/")
+@RequestScope
+public class ODataController {
+...
+}
+----
+
+Now we can start the service and perform requests like: `/Trippin/v1/$metadata` or `/Trippin/v2/$metadata`.

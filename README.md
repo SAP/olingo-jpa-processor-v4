@@ -6,7 +6,6 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/olingo-jpa-processor-v4)](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4)
 ![GitHub last commit (develop)](https://img.shields.io/github/last-commit/SAP/OLINGO-JPA-PROCESSOR-V4/main.svg)
 [![GitHub release](https://img.shields.io/github/release-pre/sap/olingo-jpa-processor-v4.svg?color=orange&label=release)](https://github.com/SAP/olingo-jpa-processor-v4/releases/)
-[![Project Map](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/sapolingojpaprocessorv4/)
 
 The JPA Processor shall fill the gap between [Olingo V4](https://olingo.apache.org/doc/odata4/index.html) and the database, if [JPA](https://en.wikipedia.org/wiki/Java_Persistence_API) is used for object-relational mapping. If you want to be updated about Olingo changes subscribe to Olingo's [user mailing list](user-subscribe@olingo.apache.org).
 
@@ -47,7 +46,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
 </dependency>
 ```
 
@@ -57,7 +56,7 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
 </dependency>
 ```
 
@@ -103,4 +102,5 @@ Detailed information including third-party components and their licensing/copyri
 |2.1.0| - Enhancement of annotation API<br>- Enhancement of API for server driven paging<br>- Optional support of IN operand <br>- Update to Olingo 5.0.0<br>- Rework $count implementation<br>- Fix problem with $count on collection properties|No|
 |2.1.1| - Fix for issue [#292](https://github.com/SAP/olingo-jpa-processor-v4/issues/292)|No|
 |2.1.3| - Fix for issue [#319](https://github.com/SAP/olingo-jpa-processor-v4/issues/319)<br> - Fix for issue [#325](https://github.com/SAP/olingo-jpa-processor-v4/issues/325)<br> - Fix for issue [#327](https://github.com/SAP/olingo-jpa-processor-v4/issues/327)<br> - Fix for issue [#331](https://github.com/SAP/olingo-jpa-processor-v4/issues/331)<br> - Fix of en issue with $orderby and _to one_ navigation properties |No|
-|2.2.0| - Fix for issue [#378](https://github.com/SAP/olingo-jpa-processor-v4/issues/378)<br>  - Fix for issue [#376](https://github.com/SAP/olingo-jpa-processor-v4/issues/376)<br> - Fix for issue [#361](https://github.com/SAP/olingo-jpa-processor-v4/issues/361)<br> - Fix for issue [#352](https://github.com/SAP/olingo-jpa-processor-v4/issues/352)<br> - Fix for issue [#307](https://github.com/SAP/olingo-jpa-processor-v4/issues/307) <br> - Enhancement according to [#314](https://github.com/SAP/olingo-jpa-processor-v4/issues/314)|No|
+|2.2.0| - Fix for issue [#378](https://github.com/SAP/olingo-jpa-processor-v4/issues/378)<br>  - Fix for issue [#378](https://github.com/SAP/olingo-jpa-processor-v4/issues/378)<br> - Fix for issue [#361](https://github.com/SAP/olingo-jpa-processor-v4/issues/361)<br> - Fix for issue [#352](https://github.com/SAP/olingo-jpa-processor-v4/issues/352)<br> - Fix for issue [#307](https://github.com/SAP/olingo-jpa-processor-v4/issues/307) <br> - Enhancement according to [#314](https://github.com/SAP/olingo-jpa-processor-v4/issues/314)|No|
+|2.3.0| - Add support for handling multiple API version. Issue [#308](https://github.com/SAP/olingo-jpa-processor-v4/issues/308)<br>  - Fix for issue [#359](https://github.com/SAP/olingo-jpa-processor-v4/issues/359)<br> - Fix for issue [#406](https://github.com/SAP/olingo-jpa-processor-v4/issues/406)<br>  - Fix for issue [#397](https://github.com/SAP/olingo-jpa-processor-v4/issues/397)|No|

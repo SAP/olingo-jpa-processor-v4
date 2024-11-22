@@ -12,6 +12,7 @@ Having done that, we are ready to go ahead:
 . xref:HowToMakeUseOfAnnotations.adoc[How to make use of Annotations?]
 . xref:HowToBuildServerDrivenPaging.adoc[How to build server-driven paging?]
 . xref:HowToBuildServerDrivenPagingExpand.adoc[How to build server driven-paging for $expand?]
+. xref:HowToHandleApiVersions.adoc[How to handle multiple API versions?]
 
 Some things that are good to know:
 

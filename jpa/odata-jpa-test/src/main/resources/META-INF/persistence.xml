@@ -41,6 +41,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplexWithTransient</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.NestedComplex</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>

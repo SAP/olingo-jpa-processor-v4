@@ -75,4 +75,6 @@ public interface JPAODataRequestContextAccess {
   public Optional<JPAODataPagingProvider> getPagingProvider();
 
   public JPAODataPathInformation getPathInformation();
+
+  public String getMappingPath();
 }
