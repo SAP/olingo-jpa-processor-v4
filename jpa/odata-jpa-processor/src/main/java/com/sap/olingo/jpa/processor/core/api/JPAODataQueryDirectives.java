@@ -10,11 +10,19 @@ public sealed interface JPAODataQueryDirectives {
 
   int getMaxValuesInInClause();
 
-  static record JPAODataQueryDirectivesImpl(int maxValuesInInClause) implements JPAODataQueryDirectives {
+  UuidSortOrder getUuidSortOrder();
+
+  static record JPAODataQueryDirectivesImpl(int maxValuesInInClause, UuidSortOrder uuidSortOrder) implements
+      JPAODataQueryDirectives {
 
     @Override
     public int getMaxValuesInInClause() {
       return maxValuesInInClause;
+    }
+
+    @Override
+    public UuidSortOrder getUuidSortOrder() {
+      return uuidSortOrder;
     }
 
   }
@@ -23,6 +31,7 @@ public sealed interface JPAODataQueryDirectives {
 
     private final Builder parent;
     private int maxValuesInInClause = 0;
+    private UuidSortOrder uuidSortOrder = UuidSortOrder.AS_STRING;
 
     JPAODataQueryDirectivesBuilderImpl(final Builder builder) {
       this.parent = builder;
@@ -36,7 +45,20 @@ public sealed interface JPAODataQueryDirectives {
 
     @Override
     public JPAODataServiceContextBuilder build() {
-      return parent.setQueryDirectives(new JPAODataQueryDirectivesImpl(maxValuesInInClause));
+      return parent.setQueryDirectives(new JPAODataQueryDirectivesImpl(maxValuesInInClause, uuidSortOrder));
+    }
+
+    @Override
+    public JPAODataQueryDirectivesBuilder uuidSortOrder(final UuidSortOrder order) {
+      this.uuidSortOrder = order;
+      return this;
     }
   }
+
+  public enum UuidSortOrder {
+    AS_STRING,
+    AS_BYTE_ARRAY,
+    AS_JAVA_UUID;
+  }
+
 }

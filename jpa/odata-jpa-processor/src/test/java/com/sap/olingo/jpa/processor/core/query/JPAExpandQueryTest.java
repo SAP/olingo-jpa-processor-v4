@@ -35,6 +35,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.UuidSortOrder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
@@ -57,16 +59,18 @@ abstract class JPAExpandQueryTest extends TestBase {
   protected Optional<JPAKeyBoundary> adminBoundary;
   @SuppressWarnings("rawtypes")
   protected Map<JPAAttribute, Comparable> simpleKey;
+  private JPAODataQueryDirectives directives;
 
   @BeforeEach
   void setup() throws ODataException {
     createHeaders();
     helper = new TestHelper(emf, PUNIT_NAME);
     em = emf.createEntityManager();
+    directives = new JPAODataQueryDirectives.JPAODataQueryDirectivesImpl(0, UuidSortOrder.AS_JAVA_UUID);
     requestContext = mock(JPAODataRequestContextAccess.class);
-    organizationPair = new JPAKeyPair(helper.getJPAEntityType("Organizations").getKey());
+    organizationPair = new JPAKeyPair(helper.getJPAEntityType("Organizations").getKey(), directives);
     organizationBoundary = Optional.of(new JPAKeyBoundary(1, organizationPair));
-    adminPair = new JPAKeyPair(helper.getJPAEntityType("AdministrativeDivisions").getKey());
+    adminPair = new JPAKeyPair(helper.getJPAEntityType("AdministrativeDivisions").getKey(), directives);
     adminBoundary = Optional.of(new JPAKeyBoundary(1, adminPair));
     final JPAServiceDebugger debugger = mock(JPAServiceDebugger.class);
 
