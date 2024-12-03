@@ -678,6 +678,27 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
+  void checkEmbeddedIdKeyIsEmbedded() {
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivisionDescription.class), schema);
+    assertTrue(et.hasEmbeddedKey());
+  }
+
+  @Test
+  void checkMultipleKeyIsNotEmbedded() {
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+    assertFalse(et.hasEmbeddedKey());
+  }
+
+  @Test
+  void checkIdIsNotEmbedded() {
+    final IntermediateEntityType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    assertFalse(et.hasEmbeddedKey());
+  }
+
+  @Test
   void checkEntityWithMappedSuperClassContainsAllProperties() throws ODataJPAModelException {
     final IntermediateEntityType<SalesTeam> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         getEntityType(SalesTeam.class), schema);
