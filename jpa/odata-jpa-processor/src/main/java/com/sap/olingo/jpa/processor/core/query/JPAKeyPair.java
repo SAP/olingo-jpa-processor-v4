@@ -1,11 +1,15 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import jakarta.persistence.AttributeConverter;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.UuidSortOrder;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAKeyPairException;
 
 /**
@@ -25,10 +29,12 @@ public class JPAKeyPair {
   private Map<JPAAttribute, Comparable> min;
   private Map<JPAAttribute, Comparable> max;
   private final List<JPAAttribute> keyDefinition;
+  private final UuidSortOrder uuidSortOrder;
 
-  public JPAKeyPair(final List<JPAAttribute> keyDef) {
+  public JPAKeyPair(final List<JPAAttribute> keyDef, final JPAODataQueryDirectives queryDirectives) {
     super();
     this.keyDefinition = keyDef;
+    this.uuidSortOrder = queryDirectives.getUuidSortOrder();
   }
 
   public Map<JPAAttribute, Comparable> getMin() {
@@ -95,6 +101,13 @@ public class JPAKeyPair {
         throw new ODataJPAKeyPairException(e, dbType == null ? keyElement.getType().getSimpleName()
             : dbType.getSimpleName());
       }
+    } else if (minValue instanceof final UUID uuid && uuidSortOrder != null) {
+      return switch (uuidSortOrder) {
+        case AS_STRING -> value.toString().compareTo(uuid.toString());
+        case AS_BYTE_ARRAY -> new ComparableByteArray(convertUUIDToBytes((UUID) value))
+            .compareTo(convertUUIDToBytes(uuid));
+        case AS_JAVA_UUID -> value.compareTo(uuid);
+      };
     }
     return value.compareTo(minValue);
   }
@@ -102,5 +115,12 @@ public class JPAKeyPair {
   @Override
   public String toString() {
     return "JPAKeyPair [min=" + min + ", max=" + max + ", hasUpperBoundary=" + hasUpperBoundary() + "]";
+  }
+
+  private byte[] convertUUIDToBytes(final UUID uuid) {
+    final ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+    bb.putLong(uuid.getMostSignificantBits());
+    bb.putLong(uuid.getLeastSignificantBits());
+    return bb.array();
   }
 }

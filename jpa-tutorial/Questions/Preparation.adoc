@@ -290,7 +290,7 @@ insert into "Person" values ('keithpinckney', 'Keith', 'Pinckney', null, 0, null
 insert into "Person" values ('marshallgaray', 'Marshall', 'Garay', null, 0, null);
 insert into "Person" values ('ryantheriault', 'Ryan', 'Theriault', null, 0, null);
 insert into "Person" values ('elainestewart', 'Elaine', 'Stewart', null, 0, null);
-insert into "Person" values ('salliesampson', 'Sallie', 'Sampson', null, 1, null);
+insert into "Person" values ('sallysampson', 'Sally', 'Sampson', null, 1, null);
 insert into "Person" values ('jonirosales', 'Joni', 'Rosales', null, 2, null);
 insert into "Person" values ('georginabarlow', 'Georgina', 'Barlow', null, 1, null); 
 insert into "Person" values ('angelhuffman', 'Angel', 'Huffman', null, 1, null);
@@ -326,7 +326,7 @@ insert into "Trip" values (11, 'keithpinckney', 'a88f675d-9199-4392-9656-b08e3b4
 insert into "Trip" values (12, 'marshallgaray', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 1550.3, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
 insert into "Trip" values (13, 'ryantheriault', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 1550.3, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
 insert into "Trip" values (14, 'elainestewart', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 1550.3, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
-insert into "Trip" values (15, 'salliesampson', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 600, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
+insert into "Trip" values (15, 'sallysampson', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 600, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
 insert into "Trip" values (16, 'jonirosales', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 2000, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
 insert into "Trip" values (17, 'georginabarlow', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 1150.3, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
 insert into "Trip" values (18, 'angelhuffman', 'cb0b8acb-79cb-4127-8316-772bc4302824', 'DIY Trip', 1500.3, 'This is a DIY trip', '2011-02-11T00:00:00Z', '2011-02-14T00:00:00Z');

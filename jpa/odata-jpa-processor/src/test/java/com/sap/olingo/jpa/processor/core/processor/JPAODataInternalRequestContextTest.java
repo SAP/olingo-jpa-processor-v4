@@ -50,6 +50,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPathInformation;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.UuidSortOrder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -115,7 +116,7 @@ class JPAODataInternalRequestContextTest {
     dbProcessor = mock(JPAODataDatabaseProcessor.class);
     edmProvider = mock(JPAEdmProvider.class);
     operationConverter = mock(JPAODataDatabaseOperations.class);
-    queryDirectives = new JPAODataQueryDirectives.JPAODataQueryDirectivesImpl(0);
+    queryDirectives = new JPAODataQueryDirectives.JPAODataQueryDirectivesImpl(0, UuidSortOrder.AS_STRING);
     pagingProvider = mock(JPAODataPagingProvider.class);
     etagHelper = mock(JPAODataEtagHelper.class);
     pathInformation = new JPAODataPathInformation("", "", "", "");

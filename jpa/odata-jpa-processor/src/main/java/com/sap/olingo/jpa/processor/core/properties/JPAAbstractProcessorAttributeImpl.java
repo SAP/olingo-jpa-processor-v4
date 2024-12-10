@@ -81,4 +81,9 @@ abstract class JPAAbstractProcessorAttributeImpl implements JPAProcessorAttribut
     return !hops.isEmpty();
   }
 
+  @Override
+  public JPAPath getJPAPath() {
+    return path;
+  }
+
 }

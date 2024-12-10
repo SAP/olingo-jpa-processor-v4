@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -86,6 +87,7 @@ public final class JPAModifyUtil {
    *
    * @param et
    * @param jpaKeys
+   * @param st
    * @return
    * @throws ODataJPAProcessorException
    */
@@ -125,6 +127,40 @@ public final class JPAModifyUtil {
       return key;
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
         | IllegalArgumentException | InvocationTargetException | ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Fills the key properties in instance. This is helpful e.g. for Upserts. <br>
+   * Setter for the key attributes are required.
+   * @param et Metadata describing the entity type
+   * @param jpaKeys Map of key properties
+   * @param instance Instance of the JPA entity to be filled
+   * @throws ODataJPAProcessorException
+   */
+  public void setPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys, final Object instance)
+      throws ODataJPAProcessorException {
+    try {
+      if (et.hasEmbeddedKey()) {
+        final Object key = et.getKeyType().getConstructor().newInstance();
+        for (final JPAAttribute keyElement : et.getKey()) {
+          setAttribute(key, keyElement, jpaKeys.get(keyElement.getInternalName()));
+        }
+        final var setter = Arrays.stream(instance.getClass().getMethods())
+            .filter(method -> method.getParameterCount() == 1
+                && method.getParameters()[0].getType() == et.getKeyType())
+            .findAny();
+        if (setter.isPresent()) {
+          setter.get().invoke(instance, key);
+        }
+      } else {
+        for (final var key : et.getKey()) {
+          setAttribute(instance, key, jpaKeys.get(key.getInternalName()));
+        }
+      }
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+        | IllegalArgumentException | InvocationTargetException | InstantiationException | ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -424,7 +460,8 @@ public final class JPAModifyUtil {
   }
 
   @SuppressWarnings("unchecked")
-  private void setEmbeddedCollectionAttributeDeep(final Object instance, final JPAStructuredType st, final Method method,
+  private void setEmbeddedCollectionAttributeDeep(final Object instance, final JPAStructuredType st,
+      final Method method,
       final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
       ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {

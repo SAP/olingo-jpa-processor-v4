@@ -443,22 +443,24 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkUpdateEntityNotFound() throws ODataJPAProcessException, ODataJPAModelException {
-    final String id = "1";
+  void checkUpdateEntityNotFoundUpsertsEntity() throws ODataJPAModelException, ODataJPAProcessException {
+    final String id = "100";
     final Organization beforeImage = new Organization(id);
     final JPAEntityType et = helper.getJPAEntityType("Organizations");
     beforeImage.setName1("Example Ltd");
 
     doReturn(et).when(requestEntity).getEntityType();
     doReturn(null).when(em).find(eq(et.getTypeClass()), any());
-
     data.put("name1", "Example SE");
     keys.put("iD", id);
 
-    final ODataJPAProcessException exception = assertThrows(ODataJPAProcessException.class, () -> cut.updateEntity(
-        requestEntity, em, HttpMethod.PATCH));
+    final var act = cut.updateEntity(requestEntity, em, HttpMethod.PATCH);
 
-    assertEquals(404, exception.getStatusCode());
+    assertNotNull(act);
+    assertTrue(act.wasCreate());
+
+    final Organization org = (Organization) act.modifiedEntity();
+    assertEquals("100", org.getID());
 
   }
 
@@ -768,16 +770,14 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectsNotClaimsNotAllowed() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectsNotClaimsNotAllowed() {
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(null));
     assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
   }
 
   @Test
-  void checkAuthorizationsCreateRejectsAttributeNotPresent() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectsAttributeNotPresent() {
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class, () -> createPersonProtected(
         claims));
@@ -785,8 +785,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectsAttributeNotMatch() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectsAttributeNotMatch() {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("DOT01");
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
     when(claims.get("BuildingNumber")).thenReturn(singletonList(claim));
@@ -796,8 +795,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectedOnlyOneProvided() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectedOnlyOneProvided() {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID*");
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
     when(claims.get("BuildingNumber")).thenReturn(singletonList(claim));
@@ -828,8 +826,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectsWildCardNotMatch() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectsWildCardNotMatch() {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("D_D*");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(createPersonProtectedClaims(claim)));
@@ -851,8 +848,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectRangeWildcardMin() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectRangeWildcardMin() {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MI+0*", "MID99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(createPersonProtectedClaims(claim)));
@@ -860,8 +856,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectRangeWildcardMax() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectRangeWildcardMax() {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID00", "MI*99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(createPersonProtectedClaims(claim)));
@@ -890,8 +885,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectRangeToLow() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectRangeToLow() throws ODataJPAModelException {
 
     buildOrganizationMockForAuthorizationTest();
     data.put("id", 5);
@@ -901,8 +895,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkAuthorizationsCreateRejectRangeToHigh() throws ODataJPAModelException,
-      ODataJPAProcessException {
+  void checkAuthorizationsCreateRejectRangeToHigh() throws ODataJPAModelException {
 
     buildOrganizationMockForAuthorizationTest();
     data.put("id", 500);
@@ -953,12 +946,8 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
 
     when(path.getPath()).thenReturn(singletonList(idAttribute));
 
-    when(et.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return OrganizationWithAudit.class;
-      }
-    });
+    doReturn(OrganizationWithAudit.class).when(et).getTypeClass();
+
     when(et.getKey()).thenReturn(singletonList(idAttribute));
     when(et.getProtections()).thenReturn(singletonList(protectionInfo));
     when(et.getAttribute("id")).thenReturn(Optional.of(idAttribute));
@@ -1008,8 +997,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     data.put("countryCode", "DEU");
     data.put("codePublisher", "Eurostat");
 
-    final Object act = cut.createEntity(requestEntity, em);
-    return act;
+    return cut.createEntity(requestEntity, em);
   }
 
   private OrganizationWithAudit createOrganization() throws ODataJPAModelException, ODataJPAProcessException {
@@ -1083,7 +1071,6 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     data.put("name1", "Example SE");
     keys.put("iD", id);
 
-    final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.PATCH);
-    return act;
+    return cut.updateEntity(requestEntity, em, HttpMethod.PATCH);
   }
 }

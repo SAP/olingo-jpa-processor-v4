@@ -296,6 +296,12 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   @Override
+  public boolean hasEmbeddedKey() {
+    return ((IdentifiableType<?>) jpaManagedType).hasSingleIdAttribute()
+        && hasCompoundKey();
+  }
+
+  @Override
   public boolean hasEtag() throws ODataJPAModelException {
     buildEdmTypeIfEmpty();
     return etagPath.isPresent();
