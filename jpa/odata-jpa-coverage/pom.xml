@@ -10,7 +10,6 @@
     <artifactId>odata-jpa-coverage</artifactId>
     <name>odata-jpa-coverage</name>
     <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
-
     <dependencies>
         <dependency>
             <groupId>com.sap.olingo</groupId>
