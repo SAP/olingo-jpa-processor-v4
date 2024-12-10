@@ -22,6 +22,7 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAnnotatable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -116,7 +117,8 @@ final class JPAOrderByBuilder {
         LOGGER.trace("Determined $top/$skip or page: add primary key to Order By");
         final var factory = new JPAOrderByPropertyFactory();
         for (final var key : jpaEntity.getKey()) {
-          orderByAttributes.add(factory.createProperty(target, jpaEntity.getPath(key.getExternalName()), cb));
+          if (!containsAttribute(orderByAttributes, key))
+            orderByAttributes.add(factory.createProperty(target, jpaEntity.getPath(key.getExternalName()), cb));
         }
       }
 
@@ -130,6 +132,18 @@ final class JPAOrderByBuilder {
       throw new ODataJPAQueryException(e, BAD_REQUEST);
     }
     return result;
+  }
+
+  private boolean containsAttribute(final List<JPAProcessorAttribute> orderByAttributes, final JPAAttribute key)
+      throws ODataJPAModelException {
+
+    var found = false;
+    for (final var attribute : orderByAttributes) {
+      found = attribute.getJPAPath().equals(jpaEntity.getPath(key.getExternalName()));
+      if (found)
+        break;
+    }
+    return found;
   }
 
   @Nonnull
