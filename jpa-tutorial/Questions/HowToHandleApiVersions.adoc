@@ -103,7 +103,7 @@ public abstract class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
 ----
 
 Then we need to create the version specific entity manager factories. 
-Please note that with each version of the entity manager factory we also have to create a transaction manager. 
+Please note that with each version of the entity manager factory we also have to create a transaction manager and must have an own persistence unit name. 
 It is also important that one of the beans for the factory has the name `entityManagerFactory`. 
 First the entity manager factory for the old version:
 
@@ -136,6 +136,7 @@ public class JpaConfigurationV1 extends EclipseLinkJpaConfiguration {
 
     return basicSettings(factoryBuilder)
         .packages(Trip.class, PlanItem.class, OffsetDateTimeConverter.class)
+        .persistenceUnit("TrippinV1")
         .build();
   }
 }
@@ -176,6 +177,7 @@ public class JpaConfigurationV2 extends EclipseLinkJpaConfiguration {
 
     return basicSettings(factoryBuilder)
         .packages(Trip.class, PlanItem.class, OffsetDateTimeConverter.class)
+        .persistenceUnit("TrippinV2")        
         .build();
   }
 }
