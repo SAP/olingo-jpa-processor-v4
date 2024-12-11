@@ -31,6 +31,8 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
+import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.UuidSortOrder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -49,6 +51,7 @@ class JPAExpandQueryResultTest extends TestBase {
   private final List<Tuple> tuples = new ArrayList<>();
   private JPAEntityType et;
   private List<JPANavigationPropertyInfo> hops;
+  private JPAODataQueryDirectives directives;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -61,11 +64,13 @@ class JPAExpandQueryResultTest extends TestBase {
     hops = Arrays.asList(hop0, hop1);
     et = helper.getJPAEntityType("Organizations");
     uriInfo = mock(UriInfoResource.class);
+    directives = new JPAODataQueryDirectives.JPAODataQueryDirectivesImpl(0, UuidSortOrder.AS_JAVA_UUID);
     requestContext = mock(JPAODataRequestContextAccess.class);
     top = mock(TopOption.class);
     skip = mock(SkipOption.class);
     expand = mock(ExpandOption.class);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
+    when(requestContext.getQueryDirectives()).thenReturn(directives);
     queryResult.put("root", tuples);
   }
 

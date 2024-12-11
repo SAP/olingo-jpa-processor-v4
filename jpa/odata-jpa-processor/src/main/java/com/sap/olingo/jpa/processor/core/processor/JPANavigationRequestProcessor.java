@@ -213,8 +213,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return JPAETagValidationResult.SUCCESS;
   }
 
-  boolean isRootResultEmpty(JPAConvertibleResult result) {
-    if (result instanceof JPAExpandResult expandResult) {
+  private boolean isRootResultEmpty(final JPAConvertibleResult result) {
+    if (result instanceof final JPAExpandResult expandResult) {
       return expandResult.getResult(ROOT_RESULT_KEY).isEmpty();
     }
     return false;

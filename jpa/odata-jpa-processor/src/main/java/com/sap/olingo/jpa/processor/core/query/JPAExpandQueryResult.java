@@ -222,7 +222,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
           && (requestContext.getUriInfo().getTopOption() != null
               || requestContext.getUriInfo().getSkipOption() != null)) {
 
-        final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey());
+        final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey(), requestContext.getQueryDirectives());
         for (final Tuple tuple : jpaResult.get(ROOT_RESULT_KEY)) {
           @SuppressWarnings("rawtypes")
           final Map<JPAAttribute, Comparable> key = createKey(tuple);

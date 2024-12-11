@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public interface JPAProcessorAttribute {
@@ -74,5 +75,7 @@ public interface JPAProcessorAttribute {
    * @return
    */
   Path<Object> getPath();
+
+  JPAPath getJPAPath();
 
 }
