@@ -82,7 +82,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  public void setup() throws ODataException, ODataJPAIllegalAccessException {
+  public void setup() throws ODataException {
     helper = getHelper();
     em = mock(EntityManager.class);
     parent = mock(JPAAbstractQuery.class);
@@ -91,7 +91,7 @@ abstract class JPANavigationCountQueryTest extends TestBase {
     odata = OData.newInstance();
     uriResourceItem = mock(UriResourceNavigation.class);
     cq = mock(CriteriaQuery.class);
-    cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
+    cb = mock(CriteriaBuilder.class);
     subQuery = createSubQuery();
     from = mock(From.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
