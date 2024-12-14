@@ -13,7 +13,7 @@ That is, a client needs to be adopted as well to be able to handle the change. T
 
 But even adding a non mandatory property can be incompatible in case a client can not handle unknown properties. 
 In all these cases the server has to provide two versions of the API till all clients have been adopted. 
-Starting with release 2.3.0 the JPA Processor supports multiple versions.
+Starting with release 2.3.1 the JPA Processor supports multiple versions.
 
 == Basic Idea
 
