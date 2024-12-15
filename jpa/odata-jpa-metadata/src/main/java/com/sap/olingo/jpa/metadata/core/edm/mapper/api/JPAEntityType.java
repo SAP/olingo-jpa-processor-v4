@@ -62,6 +62,12 @@ public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
   public boolean hasCompoundKey();
 
   /**
+   * True in case the entity type has an EmbeddedId
+   * @return
+   */
+  public boolean hasEmbeddedKey();
+
+  /**
    * @return a list of JPAPath to attributes marked with EdmSearchable
    * @throws ODataJPAModelException
    */

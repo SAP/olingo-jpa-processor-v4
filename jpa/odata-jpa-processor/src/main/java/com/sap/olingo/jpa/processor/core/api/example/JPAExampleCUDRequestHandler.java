@@ -84,7 +84,8 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
         em.persist(instance);
       }
     } else {
-      // POST on Link only // https://issues.oasis-open.org/browse/ODATA-1294
+      // POST on Link only
+      // https://issues.oasis-open.org/browse/ODATA-1294
       instance = findEntity(requestEntity, em);
     }
     processRelatedEntities(requestEntity.getRelatedEntities(), instance, requestEntity.getModifyUtil(), em);
@@ -109,14 +110,16 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       final HttpMethod method) throws ODataJPAProcessException {
 
     if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
-      final Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
+      Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
           .createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(), requestEntity.getEntityType()));
-      if (instance == null) throw new JPAExampleModifyException(ENTITY_NOT_FOUND, HttpStatusCode.NOT_FOUND);
-      requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
+      if (instance == null) {
+        instance = createOneEntity(requestEntity, null);
+        requestEntity.getModifyUtil().setPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(), instance);
 
-      updateLinks(requestEntity, em, instance);
-      setAuditInformation(instance, requestEntity.getClaims(), false);
-      return new JPAUpdateResult(false, instance);
+        return new JPAUpdateResult(true, instance);
+      } else {
+        return updateFoundEntity(requestEntity, em, instance);
+      }
     }
     return super.updateEntity(requestEntity, em, method);
   }
@@ -126,6 +129,16 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
     for (final Entry<Object, JPARequestEntity> entity : entityBuffer.entrySet())
       processBindingLinks(entity.getValue().getRelationLinks(), entity.getKey(), entity.getValue().getModifyUtil(), em);
+  }
+
+  private JPAUpdateResult updateFoundEntity(final JPARequestEntity requestEntity, final EntityManager em,
+      final Object instance) throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
+    requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity
+        .getEntityType());
+
+    updateLinks(requestEntity, em, instance);
+    setAuditInformation(instance, requestEntity.getClaims(), false);
+    return new JPAUpdateResult(false, instance);
   }
 
   private void checkAuthorizationsOneClaim(final JPAProtectionInfo protectionInfo, final Object value,
