@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa</artifactId>
-    <version>2.3.1</version>
+    <version>2.3.2</version>
     <packaging>pom</packaging>
     <name>odata-jpa</name>
     <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
@@ -15,11 +15,11 @@
         <project.build.target>17</project.build.target>
         <maven.compiler.version>3.13.0</maven.compiler.version>
         <odata.version>5.0.0</odata.version>
-        <jackson.version>2.18.1</jackson.version>
+        <jackson.version>2.18.2</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <cf-logging.version>3.8.4</cf-logging.version>
-        <flyway.version>11.0.1</flyway.version>
+        <flyway.version>11.1.0</flyway.version>
         <jakarta.version>6.1.0</jakarta.version>
         <javax.version>4.0.1</javax.version>
         <jpa.version>3.1.0</jpa.version>
@@ -332,7 +332,7 @@
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
-                    <version>1.17.0</version>
+                    <version>1.17.4</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.pitest</groupId>
