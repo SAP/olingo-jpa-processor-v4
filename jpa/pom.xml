@@ -39,6 +39,7 @@
             ${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
             ${project.basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <surefire.version>3.5.1</surefire.version>
     </properties>
     <profiles>
         <profile>
@@ -287,7 +288,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.1</version>
+                    <version>${surefire.version}</version>
                     <configuration>
                         <properties>
                             <configurationParameters>

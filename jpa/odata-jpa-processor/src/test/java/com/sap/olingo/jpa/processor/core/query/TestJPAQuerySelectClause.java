@@ -403,7 +403,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     cut = new JPAExpandJoinQuery(null, info, requestContext, Optional.empty());
 
-    final List<Selection<?>> selectClause = ((JPAExpandJoinQuery) cut).createSelectClause(
+    final List<Selection<?>> selectClause = ((JPAAbstractJoinQuery) cut).createSelectClause(
         joinTables,
         cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(),
         root,

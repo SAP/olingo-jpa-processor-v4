@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static java.util.Collections.emptyMap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,9 @@ import java.util.Optional;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -54,12 +57,12 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandJoinQuery im
       if (countRequested(lastInfo)) {
         final CriteriaQuery<Tuple> countQuery = cb.createTupleQuery();
         createCountFrom(countQuery);
-        final List<Selection<?>> selectionPath = buildExpandJoinPath(target);
+        final List<Selection<?>> selectionPath = createSelectClause(target);
         countQuery.multiselect(addCount(selectionPath));
         final jakarta.persistence.criteria.Expression<Boolean> whereClause = createWhere();
         if (whereClause != null)
           countQuery.where(whereClause);
-        countQuery.groupBy(buildExpandCountGroupBy(target));
+        countQuery.groupBy(extractPath(selectionPath));
         final TypedQuery<Tuple> query = em.createQuery(countQuery);
         final List<Tuple> intermediateResult = query.getResultList();
         return convertCountResult(intermediateResult);
@@ -68,11 +71,31 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandJoinQuery im
     }
   }
 
+  private List<Expression<?>> extractPath(final List<Selection<?>> selectionPath) {
+
+    final List<Expression<?>> result = new ArrayList<>(selectionPath.size());
+    for (final var selection : selectionPath) {
+      if (selection instanceof final Path<?> path) {
+        result.add(path);
+      }
+    }
+    return result;
+  }
+
   private void createCountFrom(final CriteriaQuery<Tuple> countQuery) throws ODataApplicationException {
     final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
     // 1. Create navigation joins
     createFromClauseRoot(countQuery, joinTables);
+    target = root;
     createFromClauseNavigationJoins(joinTables);
     lastInfo.setFromClause(target);
+  }
+
+  private List<Selection<?>> createSelectClause(final From<?, ?> from) throws ODataApplicationException {
+    if (association.hasJoinTable()) {
+      return createAdditionSelectionForJoinTable(association);
+    } else {
+      return buildExpandJoinPath(from);
+    }
   }
 }
