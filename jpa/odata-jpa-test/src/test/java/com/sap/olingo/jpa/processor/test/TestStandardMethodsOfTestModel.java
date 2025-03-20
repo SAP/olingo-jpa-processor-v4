@@ -29,6 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
@@ -67,6 +68,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.NestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.NestedComplexKey;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage;
+import com.sap.olingo.jpa.processor.core.testmodel.Pages;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
@@ -104,6 +106,7 @@ class TestStandardMethodsOfTestModel {
 
   static Stream<Arguments> testModelEntities() {
     return Stream.of(
+        arguments(AddressDeepProtected.class),
         arguments(AdministrativeDivisionDescription.class),
         arguments(AdministrativeDivisionDescriptionKey.class),
         arguments(AdministrativeDivisionKey.class),
@@ -141,6 +144,7 @@ class TestStandardMethodsOfTestModel {
         arguments(NestedComplexKey.class),
         arguments(Organization.class),
         arguments(OrganizationImage.class),
+        arguments(Pages.class),
         arguments(Person.class),
         arguments(PersonImage.class),
         arguments(PersonDeepProtected.class),

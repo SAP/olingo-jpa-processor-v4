@@ -34,21 +34,21 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   static Predicate and(final Predicate[] restrictions) {
     if (restrictions == null || arrayIsEmpty(restrictions, REQUIRED_NO_OPERATOR))
       throw new IllegalArgumentException("Parameter 'restrictions' has to have at least 2 elements");
-    Predicate p = restrictions[0];
+    var predicate = restrictions[0];
     for (int i = 1; i < restrictions.length; i++) {
-      p = new AndPredicate(p, restrictions[i]);
+      predicate = new AndPredicate(predicate, restrictions[i]);
     }
-    return p;
+    return predicate;
   }
 
   static Predicate or(final Predicate[] restrictions) {
     if (restrictions == null || arrayIsEmpty(restrictions, REQUIRED_NO_OPERATOR))
       throw new IllegalArgumentException("Parameter 'restrictions' has to have at least 2 elements");
-    Predicate p = restrictions[0];
+    var predicate = restrictions[0];
     for (int i = 1; i < restrictions.length; i++) {
-      p = new OrPredicate(p, restrictions[i]);
+      predicate = new OrPredicate(predicate, restrictions[i]);
     }
-    return p;
+    return predicate;
   }
 
   private static boolean arrayIsEmpty(final Predicate[] restrictions, final int requiredNoElements) {
@@ -254,11 +254,11 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
           .append(SqlKeyWords.LIKE)
           .append(" ");
       this.pattern.asSQL(statement);
-      this.escape.ifPresent(e -> statement
+      this.escape.ifPresent(esc -> statement
           .append(" ")
           .append(SqlKeyWords.ESCAPE)
           .append(" "));
-      this.escape.ifPresent(e -> e.asSQL(statement));
+      this.escape.ifPresent(esc -> esc.asSQL(statement));
       return statement.append(CLOSING_BRACKET);
     }
 
