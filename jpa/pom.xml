@@ -19,7 +19,7 @@
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <cf-logging.version>3.8.4</cf-logging.version>
-        <flyway.version>11.0.1</flyway.version>
+        <flyway.version>11.1.0</flyway.version>
         <jakarta.version>6.1.0</jakarta.version>
         <javax.version>4.0.1</javax.version>
         <jpa.version>3.1.0</jpa.version>
@@ -39,6 +39,7 @@
             ${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
             ${project.basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <surefire.version>3.5.1</surefire.version>
     </properties>
     <profiles>
         <profile>
@@ -287,7 +288,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.1</version>
+                    <version>${surefire.version}</version>
                     <configuration>
                         <properties>
                             <configurationParameters>
@@ -332,7 +333,7 @@
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
-                    <version>1.17.0</version>
+                    <version>1.18.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.pitest</groupId>
