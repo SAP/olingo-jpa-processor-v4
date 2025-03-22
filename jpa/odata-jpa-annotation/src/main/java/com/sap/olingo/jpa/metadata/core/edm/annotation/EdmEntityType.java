@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * Describes the characteristics of the generated OData artifact of the annotated type. In case this annotation is
  * missing, it is assumed that the type represents an Entity Set.
  * @author Oliver Grande
- * Created: 26.04.2021
+ * @since 26.04.2021
  *
  */
 @Retention(RUNTIME)
@@ -36,4 +36,5 @@ public @interface EdmEntityType {
    * type or base type.
    */
   Class<? extends EdmQueryExtensionProvider> extensionProvider() default EdmQueryExtensionProvider.class;
+
 }

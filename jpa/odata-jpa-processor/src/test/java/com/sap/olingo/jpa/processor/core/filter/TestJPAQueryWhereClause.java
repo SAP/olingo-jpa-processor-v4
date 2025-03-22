@@ -135,10 +135,6 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("CountCollectionPropertyTwoJoinOne", "CollectionWithTwoKeys?$filter=Nested/$count eq 1", 1),
         arguments("CountCollectionPropertyTwoJoinZero", "CollectionWithTwoKeys?$filter=Nested/$count eq 0", 3),
         // To one association null
-        arguments("NavigationPropertyIsNull",
-            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),
-        arguments("NavigationPropertyIsNull",
-            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget ne null", 3),
         arguments("NavigationPropertyIsNullOneHop",
             "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 11),
         arguments("NavigationPropertyMixCountAndNull",
@@ -152,6 +148,15 @@ class TestJPAQueryWhereClause extends TestBase {
             "AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'", 1),
         arguments("NavigationPropertyToOneValueViaComplexType",
             "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'", 8));
+  }
+
+  static Stream<Arguments> getFilterQueryDerivedProperty() {
+    return Stream.of(
+        // To one association null
+        arguments("NavigationPropertyIsNull",
+            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),
+        arguments("NavigationPropertyIsNull",
+            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget ne null", 3));
   }
 
   static Stream<Arguments> getEnumQuery() {
@@ -267,8 +272,19 @@ class TestJPAQueryWhereClause extends TestBase {
 
   @ParameterizedTest
   @MethodSource("getFilterQuery")
-  // @Tag(Assertions.CB_ONLY_TEST)
   void testFilterOne(final String text, final String queryString, final int numberOfResults)
+      throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
+    helper.assertStatus(200);
+
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(numberOfResults, organizations.size(), text);
+  }
+
+  @ParameterizedTest
+  @MethodSource("getFilterQueryDerivedProperty")
+  @Tag(Assertions.CB_ONLY_TEST)
+  void testFilterOneDerivedProperty(final String text, final String queryString, final int numberOfResults)
       throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
     helper.assertStatus(200);

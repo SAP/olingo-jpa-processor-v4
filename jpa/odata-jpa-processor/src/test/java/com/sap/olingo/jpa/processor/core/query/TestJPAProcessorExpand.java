@@ -475,7 +475,7 @@ class TestJPAProcessorExpand extends TestBase {
   @Test
   void testExpandWithCountOrderBy() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$count=true&$expand=Children($count=true;$orderby=Children/$count desc)&$filter=CodeID eq 'NUTS1' and startswith(DivisionCode,'BE')");
+        "AdministrativeDivisions?$count=true&$expand=Children($count=true;$orderby=Children/$count desc,DivisionCode desc)&$filter=CodeID eq 'NUTS1' and startswith(DivisionCode,'BE')");
     helper.assertStatus(200);
 
     final ArrayNode parents = helper.getValues();
@@ -770,7 +770,6 @@ class TestJPAProcessorExpand extends TestBase {
 
     final ObjectNode organization = helper.getValue();
     assertNotNull(organization.get("SupportEngineers"));
-
   }
 
   @Test
