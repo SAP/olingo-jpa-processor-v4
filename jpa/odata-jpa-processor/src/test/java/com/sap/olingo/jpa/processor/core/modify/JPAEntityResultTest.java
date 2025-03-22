@@ -145,12 +145,12 @@ class JPAEntityResultTest extends JPACreateResultTest {
   protected void createCutGetResultEntityWithSimpleCollection() throws ODataJPAModelException,
       ODataApplicationException {
 
-    final Organization org = new Organization();
-    final List<String> comment = org.getComment();
+    final Organization organization = new Organization();
+    final List<String> comment = organization.getComment();
     comment.add("First");
     comment.add("Second");
-    org.setID("1");
-    jpaEntity = org;
+    organization.setID("1");
+    jpaEntity = organization;
 
     cut = new JPAEntityResult(et, jpaEntity, headers, converter);
   }

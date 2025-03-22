@@ -62,7 +62,7 @@ public @interface EdmAction {
 
   /**
    * Bound actions that return an entity or a collection of entities MAY specify a value for the EntitySetPath
-   * attribute if determination of the entity set for the return type is contingent on the binding parameter.
+   * attribute, if determination of the entity set for the return type is contingent on the binding parameter.
    * <p>
    * See:
    * <a href =

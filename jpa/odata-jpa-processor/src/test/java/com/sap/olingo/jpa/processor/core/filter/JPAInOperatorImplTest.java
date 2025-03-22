@@ -23,7 +23,7 @@ class JPAInOperatorImplTest {
   private JPAInOperatorImpl<String, JPALiteralOperator> cut;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     converter = mock(JPAOperationConverter.class);
   }
 
@@ -58,7 +58,7 @@ class JPAInOperatorImplTest {
   }
 
   @Test
-  void testGetFixValues() throws ODataApplicationException {
+  void testGetFixValues() {
     final List<JPALiteralOperator> right = new ArrayList<>();
     cut = new JPAInOperatorImpl<>(converter, null, right);
     assertEquals(right, cut.getFixValues());
