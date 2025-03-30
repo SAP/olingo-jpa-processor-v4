@@ -85,6 +85,14 @@ public class TestHelper {
     return null;
   }
 
+  public <T> EmbeddableType<T> getComplexType(final Class<T> clazz) {
+    try {
+      return jpaMetamodel.embeddable(clazz);
+    } catch (final IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   public Attribute<?, ?> getDeclaredAttribute(final ManagedType<?> et, final String attributeName) {
     for (final Attribute<?, ?> attribute : et.getDeclaredAttributes()) {
       if (attribute.getName().equals(attributeName))
@@ -120,7 +128,7 @@ public class TestHelper {
 
   public EdmFunction getStoredProcedure(final EntityType<?> jpaEntityType, final String string) {
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
-      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
+      final EdmFunctions jpaStoredProcedureList = jpaEntityType.getJavaType()
           .getAnnotation(EdmFunctions.class);
       if (jpaStoredProcedureList != null) {
         for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {

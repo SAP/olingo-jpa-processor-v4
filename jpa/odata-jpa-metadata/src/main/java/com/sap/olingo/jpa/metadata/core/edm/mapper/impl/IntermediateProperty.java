@@ -558,12 +558,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     final var jpaColumnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(Column.class);
     if (jpaColumnDetails != null) {
-      // TODO allow default name
       dbFieldName = jpaColumnDetails.name();
       if (dbFieldName.isEmpty()) {
-        final var stringBuilder = new StringBuilder(DB_FIELD_NAME_PATTERN);
-        stringBuilder.replace(1, 3, internalName);
-        dbFieldName = stringBuilder.toString();
+        dbFieldName = nameBuilder.buildColumnName(internalName);
       }
     } else {
       // Hibernate problem: Hibernate tested with 5.6.7 did not provide Column annotation
@@ -572,7 +569,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         if (jpaAttribute.getDeclaringType() != null) {
           final var declaringClass = jpaAttribute.getDeclaringType().getJavaType().getDeclaredField(jpaAttribute
               .getName());
-          final var jpaColumn = ((AnnotatedElement) declaringClass).getAnnotation(Column.class);
+          final var jpaColumn = declaringClass.getAnnotation(Column.class);
           if (jpaColumn != null)
             dbFieldName = jpaColumn.name();
         }

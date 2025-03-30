@@ -26,7 +26,7 @@ public class TestMappingRoot {
       "com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision";
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));
     errorEmf = JPAEntityManagerFactory.getEntityManagerFactory(ERROR_PUNIT, DataSourceHelper.createDataSource(

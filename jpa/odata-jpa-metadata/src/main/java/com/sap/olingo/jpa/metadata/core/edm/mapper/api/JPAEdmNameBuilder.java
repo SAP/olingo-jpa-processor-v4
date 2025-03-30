@@ -19,6 +19,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
  *
  */
 public interface JPAEdmNameBuilder {
+  static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
 
   /**
    *
@@ -122,4 +123,18 @@ public interface JPAEdmNameBuilder {
    */
   @Nonnull
   String getNamespace();
+
+  /**
+   * Build the name of the column
+   * E.g. "
+   *
+   * @param jpaFieldName
+   * @return column name
+   */
+  @Nonnull
+  default String buildColumnName(final String jpaFieldName) {
+    final var stringBuilder = new StringBuilder(DB_FIELD_NAME_PATTERN);
+    stringBuilder.replace(1, 3, jpaFieldName);
+    return stringBuilder.toString();
+  }
 }
