@@ -17,5 +17,7 @@ jobs:
           java-version: 17
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
+      - name: 1. Build JPA
+        run: cd ./jpa && mvn clean install -Dmaven.test.skip    
+      - name: 2. Build processor without criteria builder
         run: cd ./jpa && mvn --projects odata-jpa-processor -Pwo-extension clean install         
