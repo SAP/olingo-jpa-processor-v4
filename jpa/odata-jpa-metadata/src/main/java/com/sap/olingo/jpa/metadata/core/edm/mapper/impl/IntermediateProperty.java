@@ -78,7 +78,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   private static final Log LOGGER = LogFactory.getLog(IntermediateProperty.class);
   private static final int UPPER_LIMIT_PRECISION_TEMP = 12;
   private static final int LOWER_LIMIT_PRECISION_TEMP = 0;
-  private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
   protected final jakarta.persistence.metamodel.Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
@@ -558,12 +557,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     final var jpaColumnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(Column.class);
     if (jpaColumnDetails != null) {
-      // TODO allow default name
       dbFieldName = jpaColumnDetails.name();
       if (dbFieldName.isEmpty()) {
-        final var stringBuilder = new StringBuilder(DB_FIELD_NAME_PATTERN);
-        stringBuilder.replace(1, 3, internalName);
-        dbFieldName = stringBuilder.toString();
+        dbFieldName = nameBuilder.buildColumnName(internalName);
       }
     } else {
       // Hibernate problem: Hibernate tested with 5.6.7 did not provide Column annotation
@@ -572,7 +568,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         if (jpaAttribute.getDeclaringType() != null) {
           final var declaringClass = jpaAttribute.getDeclaringType().getJavaType().getDeclaredField(jpaAttribute
               .getName());
-          final var jpaColumn = ((AnnotatedElement) declaringClass).getAnnotation(Column.class);
+          final var jpaColumn = declaringClass.getAnnotation(Column.class);
           if (jpaColumn != null)
             dbFieldName = jpaColumn.name();
         }

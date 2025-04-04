@@ -87,9 +87,9 @@ public class AdministrativeDivision implements KeyAccess {
   @Column(name = "\"AlternativeCode\"", length = 10)
   private String alternativeCode;
   @Column(name = "\"Area\"") // , precision = 34, scale = 0)
-  private Integer area = 0;
+  private Long area = 0L;
   @Column(name = "\"Population\"", precision = 34, scale = 0)
-  private long population;
+  private Long population;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = true)
   @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
@@ -133,7 +133,7 @@ public class AdministrativeDivision implements KeyAccess {
     return alternativeCode;
   }
 
-  public Integer getArea() {
+  public Long getArea() {
     return area;
   }
 
@@ -174,7 +174,7 @@ public class AdministrativeDivision implements KeyAccess {
     return parentDivisionCode;
   }
 
-  public long getPopulation() {
+  public Long getPopulation() {
     return population;
   }
 
@@ -182,11 +182,11 @@ public class AdministrativeDivision implements KeyAccess {
     this.alternativeCode = alternativeCode;
   }
 
-  public void setArea(final int area) {
+  public void setArea(final long area) {
     this.area = area;
   }
 
-  public void setArea(final Integer area) {
+  public void setArea(final Long area) {
     this.area = area;
   }
 
