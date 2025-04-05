@@ -78,7 +78,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   private static final Log LOGGER = LogFactory.getLog(IntermediateProperty.class);
   private static final int UPPER_LIMIT_PRECISION_TEMP = 12;
   private static final int LOWER_LIMIT_PRECISION_TEMP = 0;
-  private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
   protected final jakarta.persistence.metamodel.Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
