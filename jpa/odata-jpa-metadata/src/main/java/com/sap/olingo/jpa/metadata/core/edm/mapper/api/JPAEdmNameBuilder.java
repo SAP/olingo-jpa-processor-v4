@@ -5,6 +5,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import javax.annotation.Nonnull;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EmbeddableType;
 import jakarta.persistence.metamodel.EntityType;
@@ -125,10 +126,43 @@ public interface JPAEdmNameBuilder {
   String getNamespace();
 
   /**
-   * Build the name of the column
-   * E.g. "
+   * Build the name of the database column in case it is not provided by the annotation {@link Column}.
+   * The Default converts a field name by adding quotation marks. E.g.: <br>
+   * id -> "id"
+   * <p>
+   * In case you want to use the field name converted into the default database representation, e.g. all upper case,
+   * the you can just return the field name:
    *
-   * @param jpaFieldName
+   * <pre>
+   * {@code
+   * return jpaFieldName
+   * }
+   * </pre>
+   *
+   *
+   * If you would use (upper case) snake case for column names, the implementation could look like this:
+   *
+   * <pre>
+   * {@code
+   * int start = 0;
+   * final List<String> splits = new ArrayList<>();
+   * final var chars = jpaFieldName.toCharArray();
+   * for (int i = 0; i < chars.length; i++) {
+   *   if (Character.isUpperCase(chars[i])) {
+   *     splits.add(String.copyValueOf(chars, start, i - start));
+   *     start = i;
+   *   }
+   * }
+   * if (start < chars.length)
+   *   splits.add(String.copyValueOf(chars, start, chars.length - start));
+   *
+   * return splits.stream()
+   *     .map(String::toUpperCase)
+   *     .collect(Collectors.joining("_"));
+   * }
+   * </pre>
+   *
+   * @param jpaFieldName Name of the field in the entity
    * @return column name
    */
   @Nonnull
