@@ -123,15 +123,26 @@ public class JPAOperationConverter {
 
     if (BinaryOperatorKind.IN == jpaOperator.getOperator() && directives.getMaxValuesInInClause() > 0) {
       final In<T> in = cb.in(jpaOperator.getLeft());
-      if (directives.getMaxValuesInInClause() < jpaOperator.getFixValues().size())
+
+      // Validate the number of values in the IN clause
+      if (directives.getMaxValuesInInClause() < jpaOperator.getFixValues().size()) {
         throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NO_VALUES_OUT_OF_LIMIT,
             HttpStatusCode.BAD_REQUEST, String.valueOf(directives.getMaxValuesInInClause()),
             String.valueOf(jpaOperator.getFixValues().size()));
+      }
+
+      // Handle related entity fields
       for (final JPAOperator value : jpaOperator.getFixValues()) {
-        in.value((T) value.get());
+        if (value instanceof JPAPathOperator) {
+          // Handle paths to related entities
+          in.value((T) ((JPAPathOperator) value).getPathValue());
+        } else {
+          in.value((T) value.get());
+        }
       }
       return in;
     }
+
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.BAD_REQUEST, jpaOperator.getName());
   }
