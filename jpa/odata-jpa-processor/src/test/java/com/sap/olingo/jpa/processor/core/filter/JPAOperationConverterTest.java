@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -221,6 +222,33 @@ class JPAOperationConverterTest {
     when(jpaOperator.getFixValues()).thenReturn(values);
     final var act = assertThrows(ODataJPAFilterException.class, () -> cut.convert(jpaOperator));
     assertEquals(ODataJPAFilterException.MessageKeys.NO_VALUES_OUT_OF_LIMIT.getKey(), act.getId());
+  }
+
+  @Test
+  void testConvertInOperatorWithRelatedEntityFields() throws ODataException {
+    directives = JPAODataServiceContext.with()
+        .useQueryDirectives()
+        .maxValuesInInClause(10)
+        .build()
+        .build()
+        .getQueryDirectives();
+    cut = new JPAOperationConverter(cb, extension, directives);
+
+    final List<JPAOperator> values = new ArrayList<>();
+    final JPAPathOperator pathOperator = mock(JPAPathOperator.class);
+    when(pathOperator.getPathValue()).thenReturn("relatedEntityValue");
+    values.add(pathOperator);
+
+    final In<Object> inOperation = mock(In.class);
+    final JPAInOperator<String, JPAOperator> jpaOperator = mock(JPAInOperator.class);
+    when(jpaOperator.getOperator()).thenReturn(BinaryOperatorKind.IN);
+    when(cb.in(any())).thenReturn(inOperation);
+    when(jpaOperator.getFixValues()).thenReturn(values);
+
+    cut.convert(jpaOperator);
+
+    // Verify that the related entity value was added to the IN clause
+    verify(inOperation).value("relatedEntityValue");
   }
 
   private List<JPAOperator> buildValuesList(final int i) {
