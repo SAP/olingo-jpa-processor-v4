@@ -84,6 +84,7 @@ class TestJPAQueryWhereClause extends TestBase {
         // IN expression
         arguments("Simple IN", "AdministrativeDivisions?$filter=ParentDivisionCode in ('BE1', 'BE2')", 6),
         arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 219),
+        arguments("IN via navigation", "AdministrativeDivisions?$filter=Parent/ParentDivisionCode in ('BE2')", 22),
         // Filter to many associations
         arguments("NavigationPropertyToManyValueAnyNoRestriction", "Organizations?$select=ID&$filter=Roles/any()", 4),
         arguments("NavigationPropertyToManyValueAnyMultiParameter",
