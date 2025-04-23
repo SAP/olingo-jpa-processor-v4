@@ -16,20 +16,6 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
-import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
-import org.apache.olingo.server.api.uri.queryoption.CountOption;
-import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
-import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
-import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
-import org.apache.olingo.server.api.uri.queryoption.FilterOption;
-import org.apache.olingo.server.api.uri.queryoption.FormatOption;
-import org.apache.olingo.server.api.uri.queryoption.IdOption;
-import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
-import org.apache.olingo.server.api.uri.queryoption.SearchOption;
-import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.apache.olingo.server.api.uri.queryoption.SkipOption;
-import org.apache.olingo.server.api.uri.queryoption.SkipTokenOption;
-import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
@@ -41,6 +27,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessExceptio
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAExpandItem;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQueryBuilder;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfoAccess;
@@ -179,82 +166,12 @@ abstract class JPAAbstractNavigationOperation extends JPAExistsOperation {
 
   }
 
-  private static class SubResource implements UriInfoResource {
+  private static class SubResource implements JPAExpandItem {
     private final JPAMemberOperator parentMember;
 
     public SubResource(final JPAMemberOperator member) {
       super();
       this.parentMember = member;
-    }
-
-    @Override
-    public ApplyOption getApplyOption() {
-      return null;
-    }
-
-    @Override
-    public CountOption getCountOption() {
-      return null;
-    }
-
-    @Override
-    public List<CustomQueryOption> getCustomQueryOptions() {
-      return new ArrayList<>(0);
-    }
-
-    @Override
-    public DeltaTokenOption getDeltaTokenOption() {
-      return null;
-    }
-
-    @Override
-    public ExpandOption getExpandOption() {
-      return null;
-    }
-
-    @Override
-    public FilterOption getFilterOption() {
-      return null;
-    }
-
-    @Override
-    public FormatOption getFormatOption() {
-      return null;
-    }
-
-    @Override
-    public IdOption getIdOption() {
-      return null;
-    }
-
-    @Override
-    public OrderByOption getOrderByOption() {
-      return null;
-    }
-
-    @Override
-    public SearchOption getSearchOption() {
-      return null;
-    }
-
-    @Override
-    public SelectOption getSelectOption() {
-      return null;
-    }
-
-    @Override
-    public SkipOption getSkipOption() {
-      return null;
-    }
-
-    @Override
-    public SkipTokenOption getSkipTokenOption() {
-      return null;
-    }
-
-    @Override
-    public TopOption getTopOption() {
-      return null;
     }
 
     @Override
@@ -277,7 +194,6 @@ abstract class JPAAbstractNavigationOperation extends JPAExistsOperation {
     public String getValueForAlias(final String alias) {
       return null;
     }
-
   }
 
 }
