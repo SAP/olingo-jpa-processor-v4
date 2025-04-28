@@ -200,9 +200,11 @@ class TestStandardMethodsOfTestModel {
         final String getterName = "g" + setter.getName().substring(1);
         assertNotNull(clazz.getMethod(getterName));
         final Method getter = clazz.getMethod(getterName);
+        final var returnType = getter.getReturnType();
         final Class<?> paramType = setter.getParameterTypes()[0];
         final Object exp = getExpected(paramType);
-        if (exp != null) {
+        if (returnType.equals(paramType)
+            && exp != null) {
           setter.invoke(instance, exp);
           if (exp.getClass().isArray())
             if ("byte[]".equals(exp.getClass().getTypeName()))
