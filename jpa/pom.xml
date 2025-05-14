@@ -32,7 +32,7 @@
         <junit.version>5.12.2</junit.version>
         <junit-platform.version>1.12.2</junit-platform.version>
         <mockito.version>5.14.2</mockito.version>
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.13</jacoco.version>
         <netty.version>4.2.0.Final</netty.version>
         <org.slf4j.version>2.0.17</org.slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>
