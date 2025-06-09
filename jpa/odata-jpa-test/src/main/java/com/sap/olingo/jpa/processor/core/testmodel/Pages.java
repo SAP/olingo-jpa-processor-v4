@@ -14,7 +14,7 @@ public class Pages {
 
   @Id
   @Column(name = "\"token\"")
-  private String token;
+  private Integer token;
 
   @Column(name = "\"skip\"")
   private Integer skip;
@@ -41,7 +41,7 @@ public class Pages {
     // Needed for JPA
   }
 
-  public Pages(final String token, final Integer skip, final Integer top, final Integer last, final String baseUri,
+  public Pages(final Integer token, final Integer skip, final Integer top, final Integer last, final String baseUri,
       final String oDataPath, final String queryPath, final String fragments) {
     super();
     this.token = token;
@@ -54,7 +54,7 @@ public class Pages {
     this.fragments = fragments;
   }
 
-  public Pages(final Pages previousPage, final int skip, final String token) {
+  public Pages(final Pages previousPage, final int skip, final Integer token) {
     super();
     this.token = token;
     this.skip = skip;
@@ -66,11 +66,11 @@ public class Pages {
     this.fragments = previousPage.fragments;
   }
 
-  public String getToken() {
+  public Integer getToken() {
     return token;
   }
 
-  public void setToken(final String token) {
+  public void setToken(final Integer token) {
     this.token = token;
   }
 
