@@ -29,8 +29,8 @@
         <hibernate.version>6.4.0.Final</hibernate.version>
         <openjpa.version>4.0.0</openjpa.version>
         <derby.version>10.16.1.1</derby.version>
-        <junit.version>5.12.2</junit.version>
-        <junit-platform.version>1.12.2</junit-platform.version>
+        <junit.version>5.13.0</junit.version>
+        <junit-platform.version>1.13.0</junit-platform.version>
         <mockito.version>5.18.0</mockito.version>
         <jacoco.version>0.8.13</jacoco.version>
         <netty.version>4.2.1.Final</netty.version>
