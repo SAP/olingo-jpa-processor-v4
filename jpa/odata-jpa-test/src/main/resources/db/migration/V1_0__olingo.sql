@@ -773,12 +773,13 @@ insert into "SupportRelationship" values (3,'2','97');
 CREATE TABLE "Team" (
 	"TeamKey" VARCHAR(32) NOT NULL ,
 	"Name" VARCHAR(100),
+	"Active" VARCHAR(10),
 	 PRIMARY KEY ("TeamKey"));	
 	 
-insert into "Team" values ('A', 'Team Java');
-insert into "Team" values ('B', 'Team Scala');
-insert into "Team" values ('C', 'Team Phyton');
-insert into "Team" values ('D', 'Team Go');	 
+insert into "Team" values ('A', 'Team Java', 'true');
+insert into "Team" values ('B', 'Team Scala', 'false');
+insert into "Team" values ('C', 'Team Phyton', 'false');
+insert into "Team" values ('D', 'Team Go', 'true');	 
 
 CREATE TABLE "SalesTeam" (
 	"TeamKey" VARCHAR(32) NOT NULL ,
