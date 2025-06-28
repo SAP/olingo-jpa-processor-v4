@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import jakarta.persistence.criteria.AbstractQuery;
 import jakarta.persistence.criteria.CollectionJoin;
@@ -46,21 +46,18 @@ import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
  *
  * @param <T> the type of the selection item.
  */
-class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
+class SubqueryImpl<T> extends Pageable implements ProcessorSubquery<T>, SqlConvertible {
   private final Class<T> type;
   private final CommonAbstractCriteria parent;
   private final ProcessorCriteriaQuery<T> inner;
-  private Optional<Integer> maxResult;
-  private Optional<Integer> firstResult;
 
-  SubqueryImpl(@Nonnull final Class<T> type, @Nonnull final CommonAbstractCriteria parent, final AliasBuilder ab,
+  SubqueryImpl(@Nonnull final Class<T> type, @Nonnull final CommonAbstractCriteria parent,
+      final AliasBuilder aliasBuilder,
       final CriteriaBuilder cb, final ProcessorSqlPatternProvider sqlPattern, final JPAServiceDocument sd) {
-    super();
+    super(sqlPattern);
     this.type = Objects.requireNonNull(type);
     this.parent = Objects.requireNonNull(parent);
-    this.inner = new CriteriaQueryImpl<>(type, sd, ab, cb, sqlPattern);
-    maxResult = Optional.empty();
-    firstResult = Optional.empty();
+    this.inner = new CriteriaQueryImpl<>(type, sd, aliasBuilder, cb, sqlPattern);
   }
 
   @Override
@@ -316,22 +313,22 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   }
 
   @Override
-  public ProcessorSubquery<T> setMaxResults(final Integer maxResult) {
-    this.maxResult = Optional.ofNullable(maxResult);
+  public ProcessorSubquery<T> setMaxResults(@Nullable final Integer maxResult) {
+    super.setNumberOfResults(maxResult);
     return this;
   }
 
   @Override
   public ProcessorSubquery<T> setFirstResult(final Integer startPosition) {
-    this.firstResult = Optional.ofNullable(startPosition);
+    super.setStartResult(startPosition);
     return this;
   }
 
   @Override
   public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
-    return ((SqlConvertible) inner).asSQL(statement)
-        .append(maxResult.map(i -> " LIMIT " + i).orElse(""))
-        .append(firstResult.map(i -> " OFFSET " + i).orElse(""));
+    var innerSql = ((SqlConvertible) inner).asSQL(statement);
+    paging(innerSql);
+    return innerSql;
   }
 
   @Override

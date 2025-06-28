@@ -81,6 +81,8 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("SubstringStartEndIndexToLower",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
             2),
+        // Filter on property with converter
+        arguments("Property with converter, from boolean to string", "Teams?$filter=Active eq false", 2),
         // IN expression
         arguments("Simple IN", "AdministrativeDivisions?$filter=ParentDivisionCode in ('BE1', 'BE2')", 6),
         arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 219),
