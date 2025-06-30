@@ -40,7 +40,8 @@ abstract class CriteriaBuilderOverallTest {
   protected StringBuilder stmt;
   protected CriteriaQuery<Tuple> q;
 
-  void setup(final EntityManagerFactory emf, final JPAServiceDocument sd, final ProcessorSqlPatternProvider sqlPattern) {
+  void setup(final EntityManagerFactory emf, final JPAServiceDocument sd,
+      final ProcessorSqlPatternProvider sqlPattern) {
     em = new EntityManagerWrapper(emf.createEntityManager(), sd, sqlPattern);
     cb = (ProcessorCriteriaBuilder) em.getCriteriaBuilder();
     assertNotNull(cb);
@@ -59,7 +60,8 @@ abstract class CriteriaBuilderOverallTest {
 
     q.multiselect(team);
     ((SqlConvertible) q).asSQL(stmt);
-    assertEquals("SELECT E0.\"TeamKey\" S0, E0.\"Name\" S1 FROM \"OLINGO\".\"Team\" E0", stmt.toString().trim());
+    assertEquals("SELECT E0.\"Active\" S0, E0.\"TeamKey\" S1, E0.\"Name\" S2 FROM \"OLINGO\".\"Team\" E0", stmt
+        .toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
     assertEquals(4, act.size());
@@ -142,8 +144,10 @@ abstract class CriteriaBuilderOverallTest {
     q.multiselect(team);
     q.orderBy(cb.asc(team.get("name")));
     ((SqlConvertible) q).asSQL(stmt);
-    assertEquals("SELECT E0.\"TeamKey\" S0, E0.\"Name\" S1 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC", stmt
-        .toString().trim());
+    assertEquals(
+        "SELECT E0.\"Active\" S0, E0.\"TeamKey\" S1, E0.\"Name\" S2 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC",
+        stmt
+            .toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
     assertEquals(4, act.size());
@@ -158,7 +162,7 @@ abstract class CriteriaBuilderOverallTest {
     q.orderBy(cb.asc(team.get("name")), cb.desc(team.get("iD")));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"TeamKey\" S0, E0.\"Name\" S1 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC, E0.\"TeamKey\" DESC",
+        "SELECT E0.\"Active\" S0, E0.\"TeamKey\" S1, E0.\"Name\" S2 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC, E0.\"TeamKey\" DESC",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();

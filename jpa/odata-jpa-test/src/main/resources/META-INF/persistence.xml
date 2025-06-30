@@ -94,7 +94,8 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsSingleton</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.DetailSettings</class>
-        <class>com.sap.olingo.jpa.processor.core.testmodel.User</class>        
+        <class>com.sap.olingo.jpa.processor.core.testmodel.User</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.BooleanConverter</class>        
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="jakarta.persistence.validation.mode" value="NONE" />
