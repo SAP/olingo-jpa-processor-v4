@@ -15,7 +15,6 @@
 		<version>3.2.3</version>
 		<relativePath />
 	</parent>
-
 	<properties>
 		<processor.version>2.4.0-SNAPSHOT</processor.version>
 		<java.version>17</java.version>
