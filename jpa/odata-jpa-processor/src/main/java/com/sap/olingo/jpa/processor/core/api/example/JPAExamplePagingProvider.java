@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
 
 import jakarta.persistence.EntityManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -27,6 +29,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPathInformation;
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 
 public class JPAExamplePagingProvider implements JPAODataPagingProvider {
+
+  private static final Log LOGGER = LogFactory.getLog(JPAExamplePagingProvider.class);
 
   private static final Object lock = new Object();
   private static final int DEFAULT_BUFFER_SIZE = 100;

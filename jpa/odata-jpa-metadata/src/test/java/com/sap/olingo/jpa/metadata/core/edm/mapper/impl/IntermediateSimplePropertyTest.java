@@ -1078,7 +1078,6 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
 
   private static class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
 
-
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
