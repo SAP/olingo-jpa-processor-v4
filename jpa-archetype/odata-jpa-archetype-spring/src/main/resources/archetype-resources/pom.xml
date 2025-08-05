@@ -15,15 +15,8 @@
 		<version>3.2.3</version>
 		<relativePath />
 	</parent>
-<<<<<<< HEAD
-
 	<properties>
 		<processor.version>2.4.0-SNAPSHOT</processor.version>
-=======
-
-	<properties>
-		<processor.version>2.4.0</processor.version>
->>>>>>> jpa-processor/master
 		<java.version>17</java.version>
 		<build.sourceEncoding>UTF-8</build.sourceEncoding>
 		<eclipselink.version>4.0.3</eclipselink.version>
