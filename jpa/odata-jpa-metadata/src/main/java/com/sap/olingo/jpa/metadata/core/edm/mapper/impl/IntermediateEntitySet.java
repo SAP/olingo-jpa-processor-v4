@@ -34,15 +34,23 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
   }
 
+  private IntermediateEntitySet(IntermediateEntitySet source, IntermediateEntityType<?> et)
+      throws ODataJPAModelException {
+    super(source.nameBuilder, et, source.getAnnotationInformation());
+    setExternalName(source.getExternalName());
+    lazyBuildEdmItem();
+  }
+
   /**
    * Returns the entity type that shall be used to create the metadata document.
    * This can differ from the internally used one e.g. if multiple entity sets shall
    * point to the same entity type, but base on different tables
    * @return
+   * @throws ODataJPAModelException
    */
   @Override
   @CheckForNull
-  public JPAEntityType getODataEntityType() {
+  public JPAEntityType getODataEntityType() throws ODataJPAModelException {
     if (entityType.asTopLevelOnly())
       return (JPAEntityType) entityType.getBaseType();
     else
@@ -76,18 +84,22 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
 
   @Override
   CsdlEntitySet getEdmItem() throws ODataJPAModelException { // New test EdmItem with ODataEntityType
-    if (edmEntitySet == null) {
-      lazyBuildEdmItem();
-    }
+    lazyBuildEdmItem();
     return edmEntitySet;
   }
 
   @Override
   public CsdlAnnotation getAnnotation(final String alias, final String term) throws ODataJPAModelException {
-    if (edmEntitySet == null) {
-      lazyBuildEdmItem();
-    }
+    lazyBuildEdmItem();
     return filterAnnotation(alias, term);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups)
+      throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    return (T) new IntermediateEntitySet(this, entityType.asUserGroupRestricted(userGroups));
   }
 
   private CsdlEntityType determineEdmType() throws ODataJPAModelException {

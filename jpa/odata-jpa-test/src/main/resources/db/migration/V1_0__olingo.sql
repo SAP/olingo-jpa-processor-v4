@@ -88,6 +88,13 @@ insert into "BusinessPartnerRole" values ('99',  'X', null);
 insert into "BusinessPartnerRole" values ('99',  'Z', null);
 insert into "BusinessPartnerRole" values ('97',  'Y', null);
 
+CREATE TABLE "Union" ( 
+    "MemberId" VARCHAR(32) NOT NULL ,
+    "UnionName" VARCHAR(100) NOT NULL, 
+     PRIMARY KEY ("MemberId"));
+insert into "Union" values ('99',  'Union A');
+insert into "Union" values ('97',  'Union B');
+
 CREATE TABLE "JoinPartnerRoleRelation"(
 	"SourceID" VARCHAR(32) NOT NULL,
 	"TargetID" VARCHAR(10) NOT NULL, 

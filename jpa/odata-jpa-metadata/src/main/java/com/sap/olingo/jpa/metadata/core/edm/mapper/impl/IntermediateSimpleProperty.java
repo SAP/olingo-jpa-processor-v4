@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Version;
@@ -44,10 +45,14 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   private EdmMediaStream streamInfo;
 
   IntermediateSimpleProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
-      final IntermediateSchema schema)
-      throws ODataJPAModelException {
+      final IntermediateSchema schema) throws ODataJPAModelException {
 
     super(nameBuilder, jpaAttribute, schema);
+  }
+
+  IntermediateSimpleProperty(IntermediateSimpleProperty source, List<String> userGroups)
+      throws ODataJPAModelException {
+    super(source, userGroups);
   }
 
   @Override
@@ -71,6 +76,17 @@ class IntermediateSimpleProperty extends IntermediateProperty {
       return ((SingularAttribute<?, ?>) jpaAttribute).isId();
     else
       return false;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups) // NOSONAR
+      throws ODataJPAModelException { // NOSONAR
+
+    if (this.isComplex())
+      return (T) new IntermediateSimpleProperty(this, userGroups);
+    else
+      return (T) this;
   }
 
   @Override

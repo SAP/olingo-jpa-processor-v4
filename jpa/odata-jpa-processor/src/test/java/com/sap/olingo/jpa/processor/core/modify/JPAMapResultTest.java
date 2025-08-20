@@ -21,11 +21,11 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class JPAMapResultTest extends JPACreateResultTest {
+class JPAMapResultTest extends JPACreateResultTest {
   List<JPARequestEntity> children;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     headers = new HashMap<>();
     jpaEntity = new HashMap<String, Object>();
     helper = new TestHelper(emf, PUNIT_NAME);

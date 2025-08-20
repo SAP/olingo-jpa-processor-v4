@@ -83,7 +83,7 @@ class IntermediateSchemaTest extends TestMappingRoot {
     final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
         .getMetamodel(), reflections, annotationInfo);
     // ChangeInformation,CommunicationData,AdministrativeInformation,PostalAddressData
-    assertEquals(TestDataConstants.NO_COMPLEXT_TYPES.value, schema.getEdmItem().getComplexTypes().size(),
+    assertEquals(TestDataConstants.NO_COMPLEX_TYPES.value, schema.getEdmItem().getComplexTypes().size(),
         "Wrong number of complex types");
   }
 

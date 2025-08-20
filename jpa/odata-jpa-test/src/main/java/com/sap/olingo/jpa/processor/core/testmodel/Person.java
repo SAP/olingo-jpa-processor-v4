@@ -105,6 +105,9 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
       nullable = true)
   private List<TemporalWithValidityPeriod> jobs;
 
+  @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  private UnionMembership unionMembership;
+
   public Person() {
     type = "1";
   }

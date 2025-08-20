@@ -347,6 +347,20 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
+  void testGetEdmProviderRestricted() throws ODataException {
+    final var groupsProvider = mock(JPAODataGroupProvider.class);
+    final List<String> groupList = List.of("Company");
+    final var restrictedProvider = mock(JPAEdmProvider.class);
+
+    when(requestContext.getGroupsProvider()).thenReturn(Optional.of(groupsProvider));
+    when(groupsProvider.getGroups()).thenReturn(groupList);
+    when(edmProvider.asUserGroupRestricted(groupList)).thenReturn(restrictedProvider);
+
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
+    assertEquals(restrictedProvider, cut.getEdmProvider());
+  }
+
+  @Test
   void testGetOperationConverter() {
     cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     assertEquals(operationConverter, cut.getOperationConverter());

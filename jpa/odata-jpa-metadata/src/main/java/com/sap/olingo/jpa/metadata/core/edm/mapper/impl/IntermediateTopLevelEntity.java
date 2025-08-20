@@ -40,26 +40,44 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
     final var navigationPropertyList = entityType.getAssociationPathList();
     if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
-
       for (final JPAAssociationPath navigationPropertyPath : navigationPropertyList) {
-        final var targetType = navigationPropertyPath.getTargetType();
-        if (targetType instanceof IntermediateEntityType
-            && !(((IntermediateEntityType<?>) targetType).asEntitySet() || ((IntermediateEntityType<?>) targetType)
-                .asSingleton())) {
-          continue;
+        if (navigationPropertyPath.getTargetType() instanceof IntermediateEntityType<?> et
+            && (et.asEntitySet() || et.asSingleton())) {
+
+          navigationPropBindingList.add(createNavigationPropertyBinding(navigationPropertyPath));
         }
-        final var navigationPropBinding = new CsdlNavigationPropertyBinding();
-
-        navigationPropBinding.setPath(navigationPropertyPath.getAlias());
-
-        // TODO Check is FQN is better here
-        final var navigationProperty = navigationPropertyPath.getLeaf();
-        navigationPropBinding.setTarget(nameBuilder.buildEntitySetName(navigationProperty.getTargetEntity()
-            .getExternalName()));
-        navigationPropBindingList.add(navigationPropBinding);
       }
     }
     return navigationPropBindingList;
+  }
+
+  protected List<CsdlNavigationPropertyBinding> determinePropertyBinding(List<String> userGroups)
+      throws ODataJPAModelException {
+    final List<CsdlNavigationPropertyBinding> navigationPropBindingList = new ArrayList<>();
+    final var navigationPropertyList = entityType.getAssociationPathList();
+    if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
+      // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
+      for (final JPAAssociationPath navigationPropertyPath : navigationPropertyList) {
+        if (navigationPropertyPath.getTargetType() instanceof IntermediateEntityType<?> et
+            && et.isAccessibleFor(userGroups)
+            && (et.asEntitySet() || et.asSingleton())) {
+
+          navigationPropBindingList.add(createNavigationPropertyBinding(navigationPropertyPath));
+        }
+      }
+    }
+    return navigationPropBindingList;
+  }
+
+  private CsdlNavigationPropertyBinding createNavigationPropertyBinding(final JPAAssociationPath navigationPropertyPath)
+      throws ODataJPAModelException {
+    final var navigationPropBinding = new CsdlNavigationPropertyBinding();
+    navigationPropBinding.setPath(navigationPropertyPath.getAlias());
+    // TODO Check is FQN is better here
+    final var navigationProperty = navigationPropertyPath.getLeaf();
+    navigationPropBinding.setTarget(nameBuilder.buildEntitySetName(navigationProperty.getTargetEntity()
+        .getExternalName()));
+    return navigationPropBinding;
   }
 
   /**
@@ -69,7 +87,7 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
    * @return
    * @throws ODataJPAModelException
    */
-  public JPAEntityType getODataEntityType() {
+  public JPAEntityType getODataEntityType() throws ODataJPAModelException {
     if (entityType.asTopLevelOnly())
       return (JPAEntityType) entityType.getBaseType();
     else
@@ -121,8 +139,13 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
           .map(expression -> getAnnotationValue(property, expression))
           .orElse(null);
     } catch (final ODataJPAModelInternalException e) {
-      throw e.rootCause;
+      throw (ODataJPAModelException) e.getCause();
     }
+  }
+
+  @Override
+  public List<String> getUserGroups() throws ODataJPAModelException {
+    return entityType.getUserGroups();
   }
 
   @Override

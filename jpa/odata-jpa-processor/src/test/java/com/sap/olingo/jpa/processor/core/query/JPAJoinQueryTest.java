@@ -68,7 +68,7 @@ class JPAJoinQueryTest extends TestQueryBase {
   }
 
   @Test
-  void testDerivedTypeRequestedTrueTwoLevels() {
+  void testDerivedTypeRequestedTrueTwoLevels() throws ODataJPAModelException {
 
     final var rootType = mock(JPAStructuredType.class);
     final var baseType = mock(JPAStructuredType.class);
@@ -81,7 +81,7 @@ class JPAJoinQueryTest extends TestQueryBase {
   }
 
   @Test
-  void testDerivedTypeRequestedTrue() {
+  void testDerivedTypeRequestedTrue() throws ODataJPAModelException {
 
     final var baseType = mock(JPAStructuredType.class);
     final var potentialSubType = mock(JPAStructuredType.class);
@@ -92,7 +92,7 @@ class JPAJoinQueryTest extends TestQueryBase {
   }
 
   @Test
-  void testDerivedTypeRequestedFalseNoBaseType() {
+  void testDerivedTypeRequestedFalseNoBaseType() throws ODataJPAModelException {
 
     final var baseType = mock(JPAStructuredType.class);
     final var potentialSubType = mock(JPAStructuredType.class);
@@ -103,7 +103,7 @@ class JPAJoinQueryTest extends TestQueryBase {
   }
 
   @Test
-  void testDerivedTypeRequestedFalseOtherBaseType() {
+  void testDerivedTypeRequestedFalseOtherBaseType() throws ODataJPAModelException {
 
     final var baseType = mock(JPAStructuredType.class);
     final var baseType2 = mock(JPAStructuredType.class);

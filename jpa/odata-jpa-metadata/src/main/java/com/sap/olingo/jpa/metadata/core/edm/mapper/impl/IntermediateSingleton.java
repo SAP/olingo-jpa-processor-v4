@@ -30,6 +30,13 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
     setExternalName(nameBuilder.buildSingletonName(et.getEdmItem()));
   }
 
+  private IntermediateSingleton(IntermediateSingleton source,
+      IntermediateEntityType<?> et) throws ODataJPAModelException {
+    super(source.nameBuilder, et, source.getAnnotationInformation());
+    setExternalName(source.getExternalName());
+    lazyBuildEdmItem();
+  }
+
   @Override
   public void addAnnotations(final List<CsdlAnnotation> annotations) {
     this.edmAnnotations.addAll(annotations);
@@ -40,8 +47,8 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
     if (edmSingleton == null) {
       retrieveAnnotations(this, Applicability.SINGLETON);
       postProcessor.processSingleton(this);
-      edmSingleton = new CsdlSingleton();
 
+      edmSingleton = new CsdlSingleton();
       final var edmEt = ((IntermediateEntityType<?>) getODataEntityType()).getEdmItem();
       edmSingleton.setName(getExternalName());
       edmSingleton.setType(buildFQN(edmEt.getName()));
@@ -70,4 +77,13 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
     }
     return filterAnnotation(alias, term);
   }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups)
+      throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    return (T) new IntermediateSingleton(this, entityType.asUserGroupRestricted(userGroups));
+  }
+
 }

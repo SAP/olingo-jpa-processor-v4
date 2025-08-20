@@ -325,14 +325,22 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
       if (apiVersion == null) {
         if (em != null
             && sessionContext instanceof final JPAODataServiceContext context)
-          return Optional.of(context.getEdmProvider(em));
+          return Optional.of(asUserGroupRestricted(context.getEdmProvider(em)));
         return Optional.empty();
       }
-      return Optional.ofNullable(apiVersion.getEdmProvider());
+      return Optional.ofNullable(asUserGroupRestricted(apiVersion.getEdmProvider()));
     } catch (final ODataException e) {
       debugger.debug(this, Arrays.toString(e.getStackTrace()));
       return Optional.empty();
     }
+  }
+
+  private JPAEdmProvider asUserGroupRestricted(final JPAEdmProvider unrestricted) {
+    if (unrestricted != null)
+      return groups.map(JPAODataGroupProvider::getGroups)
+          .map(unrestricted::asUserGroupRestricted)
+          .orElse(unrestricted);
+    return null;
   }
 
   private void createDefaultTransactionFactory() {
