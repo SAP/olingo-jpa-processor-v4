@@ -55,7 +55,7 @@ class IntermediateJoinTableTest extends TestMappingRoot {
   }
 
   @Test
-  void checkCreateJoinTable() {
+  void checkCreateJoinTable() throws ODataJPAModelException {
     assertNotNull(new IntermediateJoinTable(property, jpaJoinTable, schema));
   }
 

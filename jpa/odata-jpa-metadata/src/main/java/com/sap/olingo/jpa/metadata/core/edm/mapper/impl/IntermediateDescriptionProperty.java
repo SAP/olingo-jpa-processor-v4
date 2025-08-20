@@ -16,7 +16,6 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.metamodel.Attribute;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation.valueAssignment;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -27,16 +26,21 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCache;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheSupplier;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.MapCache;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.MapCacheSupplier;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelInternalException;
 
 final class IntermediateDescriptionProperty extends IntermediateSimpleProperty implements JPADescriptionAttribute,
     JPAAssociationAttribute {
   private IntermediateSimpleProperty descriptionProperty;
   private String localeAttribute;
   private final IntermediateStructuredType<?> sourceType;
-  private JPAStructuredType targetEntity;
-  private HashMap<JPAPath, String> fixedValues;
+  private final InstanceCache<JPAStructuredType> targetEntity;
+  private final MapCache<JPAPath, String> fixedValues;
   private JPAPath localFieldPath;
   private Optional<JPAAssociationPath> associationPath;
 
@@ -45,6 +49,8 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     super(nameBuilder, jpaAttribute, schema);
     this.sourceType = parent;
     this.associationPath = Optional.empty();
+    this.targetEntity = new InstanceCacheSupplier<>(this::determineTargetEntityType);
+    this.fixedValues = new MapCacheSupplier<>(this::determineFixedValues);
   }
 
   @Override
@@ -54,7 +60,11 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
   @Override
   public Map<JPAPath, String> getFixedValueAssignment() {
-    return fixedValues;
+    try {
+      return fixedValues.get();
+    } catch (ODataJPAModelException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   @Override
@@ -80,10 +90,16 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     return !localeAttribute.isEmpty();
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups) // NOSONAR
+      throws ODataJPAModelException {
+    return (T) this;
+  }
+
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     final Member jpaMember = jpaAttribute.getJavaMember();
-    final String languageAttribute;
 
     if (this.edmProperty == null) {
       super.lazyBuildEdmItem();
@@ -91,24 +107,21 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
         final EdmDescriptionAssociation association = annotatedElement.getAnnotation(EdmDescriptionAssociation.class);
         if (association != null) {
           // determine generic type of a collection in case of an OneToMany association
-          determineTargetEntityType(jpaMember);
-          descriptionProperty = (IntermediateSimpleProperty) targetEntity.getAttribute(association
+          descriptionProperty = (IntermediateSimpleProperty) getTargetType().getAttribute(association
               .descriptionAttribute())
               .orElseThrow(() ->
               // The attribute %2$s has not been found at entity %1$s
-              new ODataJPAModelException(MessageKeys.INVALID_DESCRIPTION_PROPERTY, targetEntity.getInternalName(),
+              new ODataJPAModelException(MessageKeys.INVALID_DESCRIPTION_PROPERTY, getTargetType().getInternalName(),
                   association.descriptionAttribute()));
 
-          languageAttribute = association.languageAttribute();
+          final var languageAttribute = association.languageAttribute();
           localeAttribute = association.localeAttribute();
           checkConsistencyOfLocalInfo(languageAttribute);
+          localFieldPath = convertAttributeToPath(!languageAttribute.isEmpty() ? languageAttribute : localeAttribute);
 
           edmProperty.setType(JPATypeConverter.convertToEdmSimpleType(descriptionProperty.getType())
               .getFullQualifiedName());
           edmProperty.setMaxLength(descriptionProperty.getEdmItem().getMaxLength());
-
-          fixedValues = convertFixedValues(association.valueAssignments());
-          localFieldPath = convertAttributeToPath(!languageAttribute.isEmpty() ? languageAttribute : localeAttribute);
         } else {
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_ANNOTATION_MISSING,
               sourceType.getInternalName(), this.internalName);
@@ -117,33 +130,62 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     }
   }
 
+  private Map<JPAPath, String> determineFixedValues() {
+    if (jpaAttribute.getJavaMember() instanceof final AnnotatedElement annotatedElement) {
+      try {
+        final EdmDescriptionAssociation association = annotatedElement.getAnnotation(EdmDescriptionAssociation.class);
+        if (association != null) {
+          final HashMap<JPAPath, String> result = new HashMap<>();
+          for (final EdmDescriptionAssociation.valueAssignment value : association.valueAssignments()) {
+            result.put(convertAttributeToPath(value.attribute()), value.value());
+          }
+          return result;
+        }
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAModelInternalException(e);
+      }
+    }
+    return Map.of();
+  }
+
+  private JPAStructuredType getTargetType() {
+
+    try {
+      return targetEntity.get().orElseThrow(() -> new NullPointerException(
+          "Description proerty not target type available"));
+    } catch (ODataJPAModelException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  private JPAStructuredType determineTargetEntityType() {
+    final Member jpaMember = jpaAttribute.getJavaMember();
+    if (jpaMember instanceof final Field jpaField) {
+      final ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
+      if (jpaTargetEntityType != null)
+        return schema.getEntityType((Class<?>) jpaTargetEntityType.getActualTypeArguments()[0]);
+      else
+        return schema.getEntityType(jpaAttribute.getJavaType());
+    } else {
+      return schema.getEntityType(jpaAttribute.getJavaType());
+    }
+  }
+
   private void checkConsistencyOfLocalInfo(final String languageAttribute) throws ODataJPAModelException {
     if ((emptyString(languageAttribute) && emptyString(localeAttribute)) ||
         (!languageAttribute.isEmpty() && !localeAttribute.isEmpty()))
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING,
-          targetEntity.getInternalName(), this.internalName);
+          getTargetType().getInternalName(), this.internalName);
     if (!descriptionProperty.getType().equals(String.class))
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_FIELD_WRONG_TYPE,
-          targetEntity.getInternalName(), this.internalName);
-  }
-
-  private void determineTargetEntityType(final Member jpaMember) {
-    if (jpaMember instanceof final Field jpaField) {
-      final ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
-      if (jpaTargetEntityType != null)
-        targetEntity = schema.getEntityType((Class<?>) jpaTargetEntityType.getActualTypeArguments()[0]);
-      else
-        targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
-    } else {
-      targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
-    }
+          getTargetType().getInternalName(), this.internalName);
   }
 
   private JPAPath convertAttributeToPath(final String attribute) throws ODataJPAModelException {
     final String[] pathItems = attribute.split(JPAPath.PATH_SEPARATOR);
     if (pathItems.length > 1) {
       final List<JPAElement> targetPath = new ArrayList<>();
-      IntermediateSimpleProperty nextHop = (IntermediateSimpleProperty) targetEntity.getAttribute(pathItems[0])
+      IntermediateSimpleProperty nextHop = (IntermediateSimpleProperty) getTargetType().getAttribute(pathItems[0])
           .orElseThrow(() -> new ODataJPAModelException(MessageKeys.PATH_ELEMENT_NOT_FOUND, pathItems[0], attribute));
       targetPath.add(nextHop);
       for (int i = 1; i < pathItems.length; i++) {
@@ -156,19 +198,10 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
       }
       return new JPAPathImpl(nextHop.getExternalName(), nextHop.getDBFieldName(), targetPath);
     } else {
-      final IntermediateSimpleProperty property = (IntermediateSimpleProperty) targetEntity.getAttribute(attribute)
+      final IntermediateSimpleProperty property = (IntermediateSimpleProperty) getTargetType().getAttribute(attribute)
           .orElseThrow(() -> new ODataJPAModelException(MessageKeys.PATH_ELEMENT_NOT_FOUND, pathItems[0], attribute));
       return new JPAPathImpl(property.getExternalName(), property.getDBFieldName(), property);
     }
-  }
-
-  private HashMap<JPAPath, String> convertFixedValues(final valueAssignment[] valueAssignments)
-      throws ODataJPAModelException {
-    final HashMap<JPAPath, String> result = new HashMap<>();
-    for (final EdmDescriptionAssociation.valueAssignment value : valueAssignments) {
-      result.put(convertAttributeToPath(value.attribute()), value.value());
-    }
-    return result;
   }
 
   @Override
@@ -178,7 +211,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
   @Override
   public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
-    return targetEntity;
+    return getTargetType();
   }
 
   @Override
@@ -189,7 +222,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   @Override
   public JPAAssociationPath getPath() throws ODataJPAModelException {
     return associationPath.orElseGet(() -> {
-      associationPath = Optional.of(new AssociationPath());
+      associationPath = Optional.of(new AssociationPath(getTargetType()));
       return associationPath.get();
     });
   }
@@ -197,6 +230,12 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   private class AssociationPath implements JPAAssociationPath {
 
     private List<IntermediateJoinColumn> joinColumns = null;
+    private final JPAStructuredType target;
+
+    private AssociationPath(JPAStructuredType target) {
+      super();
+      this.target = target;
+    }
 
     @Override
     public String getAlias() {
@@ -211,7 +250,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
       for (final IntermediateJoinColumn column : this.joinColumns) {
         result.add(new JPAOnConditionItemImpl(
             sourceType.getPathByDBField(column.getReferencedColumnName()),
-            ((IntermediateStructuredType<?>) targetEntity).getPathByDBField(column.getName())));
+            ((IntermediateStructuredType<?>) target).getPathByDBField(column.getName())));
       }
       return result;
     }
@@ -243,7 +282,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
     @Override
     public JPAStructuredType getTargetType() {
-      return targetEntity;
+      return target;
     }
 
     @Override
@@ -316,11 +355,11 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
                 .getKey().get(0)).getDBFieldName());
       else if (isSourceOne && (emptyString(name)))
         intermediateColumn.setReferencedColumnName(
-            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetEntity)
+            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) target)
                 .getKey().get(0)).getDBFieldName());
       else if (!isSourceOne && (emptyString(referencedColumnName)))
         intermediateColumn.setReferencedColumnName(
-            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetEntity)
+            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) target)
                 .getKey().get(0)).getDBFieldName());
       else if (!isSourceOne && (emptyString(name)))
         intermediateColumn.setReferencedColumnName(

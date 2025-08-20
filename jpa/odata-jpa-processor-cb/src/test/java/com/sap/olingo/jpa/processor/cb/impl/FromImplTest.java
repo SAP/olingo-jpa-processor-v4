@@ -116,22 +116,22 @@ class FromImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("notImplemented")
-  void testThrowsNotImplemented(final Method m) throws IllegalAccessException, IllegalArgumentException {
-    InvocationTargetException e;
-    if (m.getParameterCount() >= 1) {
-      final Class<?>[] params = m.getParameterTypes();
-      final List<Object> paramValues = new ArrayList<>(m.getParameterCount());
-      for (int i = 0; i < m.getParameterCount(); i++) {
+  void testThrowsNotImplemented(final Method method) throws IllegalArgumentException {
+    InvocationTargetException exception;
+    if (method.getParameterCount() >= 1) {
+      final Class<?>[] params = method.getParameterTypes();
+      final List<Object> paramValues = new ArrayList<>(method.getParameterCount());
+      for (int i = 0; i < method.getParameterCount(); i++) {
         if (params[i] == char.class)
           paramValues.add(' ');
         else
           paramValues.add(null);
       }
-      e = assertThrows(InvocationTargetException.class, () -> m.invoke(cut, paramValues.toArray()));
+      exception = assertThrows(InvocationTargetException.class, () -> method.invoke(cut, paramValues.toArray()));
     } else {
-      e = assertThrows(InvocationTargetException.class, () -> m.invoke(cut));
+      exception = assertThrows(InvocationTargetException.class, () -> method.invoke(cut));
     }
-    assertTrue(e.getCause() instanceof NotImplementedException);
+    assertTrue(exception.getCause() instanceof NotImplementedException);
   }
 
   @Test
@@ -161,9 +161,10 @@ class FromImplTest extends BuilderBaseTest {
   @Test
   void testCreateJoinByDescriptionAttributeName() {
     final String exp =
-        "\"OLINGO\".\"BusinessPartner\" E0 "
-            + "LEFT OUTER JOIN \"OLINGO\".\"AdministrativeDivisionDescription\" E1 "
-            + "ON (E0.\"Country\" = E1.\"DivisionCode\")";
+        """
+            "OLINGO"."BusinessPartner" E0 \
+            LEFT OUTER JOIN "OLINGO"."AdministrativeDivisionDescription" E1 \
+            ON (E0."Country" = E1."DivisionCode")""";
     final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("locationName");
     assertNotNull(act);
@@ -175,9 +176,10 @@ class FromImplTest extends BuilderBaseTest {
   @Test
   void testCreateJoinByDescriptionViaComplexAttributeName() {
     final String exp =
-        "\"OLINGO\".\"BusinessPartner\" E0 "
-            + "LEFT OUTER JOIN \"OLINGO\".\"CountryDescription\" E2 "
-            + "ON (E0.\"Address.Country\" = E2.\"ISOCode\")";
+        """
+            "OLINGO"."BusinessPartner" E0 \
+            LEFT OUTER JOIN "OLINGO"."CountryDescription" E2 \
+            ON (E0."Address.Country" = E2."ISOCode")""";
     final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("address").join("countryName");
     assertNotNull(act);
@@ -190,11 +192,12 @@ class FromImplTest extends BuilderBaseTest {
   @Test
   void testCreateJoinViaJoinTable() {
     final String exp =
-        "\"OLINGO\".\"BusinessPartner\" E0 "
-            + "INNER JOIN (\"OLINGO\".\"SupportRelationship\" E1 "
-            + "INNER JOIN \"OLINGO\".\"BusinessPartner\" E2 "
-            + "ON (E1.\"PersonID\" = E2.\"ID\")) "
-            + "ON (E0.\"ID\" = E1.\"OrganizationID\")";
+        """
+            "OLINGO"."BusinessPartner" E0 \
+            INNER JOIN ("OLINGO"."SupportRelationship" E1 \
+            INNER JOIN "OLINGO"."BusinessPartner" E2 \
+            ON (E1."PersonID" = E2."ID")) \
+            ON (E0."ID" = E1."OrganizationID")""";
     final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("supportEngineers");
     assertNotNull(act);
@@ -206,9 +209,10 @@ class FromImplTest extends BuilderBaseTest {
   @Test
   void testCreateJoinByCollectionAttributeName() {
     final String exp =
-        "\"OLINGO\".\"BusinessPartner\" E0 "
-            + "INNER JOIN \"OLINGO\".\"Comment\" E1 "
-            + "ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
+        """
+            "OLINGO"."BusinessPartner" E0 \
+            INNER JOIN "OLINGO"."Comment" E1 \
+            ON (E0."ID" = E1."BusinessPartnerID")""";
     final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("comment");
     assertNotNull(act);
@@ -220,9 +224,10 @@ class FromImplTest extends BuilderBaseTest {
   @Test
   void testCreateLeftJoinByCollectionAttributeName() {
     final String exp =
-        "\"OLINGO\".\"BusinessPartner\" E0 "
-            + "LEFT OUTER JOIN \"OLINGO\".\"Comment\" E1 "
-            + "ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
+        """
+            "OLINGO"."BusinessPartner" E0 \
+            LEFT OUTER JOIN "OLINGO"."Comment" E1 \
+            ON (E0."ID" = E1."BusinessPartnerID")""";
     final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("comment", JoinType.LEFT);
     assertNotNull(act);

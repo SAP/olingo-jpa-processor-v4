@@ -31,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
 @Inheritance
 @DiscriminatorColumn(name = "\"Type\"")
@@ -51,8 +52,9 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
     isBound = false,
     hasFunctionImport = false,
     returnType = @EdmFunction.ReturnType(type = BigDecimal.class, isCollection = false),
-    parameter = { @EdmParameter(name = "Path", parameterName = "path", type = String.class),
-    })
+    parameter = { @EdmParameter(name = "Path", parameterName = "path", type = String.class)
+    },
+    visibleFor = @EdmVisibleFor("Person"))
 
 @EdmFunction(
     name = "IsPrime",

@@ -1022,7 +1022,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     return jpaAttribute;
   }
 
-  private class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
+  private static class PostProcessorSetName implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {
@@ -1037,35 +1037,45 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     }
 
     @Override
-    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {}
+    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processEntityType(final IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {
+      // Not needed
+    }
 
     @Override
-    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}
+    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {
+      // Not needed
+    }
   }
 
-  private class PostProcessorOneDelete implements JPAEdmMetadataPostProcessor {
+  private static class PostProcessorOneDelete implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(ADMIN_CANONICAL_NAME)) {
-        if (property.getInternalName().equals("children")) {
-          final CsdlOnDelete onDelete = new CsdlOnDelete();
-          onDelete.setAction(CsdlOnDeleteAction.None);
-          property.setOnDelete(onDelete);
-        }
+      if (jpaManagedTypeClassName.equals(ADMIN_CANONICAL_NAME) && property.getInternalName().equals("children")) {
+        final CsdlOnDelete onDelete = new CsdlOnDelete();
+        onDelete.setAction(CsdlOnDeleteAction.None);
+        property.setOnDelete(onDelete);
       }
     }
 
     @Override
-    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {}
+    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processEntityType(final IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {
+      // Not needed
+    }
 
     @Override
-    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}
+    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {
+      // Not needed
+    }
   }
 }

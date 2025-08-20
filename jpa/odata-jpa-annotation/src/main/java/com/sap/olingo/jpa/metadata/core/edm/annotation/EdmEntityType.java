@@ -37,4 +37,5 @@ public @interface EdmEntityType {
    */
   Class<? extends EdmQueryExtensionProvider> extensionProvider() default EdmQueryExtensionProvider.class;
 
+  EdmVisibleFor visibleFor() default @EdmVisibleFor;
 }

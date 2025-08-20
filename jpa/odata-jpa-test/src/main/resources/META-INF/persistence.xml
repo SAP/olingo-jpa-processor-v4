@@ -95,7 +95,11 @@
         <class>com.sap.olingo.jpa.processor.core.testmodel.AnnotationsSingleton</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.DetailSettings</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.User</class>
-        <class>com.sap.olingo.jpa.processor.core.testmodel.BooleanConverter</class>        
+        <class>com.sap.olingo.jpa.processor.core.testmodel.BooleanConverter</class>   
+        <class>com.sap.olingo.jpa.processor.core.testmodel.UnionMembership</class> 
+        <class>com.sap.olingo.jpa.processor.core.testmodel.RestrictedEntity</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.RestrictedEntityComplex</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.RestrictedEntityUnrestrictedSource</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="jakarta.persistence.validation.mode" value="NONE" />

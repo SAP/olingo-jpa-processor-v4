@@ -190,7 +190,7 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) throws ODataJPAModelException {
     return base.searchChildPath(selectItemPath);
   }
 
@@ -231,7 +231,7 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public JPAStructuredType getBaseType() {
+  public JPAStructuredType getBaseType() throws ODataJPAModelException {
     return base.getBaseType();
   }
 
@@ -255,5 +255,11 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   private boolean failWithFalse() {
     fail();
     return false;
+  }
+
+  @Override
+  public List<String> getUserGroups() throws ODataJPAModelException {
+    fail();
+    return List.of();
   }
 }

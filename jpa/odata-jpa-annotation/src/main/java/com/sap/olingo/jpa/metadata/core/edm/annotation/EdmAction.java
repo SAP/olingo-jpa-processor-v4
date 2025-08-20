@@ -72,4 +72,9 @@ public @interface EdmAction {
    * @return
    */
   String entitySetPath() default "";
+
+  /**
+   * Restrict the access to the action to the give user groups. Default is unrestricted access.
+   */
+  EdmVisibleFor visibleFor() default @EdmVisibleFor;
 }
