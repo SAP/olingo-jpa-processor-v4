@@ -17,7 +17,7 @@ public class BooleanConverter implements AttributeConverter<Boolean, String> {
   public Boolean convertToEntityAttribute(final String dbData) {
     if (dbData != null)
       return Boolean.valueOf(dbData);
-    return null;
+    return null;// NOSONAR
   }
 
 }

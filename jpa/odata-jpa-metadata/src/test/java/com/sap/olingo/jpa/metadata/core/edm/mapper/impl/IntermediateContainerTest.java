@@ -66,12 +66,12 @@ class IntermediateContainerTest extends TestMappingRoot {
   }
 
   @Test
-  void checkContainerCanBeCreated() throws ODataJPAModelException {
+  void checkContainerCanBeCreated() {
     assertNotNull(new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME), schemas, annotationInfo));
   }
 
   @Test
-  void checkGetName() throws ODataJPAModelException {
+  void checkGetName() {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), schemas, annotationInfo);
@@ -292,7 +292,7 @@ class IntermediateContainerTest extends TestMappingRoot {
 
   }
 
-  private class PostProcessorSetIgnore implements JPAEdmMetadataPostProcessor {
+  private static class PostProcessorSetIgnore implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {

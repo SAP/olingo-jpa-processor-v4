@@ -7,6 +7,7 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import static com.sap.olingo.jpa.processor.core.util.Assertions.assertException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -85,6 +86,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
+import com.sap.olingo.jpa.processor.core.testmodel.RestrictedEntityComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.RestrictedEntityUnrestrictedSource;
 import com.sap.olingo.jpa.processor.core.testmodel.User;
 
 class IntermediateSimplePropertyTest extends TestMappingRoot {
@@ -1029,6 +1032,18 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertTrue(act.isEmpty());
   }
 
+  @Test
+  void checkAsUserGroupRestrictedUser() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        RestrictedEntityUnrestrictedSource.class), "relation");
+    final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    final IntermediateSimpleProperty act = property.asUserGroupRestricted(List.of("Company"));
+    assertNotEquals(property, act);
+    assertTrue(((IntermediateStructuredType<RestrictedEntityComplex>) act.getStructuredType()).isRestricted());
+  }
+
   private void createAnnotation() {
     final var reference = helper.annotationInfo.getReferences();
     final var annotationProvider = new JavaBasedCoreAnnotationsProvider();
@@ -1081,13 +1096,12 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
-          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
-        if (property.getInternalName().equals("customString1")) {
-          final var annotation = new CsdlAnnotation();
-          annotation.setTerm("Immutable");
-          annotation.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
-          property.addAnnotations(Collections.singletonList(annotation));
-        }
+          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner") && property.getInternalName().equals(
+              "customString1")) {
+        final var annotation = new CsdlAnnotation();
+        annotation.setTerm("Immutable");
+        annotation.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
+        property.addAnnotations(Collections.singletonList(annotation));
       }
     }
 

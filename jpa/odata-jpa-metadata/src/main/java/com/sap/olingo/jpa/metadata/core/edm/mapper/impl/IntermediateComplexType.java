@@ -1,5 +1,9 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.persistence.metamodel.EmbeddableType;
 
 import org.apache.commons.logging.Log;
@@ -7,7 +11,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCache;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheSupplier;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelInternalException;
 
 /**
  * Complex Types are used to structure Entity Types by grouping properties that belong together. Complex Types can
@@ -33,59 +41,100 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  */
 final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
   private static final Log LOGGER = LogFactory.getLog(IntermediateComplexType.class);
+  private final InstanceCache<IntermediateStructuredType<? super T>> baseType;
 
   IntermediateComplexType(final JPAEdmNameBuilder nameBuilder, final EmbeddableType<T> jpaEmbeddable,
       final IntermediateSchema schema) {
 
     super(nameBuilder, jpaEmbeddable, schema);
     this.setExternalName(nameBuilder.buildComplexTypeName(jpaEmbeddable));
+    baseType = new InstanceCacheSupplier<>(this::determineBaseType);
+  }
 
+  private IntermediateComplexType(IntermediateComplexType<T> source, List<String> requesterUserGroups)
+      throws ODataJPAModelException {
+    super(source, requesterUserGroups);
+    setExternalName(source.getExternalName());
+    baseType = new InstanceCacheFunction<>(this::baseTypeRestricted, source.getBaseType(),
+        requesterUserGroups);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <X extends IntermediateModelElement> X asUserGroupRestricted(List<String> userGroups)
+      throws ODataJPAModelException {
+    return (X) new IntermediateComplexType<>(this, userGroups);
   }
 
   @Override
-  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      buildPropertyList();
-      buildNavigationPropertyList();
-      addTransientProperties();
-      edmStructuralType = new CsdlComplexType();
+  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+    getEdmItem();
+  }
 
-      edmStructuralType.setName(this.getExternalName());
-      edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
-      edmStructuralType.setNavigationProperties(extractEdmModelElements(declaredNavigationPropertiesMap));
-      edmStructuralType.setBaseType(determineBaseType());
+  @Override
+  synchronized CsdlComplexType buildEdmItem() {
+    try {
+      var edmComplexType = new CsdlComplexType();
+
+      edmComplexType.setName(this.getExternalName());
+      edmComplexType.setProperties(extractEdmModelElements(getDeclaredPropertiesMap()));
+      edmComplexType.setNavigationProperties(extractEdmModelElements(getDeclaredNavigationPropertiesMap()));
+      edmComplexType.setBaseType(determineBaseTypeFqn());
       // TODO Abstract
       // edmComplexType.setAbstract(isAbstract)
       // TODO OpenType
       // edmComplexType.setOpenType(isOpenType)
-      if (determineHasStream()) {
+      if (determineHasStream())
         throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_EMBEDDED_STREAM,
             internalName);
-      }
+      checkPropertyConsistency();
+      return edmComplexType;
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAModelInternalException(e);
+    }
+  }
+
+  @Override
+  protected synchronized Map<String, IntermediateProperty> buildCompletePropertyMap() {
+    try {
+      Map<String, IntermediateProperty> result = new HashMap<>();
+      result.putAll(buildPropertyList());
+      result.putAll(addDescriptionProperty());
+      result.putAll(addTransientProperties());
+      return result;
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAModelInternalException(e);
     }
   }
 
   @Override
   CsdlComplexType getEdmItem() throws ODataJPAModelException {
-    if (edmStructuralType == null) {
-      lazyBuildEdmItem();
-    }
-    return (CsdlComplexType) edmStructuralType;
+    return (CsdlComplexType) super.getEdmItem();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public IntermediateStructuredType<? super T> getBaseType() {
-    final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
-    if (baseType != null) {
+  public IntermediateStructuredType<? super T> getBaseType() throws ODataJPAModelException {
+    return baseType.get().orElse(null);
+  }
+
+  /**
+   * Determines if the structured type has a super type that will be part of OData metadata. That is, the method will
+   * return null in case the entity has a MappedSuperclass.
+   * @return Determined super type or null
+   */
+  @SuppressWarnings("unchecked")
+  public IntermediateStructuredType<? super T> determineBaseType() { // NOSONAR
+    final Class<?> superType = jpaManagedType.getJavaType().getSuperclass();
+    if (superType != null) {
       final IntermediateStructuredType<? super T> baseComplex = (IntermediateStructuredType<? super T>) schema
-          .getComplexType(baseType);
+          .getComplexType(superType);
       if (baseComplex != null)
         return baseComplex;
-      else if (baseType != Object.class)
+      else if (superType != Object.class)
         LOGGER.warn("Embeddable " + jpaManagedType.getJavaType().getName()
-            + " is subtype of " + baseType.getName() + " but this is not embeddable or shall be ignored");
+            + " is subtype of " + superType.getName() + " but this is not embeddable or shall be ignored");
     }
     return null;
   }
+
 }

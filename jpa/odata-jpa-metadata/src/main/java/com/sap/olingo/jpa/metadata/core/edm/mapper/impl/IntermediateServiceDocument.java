@@ -61,7 +61,6 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final JPAEdmNameBuilder nameBuilder;
   private final IntermediateEntityContainer container;
   private final Map<String, IntermediateSchema> schemaListInternalKey;
-  private final JPAEdmMetadataPostProcessor pP;
   private final Reflections reflections;
   private Map<String, JPAProtectionInfo> claims;
   private final IntermediateAnnotationInformation annotationInfo;
@@ -85,12 +84,12 @@ class IntermediateServiceDocument implements JPAServiceDocument {
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
       final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
 
-    this.pP = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
-    IntermediateModelElement.setPostProcessor(pP);
+    var post = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
+    IntermediateModelElement.setPostProcessor(post);
 
-    this.reflections = createReflections(packageName);
+    reflections = createReflections(packageName);
     this.annotationInfo = new IntermediateAnnotationInformation(annotationProvider);
-    pP.provideReferences(annotationInfo.asReferenceList());
+    post.provideReferences(annotationInfo.asReferenceList());
     addReferencesFromAnnotationProvider(annotationProvider);
     this.nameBuilder = nameBuilder;
     this.jpaMetamodel = jpaMetamodel;
@@ -99,6 +98,27 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     buildIntermediateSchemas();
     this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey, annotationInfo);
     setContainer();
+  }
+
+  private IntermediateServiceDocument(IntermediateServiceDocument source, List<String> userGroups)
+      throws ODataJPAModelException {
+    this.annotationInfo = source.annotationInfo;
+    this.nameBuilder = source.nameBuilder;
+    this.jpaMetamodel = source.jpaMetamodel;
+    this.schemaListInternalKey = restrictedSchemas(source.schemaListInternalKey, userGroups);
+    this.container = source.container.asUserGroupRestricted(schemaListInternalKey, userGroups);
+    this.reflections = source.reflections;
+    this.claims = source.getClaims();
+    setContainer();
+  }
+
+  private Map<String, IntermediateSchema> restrictedSchemas(Map<String, IntermediateSchema> source,
+      List<String> userGroups) throws ODataJPAModelException {
+    final Map<String, IntermediateSchema> restricted = new HashMap<>(source.size());
+    for (var schema : source.entrySet()) {
+      restricted.put(schema.getKey(), schema.getValue().asUserGroupRestricted(userGroups));
+    }
+    return restricted;
   }
 
   private void addReferencesFromAnnotationProvider(final List<AnnotationProvider> annotationProvider)
@@ -111,6 +131,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     } catch (final ODataVocabularyReadException e) {
       throw new ODataJPAModelException(e);
     }
+  }
+
+  JPAServiceDocument asUserGroupRestricted(List<String> userGroups) throws ODataJPAModelException {
+    return new IntermediateServiceDocument(this, userGroups);
   }
 
   /*
@@ -441,4 +465,5 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private FullQualifiedName determineBindingParameter(final EdmOperation operation) {
     return operation.isBound() ? operation.getBindingParameterTypeFqn() : null;
   }
+
 }

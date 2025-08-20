@@ -35,13 +35,14 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationPro
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocumentFactory;
 
 public class JPAEdmProvider extends CsdlAbstractEdmProvider {
-
   private final JPAEdmNameBuilder nameBuilder;
   private final JPAServiceDocument serviceDocument;
+  private final List<String> userGroups;
 
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
   public JPAEdmProvider(@Nonnull final String namespace, @Nonnull final EntityManagerFactory emf,
@@ -68,8 +69,27 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     super();
     this.nameBuilder = nameBuilder;
     // After this call either a schema exists or an exception has been thrown
-    this.serviceDocument = new JPAServiceDocumentFactory(nameBuilder, jpaMetamodel, postProcessor, packageName,
-        annotationProvider).getServiceDocument();
+    this.serviceDocument = new JPAServiceDocumentFactory().getServiceDocument(nameBuilder, jpaMetamodel, postProcessor,
+        packageName, annotationProvider);
+    this.userGroups = List.of();
+  }
+
+  private JPAEdmProvider(JPAEdmProvider source, List<String> userGroups) throws ODataJPAModelException {
+    this.nameBuilder = source.nameBuilder;
+    this.serviceDocument = new JPAServiceDocumentFactory().asUserGroupRestricted(source.serviceDocument, userGroups);
+    this.userGroups = userGroups;
+  }
+
+  public JPAEdmProvider asUserGroupRestricted(List<String> userGroups) {
+    try {
+      return new JPAEdmProvider(this, userGroups);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAModelCopyException("Could not create restricted metadata", e);
+    }
+  }
+
+  List<String> getUserGroups() {
+    return userGroups;
   }
 
   /**
@@ -330,4 +350,5 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   protected final FullQualifiedName buildFQN(final String name) {
     return new FullQualifiedName(nameBuilder.getNamespace(), name);
   }
+
 }

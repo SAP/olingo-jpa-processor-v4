@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.processor.core.util.Assertions.assertListEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -19,6 +20,7 @@ import java.util.Map;
 import jakarta.persistence.Entity;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
@@ -31,7 +33,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPASingleton;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
@@ -184,8 +185,29 @@ class IntermediateSingletonTest extends TestMappingRoot {
     createAnnotation();
     final IntermediateEntityType<AnnotationsParent> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(AnnotationsParent.class), schema);
-    final JPAEntitySet es = new IntermediateEntitySet(nameBuilder, et, annotationInfo);
+    final JPASingleton es = new IntermediateSingleton(nameBuilder, et, annotationInfo);
     assertNull(es.getAnnotation("Capabilities", "Filter"));
+  }
+
+  @Test
+  void checkAsUserGroupRestrictedUserRestrictsNavigations() throws ODataJPAModelException {
+    final IntermediateEntityType<CurrentUser> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(CurrentUser.class), schema);
+    final var singleton = new IntermediateSingleton(nameBuilder, et, annotationInfo);
+
+    final IntermediateSingleton act = singleton.asUserGroupRestricted(List.of("Company"));
+    assertEquals(singleton.getExternalFQN(), act.getExternalFQN());
+    assertEquals(singleton.getExternalName(), act.getExternalName());
+    assertEquals(singleton.getInternalName(), act.getInternalName());
+    assertListEquals(singleton.getEdmItem().getNavigationPropertyBindings(), act.getEdmItem()
+        .getNavigationPropertyBindings(),
+        CsdlNavigationPropertyBinding.class);
+    final IntermediateSingleton act2 = singleton.asUserGroupRestricted(List.of("Person"));
+    assertEquals(singleton.getExternalFQN(), act2.getExternalFQN());
+    assertEquals(singleton.getExternalName(), act2.getExternalName());
+    assertEquals(singleton.getInternalName(), act2.getInternalName());
+    assertEquals(singleton.getEdmItem().getNavigationPropertyBindings().size() - 1, act2.getEdmItem()
+        .getNavigationPropertyBindings().size());
   }
 
   private void createAnnotation() {
@@ -200,27 +222,31 @@ class IntermediateSingletonTest extends TestMappingRoot {
         .thenReturn(annotations);
   }
 
-  private class PostProcessor implements JPAEdmMetadataPostProcessor {
+  private static class PostProcessor implements JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(
-          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
-        if (property.getInternalName().equals("communicationData")) {
-          property.setIgnore(true);
-        }
+      if (jpaManagedTypeClassName.equals("com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")
+          && property.getInternalName().equals("communicationData")) {
+        property.setIgnore(true);
       }
     }
 
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
-        final String jpaManagedTypeClassName) {}
+        final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processEntityType(final IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {
+      // Not needed
+    }
 
     @Override
-    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}
+    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {
+      // Not needed
+    }
 
     @Override
     public void processSingleton(final IntermediateSingletonAccess singleton) {

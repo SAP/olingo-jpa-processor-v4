@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -91,7 +92,7 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
       throws ODataJPAModelException {
 
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, functionName);
-    assertThrows(ODataJPAModelException.class, () -> act.getEdmItem(), message);
+    assertThrows(ODataJPAModelException.class, act::getEdmItem, message);
   }
 
   @Test
@@ -278,21 +279,21 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExceptionOnPrivateConstructor() throws ODataJPAModelException {
+  void checkThrowsExceptionOnPrivateConstructor() {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaPrivateConstructor.class, "sum");
     });
   }
 
   @Test
-  void checkThrowsExceptionOnNoConstructorAsSpecified() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNoConstructorAsSpecified() {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaTwoParameterConstructor.class, "sum");
     });
   }
 
   @Test
-  void checkThrowsExceptionOnNoConstructorWithEmAndQuery() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNoConstructorWithEmAndQuery() {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(WrongFunctionConstructor.class, "sum");
     });
@@ -303,6 +304,18 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
     final IntermediateJavaFunction act = createFunction(ExampleJavaEmConstructor.class, "sum");
     act.getEdmItem();
     assertNotNull(act.getReturnType());
+  }
+
+  @Test
+  void checkGetGroupsReturnsGiven() throws ODataJPAModelException {
+    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
+    assertArrayEquals(new String[] { "Person", "Company" }, act.getUserGroups().toArray(new String[] {}));
+  }
+
+  @Test
+  void checkGetGroupsReturnsEmptyListIfNoProvided() throws ODataJPAModelException {
+    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "determineLocation");
+    assertTrue(act.getUserGroups().isEmpty());
   }
 
   private IntermediateJavaFunction createFunction(final Class<? extends ODataFunction> clazz, final String method)
