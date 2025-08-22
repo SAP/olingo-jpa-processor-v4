@@ -1122,6 +1122,17 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  void testExpandStarViaExpand() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('1')?$expand = SupportEngineers($expand=*)",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(200);
+
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization);
+  }
+
+  @Test
   void testExpandWithNavigationCountFilter() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 &$expand=Parent",

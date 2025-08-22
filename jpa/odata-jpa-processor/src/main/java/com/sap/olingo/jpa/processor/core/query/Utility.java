@@ -118,6 +118,45 @@ public final class Utility {
   }
 
   public static Map<JPAExpandItem, JPAAssociationPath> determineAssociations(final JPAServiceDocument sd,
+      final UriResourceNavigation startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
+
+    final Map<JPAExpandItem, JPAAssociationPath> pathList = new HashMap<>();
+    final StringBuilder associationNamePrefix = new StringBuilder();
+
+    if (startResourceList != null && expandOption != null) {
+      // Example1 : ?$expand=Created/User (Property/NavigationProperty)
+      // Example2 : ?$expand=Parent/CodeID (NavigationProperty/Property)
+      // Example3 : ?$expand=Parent,Children (NavigationProperty, NavigationProperty)
+      // Example4 : ?$expand=*
+      // Example5 : ?$expand=*/$ref,Parent
+      // Example6 : ?$expand=Parent($levels=2)
+      // Example7 : ?$expand=*($levels=2)
+      // Example8 : ?$expand=*($levels=2;$expand=Parent)
+      // Example9 : ?$expand=BusinessPartner/com.sap.olingo.jpa.Person
+      for (final ExpandItem item : expandOption.getExpandItems()) {
+        if (item.isStar()) {
+          final EdmEntityType startResourceItem = startResourceList.getProperty().getType();
+          try {
+            determineAssociationsStar(sd, expandOption, pathList, associationNamePrefix, item, startResourceItem);
+          } catch (final ODataJPAModelException e) {
+            throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST, e);
+          }
+        } else {
+          final UriResource startResourceItem = createAssociationNamePrefix(List.of(startResourceList),
+              associationNamePrefix);
+          determineAssociations(sd, expandOption, pathList, associationNamePrefix, Objects.requireNonNull(
+              startResourceItem), item);
+          // For example8 Olingo only provides one ExpandItem next level has to expand Parent
+        }
+        if (item.getLevelsOption() != null && item.getLevelsOption().isMax())
+          LOGGER.warn(
+              "Client requested expand with $levels=max. This is depricated. The support will be stop in the future");
+      }
+    }
+    return pathList;
+  }
+
+  public static Map<JPAExpandItem, JPAAssociationPath> determineAssociations(final JPAServiceDocument sd,
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
     final Map<JPAExpandItem, JPAAssociationPath> pathList = new HashMap<>();
@@ -158,7 +197,7 @@ public final class Utility {
 
     for (final var selectOption : selectOptions) {
 
-      final StringBuilder associationName = associationNamePrefix.length() > 0
+      final StringBuilder associationName = !associationNamePrefix.isEmpty()
           ? new StringBuilder(associationNamePrefix).append(selectOption.getAlias())
           : new StringBuilder(selectOption.getAlias());
       pathList.put(selectOption, determineAssociationPath(sd, (UriResourcePartTyped) startResourceItem,
@@ -227,26 +266,49 @@ public final class Utility {
       final ExpandOption expandOption, final Map<JPAExpandItem, JPAAssociationPath> pathList,
       final StringBuilder associationNamePrefix, final ExpandItem item) throws ODataJPAUtilException {
 
-    // As olingo does not resolve the Star operator the expand Item does not contain a resource path
-    final EdmBindingTarget edmBindingTarget = determineBindingTarget(startResourceList);
     try {
-      final JPAStructuredType jpaStructuredType = sd.getEntity(edmBindingTarget.getName());
-      if (jpaStructuredType == null)
-        throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
-      final List<JPAAssociationPath> associationPaths = jpaStructuredType.getAssociationPathList();
-      for (final JPAAssociationPath path : associationPaths) {
-        if (associationNamePrefix.length() == 0 ||
-            path.getAlias().startsWith(associationNamePrefix.toString())) {
-          final var uriInfo = new JPAUriResourceNavigationImpl(findNavigationProperty(edmBindingTarget, path));
-          if (item.getLevelsOption() != null && path.getSourceType() == path.getTargetType())
-            pathList.put(new JPAExpandLevelWrapper(expandOption, (JPAEntityType) path.getTargetType(),
-                findNavigationProperty(edmBindingTarget, path), item), path);
-          else
-            pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType(), uriInfo), path);
-        }
-      }
+      // As olingo does not resolve the Star operator the expand item does not contain a resource path
+      final EdmStructuredType edmNavigationStart = determineNavigationStartForStar(startResourceList);
+      determineAssociationsStar(sd, expandOption, pathList, associationNamePrefix, item, edmNavigationStart);
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST, e);
+    }
+  }
+
+  private static EdmEntityType determineNavigationStartForStar(List<UriResource> resources) {
+    EdmEntityType result = null;
+    for (final UriResource resourceItem : resources) {
+      if (resourceItem.getKind() == UriResourceKind.entitySet) {
+        result = ((UriResourceEntitySet) resourceItem).getEntityType();
+      }
+      if (resourceItem.getKind() == UriResourceKind.singleton) {
+        result = ((UriResourceSingleton) resourceItem).getEntityType();
+      }
+      if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
+        result = (EdmEntityType) ((UriResourceNavigation) resourceItem).getType();
+      }
+    }
+    return result;
+  }
+
+  private static void determineAssociationsStar(final JPAServiceDocument sd, final ExpandOption expandOption,
+      final Map<JPAExpandItem, JPAAssociationPath> pathList, final StringBuilder associationNamePrefix,
+      final ExpandItem item, final EdmStructuredType edmEntityType)
+      throws ODataJPAModelException, ODataJPAUtilException {
+
+    final JPAStructuredType jpaStructuredType = sd.getEntity(edmEntityType);
+    if (jpaStructuredType == null)
+      throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST, edmEntityType.getName());
+    for (final JPAAssociationPath path : jpaStructuredType.getAssociationPathList()) {
+      if (associationNamePrefix.isEmpty() ||
+          path.getAlias().startsWith(associationNamePrefix.toString())) {
+        final var uriInfo = new JPAUriResourceNavigationImpl(findNavigationProperty(edmEntityType, path));
+        if (item.getLevelsOption() != null && path.getSourceType() == path.getTargetType())
+          pathList.put(new JPAExpandLevelWrapper(expandOption, (JPAEntityType) path.getTargetType(),
+              findNavigationProperty(edmEntityType, path), item), path);
+        else
+          pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType(), uriInfo), path);
+      }
     }
   }
 
@@ -405,7 +467,7 @@ public final class Utility {
           pathName.insert(0, PATH_SEPARATOR);
         }
       }
-      if (pathName.length() > 0)
+      if (!pathName.isEmpty())
         pathName.deleteCharAt(0);
     }
     return pathName.toString();
@@ -532,15 +594,15 @@ public final class Utility {
       throws ODataJPAQueryException {
     if (associationName == null)
       throw new ODataJPAQueryException(NOT_SUPPORTED_RESOURCE_TYPE, NOT_IMPLEMENTED, "");
-    if (associationName.length() > 0)
+    if (!associationName.isEmpty())
       associationName.append(PATH_SEPARATOR);
     associationName.append(pathSegment);
   }
 
-  private static EdmNavigationProperty findNavigationProperty(final EdmBindingTarget bindingTarget,
+  private static EdmNavigationProperty findNavigationProperty(final EdmStructuredType edmEntityType,
       final JPAAssociationPath path) {
 
-    EdmStructuredType type = bindingTarget.getEntityType();
+    EdmStructuredType type = edmEntityType;
     final var last = path.getLeaf();
     for (final var item : path.getPath()) {
       if (item == last)
