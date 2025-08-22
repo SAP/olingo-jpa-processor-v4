@@ -264,7 +264,7 @@ class UtilityTest extends TestBase {
     final EdmEntitySet persons = createEntitySet("Persons", person);
     final UriResourceEntitySet es = createEntitySetResource(persons);
     final UriResourceComplexProperty property = createComplexPropertyResource("AdministrativeInformation");
-
+    when(es.getEntityType()).thenReturn(person);
     when(property.getComplexType()).thenReturn(administrativeInformation);
     resourceParts.add(es);
     resourceParts.add(property);
@@ -413,6 +413,7 @@ class UtilityTest extends TestBase {
   private EdmEntityType createEntityType(final String name, final Property... properties) {
     final var entityType = mock(EdmEntityType.class);
     when(entityType.getName()).thenReturn(name);
+    when(entityType.getNamespace()).thenReturn(PUNIT_NAME);
     for (final var property : properties) {
       final var edmProperty = mock(EdmElement.class);
       when(entityType.getProperty(property.name)).thenReturn(edmProperty);
