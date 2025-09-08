@@ -23,6 +23,8 @@ import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollection;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 
 public class JPACollectionQueryResult implements JPACollectionResult, JPAConvertibleResult {
   private static final Map<String, List<Tuple>> EMPTY_RESULT;
@@ -70,11 +72,11 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public Map<String, EntityCollection> asEntityCollection(final JPAResultConverter converter)
+  public Map<String, JPAEntityCollectionExtension> asEntityCollection(final JPAResultConverter converter)
       throws ODataApplicationException {
     this.collectionResult = converter.getCollectionResult(this, requestedSelection);
-    final Map<String, EntityCollection> result = new HashMap<>(1);
-    final EntityCollection collection = new EntityCollection();
+    final Map<String, JPAEntityCollectionExtension> result = new HashMap<>(1);
+    final EntityCollection collection = new JPAEntityCollection();
     final Entity odataEntity = new Entity();
     final JPAAttribute leaf = (JPAAttribute) association.getPath().get(association.getPath().size() - 1);
 
@@ -85,7 +87,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
         collectionResult.get(ROOT_RESULT_KEY) != null ? collectionResult.get(ROOT_RESULT_KEY) : Collections
             .emptyList()));
     collection.getEntities().add(odataEntity);
-    result.put(ROOT_RESULT_KEY, collection);
+    result.put(ROOT_RESULT_KEY, (JPAEntityCollectionExtension) collection);
 
     return result;
   }
@@ -132,6 +134,11 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
+  public List<Tuple> removeResult(final String key) {
+    return jpaResult.remove(key);
+  }
+
+  @Override
   public Map<String, List<Tuple>> getResults() {
     return jpaResult;
   }
@@ -151,5 +158,10 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   public String getSkipToken(final List<JPAODataPageExpandInfo> foreignKeyStack) {
     // No paging support for collection properties yet
     return null;
+  }
+
+  @Override
+  public Collection<JPAPath> getRequestedSelection() {
+    return requestedSelection;
   }
 }

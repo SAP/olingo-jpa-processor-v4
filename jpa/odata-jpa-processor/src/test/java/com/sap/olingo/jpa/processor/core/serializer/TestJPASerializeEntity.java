@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
@@ -34,13 +33,14 @@ public class TestJPASerializeEntity extends TestJPAOperationSerializer {
 
   @Override
   protected void initTest(final List<UriResource> resourceParts) {
-    annotatable = mock(EntityCollection.class);
+    annotatable = mock(JPAEntityCollection.class);
     final Entity resultEntity = mock(Entity.class);
     final List<Entity> resultEntities = new ArrayList<>();
     resultEntities.add(resultEntity);
     when(resultEntity.getProperties()).thenReturn(Collections.emptyList());
     when(result.getEntities()).thenReturn(resultEntities);
-    when(((EntityCollection) annotatable).getEntities()).thenReturn(resultEntities);
+    when(((JPAEntityCollectionExtension) result).getFirstResult()).thenReturn(resultEntity);
+    when(((JPAEntityCollection) annotatable).getEntities()).thenReturn(resultEntities);
     cut = new JPASerializeEntity(serviceMetadata, serializer, uriHelper, uriInfo, ContentType.APPLICATION_JSON,
         context);
   }

@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
@@ -41,7 +40,7 @@ class TestJPASerializeValue {
   private UriInfo uriInfo;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
     serializer = mock(FixedFormatSerializer.class);
@@ -51,7 +50,7 @@ class TestJPASerializeValue {
   @Test
   void testDoesNotProvideNullValue() throws SerializerException, ODataJPASerializerException {
 
-    final EntityCollection results = new EntityCollection();
+    final JPAEntityCollectionExtension results = new JPAEntityCollection();
     final Entity result = new Entity();
     final Property value = new Property();
     final ODataRequest request = new ODataRequest();

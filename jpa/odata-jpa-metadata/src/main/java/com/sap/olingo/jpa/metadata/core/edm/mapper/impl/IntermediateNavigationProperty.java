@@ -361,7 +361,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
   private List<IntermediateJoinColumn> buildJoinColumns() {
     try {
       List<IntermediateJoinColumn> columns = new ArrayList<>();
-      if (jpaAttribute.getJavaMember() instanceof AnnotatedElement annotatedElement) {
+      if (jpaAttribute.getJavaMember() instanceof final AnnotatedElement annotatedElement) {
 
 //    Determine referential constraint
         final var isSourceOne = !mappedBy.isPresent();
@@ -381,7 +381,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
         }
       }
       return columns;
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAModelInternalException(e);
     }
   }
@@ -625,7 +625,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
   private List<CsdlReferentialConstraint> determineReferentialConstraints() {
     try {
       final List<CsdlReferentialConstraint> constraints = new ArrayList<>();
-      if (jpaAttribute.getJavaMember() instanceof AnnotatedElement annotatedElement) {
+      if (jpaAttribute.getJavaMember() instanceof final AnnotatedElement annotatedElement) {
         getJoinColumns();
         final var overwrite = annotatedElement.getAnnotation(AssociationOverride.class);
         if (overwrite != null || joinTable != null)
@@ -647,7 +647,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
           constraints.clear();
       }
       return constraints;
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAModelInternalException(e);
     }
   }
@@ -727,5 +727,4 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
     return null;
   }
 
-  private static record JoinInformation(IntermediateJoinTable table, List<IntermediateJoinColumn> columns) {}
 }

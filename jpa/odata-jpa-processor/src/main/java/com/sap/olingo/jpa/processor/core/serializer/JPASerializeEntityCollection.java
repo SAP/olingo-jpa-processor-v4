@@ -43,7 +43,7 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
   }
 
   @Override
-  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+  public SerializerResult serialize(final ODataRequest request, final JPAEntityCollectionExtension result)
       throws SerializerException, ODataJPASerializerException {
 
     final EdmBindingTarget targetEdmBindingTarget = Utility.determineBindingTarget(uriInfo.getUriResourceParts());
@@ -71,7 +71,8 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    return serializer.entityCollection(this.serviceMetadata, targetEdmBindingTarget.getEntityType(), result, opts);
+    return serializer.entityCollection(this.serviceMetadata, targetEdmBindingTarget.getEntityType(),
+        (EntityCollection) result, opts);
 
   }
 
