@@ -41,25 +41,7 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
     if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
       for (final JPAAssociationPath navigationPropertyPath : navigationPropertyList) {
-        if (navigationPropertyPath.getTargetType() instanceof IntermediateEntityType<?> et
-            && (et.asEntitySet() || et.asSingleton())) {
-
-          navigationPropBindingList.add(createNavigationPropertyBinding(navigationPropertyPath));
-        }
-      }
-    }
-    return navigationPropBindingList;
-  }
-
-  protected List<CsdlNavigationPropertyBinding> determinePropertyBinding(List<String> userGroups)
-      throws ODataJPAModelException {
-    final List<CsdlNavigationPropertyBinding> navigationPropBindingList = new ArrayList<>();
-    final var navigationPropertyList = entityType.getAssociationPathList();
-    if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
-      // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
-      for (final JPAAssociationPath navigationPropertyPath : navigationPropertyList) {
-        if (navigationPropertyPath.getTargetType() instanceof IntermediateEntityType<?> et
-            && et.isAccessibleFor(userGroups)
+        if (navigationPropertyPath.getTargetType() instanceof final IntermediateEntityType<?> et
             && (et.asEntitySet() || et.asSingleton())) {
 
           navigationPropBindingList.add(createNavigationPropertyBinding(navigationPropertyPath));

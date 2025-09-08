@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlDynamicExpression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections8.Reflections;
@@ -42,5 +44,14 @@ class IntermediateTopLevelEntityTest extends TestMappingRoot {
         PUNIT_NAME), getEntityType(Singleton.class), schema);
     final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationInfo);
     assertFalse(singleton.getQueryExtension().isPresent());
+  }
+
+  @Test
+  void checkGetAnnotationDynamicValueReturnsNull() throws ODataJPAModelException {
+    final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Singleton.class), schema);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationInfo);
+    final var expression = mock(CsdlDynamicExpression.class);
+    assertNull(singleton.getAnnotationDynamicValue("Name", expression));
   }
 }

@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ComplexValue;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -35,6 +34,8 @@ import com.sap.olingo.jpa.processor.core.converter.JPAComplexResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollection;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 
 abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor {
@@ -60,7 +61,8 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
         }
         return new Property(null, RESULT, ValueType.PRIMITIVE, result);
       case ENTITY:
-        return createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(), jpaOperation);
+        return (Annotatable) createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(),
+            jpaOperation);
       case COMPLEX:
         if (jpaOperation.getResultParameter().isCollection()) {
           return new Property(null, RESULT, ValueType.COLLECTION_COMPLEX, createComplexCollection(
@@ -104,7 +106,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private EntityCollection createEntityCollection(final EdmEntityType returnType, final Object result,
+  private JPAEntityCollectionExtension createEntityCollection(final EdmEntityType returnType, final Object result,
       final UriHelper createUriHelper, final JPAOperation jpaOperation)
       throws ODataApplicationException {
 
@@ -129,11 +131,12 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
       throws ODataJPASerializerException, SerializerException {
 
     if (result != null
-        && !(result instanceof final EntityCollection collection
+        && !(result instanceof final JPAEntityCollectionExtension collection
             && collection.getEntities().isEmpty())) {
-      final EntityCollection collection = result instanceof EntityCollection // NOSONAR
-          ? (EntityCollection) result
-          : new EntityCollection();
+      final JPAEntityCollectionExtension collection = result instanceof final JPAEntityCollectionExtension // NOSONAR
+      j
+          ? j
+          : new JPAEntityCollection();
       final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType,
           request);
       createSuccessResponse(response, responseFormat, serializerResult, collection);

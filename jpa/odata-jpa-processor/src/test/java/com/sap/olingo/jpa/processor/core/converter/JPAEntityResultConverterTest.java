@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
@@ -65,7 +65,7 @@ class JPAEntityResultConverterTest extends TestBase {
 
     jpaQueryResult.add(division);
 
-    final EntityCollection act = cut.getResult();
+    final JPAEntityCollectionExtension act = cut.getResult();
     assertEquals(1, act.getEntities().size());
   }
 
@@ -74,7 +74,7 @@ class JPAEntityResultConverterTest extends TestBase {
 
     jpaQueryResult.add(firstResult());
     jpaQueryResult.add(secondResult());
-    final EntityCollection act = cut.getResult();
+    final JPAEntityCollectionExtension act = cut.getResult();
     assertEquals(2, act.getEntities().size());
   }
 
@@ -85,7 +85,7 @@ class JPAEntityResultConverterTest extends TestBase {
 
     jpaQueryResult.add(division);
 
-    final EntityCollection act = cut.getResult();
+    final JPAEntityCollectionExtension act = cut.getResult();
     assertEquals(1, act.getEntities().size());
     assertEquals("BE21", act.getEntities().get(0).getProperty("DivisionCode").getValue().toString());
 
@@ -98,7 +98,7 @@ class JPAEntityResultConverterTest extends TestBase {
 
     jpaQueryResult.add(division);
 
-    final EntityCollection act = cut.getResult();
+    final JPAEntityCollectionExtension act = cut.getResult();
     assertEquals(1, act.getEntities().size());
     assertEquals("BE21", act.getEntities().get(0).getProperty("DivisionCode").getValue().toString());
     assertEquals("BE2", act.getEntities().get(0).getProperty("ParentDivisionCode").getValue().toString());

@@ -65,7 +65,8 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.actionListByKey = buildActionList();
   }
 
-  private IntermediateSchema(IntermediateSchema source, List<String> userGroups) throws ODataJPAModelException {
+  private IntermediateSchema(final IntermediateSchema source, final List<String> userGroups)
+      throws ODataJPAModelException {
     super(source.nameBuilder, source.nameBuilder.getNamespace(), source.getAnnotationInformation());
     jpaMetamodel = source.jpaMetamodel;
     reflections = source.reflections;
@@ -77,9 +78,10 @@ final class IntermediateSchema extends IntermediateModelElement {
   }
 
   private Map<ODataActionKey, IntermediateJavaAction> copyRestrictedActions(
-      Map<ODataActionKey, IntermediateJavaAction> source, List<String> userGroups) throws ODataJPAModelException {
+      final Map<ODataActionKey, IntermediateJavaAction> source, final List<String> userGroups)
+      throws ODataJPAModelException {
     final Map<ODataActionKey, IntermediateJavaAction> result = new HashMap<>(source.size());
-    for (var item : source.entrySet()) {
+    for (final var item : source.entrySet()) {
       if (item.getValue().isAccessibleFor(userGroups)) {
         result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups));
       }
@@ -87,11 +89,11 @@ final class IntermediateSchema extends IntermediateModelElement {
     return result;
   }
 
-  private <T extends IntermediateModelElement> Map<String, T> copyRestricted(Map<String, T> source,
-      List<String> userGroups) throws ODataJPAModelException {
+  private <T extends IntermediateModelElement> Map<String, T> copyRestricted(final Map<String, T> source,
+      final List<String> userGroups) throws ODataJPAModelException {
     final Map<String, T> result = new HashMap<>(source.size());
-    for (var item : source.entrySet()) {
-      if (item.getValue() instanceof JPAUserGroupRestrictable restrictable) {
+    for (final var item : source.entrySet()) {
+      if (item.getValue() instanceof final JPAUserGroupRestrictable restrictable) {
         if (restrictable.isAccessibleFor(userGroups)) {
           result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups));
         }
@@ -126,7 +128,7 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups)
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups)
       throws ODataJPAModelException {
     return (T) new IntermediateSchema(this, userGroups);
   }
@@ -203,8 +205,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
-  JPAEntityType getEntityType(final String dbCatalog, final String dbSchema, final String dbTableName)
-      throws ODataJPAModelException {
+  JPAEntityType getEntityType(final String dbCatalog, final String dbSchema, final String dbTableName) {
     for (final Entry<String, IntermediateEntityType<?>> et : entityTypeListInternalKey.entrySet()) {
       if (et.getValue().dbEquals(dbCatalog, dbSchema, dbTableName))
         return et.getValue();
