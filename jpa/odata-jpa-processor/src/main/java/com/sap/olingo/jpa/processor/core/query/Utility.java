@@ -118,6 +118,45 @@ public final class Utility {
   }
 
   public static Map<JPAExpandItem, JPAAssociationPath> determineAssociations(final JPAServiceDocument sd,
+      final UriResourceNavigation startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
+
+    final Map<JPAExpandItem, JPAAssociationPath> pathList = new HashMap<>();
+    final StringBuilder associationNamePrefix = new StringBuilder();
+
+    if (startResourceList != null && expandOption != null) {
+      // Example1 : ?$expand=Created/User (Property/NavigationProperty)
+      // Example2 : ?$expand=Parent/CodeID (NavigationProperty/Property)
+      // Example3 : ?$expand=Parent,Children (NavigationProperty, NavigationProperty)
+      // Example4 : ?$expand=*
+      // Example5 : ?$expand=*/$ref,Parent
+      // Example6 : ?$expand=Parent($levels=2)
+      // Example7 : ?$expand=*($levels=2)
+      // Example8 : ?$expand=*($levels=2;$expand=Parent)
+      // Example9 : ?$expand=BusinessPartner/com.sap.olingo.jpa.Person
+      for (final ExpandItem item : expandOption.getExpandItems()) {
+        if (item.isStar()) {
+          final EdmEntityType startResourceItem = startResourceList.getProperty().getType();
+          try {
+            determineAssociationsStar(sd, expandOption, pathList, associationNamePrefix, item, startResourceItem);
+          } catch (final ODataJPAModelException e) {
+            throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST, e);
+          }
+        } else {
+          final UriResource startResourceItem = createAssociationNamePrefix(List.of(startResourceList),
+              associationNamePrefix);
+          determineAssociations(sd, expandOption, pathList, associationNamePrefix, Objects.requireNonNull(
+              startResourceItem), item);
+          // For example8 Olingo only provides one ExpandItem next level has to expand Parent
+        }
+        if (item.getLevelsOption() != null && item.getLevelsOption().isMax())
+          LOGGER.warn(
+              "Client requested expand with $levels=max. This is depricated. The support will be stop in the future");
+      }
+    }
+    return pathList;
+  }
+
+  public static Map<JPAExpandItem, JPAAssociationPath> determineAssociations(final JPAServiceDocument sd,
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
     final Map<JPAExpandItem, JPAAssociationPath> pathList = new HashMap<>();
