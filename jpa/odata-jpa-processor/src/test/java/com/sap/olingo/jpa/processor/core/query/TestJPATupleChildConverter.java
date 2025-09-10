@@ -17,7 +17,6 @@ import java.util.Set;
 import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -85,7 +84,7 @@ class TestJPATupleChildConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "Organizations"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("1", act.getEntities().get(0).getProperty("ID").getValue().toString());
@@ -99,7 +98,7 @@ class TestJPATupleChildConverter extends TestBase {
     result.put("ID", new String("1"));
     jpaQueryResult.add(new TupleDouble(result));
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "Organizations"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("Organizations" + "('1')", act.getEntities().get(0).getId().getPath());
@@ -120,7 +119,7 @@ class TestJPATupleChildConverter extends TestBase {
     keyPredicates.put("1", "Organizations('1')");
     keyPredicates.put("5", "Organizations('5')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "Organizations"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(2, act.getEntities().size());
     assertEquals("1", act.getEntities().get(0).getProperty("ID").getValue().toString());
@@ -138,7 +137,7 @@ class TestJPATupleChildConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "Organizations"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("1", act.getEntities().get(0).getProperty("ID").getValue().toString());
@@ -157,7 +156,7 @@ class TestJPATupleChildConverter extends TestBase {
     result.put("ETag", Integer.valueOf(2));
     jpaQueryResult.add(new TupleDouble(result));
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "BusinessPartnerProtecteds"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals(1, act.getEntities().get(0).getProperties().size());
@@ -184,7 +183,7 @@ class TestJPATupleChildConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "Organizations"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
 
@@ -208,7 +207,7 @@ class TestJPATupleChildConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "Organizations"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     // Check first level
@@ -232,7 +231,7 @@ class TestJPATupleChildConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
         "Organizations"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("CA", ((ComplexValue) act.getEntities().get(0).getProperty("Address").getValue()).getValue().get(0)
@@ -257,7 +256,7 @@ class TestJPATupleChildConverter extends TestBase {
 
     keyPredicates.put("1", "Persons('99')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty()),
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty()),
         selection).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals(2, act.getEntities().get(0).getProperties().size());
@@ -281,7 +280,7 @@ class TestJPATupleChildConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty()),
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, et, emptyList(), empty()),
         selection).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals(2, act.getEntities().get(0).getProperties().size());
@@ -307,7 +306,7 @@ class TestJPATupleChildConverter extends TestBase {
     entityResult.put("Image", image);
     jpaQueryResult.add(new TupleDouble(entityResult));
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(result, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(result, null, helper.getJPAEntityType(
         "PersonImages"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals("image/png", act.getEntities().get(0).getMediaContentType());
@@ -331,9 +330,10 @@ class TestJPATupleChildConverter extends TestBase {
     entityResult.put("MimeType", "image/svg+xml");
     jpaQueryResult.add(new TupleDouble(entityResult));
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(result, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(result, null, helper.getJPAEntityType(
         "OrganizationImages"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
     assertEquals("image/svg+xml", act.getEntities().get(0).getMediaContentType());
     assertEquals(2, act.getEntities().get(0).getProperties().size());
   }
+
 }

@@ -9,7 +9,6 @@ import java.util.Map;
 import jakarta.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -76,7 +75,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
       throws ODataApplicationException {
     this.collectionResult = converter.getCollectionResult(this, requestedSelection);
     final Map<String, JPAEntityCollectionExtension> result = new HashMap<>(1);
-    final EntityCollection collection = new JPAEntityCollection();
+    final JPAEntityCollection collection = new JPAEntityCollection();
     final Entity odataEntity = new Entity();
     final JPAAttribute leaf = (JPAAttribute) association.getPath().get(association.getPath().size() - 1);
 
@@ -87,7 +86,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
         collectionResult.get(ROOT_RESULT_KEY) != null ? collectionResult.get(ROOT_RESULT_KEY) : Collections
             .emptyList()));
     collection.getEntities().add(odataEntity);
-    result.put(ROOT_RESULT_KEY, (JPAEntityCollectionExtension) collection);
+    result.put(ROOT_RESULT_KEY, collection);
 
     return result;
   }

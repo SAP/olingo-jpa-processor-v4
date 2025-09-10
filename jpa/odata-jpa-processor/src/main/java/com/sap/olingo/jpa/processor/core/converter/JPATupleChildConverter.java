@@ -18,7 +18,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -68,10 +67,6 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     collectionConverter = new JPATupleCollectionConverter(sd, uriHelper, serviceMetadata, requestContext);
   }
 
-  public JPATupleChildConverter(final JPATupleResultConverter converter) {
-    this(converter.sd, converter.uriHelper, converter.serviceMetadata, converter.requestContext);
-  }
-
   @Override
   public Map<String, List<Object>> getCollectionResult(final JPACollectionResult jpaResult,
       final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
@@ -81,7 +76,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
   }
 
   @Override
-  public Map<String, EntityCollection> getResult(@Nonnull final JPAExpandResult jpaResult,
+  public Map<String, JPAEntityCollectionExtension> getResult(@Nonnull final JPAExpandResult jpaResult,
       @Nonnull final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 
     jpaQueryResult = jpaResult;
@@ -90,9 +85,9 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     this.edmType = determineEdmType(jpaConversionTargetEntity);
     final Map<String, List<Tuple>> childResult = jpaResult.getResults();
 
-    final Map<String, EntityCollection> result = new HashMap<>(childResult.size());
+    final Map<String, JPAEntityCollectionExtension> result = new HashMap<>(childResult.size());
     for (final Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
-      final EntityCollection entityCollection = new EntityCollection();
+      final JPAEntityCollectionExtension entityCollection = new JPAEntityCollection();
       final List<Entity> entities = entityCollection.getEntities();
       final List<Tuple> rows = tuple.getValue();
 
@@ -121,7 +116,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     this.edmType = determineEdmType(jpaConversionTargetEntity);
 
     final List<Tuple> rows = jpaResult.getResults().get(parentKey);
-    final EntityCollection entityCollection = new JPAEntityCollection();
+    final JPAEntityCollection entityCollection = new JPAEntityCollection();
     final List<Entity> entities = entityCollection.getEntities();
     for (int i = 0; i < rows.size(); i++) {
       final Tuple row = rows.set(i, null);
@@ -130,7 +125,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       entities.add(odataEntity);
     }
     popResult();
-    return (JPAEntityCollectionExtension) entityCollection;
+    return entityCollection;
   }
 
   private void popResult() {
