@@ -20,7 +20,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheSupplier;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPARowConverter;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 
 public class JPAEntityCollectionLazy extends EntityCollection implements JPAEntityCollectionExtension {
 
@@ -66,12 +65,21 @@ public class JPAEntityCollectionLazy extends EntityCollection implements JPAEnti
     }
   }
 
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object other) {
+    return super.equals(other);
+  }
+
   private Entity createFirstResult() {
     if (!jpaResult.getResult(JPAExpandResult.ROOT_RESULT_KEY).isEmpty()) {
       try {
         return converter.convertRow(jpaEntity, jpaResult.getResult(JPAExpandResult.ROOT_RESULT_KEY).set(0, null),
-            jpaResult.getRequestedSelection(), List
-                .of(), (jpaResult));
+            jpaResult.getRequestedSelection(), List.of(), jpaResult);
       } catch (final ODataApplicationException e) {
         throw new IllegalStateException(e);
       }
@@ -110,21 +118,11 @@ public class JPAEntityCollectionLazy extends EntityCollection implements JPAEnti
         return firstResult.get();
       final var row = entities.set(i, null);
       try {
-        return converter.convertRow(jpaEntity, row, ((JPAExpandQueryResult) jpaResult).getRequestedSelection(), List
-            .of(), (jpaResult));
+        return converter.convertRow(jpaEntity, row, jpaResult.getRequestedSelection(), List.of(), jpaResult);
       } catch (final ODataApplicationException e) {
         throw new IllegalStateException(e);
       }
     }
   }
 
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
-
-  @Override
-  public boolean equals(final Object other) {
-    return super.equals(other);
-  }
 }
