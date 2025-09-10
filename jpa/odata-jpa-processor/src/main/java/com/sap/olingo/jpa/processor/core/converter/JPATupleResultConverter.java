@@ -321,8 +321,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       newInfo.add(new JPAODataPageExpandInfo(association.getAlias(), foreignKey));
       Collections.addAll(new ArrayList<>(expandInfo), newInfo);
       final JPAEntityCollectionExtension expandCollection = ((JPAConvertibleResult) child).getEntityCollection(
-          foreignKey, this,
-          newInfo);
+          foreignKey, this, newInfo);
       expandCollection.setCount(determineCount(child, foreignKey));
       if (association.getLeaf().isCollection()) {
         if (!expandCollection.getEntities().isEmpty()) {
