@@ -270,7 +270,7 @@ class JPAExpandQueryResultTest extends TestBase {
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
     tuples.add(tuple);
-    final var et = helper.getJPAEntityType(AdministrativeDivision.class);
+    et = helper.getJPAEntityType(AdministrativeDivision.class);
     final Map<JPAAssociationPath, JPAExpandResult> childResults = Map.of(et.getAssociationPath("Parent"),
         new JPAExpandQueryResult(et, List.of()));
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(AdministrativeDivision.class),
@@ -281,12 +281,10 @@ class JPAExpandQueryResultTest extends TestBase {
 
   @Test
   void checkConvert() throws ODataJPAModelException {
-    final var et = helper.getJPAEntityType(AdministrativeDivision.class);
     final JPAResultConverter converter = mock(JPAResultConverter.class);
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(AdministrativeDivision.class),
         emptyList(), empty());
     assertThrows(IllegalAccessError.class, () -> cut.convert(converter));
-
   }
 
   private void addTuple(final Integer value) {
