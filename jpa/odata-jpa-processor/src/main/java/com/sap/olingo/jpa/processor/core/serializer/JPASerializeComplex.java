@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.ContextURL;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -72,7 +71,7 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
   }
 
   @Override
-  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+  public SerializerResult serialize(final ODataRequest request, final JPAEntityCollectionExtension result)
       throws SerializerException, ODataJPASerializerException {
 
     final EdmBindingTarget targetEdmBindingTarget = Utility.determineBindingTarget(uriInfo.getUriResourceParts());
@@ -108,12 +107,13 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
     }
   }
 
-  private Property determineProperty(final EdmBindingTarget targetEdmBindingTarget, final EntityCollection result) {
+  private Property determineProperty(final EdmBindingTarget targetEdmBindingTarget,
+      final JPAEntityCollectionExtension result) {
     UriResourceProperty uriProperty = null;
     Property property = null;
 
     boolean found = false;
-    List<Property> properties = result.getEntities().get(0).getProperties();
+    List<Property> properties = result.getFirstResult().getProperties();
 
     for (final UriResource hop : uriInfo.getUriResourceParts()) {
       if (isTopLevel(hop)

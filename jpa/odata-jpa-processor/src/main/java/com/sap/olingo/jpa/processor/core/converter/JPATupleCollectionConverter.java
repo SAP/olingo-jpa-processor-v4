@@ -13,8 +13,9 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.data.ComplexValue;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -22,6 +23,7 @@ import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -33,8 +35,10 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 
 public class JPATupleCollectionConverter extends JPATupleResultConverter {
+  private static final Log LOGGER = LogFactory.getLog(JPATupleCollectionConverter.class);
 
   public JPATupleCollectionConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
@@ -47,8 +51,6 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
 
     jpaQueryResult = dbResult;
     final JPACollectionResult jpaResult = (JPACollectionResult) dbResult;
-    final JPAAssociationAttribute attribute = jpaResult.getAssociation().getLeaf();
-    final boolean isTransient = attribute.isTransient();
 
     final Map<String, List<Tuple>> childResult = jpaResult.getResults();
     final Map<String, List<Object>> result = new HashMap<>(childResult.size());
@@ -59,13 +61,8 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
       final String prefix = determinePrefix(jpaResult.getAssociation().getAlias());
 
       for (final Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
-        if (isTransient) {
-          result.put(tuple.getKey(), convertTransientCollection(attribute, tuple));
-        } else {
-          result.put(tuple.getKey(),
-              convertPersistentCollection(jpaResult, attribute, st, prefix, tuple, requestedSelection, Collections
-                  .emptyList()));
-        }
+        result.put(tuple.getKey(), getResult(requestedSelection, jpaResult.getAssociation(), st, prefix,
+            tuple.getValue()));
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
@@ -76,6 +73,19 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
     return result;
   }
 
+  public List<Object> getResult(final Collection<JPAPath> requestedSelection,
+      final JPAAssociationPath jpaAssociationPath, final JPAStructuredType st, final String prefix,
+      final List<Tuple> rows)
+      throws ODataJPAModelException, ODataApplicationException {
+
+    if (jpaAssociationPath.getLeaf().isTransient()) {
+      return convertTransientCollection(jpaAssociationPath.getLeaf(), rows);
+    } else {
+      return convertPersistentCollection(jpaAssociationPath, st, prefix, rows, requestedSelection,
+          Collections.emptyList());
+    }
+  }
+
   @Override
   public Map<String, List<Object>> getCollectionResult(final JPACollectionResult jpaResult,
       final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
@@ -83,22 +93,21 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
   }
 
   @Override
-  public EntityCollection getResult(final JPAExpandQueryResult jpaExpandQueryResult,
+  public JPAEntityCollectionExtension getResult(final JPAExpandQueryResult jpaExpandQueryResult,
       final Collection<JPAPath> requestedSelection, final String parentKey,
       final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
     return null;
   }
 
-  private List<Object> convertPersistentCollection(final JPACollectionResult jpaResult,
-      final JPAAssociationAttribute attribute, final JPAStructuredType st, final String prefix,
-      final Entry<String, List<Tuple>> tuple, final Collection<JPAPath> requestedSelection,
+  private List<Object> convertPersistentCollection(final JPAAssociationPath jpaAssociationPath,
+      final JPAStructuredType st, final String prefix,
+      final List<Tuple> rows, final Collection<JPAPath> requestedSelection,
       final List<JPAODataPageExpandInfo> expandInfo) throws ODataJPAModelException, ODataApplicationException {
 
     final List<Object> collection = new ArrayList<>();
-    final List<Tuple> rows = tuple.getValue();
 
     for (final Tuple row : rows) {
-      if (attribute.isComplex()) {
+      if (jpaAssociationPath.getLeaf().isComplex()) {
         final ComplexValue value = new ComplexValue();
         final Map<String, ComplexValue> complexValueBuffer = new HashMap<>();
         if (requestedSelection.isEmpty()) {
@@ -106,10 +115,10 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
         } else {
           convertRowWithSelection(row, requestedSelection, complexValueBuffer, null, value.getValue(), expandInfo);
         }
-        collection.add(complexValueBuffer.get(jpaResult.getAssociation().getAlias()));
+        collection.add(complexValueBuffer.get(jpaAssociationPath.getAlias()));
       } else {
-        collection.add(convertPrimitiveCollectionAttribute(row.get(jpaResult.getAssociation().getAlias()),
-            (JPACollectionAttribute) attribute));
+        collection.add(convertPrimitiveCollectionAttribute(row.get(jpaAssociationPath.getAlias()),
+            (JPACollectionAttribute) jpaAssociationPath.getLeaf()));
       }
 
     }
@@ -132,12 +141,12 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
 
   @SuppressWarnings("unchecked")
   private List<Object> convertTransientCollection(final JPAAssociationAttribute attribute,
-      final Entry<String, List<Tuple>> tuple) throws ODataJPAProcessorException {
+      final List<Tuple> tuple) throws ODataJPAProcessorException {
 
     final Optional<EdmTransientPropertyCalculator<?>> calculator = requestContext.getCalculator(attribute);
     if (calculator.isPresent()) {
       // The tuple contains only one row with required fields
-      return (List<Object>) calculator.get().calculateCollectionProperty(tuple.getValue().get(0));
+      return (List<Object>) calculator.get().calculateCollectionProperty(tuple.get(0));
     }
     return Collections.emptyList();
   }
@@ -151,5 +160,10 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
       return converter.convertToDatabaseColumn((T) value);
     }
     return (S) value;
+  }
+
+  @Override
+  protected Log getLogger() {
+    return LOGGER;
   }
 }

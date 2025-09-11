@@ -275,7 +275,7 @@ public final class Utility {
     }
   }
 
-  private static EdmEntityType determineNavigationStartForStar(List<UriResource> resources) {
+  private static EdmEntityType determineNavigationStartForStar(final List<UriResource> resources) {
     EdmEntityType result = null;
     for (final UriResource resourceItem : resources) {
       if (resourceItem.getKind() == UriResourceKind.entitySet) {

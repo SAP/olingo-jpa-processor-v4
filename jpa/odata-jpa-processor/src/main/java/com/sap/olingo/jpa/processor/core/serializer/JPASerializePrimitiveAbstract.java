@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.serializer;
 import java.util.List;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -21,14 +20,14 @@ public abstract class JPASerializePrimitiveAbstract implements JPAOperationSeria
     this.uriInfo = uriInfo;
   }
 
-  protected final JPAPrimitivePropertyInfo determinePrimitiveProperty(final EntityCollection result,
+  protected final JPAPrimitivePropertyInfo determinePrimitiveProperty(final JPAEntityCollectionExtension result,
       final List<UriResource> uriResources) {
     Property property = null;
     Object value = null;
 
     final StringBuilder path = new StringBuilder();
 
-    for (final Property item : result.getEntities().get(0).getProperties())
+    for (final Property item : result.getFirstResult().getProperties())
       if (partOfPath(item, uriResources)) {
         property = item;
         boolean found = false;

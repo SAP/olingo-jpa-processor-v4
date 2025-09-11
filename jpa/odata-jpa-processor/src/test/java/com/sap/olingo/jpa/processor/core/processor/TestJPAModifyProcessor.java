@@ -16,7 +16,6 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 
 import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.Edm;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -31,7 +30,6 @@ import org.apache.olingo.commons.core.edm.primitivetype.EdmString;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -53,9 +51,9 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
@@ -168,8 +166,9 @@ abstract class TestJPAModifyProcessor {
     when(edmProperty.getType()).thenReturn(type);
     when(type.toUriLiteral(ArgumentMatchers.any())).thenReturn("35");
 
-    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
-        serializerResult);
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(JPAEntityCollectionExtension.class)))
+        .thenReturn(
+            serializerResult);
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
 
     return request;
@@ -226,15 +225,16 @@ abstract class TestJPAModifyProcessor {
     when(edmProperty.getType()).thenReturn(type);
     when(edmProperty.getMaxLength()).thenReturn(50);
 
-    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
-        serializerResult);
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(JPAEntityCollectionExtension.class)))
+        .thenReturn(
+            serializerResult);
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ParentCodeID\":\"NUTS1\"}".getBytes()));
 
     return request;
 
   }
 
-  protected ODataRequest prepareSimpleRequest() throws ODataException, ODataJPAProcessorException, SerializerException {
+  protected ODataRequest prepareSimpleRequest() throws ODataException {
 
     return prepareSimpleRequest("return=minimal");
   }
@@ -286,8 +286,9 @@ abstract class TestJPAModifyProcessor {
     when(edmProperty.getType()).thenReturn(type);
     when(type.toUriLiteral(ArgumentMatchers.any())).thenReturn("35");
 
-    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
-        serializerResult);
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(JPAEntityCollectionExtension.class)))
+        .thenReturn(
+            serializerResult);
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
 
     return request;

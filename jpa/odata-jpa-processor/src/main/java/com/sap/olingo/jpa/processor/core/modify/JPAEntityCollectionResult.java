@@ -68,4 +68,9 @@ final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JP
   public JPAAssociationPath getAssociation() {
     return path;
   }
+
+  @Override
+  public Collection<JPAPath> getRequestedSelection() {
+    return List.of();
+  }
 }

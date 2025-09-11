@@ -66,4 +66,8 @@ class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionRe
     return path;
   }
 
+  @Override
+  public Collection<JPAPath> getRequestedSelection() {
+    return List.of();
+  }
 }

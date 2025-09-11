@@ -30,7 +30,7 @@ class IntermediateJoinTable implements JPAJoinTable {
   private final Optional<JPAEntityType> jpaEntityType;
 
   IntermediateJoinTable(final IntermediateNavigationProperty<?> intermediateProperty, final JoinTable jpaJoinTable,
-      final IntermediateSchema schema) throws ODataJPAModelException {
+      final IntermediateSchema schema) {
     super();
     this.intermediateProperty = intermediateProperty;
     this.jpaJoinTable = jpaJoinTable;

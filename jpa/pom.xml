@@ -24,12 +24,12 @@
         <javax.version>4.0.1</javax.version>
         <jpa.version>3.1.0</jpa.version>
         <processor.version>${project.version}</processor.version>
-        <spring-jcl.version>6.2.7</spring-jcl.version>
+        <spring-jcl.version>6.2.10</spring-jcl.version>
         <eclipseLink.version>4.0.7</eclipseLink.version>
         <hibernate.version>6.4.0.Final</hibernate.version>
         <openjpa.version>4.0.0</openjpa.version>
         <derby.version>10.16.1.1</derby.version>
-        <junit.version>5.13.0</junit.version>
+        <junit.version>5.13.4</junit.version>
         <junit-platform.version>1.13.2</junit-platform.version>
         <mockito.version>5.19.0</mockito.version>
         <jacoco.version>0.8.13</jacoco.version>
@@ -333,7 +333,7 @@
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
-                    <version>1.20.1</version>
+                    <version>1.20.2</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.pitest</groupId>
