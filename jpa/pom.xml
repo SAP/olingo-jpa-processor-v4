@@ -18,7 +18,7 @@
         <jackson.version>2.19.0</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
-        <cf-logging.version>3.8.4</cf-logging.version>
+        <cf-logging.version>3.8.6</cf-logging.version>
         <flyway.version>11.12.0</flyway.version>
         <jakarta.version>6.1.0</jakarta.version>
         <javax.version>4.0.1</javax.version>
