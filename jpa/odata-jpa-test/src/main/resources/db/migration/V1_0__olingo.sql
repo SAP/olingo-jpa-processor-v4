@@ -959,7 +959,7 @@ CREATE TABLE "AssociationOneToOneSource"(
  
 insert into "AssociationOneToOneSource" values ('SA', 'TA', 'TB');
 insert into "AssociationOneToOneSource" values ('SB', 'TB', 'TA');
-insert into "AssociationOneToOneSource" values ('SC', 'TA', 'TB');
+insert into "AssociationOneToOneSource" values ('SC', 'TC', 'TD');
 insert into "AssociationOneToOneSource" values ('SD', null, null);
 
 CREATE TABLE "AssociationOneToOneTarget"(
@@ -967,8 +967,10 @@ CREATE TABLE "AssociationOneToOneTarget"(
 	"SOURCE"  VARCHAR(32),
  PRIMARY KEY ("ID"));
  
-insert into "AssociationOneToOneTarget" values ('TA', 'SC');
-insert into "AssociationOneToOneTarget" values ('TB', 'SC');
+insert into "AssociationOneToOneTarget" values ('TA', 'SA');
+insert into "AssociationOneToOneTarget" values ('TB', 'SB');
+insert into "AssociationOneToOneTarget" values ('TC', 'SC');
+insert into "AssociationOneToOneTarget" values ('TD', 'SC');
 
 
 ------Temporal Data-------------------------

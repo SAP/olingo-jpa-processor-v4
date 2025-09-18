@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -319,9 +318,8 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       final var foreignKey = buildConcatenatedKey(parentRow, association.getLeftColumnsList());
       final List<JPAODataPageExpandInfo> newInfo = new ArrayList<>(expandInfo);
       newInfo.add(new JPAODataPageExpandInfo(association.getAlias(), foreignKey));
-      Collections.addAll(new ArrayList<>(expandInfo), newInfo);
       final JPAEntityCollectionExtension expandCollection = ((JPAConvertibleResult) child).getEntityCollection(
-          foreignKey, this, newInfo);
+          foreignKey, this, association, newInfo);
       expandCollection.setCount(determineCount(child, foreignKey));
       if (association.getLeaf().isCollection()) {
         if (!expandCollection.getEntities().isEmpty()) {
