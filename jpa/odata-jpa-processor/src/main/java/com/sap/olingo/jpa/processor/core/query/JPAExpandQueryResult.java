@@ -20,6 +20,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.CardinalityValue;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -108,6 +109,22 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
     }
     return odataResult.get(parentKey);
 
+  }
+
+  private JPAEntityCollectionExtension convertOnDemand(final JPAResultConverter converter, final String parentKey,
+      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
+
+    final var result = converter.getResult(this, requestedSelection, parentKey, expandInfo);
+    jpaResult.put(parentKey, null);
+    return result;
+  }
+
+  private JPAEntityCollectionExtension convert(final String key, final JPAResultConverter converter,
+      final JPAAssociationPath association, final List<JPAODataPageExpandInfo> expandInfo)
+      throws ODataApplicationException {
+    return association.cardinality().source == CardinalityValue.ONE
+        ? convertOnDemand(converter, key, expandInfo)
+        : convert(converter, key, expandInfo);
   }
 
   @Override
@@ -201,10 +218,11 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
 
   @Override
   public JPAEntityCollectionExtension getEntityCollection(final String key, final JPAResultConverter converter,
-      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
+      final JPAAssociationPath association, final List<JPAODataPageExpandInfo> expandInfo)
+      throws ODataApplicationException {
 
     return jpaResult.containsKey(key)
-        ? convert(converter, key, expandInfo)
+        ? convert(key, converter, association, expandInfo)
         : new JPAEntityCollection();
   }
 

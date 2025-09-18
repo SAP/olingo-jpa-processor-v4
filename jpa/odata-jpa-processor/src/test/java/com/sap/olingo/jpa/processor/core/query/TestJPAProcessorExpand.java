@@ -1289,6 +1289,32 @@ class TestJPAProcessorExpand extends TestBase {
 
   }
 
+  @Test
+  void testExpandMultipleParentChildReturnsConsistantResult() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('2')?$select=ID,Country&$expand=Roles($orderby=RoleCategory;$expand=BusinessPartner"
+            + "($select=ID,Country;$expand=Roles($orderby=RoleCategory)))");
+    helper.assertStatus(200);
+    final ObjectNode result = helper.getValue();
+    final String country = result.get("Country").asText();
+    final ArrayNode roles = (ArrayNode) result.get("Roles");
+    assertNotNull(roles);
+    assertNotNull(country);
+    for (final var role : roles) {
+      final var partner = role.get("BusinessPartner");
+      assertNotNull(partner);
+      assertEquals("2", partner.get("ID").asText());
+      assertEquals(country, partner.get("Country").asText());
+      final ArrayNode roles2 = (ArrayNode) partner.get("Roles");
+      assertNotNull(roles2);
+      for (int i = 0; i < roles.size(); i++) {
+        final var role2 = roles2.get(i);
+        assertEquals(roles.get(i).get("BusinessPartnerID"), role2.get("BusinessPartnerID"));
+        assertEquals(roles.get(i).get("RoleCategory"), role2.get("RoleCategory"));
+      }
+    }
+  }
+
   private JPAODataPagingProvider createPagingProvider() throws ODataApplicationException {
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
     final JPAODataSkipTokenProvider skipTokens = mock(JPAODataSkipTokenProvider.class);
