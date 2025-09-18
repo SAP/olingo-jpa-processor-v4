@@ -43,14 +43,14 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   private static final Log LOGGER = LogFactory.getLog(IntermediateSimpleProperty.class);
   private EdmMediaStream streamInfo;
+  private Boolean isKey;
 
   IntermediateSimpleProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
-
     super(nameBuilder, jpaAttribute, schema);
   }
 
-  IntermediateSimpleProperty(IntermediateSimpleProperty source, List<String> userGroups)
+  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final List<String> userGroups)
       throws ODataJPAModelException {
     super(source, userGroups);
   }
@@ -72,15 +72,12 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   public boolean isKey() {
-    if (jpaAttribute instanceof SingularAttribute<?, ?>)
-      return ((SingularAttribute<?, ?>) jpaAttribute).isId();
-    else
-      return false;
+    return isKey != null ? isKey : isIdAttribute();
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups) // NOSONAR
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups) // NOSONAR
       throws ODataJPAModelException { // NOSONAR
 
     if (this.isComplex())
@@ -189,5 +186,11 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   @Override
   boolean isStream() {
     return streamInfo != null && streamInfo.stream();
+  }
+
+  private Boolean isIdAttribute() {
+    isKey = jpaAttribute instanceof final SingularAttribute<?, ?> singular
+        && singular.isId();
+    return isKey;
   }
 }

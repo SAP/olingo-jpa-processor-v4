@@ -41,7 +41,8 @@ abstract class JPANavigationLinkResult extends JPACreateResult implements JPACon
 
   @Override
   public JPAEntityCollectionExtension getEntityCollection(final String key, final JPAResultConverter converter,
-      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
+      final JPAAssociationPath association, final List<JPAODataPageExpandInfo> expandInfo)
+      throws ODataApplicationException {
     if (odataResult == null)
       asEntityCollection(converter);
     return odataResult.containsKey(key) ? odataResult.get(key) : new JPAEntityCollection();
@@ -65,7 +66,7 @@ abstract class JPANavigationLinkResult extends JPACreateResult implements JPACon
   }
 
   @Override
-  public List<Tuple> removeResult(String key) {
+  public List<Tuple> removeResult(final String key) {
     return result.put(key, null);
   }
 

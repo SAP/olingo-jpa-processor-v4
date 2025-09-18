@@ -28,7 +28,8 @@ public interface JPAConvertibleResult {
   void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults) throws ODataApplicationException;
 
   default JPAEntityCollectionExtension getEntityCollection(final String key, final JPAResultConverter converter,
-      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
+      final JPAAssociationPath association, final List<JPAODataPageExpandInfo> expandInfo)
+      throws ODataApplicationException {
     throw new IllegalAccessError("Not supported");
   }
 

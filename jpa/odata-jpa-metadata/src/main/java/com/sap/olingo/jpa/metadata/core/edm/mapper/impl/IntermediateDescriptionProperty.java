@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.metamodel.Attribute;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.Cardinality;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -62,7 +63,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   public Map<JPAPath, String> getFixedValueAssignment() {
     try {
       return fixedValues.get();
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new IllegalArgumentException(e);
     }
   }
@@ -92,7 +93,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups) // NOSONAR
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups) // NOSONAR
       throws ODataJPAModelException {
     return (T) this;
   }
@@ -141,7 +142,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
           }
           return result;
         }
-      } catch (ODataJPAModelException e) {
+      } catch (final ODataJPAModelException e) {
         throw new ODataJPAModelInternalException(e);
       }
     }
@@ -153,7 +154,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     try {
       return targetEntity.get().orElseThrow(() -> new NullPointerException(
           "Description proerty not target type available"));
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new IllegalArgumentException(e);
     }
   }
@@ -232,7 +233,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     private List<IntermediateJoinColumn> joinColumns = null;
     private final JPAStructuredType target;
 
-    private AssociationPath(JPAStructuredType target) {
+    private AssociationPath(final JPAStructuredType target) {
       super();
       this.target = target;
     }
@@ -375,6 +376,11 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     @Override
     public String getPathAsString() {
       return getAlias();
+    }
+
+    @Override
+    public Cardinality cardinality() {
+      throw new IllegalAccessError("Not supported for description properties");
     }
   }
 }
