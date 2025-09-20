@@ -835,7 +835,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkConsistencyThrowsExceptionIfProtected() throws ODataJPAModelException {
+  void checkConsistencyThrowsExceptionIfProtected() {
     final EdmProtectedBy jpaProtectedBy = mock(EdmProtectedBy.class);
     final Attribute<?, ?> attribute = createDummyAttribute();
     final Member member = attribute.getJavaMember();
@@ -848,7 +848,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkConsistencyThrowsExceptionHaveFieldGroup() throws ODataJPAModelException {
+  void checkConsistencyThrowsExceptionHaveFieldGroup() {
     final EdmVisibleFor jpaFieldGroups = mock(EdmVisibleFor.class);
     final Attribute<?, ?> attribute = createDummyAttribute();
     final Member member = attribute.getJavaMember();
@@ -919,7 +919,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkMissingCardinalityAnnotationThrowsError() throws ODataJPAModelException {
+  void checkMissingCardinalityAnnotationThrowsError() {
     final EntityType<MissingCardinalityAnnotation> et = errorHelper.getEntityType(MissingCardinalityAnnotation.class);
     final Attribute<?, ?> jpaAttribute = errorHelper.getDeclaredAttribute(et, "oneTeam");
 

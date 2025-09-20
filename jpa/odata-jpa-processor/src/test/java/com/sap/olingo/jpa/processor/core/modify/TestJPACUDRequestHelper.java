@@ -78,7 +78,7 @@ class TestJPACUDRequestHelper {
   private List<String> headers;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     request = mock(ODataRequest.class);
     headers = new ArrayList<>(1);
     uriResourceParts = new ArrayList<>();
@@ -219,7 +219,7 @@ class TestJPACUDRequestHelper {
 
   @Test
   void testConvertInputStreamEntitySetThrowsExceptionOnAnnotationMismatch() throws UnsupportedEncodingException,
-      ODataJPAProcessorException, EdmPrimitiveTypeException {
+      EdmPrimitiveTypeException {
 
     prepareEntitySet();
     final InputStream is = new ByteArrayInputStream(
@@ -297,12 +297,12 @@ class TestJPACUDRequestHelper {
 
   @ParameterizedTest
   @MethodSource("stringIntAndListProvider")
-  void testConvertInputStreamSimpleProperty(final InputStream is) throws UnsupportedEncodingException,
-      ODataJPAProcessorException, EdmPrimitiveTypeException {
-    final ODataRequest request = preparePrimitiveSimpleProperty();
-    when(request.getBody()).thenReturn(is);
+  void testConvertInputStreamSimpleProperty(final InputStream is) throws ODataJPAProcessorException,
+      EdmPrimitiveTypeException {
+    final ODataRequest otherRequest = preparePrimitiveSimpleProperty();
+    when(otherRequest.getBody()).thenReturn(is);
 
-    final Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON,
+    final Entity act = cut.convertInputStream(OData.newInstance(), otherRequest, ContentType.APPLICATION_JSON,
         uriResourceParts);
 
     assertEquals("Willi", act.getProperty("Name2").getValue());
@@ -433,7 +433,7 @@ class TestJPACUDRequestHelper {
     when(pathID.getLeaf()).thenReturn(attribute);
     when(attribute.getInternalName()).thenReturn("iD");
 
-    final Answer<?> a = (new Answer<Object>() {
+    final Answer<?> a = (new Answer<>() {
       @Override
       public Object answer(final InvocationOnMock invocation) {
         return String.class;
@@ -486,7 +486,7 @@ class TestJPACUDRequestHelper {
     when(path.getLeaf()).thenReturn(attribute);
     when(attribute.getInternalName()).thenReturn("accessRights");
 
-    final Answer<?> a = (new Answer<Object>() {
+    final Answer<?> a = (new Answer<>() {
       @Override
       public Object answer(final InvocationOnMock invocation) {
         return AccessRights.class;
@@ -529,7 +529,7 @@ class TestJPACUDRequestHelper {
     when(path.getLeaf()).thenReturn(attribute);
     when(attribute.getInternalName()).thenReturn("aBCClass");
 
-    final Answer<?> a = (new Answer<Object>() {
+    final Answer<?> a = (new Answer<>() {
       @Override
       public Object answer(final InvocationOnMock invocation) {
         return ABCClassification.class;
@@ -563,7 +563,7 @@ class TestJPACUDRequestHelper {
     when(path.getLeaf()).thenReturn(attribute);
     when(attribute.getInternalName()).thenReturn("iD");
 
-    final Answer<?> a = (new Answer<Object>() {
+    final Answer<?> a = (new Answer<>() {
       @Override
       public Object answer(final InvocationOnMock invocation) {
         return String.class;
@@ -780,7 +780,7 @@ class TestJPACUDRequestHelper {
       }
     });
     when(edmType.valueOfString(value.toString(), true, 0, 0, 0, true, defaultJavaType)).thenAnswer(
-        new Answer<Object>() {
+        new Answer<>() {
           @Override
           public Object answer(final InvocationOnMock invocation) throws Throwable {
             return value;

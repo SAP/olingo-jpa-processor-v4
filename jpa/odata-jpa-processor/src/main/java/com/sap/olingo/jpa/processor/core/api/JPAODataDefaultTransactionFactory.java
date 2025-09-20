@@ -1,7 +1,5 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException.MessageKeys.CANNOT_CREATE_NEW_TRANSACTION;
-
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -30,11 +28,11 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
   public JPAODataTransaction createTransaction() throws ODataJPATransactionException {
     try {
       if (currentTransaction != null && currentTransaction.isActive())
-        throw new ODataJPATransactionException(CANNOT_CREATE_NEW_TRANSACTION);
+        throw new ODataJPATransactionException();
       currentTransaction = new JPAODataEntityTransaction(em.getTransaction());
       return currentTransaction;
     } catch (final Exception e) {
-      throw new ODataJPATransactionException(CANNOT_CREATE_NEW_TRANSACTION, e);
+      throw new ODataJPATransactionException(e);
     }
   }
 
