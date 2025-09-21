@@ -29,7 +29,7 @@ class SubqueryRootImplTest {
   }
 
   @Test
-  void testHashCode() throws ODataJPAModelException {
+  void testHashCode() {
     assertNotEquals(31, cut.hashCode());
   }
 
@@ -48,7 +48,7 @@ class SubqueryRootImplTest {
   }
 
   @Test
-  void testEqualsOtherClass() throws ODataJPAModelException {
+  void testEqualsOtherClass() {
     final FromImpl<?, ?> other = mock(FromImpl.class);
     assertNotEquals(cut, other);
   }

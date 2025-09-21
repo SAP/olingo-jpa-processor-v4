@@ -36,7 +36,7 @@ class JPADBFunctionOperatorTest {
   private List<UriParameter> uriParams;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     cb = mock(CriteriaBuilder.class);
     jpaVisitor = mock(JPAVisitor.class);

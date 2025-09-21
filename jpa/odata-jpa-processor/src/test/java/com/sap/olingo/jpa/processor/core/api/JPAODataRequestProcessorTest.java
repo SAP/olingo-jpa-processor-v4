@@ -136,7 +136,7 @@ class JPAODataRequestProcessorTest {
         });
   }
 
-  static Stream<Executable> supportedDeletingMethodsProvider() throws SerializerException {
+  static Stream<Executable> supportedDeletingMethodsProvider() {
     return Stream.of(
         () -> {
           cut.deleteEntity(request, response, uriInfo);
@@ -155,7 +155,7 @@ class JPAODataRequestProcessorTest {
         });
   }
 
-  static Stream<Executable> supportedUpdatingMethodsProvider() throws SerializerException {
+  static Stream<Executable> supportedUpdatingMethodsProvider() {
 
     return Stream.of(
         () -> {
@@ -171,7 +171,7 @@ class JPAODataRequestProcessorTest {
         });
   }
 
-  static Stream<Executable> supportedCreatingMethodsProvider() throws SerializerException {
+  static Stream<Executable> supportedCreatingMethodsProvider() {
 
     return Stream.of(
         () -> {
@@ -179,14 +179,14 @@ class JPAODataRequestProcessorTest {
         });
   }
 
-  static Stream<Executable> supportedModifyingMethodsProvider() throws SerializerException {
+  static Stream<Executable> supportedModifyingMethodsProvider() {
 
     return Stream.concat(
         Stream.concat(supportedUpdatingMethodsProvider(), supportedDeletingMethodsProvider()),
         supportedCreatingMethodsProvider());
   }
 
-  static Stream<Executable> supportedReadingMethodsProvider() throws SerializerException {
+  static Stream<Executable> supportedReadingMethodsProvider() {
 
     return Stream.of(
         () -> {
@@ -228,13 +228,12 @@ class JPAODataRequestProcessorTest {
         });
   }
 
-  static Stream<Executable> supportedMethodsProvider() throws SerializerException {
+  static Stream<Executable> supportedMethodsProvider() {
 
     return Stream.concat(supportedModifyingMethodsProvider(), supportedReadingMethodsProvider());
   }
 
-  static Stream<Executable> throwsSerializerExceptionMethodsProvider() throws SerializerException {
-    // when(odata.createSerializer(JSON)).thenThrow(SerializerException.class);
+  static Stream<Executable> throwsSerializerExceptionMethodsProvider() {
     return Stream.of(() -> {
       cut.createEntity(request, response, uriInfo, JSON, JSON);
     }, () -> {
@@ -245,7 +244,7 @@ class JPAODataRequestProcessorTest {
   }
 
   @BeforeAll
-  public static void classSetup() {
+  static void classSetup() {
     em = mock(EntityManager.class);
     claims = new JPAODataClaimsProvider();
 
@@ -338,8 +337,8 @@ class JPAODataRequestProcessorTest {
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
 
     resourceParts.add(entitySet);
 
@@ -355,8 +354,8 @@ class JPAODataRequestProcessorTest {
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
 
     resourceParts.add(entitySet);
     doThrow(new JPAExampleModifyException(
@@ -365,8 +364,7 @@ class JPAODataRequestProcessorTest {
     assertThrows(JPAExampleModifyException.class, () -> cut.deleteEntity(request, response, uriInfo));
   }
 
-  static Stream<Pair<Executable, UriResourceProperty>> deletingMethods() throws SerializerException,
-      ODataJPAModelException {
+  static Stream<Pair<Executable, UriResourceProperty>> deletingMethods() throws ODataJPAModelException {
 
     final Executable deleteComplex = () -> {
       cut.deleteComplex(request, response, uriInfo);
@@ -449,9 +447,9 @@ class JPAODataRequestProcessorTest {
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
-    final UriResourcePrimitiveProperty primitiveProperty = createPrimitiveType(et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
+    final UriResourcePrimitiveProperty primitiveProperty = createPrimitiveType(otherEt);
 
     resourceParts.add(entitySet);
     resourceParts.add(primitiveProperty);
@@ -469,9 +467,9 @@ class JPAODataRequestProcessorTest {
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
-    final UriResourcePrimitiveProperty primitiveProperty = createPrimitiveType(et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
+    final UriResourcePrimitiveProperty primitiveProperty = createPrimitiveType(otherEt);
 
     resourceParts.add(entitySet);
     resourceParts.add(primitiveProperty);
@@ -489,9 +487,9 @@ class JPAODataRequestProcessorTest {
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
-    final UriResourceComplexProperty complexProperty = createComplexType(et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
+    final UriResourceComplexProperty complexProperty = createComplexType(otherEt);
 
     resourceParts.add(entitySet);
     resourceParts.add(complexProperty);
@@ -505,8 +503,8 @@ class JPAODataRequestProcessorTest {
   @ParameterizedTest
   @MethodSource("supportedMethodsProvider")
   void checkThrowProcessorExceptionOnODataException(final Executable m) throws ODataException {
-    final ODataSerializer serializer = mock(ODataSerializer.class);
-    when(odata.createSerializer(JSON, Collections.emptyList())).thenReturn(serializer);
+    final ODataSerializer otherSerializer = mock(ODataSerializer.class);
+    when(odata.createSerializer(JSON, Collections.emptyList())).thenReturn(otherSerializer);
     prepareRequestThrowsException();
     final ODataApplicationException act = assertThrows(ODataApplicationException.class, m);
     assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
@@ -519,8 +517,8 @@ class JPAODataRequestProcessorTest {
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
     final JPAUpdateResult result = new JPAUpdateResult(false, null);
     when(handler.updateEntity(any(), any(), any())).thenReturn(result);
 
@@ -538,8 +536,8 @@ class JPAODataRequestProcessorTest {
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
     when(handler.updateEntity(any(), any(), any())).thenThrow(new RollbackException(
         new OptimisticLockException()));
 
@@ -560,7 +558,7 @@ class JPAODataRequestProcessorTest {
     final EdmPrimitiveType edmReturnType = mock(EdmPrimitiveType.class);
     final EdmReturnType returnType = mock(EdmReturnType.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final UriResourceAction action = createAction(sd, et, returnType);
+    final UriResourceAction action = createAction(sd, returnType);
     when(returnType.isCollection()).thenReturn(Boolean.FALSE);
     when(returnType.getType()).thenReturn(edmReturnType);
     when(edmReturnType.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
@@ -574,22 +572,22 @@ class JPAODataRequestProcessorTest {
 
   @Test
   void checkActionWithVoidIsPerformed() throws ODataException, NoSuchMethodException, SecurityException {
-    final ODataResponse response = mock(ODataResponse.class);
+    final ODataResponse otherResponse = mock(ODataResponse.class);
     when(request.getMethod()).thenReturn(HttpMethod.POST);
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final UriResourceAction action = createAction(sd, et, null);
+    final UriResourceAction action = createAction(sd, null);
 
     resourceParts.add(action);
 
-    cut.processActionVoid(request, response, uriInfo, JSON);
+    cut.processActionVoid(request, otherResponse, uriInfo, JSON);
 
-    verify(response).setStatusCode(HttpStatusCode.OK.getStatusCode());
+    verify(otherResponse).setStatusCode(HttpStatusCode.OK.getStatusCode());
   }
 
-  private UriResourceAction createAction(final JPAServiceDocument sd, final JPAEntityType et,
-      final EdmReturnType returnType) throws DeserializerException, NoSuchMethodException, SecurityException {
+  private UriResourceAction createAction(final JPAServiceDocument sd, final EdmReturnType returnType)
+      throws DeserializerException, NoSuchMethodException, SecurityException {
 
     final JPAAction jpaAction = mock(JPAAction.class);
     final EdmAction edmAction = mock(EdmAction.class);
@@ -649,8 +647,8 @@ class JPAODataRequestProcessorTest {
     resourceParts.clear();
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
-    final JPAEntityType et = mock(JPAEntityType.class);
-    final UriResourceEntitySet entitySet = createEntitySet(sd, et);
+    final JPAEntityType otherEt = mock(JPAEntityType.class);
+    final UriResourceEntitySet entitySet = createEntitySet(sd, otherEt);
     resourceParts.add(entitySet);
     when(requestContext.getEdmProvider())
         .thenThrow(new ODataJPAProcessorException(NO_METADATA_PROVIDER, INTERNAL_SERVER_ERROR));

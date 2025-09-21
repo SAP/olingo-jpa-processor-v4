@@ -29,7 +29,6 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
@@ -84,7 +83,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+  void testHeadersProvided() throws ODataException {
     final Map<String, List<String>> headers = new HashMap<>();
 
     when(request.getAllHeaders()).thenReturn(headers);
@@ -102,10 +101,9 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
-      ODataException {
+  void testClaimsProvided() throws ODataException {
 
-    final ODataRequest request = prepareSimpleRequest();
+    final ODataRequest otherRequest = prepareSimpleRequest();
 
     final RequestHandleSpy spy = new RequestHandleSpy();
     final JPAODataClaimProvider provider = new JPAODataClaimsProvider();
@@ -113,7 +111,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(requestContext.getClaimsProvider()).thenReturn(claims);
 
-    processor.clearFields(request, new ODataResponse());
+    processor.clearFields(otherRequest, new ODataResponse());
 
     assertNotNull(spy.claims);
     assertTrue(spy.claims.isPresent());
@@ -121,20 +119,19 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
-      ODataException {
+  void testGroupsProvided() throws ODataException {
 
-    final ODataRequest request = prepareSimpleRequest();
+    final ODataRequest otherRequest = prepareSimpleRequest();
 
     final RequestHandleSpy spy = new RequestHandleSpy();
     final JPAODataGroupsProvider provider = new JPAODataGroupsProvider();
     provider.addGroup("Person");
-    // final List<String> groups = new ArrayList<>(Arrays.asList("Person"));
+
     final Optional<JPAODataGroupProvider> groups = Optional.of(provider);
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(requestContext.getGroupsProvider()).thenReturn(groups);
 
-    processor.clearFields(request, new ODataResponse());
+    processor.clearFields(otherRequest, new ODataResponse());
 
     assertNotNull(spy.groups);
     assertFalse(spy.groups.isEmpty());
@@ -374,33 +371,33 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   @Test
   void testCallsValidateChangesOnSuccessfulProcessing() throws ODataException {
     final ODataResponse response = new ODataResponse();
-    final ODataRequest request = prepareSimpleRequest();
+    final ODataRequest otherRequest = prepareSimpleRequest();
 
     final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
-    processor.clearFields(request, response);
+    processor.clearFields(otherRequest, response);
     assertEquals(1, spy.noValidateCalls);
   }
 
   @Test
   void testDoesNotCallsValidateChangesOnForeignTransaction() throws ODataException {
     final ODataResponse response = new ODataResponse();
-    final ODataRequest request = prepareSimpleRequest();
+    final ODataRequest otherRequest = prepareSimpleRequest();
 
     final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
 
-    processor.clearFields(request, response);
+    processor.clearFields(otherRequest, response);
     assertEquals(0, spy.noValidateCalls);
   }
 
   @Test
   void testDoesNotCallsValidateChangesOnError() throws ODataException {
     final ODataResponse response = new ODataResponse();
-    final ODataRequest request = prepareSimpleRequest();
-    when(request.getMethod()).thenReturn(HttpMethod.POST);
+    final ODataRequest otherRequest = prepareSimpleRequest();
+    when(otherRequest.getMethod()).thenReturn(HttpMethod.POST);
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
@@ -409,7 +406,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
         HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
             any(HttpMethod.class));
 
-    assertThrows(ODataApplicationException.class, () -> processor.clearFields(request, response));
+    assertThrows(ODataApplicationException.class, () -> processor.clearFields(otherRequest, response));
     verify(handler, never()).validateChanges(em);
 
   }
@@ -417,7 +414,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   @Test
   void testDoesRollbackIfValidateRaisesError() throws ODataException {
     final ODataResponse response = new ODataResponse();
-    final ODataRequest request = prepareSimpleRequest();
+    final ODataRequest otherRequest = prepareSimpleRequest();
 
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
@@ -425,7 +422,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
 
-    assertThrows(ODataApplicationException.class, () -> processor.clearFields(request, response));
+    assertThrows(ODataApplicationException.class, () -> processor.clearFields(otherRequest, response));
     verify(transaction, never()).commit();
     verify(transaction, times(1)).rollback();
   }

@@ -10,9 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.server.api.OData;
-import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataHandler;
-import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.deserializer.batch.BatchRequestPart;
@@ -37,7 +35,7 @@ abstract class JPAODataBatchAbstractRequestGroupTest {
   private JPARuntimeMeasurement measurment;
 
   @BeforeEach
-  void setup() throws ODataApplicationException, ODataLibraryException {
+  void setup() {
 
     debugger = mock(JPAServiceDebugger.class);
     odata = mock(OData.class);
