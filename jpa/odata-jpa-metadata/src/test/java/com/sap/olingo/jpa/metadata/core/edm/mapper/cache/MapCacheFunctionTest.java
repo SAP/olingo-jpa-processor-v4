@@ -16,33 +16,33 @@ class MapCacheFunctionTest {
 
   @Test
   void checkCacheReturnsGivenValue() throws ODataJPAModelException {
-    var act = new MapCacheFunction<>(this::functionReturnString, "Test", "String");
+    final var act = new MapCacheFunction<>(this::functionReturnString, "Test", "String");
     assertFalse(act.get().isEmpty());
     assertEquals(1, act.get().size());
     assertEquals("String", act.get().get("Test"));
   }
 
   @Test
-  void checkCacheThrowsExceptionOnNull() throws ODataJPAModelException {
-    var act = new MapCacheFunction<>(this::functionReturnNull, "Test", "String");
+  void checkCacheThrowsExceptionOnNull() {
+    final var act = new MapCacheFunction<>(this::functionReturnNull, "Test", "String");
     assertThrows(NullPointerException.class, act::get);
   }
 
   @Test
   void checkCacheThrowsException() {
-    var act = new MapCacheFunction<>(this::functionThrows, "Test", "String");
+    final var act = new MapCacheFunction<>(this::functionThrows, "Test", "String");
     assertThrows(ODataJPAModelException.class, act::get);
   }
 
-  Map<String, String> functionReturnString(String first, String last) {
+  Map<String, String> functionReturnString(final String first, final String last) {
     return Map.of("Test", "String");
   }
 
-  Map<String, String> functionReturnNull(String first, String last) { // NOSONAR
+  Map<String, String> functionReturnNull(final String first, final String last) { // NOSONAR
     return null;
   }
 
-  Map<String, String> functionThrows(String first, String last) {
+  Map<String, String> functionThrows(final String first, final String last) {
     throw new ODataJPAModelInternalException(new ODataJPAModelException(MessageKeys.DB_TYPE_NOT_DETERMINED, first,
         last));
   }

@@ -30,8 +30,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.UserType;
 
 public class TestHelper {
-  final private Metamodel jpaMetamodel;
-  final public IntermediateSchema schema;
+  private final Metamodel jpaMetamodel;
+  public final IntermediateSchema schema;
   final IntermediateAnnotationInformation annotationInfo;
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
@@ -44,7 +44,7 @@ public class TestHelper {
     final Reflections reflections = mock(Reflections.class);
     when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class, AccessRights.class, UserType.class)));
-    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), mock(IntermediateReferences.class));
+    annotationInfo = new IntermediateAnnotationInformation(annotationProviderList, mock(IntermediateReferences.class));
 
     this.jpaMetamodel = metamodel;
     this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, reflections,

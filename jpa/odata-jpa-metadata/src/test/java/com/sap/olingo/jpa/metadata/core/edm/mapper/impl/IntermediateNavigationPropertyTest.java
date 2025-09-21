@@ -16,6 +16,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -72,7 +73,6 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
-import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
 import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinComplex;
@@ -835,7 +835,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkConsistencyThrowsExceptionIfProtected() throws ODataJPAModelException {
+  void checkConsistencyThrowsExceptionIfProtected() {
     final EdmProtectedBy jpaProtectedBy = mock(EdmProtectedBy.class);
     final Attribute<?, ?> attribute = createDummyAttribute();
     final Member member = attribute.getJavaMember();
@@ -848,7 +848,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkConsistencyThrowsExceptionHaveFieldGroup() throws ODataJPAModelException {
+  void checkConsistencyThrowsExceptionHaveFieldGroup() {
     final EdmVisibleFor jpaFieldGroups = mock(EdmVisibleFor.class);
     final Attribute<?, ?> attribute = createDummyAttribute();
     final Member member = attribute.getJavaMember();
@@ -919,7 +919,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkMissingCardinalityAnnotationThrowsError() throws ODataJPAModelException {
+  void checkMissingCardinalityAnnotationThrowsError() {
     final EntityType<MissingCardinalityAnnotation> et = errorHelper.getEntityType(MissingCardinalityAnnotation.class);
     final Attribute<?, ?> jpaAttribute = errorHelper.getDeclaredAttribute(et, "oneTeam");
 

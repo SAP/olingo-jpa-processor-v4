@@ -23,9 +23,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class TestHelper {
-  final private Metamodel jpaMetamodel;
-  final public JPAServiceDocument sd;
-  final public JPAEdmProvider edmProvider;
+  private final Metamodel jpaMetamodel;
+  public final JPAServiceDocument sd;
+  public final JPAEdmProvider edmProvider;
 
   public TestHelper(final EntityManagerFactory emf, final String namespace) throws ODataException {
     this.jpaMetamodel = emf.getMetamodel();
@@ -83,7 +83,7 @@ public class TestHelper {
 
   public EdmFunction getStoredProcedure(final EntityType<?> jpaEntityType, final String string) {
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
-      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
+      final EdmFunctions jpaStoredProcedureList = jpaEntityType.getJavaType()
           .getAnnotation(EdmFunctions.class);
       if (jpaStoredProcedureList != null) {
         for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
