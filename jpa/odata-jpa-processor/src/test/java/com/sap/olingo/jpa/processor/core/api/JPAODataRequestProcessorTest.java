@@ -228,7 +228,7 @@ class JPAODataRequestProcessorTest {
         });
   }
 
-  static Stream<Executable> supportedMethodsProvider() throws SerializerException {
+  static Stream<Executable> supportedMethodsProvider() {
 
     return Stream.concat(supportedModifyingMethodsProvider(), supportedReadingMethodsProvider());
   }

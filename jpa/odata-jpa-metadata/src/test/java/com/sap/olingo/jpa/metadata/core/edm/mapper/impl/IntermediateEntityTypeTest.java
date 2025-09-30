@@ -88,6 +88,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinRelation;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.RestrictedEntityUnrestrictedSource;
@@ -689,6 +690,24 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertComplexAnnotated(act, "Updator", "Updated");
     assertComplexDeep(act);
     assertEquals(4, act.size());
+  }
+
+  @Test
+  void checkComplexAndInheritedProtectedPropertyPath() throws ODataJPAModelException {
+    final IntermediateStructuredType<PersonDeepProtected> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(PersonDeepProtected.class), schema);
+
+    final List<JPAProtectionInfo> act = et.getProtections();
+    assertNotNull(act);
+    assertComplexAnnotated(act, "Creator", "Created");
+    assertComplexAnnotated(act, "Updator", "Updated");
+    assertComplexDeep(act);
+    assertEquals(3, act.size());
+
+    for (var path : et.getPathList()) {
+      if ("ProtectedAdminInfo/Created/By".equals(path.getAlias()))
+        assertTrue(path.isPartOfGroups(List.of("Creator")));
+    }
   }
 
   @Test

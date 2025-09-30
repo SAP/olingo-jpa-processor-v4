@@ -47,7 +47,6 @@ class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   @Test
   void testShallReturnNullIfBeforeImageNotPresent() throws ODataJPAProcessorException {
 
-    final JPAAssociationPath path = mock(JPAAssociationPath.class);
     final JPAElement pathItem = mock(JPAElement.class);
     pathElements.add(pathItem);
     when(pathItem.getInternalName()).thenReturn("roles");
@@ -56,7 +55,7 @@ class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testThrowsExceptionIfBeforeIfManaged() throws ODataJPAProcessorException {
+  void testThrowsExceptionIfBeforeIfManaged() {
     when(em.contains(beforeImagePerson)).thenReturn(Boolean.TRUE);
     assertThrows(ODataJPAProcessorException.class, () -> {
       cut.getLinkedInstanceBasedResultByDelta(currentImagePerson, path, Optional.ofNullable(beforeImagePerson));

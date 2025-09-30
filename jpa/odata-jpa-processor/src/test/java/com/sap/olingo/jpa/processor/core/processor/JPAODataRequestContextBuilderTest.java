@@ -20,7 +20,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 
 class JPAODataRequestContextBuilderTest {
   private static final String PARAMETER_VALUE = "Test";
@@ -79,7 +78,7 @@ class JPAODataRequestContextBuilderTest {
   }
 
   @Test
-  void testThrowsExceptionOnEntityManagerIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnEntityManagerIsNull() {
     assertThrows(NullPointerException.class, () -> cut.setEntityManager(null));
   }
 

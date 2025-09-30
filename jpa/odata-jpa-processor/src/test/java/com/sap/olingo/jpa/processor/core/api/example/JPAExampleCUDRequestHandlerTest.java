@@ -201,7 +201,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   @Test
   void checkCreateDeepEntity() throws ODataJPAProcessException, ODataJPAModelException {
     // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
-    // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
+    // key : "divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat"
     // jpaDeepEntities = JPAAssPath ; JPARequestEntity
 
     final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
@@ -240,7 +240,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   @Test
   void checkCreateLinkedThrowsExceptionTargetNotFound() throws ODataJPAProcessException, ODataJPAModelException {
     // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
-    // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
+    // key : "divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat"
     // jpaDeepEntities = JPAAssPath ; JPARequestEntity
 
     final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
@@ -274,7 +274,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   @Test
   void checkCreateLinkedEntityOneToMany() throws ODataJPAProcessException, ODataJPAModelException {
     // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
-    // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
+    // key : "divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat"
     // jpaDeepEntities = JPAAssPath ; JPARequestEntity
 
     final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
@@ -312,7 +312,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   @Test
   void checkCreateLinkedEntityManyToOne() throws ODataJPAProcessException, ODataJPAModelException {
     // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
-    // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
+    // key : "divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat"
     // jpaDeepEntities = JPAAssPath ; JPARequestEntity
 
     final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
@@ -397,23 +397,6 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
 
   @Test
   void checkCreateEntityAutoIdIdNotFound() throws ODataJPAProcessException, ODataJPAModelException {
-    final EntityType<?> jpaEt = mock(EntityType.class);
-    final Set<EntityType<?>> jpaEts = new HashSet<>();
-    jpaEts.add(jpaEt);
-    doReturn(jpaEts).when(metamodel).getEntities();
-    doReturn("AdministrativeDivision").when(jpaEt).getName();
-    doReturn(null).when(jpaEt).getId(any());
-
-    final Object act = createAdminDiv();
-
-    assertNotNull(act);
-    assertEquals("NUTS2", ((AdministrativeDivision) act).getCodeID());
-    verify(em).persist(act);
-    verify(em).find(any(), any());
-  }
-
-  @Test
-  void checkCreateEntityAutoIdNoKey() throws ODataJPAProcessException, ODataJPAModelException {
     final EntityType<?> jpaEt = mock(EntityType.class);
     final Set<EntityType<?>> jpaEts = new HashSet<>();
     jpaEts.add(jpaEt);
@@ -711,12 +694,13 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   @Test
   void checkPatchCreateBindingLinkBetweenTwoEntities() throws ODataJPAModelException,
       ODataJPAProcessException {
-    // URL: ../AdministrativeDivisions(DivisionCode='DE51',CodeID='NUTS2',CodePublisher='Eurostat')
-    // Body: {
-    // "Parent@odata.bind": ["AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')" ] }
+    /*
+     * URL: ../AdministrativeDivisions(DivisionCode='DE51',CodeID='NUTS2',CodePublisher='Eurostat')
+     * Body:
+     * "Parent@odata.bind": ["AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')" ]
+     */
     final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
     final JPAAssociationPath path = et.getAssociationPath("Children");
-    final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks = new HashMap<>();
     final JPARequestLink link = mock(JPARequestLink.class);
     final Map<String, Object> childKeys = new HashMap<>();
     final AdministrativeDivision parent = new AdministrativeDivision(new AdministrativeDivisionKey("Eurostat", "NUTS1",
@@ -728,7 +712,6 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     keys.put("divisionCode", "DE5");
     keys.put("codeID", "NUTS1");
     keys.put("codePublisher", "Eurostat");
-    doReturn(relationLinks).when(requestEntity).getRelationLinks();
 
     relationLinks.put(path, Arrays.asList(link));
     doReturn(et).when(link).getEntityType();

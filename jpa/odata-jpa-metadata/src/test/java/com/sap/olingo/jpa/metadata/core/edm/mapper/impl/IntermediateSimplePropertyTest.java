@@ -366,18 +366,6 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetConverterNullNoConverterDefined() throws ODataJPAModelException {
-    final var postProcessorDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(postProcessorDouble);
-
-    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "customString2");
-    final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute, helper.schema);
-
-    assertNull(property.getRawConverter());
-  }
-
-  @Test
   void checkGetConverterNullDBTypeEqJavaType() throws ODataJPAModelException {
     final var postProcessorDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(postProcessorDouble);
@@ -499,13 +487,15 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPropertyGetCalculatorPersistentIsNull() throws ODataJPAModelException, NoSuchFieldException,
+  void checkGetPropertyGetCalculatorNullOnPersistentProperty() throws ODataJPAModelException,
+      NoSuchFieldException,
       SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("lastName"));
-    final var property = new IntermediateSimpleProperty(nameBuilder,
-        jpaAttribute, helper.schema);
+
+    final var property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute,
+        helper.schema);
     assertNull(property.getCalculatorConstructor());
   }
 
@@ -592,19 +582,6 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertException(ODataJPAModelException.class,
         () -> new IntermediateSimpleProperty(errorNameBuilder, jpaAttribute, errorHelper.schema),
         TRANSIENT_CALCULATOR_WRONG_PARAMETER.getKey());
-  }
-
-  @Test
-  void checkGetPropertyGetCalculatorNullOnPersistentProperty() throws ODataJPAModelException,
-      NoSuchFieldException,
-      SecurityException {
-
-    final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
-        .getEntityType(Person.class), Person.class.getDeclaredField("lastName"));
-
-    final var property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute,
-        helper.schema);
-    assertNull(property.getCalculatorConstructor());
   }
 
   @Test
