@@ -27,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmCons
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoParameterConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongFunctionConstructor;
 
@@ -256,6 +257,12 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
 
   @Test
   void checkExceptConstructorWithoutParameter() throws ODataJPAModelException {
+    final IntermediateJavaFunction act = createFunction(ExampleJavaTwoFunctions.class, "multi");
+    assertNotNull(act.getEdmItem());
+  }
+
+  @Test
+  void checkExceptConstructorWithHeaderAndParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
     assertNotNull(act.getEdmItem());
   }
@@ -263,12 +270,6 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
   @Test
   void checkExceptConstructorWithEntityManagerParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaEmConstructor.class, "sum");
-    assertNotNull(act.getEdmItem());
-  }
-
-  @Test
-  void checkExceptConstructorWithHeaderAnParameterParameter() throws ODataJPAModelException {
-    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
     assertNotNull(act.getEdmItem());
   }
 

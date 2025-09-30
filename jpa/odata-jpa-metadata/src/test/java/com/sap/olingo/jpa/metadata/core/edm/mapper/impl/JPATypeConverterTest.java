@@ -244,19 +244,8 @@ class JPATypeConverterTest {
   }
 
   @ParameterizedTest
-  @MethodSource("mappingJavaGeographyToOData")
+  @MethodSource({ "mappingJavaGeographyToOData", "mappingJavaGeometryToOData" })
   void checkConvertJavaGeographyToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
-      final EdmPrimitiveTypeKind odataType) throws ODataJPAModelException {
-
-    assertEquals(odataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
-    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> JPATypeConverter.convertToEdmSimpleType(javaType, buildTimeAttribute(TemporalType.TIME)));
-    assertEquals(ODataJPAModelException.MessageKeys.TYPE_NOT_SUPPORTED.getKey(), act.getId());
-  }
-
-  @ParameterizedTest
-  @MethodSource("mappingJavaGeometryToOData")
-  void checkConvertJavaGeometryToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final EdmPrimitiveTypeKind odataType) throws ODataJPAModelException {
 
     assertEquals(odataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
@@ -271,18 +260,6 @@ class JPATypeConverterTest {
       final EdmPrimitiveTypeKind odataType) throws ODataJPAModelException {
 
     assertEquals(odataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
-  }
-
-  @ParameterizedTest
-  @MethodSource("mappingJavaLobToOData")
-  void checkConvertJavaLobToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
-      final EdmPrimitiveTypeKind odataType) throws ODataJPAModelException {
-
-    assertEquals(odataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
-
-    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> JPATypeConverter.convertToEdmSimpleType(javaType, buildTimeAttribute(TemporalType.TIME)));
-    assertEquals(ODataJPAModelException.MessageKeys.TYPE_NOT_SUPPORTED.getKey(), act.getId());
   }
 
   @ParameterizedTest

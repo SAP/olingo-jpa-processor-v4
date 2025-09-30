@@ -7,11 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +47,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmPropertyDouble;
@@ -65,6 +68,31 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
     assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
+  }
+
+  @Test
+  void checkSelectAllWithGroup() throws ODataJPAIllegalAccessException, ODataException {
+    jpaEntityType = helper.getJPAEntityType(BusinessPartnerWithGroups.class);
+    final SelectOption selectOption = new SelectOptionDouble("*");
+    buildUriInfo("BusinessPartnerWithGroupss", "BusinessPartnerWithGroups");
+    doReturn(selectOption).when(uriInfo).getSelectOption();
+    final String groupName = "Company";
+
+    root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
+    joinTables = new HashMap<>();
+    joinTables.put(jpaEntityType.getExternalName(), root);
+    fillJoinTable(root);
+    requestContext = new JPAODataInternalRequestContext(externalContext, context, odata);
+    requestContext.setUriInfo(uriInfo);
+    cut = new JPAJoinQuery(null, requestContext);
+
+    final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
+        uriInfo).joinedPersistent(), root, List.of(groupName));
+
+    for (var selection : selectClause) {
+      if (selection.getAlias().equals("Country"))
+        fail("Unexpected element");
+    }
   }
 
   @Test
@@ -362,15 +390,6 @@ class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  void checkSelectAllWithGroup() throws ODataApplicationException, ODataJPAModelException {
-
-    fillJoinTable(root);
-    final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
-  }
-
-  @Test
   void checkSelectContainsJoinTable() throws ODataException {
     // Organizations$select=Address
     final JPAServiceDocument sd = mock(JPAServiceDocument.class);
@@ -403,7 +422,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     cut = new JPAExpandJoinQuery(null, info, requestContext, Optional.empty());
 
-    final List<Selection<?>> selectClause = ((JPAAbstractJoinQuery) cut).createSelectClause(
+    final List<Selection<?>> selectClause = cut.createSelectClause(
         joinTables,
         cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(),
         root,
@@ -448,118 +467,108 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     @Override
     public EdmType getType() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public boolean isCollection() {
-      fail();
-      return false;
+      return unsupported();
     }
 
     @Override
     public String getSegmentValue(final boolean includeFilters) {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public String toString(final boolean includeFilters) {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public UriResourceKind getKind() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public String getSegmentValue() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public EdmComplexType getComplexType() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public EdmComplexType getComplexTypeFilter() {
+      return unsupported();
+    }
+
+    private <T> T unsupported() {
       fail();
       return null;
     }
-
   }
 
   private static class UriResourceEntitySetDouble implements UriResourceEntitySet {
 
     @Override
     public EdmType getType() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public boolean isCollection() {
-      fail();
-      return false;
+      return unsupported();
     }
 
     @Override
     public String getSegmentValue(final boolean includeFilters) {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public String toString(final boolean includeFilters) {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public UriResourceKind getKind() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public String getSegmentValue() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public EdmEntitySet getEntitySet() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public EdmEntityType getEntityType() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public List<UriParameter> getKeyPredicates() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public EdmType getTypeFilterOnCollection() {
-      fail();
-      return null;
+      return unsupported();
     }
 
     @Override
     public EdmType getTypeFilterOnEntry() {
+      return unsupported();
+    }
+
+    private <T> T unsupported() {
       fail();
       return null;
     }

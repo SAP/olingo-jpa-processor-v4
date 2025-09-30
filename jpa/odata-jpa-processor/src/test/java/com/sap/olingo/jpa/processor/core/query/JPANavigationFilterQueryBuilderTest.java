@@ -52,7 +52,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPANullExpression;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -104,7 +103,7 @@ class JPANavigationFilterQueryBuilderTest {
 
     cut = new JPANavigationFilterQueryBuilder(cb);
 
-    when(((UriResourceNavigation) uriResourceItem).getType()).thenReturn(type);
+    when(uriResourceItem.getType()).thenReturn(type);
     when(sd.getEntity(type)).thenReturn(et);
     doReturn(Integer.class).when(et).getKeyType();
     doReturn(Person.class).when(et).getTypeClass();
@@ -239,7 +238,7 @@ class JPANavigationFilterQueryBuilderTest {
 
   @Test
   void testAsInQueryTrueForCriteriaBuilderAssociationOneAttribute() throws ODataJPAModelException,
-      ODataJPAFilterException, ODataJPAQueryException {
+      ODataJPAFilterException {
 
     final JPAPath leftPath = mock(JPAPath.class);
     final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
@@ -254,7 +253,7 @@ class JPANavigationFilterQueryBuilderTest {
 
   @Test
   void testAsInQueryFalseForCriteriaBuilderAssociationTwoAttribute() throws ODataJPAModelException,
-      ODataJPAFilterException, ODataJPAQueryException {
+      ODataJPAFilterException {
     final var assoziationPath = buildAssoziationPath();
     when(navigationInfo.getAssociationPath()).thenReturn(assoziationPath);
     cut.setNavigationInfo(navigationInfo);
@@ -263,7 +262,7 @@ class JPANavigationFilterQueryBuilderTest {
   }
 
   @Test
-  void testAsInQueryRethrowsException() throws ODataJPAFilterException, ODataJPAModelException, ODataJPAQueryException {
+  void testAsInQueryRethrowsException() throws ODataJPAModelException {
 
     final JPAAssociationPath associationPath = mock(JPAAssociationPath.class);
     when(associationPath.getLeftColumnsList()).thenThrow(ODataJPAModelException.class);
