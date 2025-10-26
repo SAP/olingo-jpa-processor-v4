@@ -50,7 +50,7 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
     if (!getJoins().isEmpty())
       statement.append(CLOSING_BRACKET);
     statement.append(" ON ");
-    ((SqlConvertible) on).asSQL(statement);
+    ((SqlConvertible) getOn()).asSQL(statement);
     return statement;
   }
 

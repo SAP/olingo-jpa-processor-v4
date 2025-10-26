@@ -1,5 +1,9 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -9,15 +13,13 @@ final class JPAOnConditionItemImpl implements JPAOnConditionItem {
   private final JPAPath jpaLeftAttribute;
   private final JPAPath jpaRightAttribute;
 
-  JPAOnConditionItemImpl(final JPAPath jpaLeftAttribute, final JPAPath jpaRightAttribute)
-      throws ODataJPAModelException {
+  JPAOnConditionItemImpl(@Nonnull final JPAPath jpaLeftAttribute, @Nonnull final JPAPath jpaRightAttribute) {
+
     super();
-    if (jpaLeftAttribute == null) {
-      throw new ODataJPAModelException(MessageKeys.ON_LEFT_ATTRIBUTE_NULL);
-    }
-    if (jpaRightAttribute == null) {
-      throw new ODataJPAModelException(MessageKeys.ON_RIGHT_ATTRIBUTE_NULL);
-    }
+    Objects.requireNonNull(jpaLeftAttribute, new ODataJPAModelException(MessageKeys.ON_LEFT_ATTRIBUTE_NULL)
+        .getMessage());
+    Objects.requireNonNull(jpaRightAttribute, new ODataJPAModelException(MessageKeys.ON_RIGHT_ATTRIBUTE_NULL)
+        .getMessage());
     this.jpaLeftAttribute = jpaLeftAttribute;
     this.jpaRightAttribute = jpaRightAttribute;
   }

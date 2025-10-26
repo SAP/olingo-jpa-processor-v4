@@ -133,7 +133,10 @@ abstract class TestEqualHashCodeMethods {
       if (et.getIdType().getPersistenceType() == PersistenceType.EMBEDDABLE) {
         attributes = model.embeddable(et.getIdType().getJavaType()).getSingularAttributes();
       } else {
-        attributes = et.getIdClassAttributes();
+        var type = et;
+        while (type.getSupertype() != null && type.getSupertype() instanceof EntityType<?> superType)
+          type = superType;
+        attributes = type.getIdClassAttributes();
       }
       for (final Object keyElement : attributes) {
         keyElements.add((SingularAttribute) keyElement);

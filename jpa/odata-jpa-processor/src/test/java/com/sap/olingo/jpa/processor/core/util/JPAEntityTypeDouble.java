@@ -17,6 +17,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEtagValidator;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceInformation;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
@@ -233,6 +235,18 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   @Override
   public JPAStructuredType getBaseType() throws ODataJPAModelException {
     return base.getBaseType();
+  }
+
+  @Override
+  public JPAInheritanceInformation getInheritanceInformation() throws ODataJPAModelException {
+    fail();
+    return new JPAInheritanceInformation() {
+
+      @Override
+      public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
+        return List.of();
+      }
+    };
   }
 
   @Override

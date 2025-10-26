@@ -39,6 +39,8 @@ import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCurrentAccount;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinLockedSavingAccount;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
@@ -257,15 +259,29 @@ class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  void testGetInheritanceType() {
+  void testGetInheritanceTypeSingleTable() {
     assertEquals(InheritanceType.SINGLE_TABLE, ((FromImpl<Organization, Organization>) cut).getInheritanceType().get());
   }
 
   @Test
-  void testGetInheritanceTypeMultiLevel() throws ODataJPAModelException {
+  void testGetInheritanceTypeMultiLevelSingleTable() throws ODataJPAModelException {
     final JPAEntityType type = sd.getEntity(CurrentUser.class);
     final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
     assertEquals(InheritanceType.SINGLE_TABLE, from.getInheritanceType().get());
+  }
+
+  @Test
+  void testGetInheritanceTypeJoined() throws ODataJPAModelException {
+    final JPAEntityType type = sd.getEntity(InheritanceByJoinCurrentAccount.class);
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    assertEquals(InheritanceType.JOINED, from.getInheritanceType().get());
+  }
+
+  @Test
+  void testGetInheritanceTypeMultiLevelJoined() throws ODataJPAModelException {
+    final JPAEntityType type = sd.getEntity(InheritanceByJoinLockedSavingAccount.class);
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    assertEquals(InheritanceType.JOINED, from.getInheritanceType().get());
   }
 
   @Test
