@@ -22,7 +22,7 @@ class ODataJPAQueryContextTest {
   private ODataJPAQueryContext cut;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     jpaVisitor = mock(JPAVisitor.class);
     from = mock(From.class);
     et = mock(JPAEntityType.class);

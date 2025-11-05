@@ -88,6 +88,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinRelation;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.RestrictedEntityUnrestrictedSource;
@@ -692,6 +693,24 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
+  void checkComplexAndInheritedProtectedPropertyPath() throws ODataJPAModelException {
+    final IntermediateStructuredType<PersonDeepProtected> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(PersonDeepProtected.class), schema);
+
+    final List<JPAProtectionInfo> act = et.getProtections();
+    assertNotNull(act);
+    assertComplexAnnotated(act, "Creator", "Created");
+    assertComplexAnnotated(act, "Updator", "Updated");
+    assertComplexDeep(act);
+    assertEquals(3, act.size());
+
+    for (var path : et.getPathList()) {
+      if ("ProtectedAdminInfo/Created/By".equals(path.getAlias()))
+        assertTrue(path.isPartOfGroups(List.of("Creator")));
+    }
+  }
+
+  @Test
   void checkEmbeddedIdKeyIsCompound() {
     final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivisionDescription.class), schema);
@@ -1125,42 +1144,42 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkDbEqualsSchemaNull() throws ODataJPAModelException {
+  void checkDbEqualsSchemaNull() {
     final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     assertFalse(et.dbEquals("Test", null, "\"AdministrativeDivision\""));
   }
 
   @Test
-  void checkDbEqualsCatalogNull() throws ODataJPAModelException {
+  void checkDbEqualsCatalogNull() {
     final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     assertFalse(et.dbEquals(null, "\"OLINGO\"", "\"AdministrativeDivision\""));
   }
 
   @Test
-  void checkDbEqualsCatalogSchemaNull() throws ODataJPAModelException {
+  void checkDbEqualsCatalogSchemaNull() {
     final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     assertFalse(et.dbEquals(null, null, "\"AdministrativeDivision\""));
   }
 
   @Test
-  void checkDbEqualsCatalogEmpty() throws ODataJPAModelException {
+  void checkDbEqualsCatalogEmpty() {
     final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     assertTrue(et.dbEquals("", "\"OLINGO\"", "\"AdministrativeDivision\""));
   }
 
   @Test
-  void checkDbEqualsTableFromParent() throws ODataJPAModelException {
+  void checkDbEqualsTableFromParent() {
     final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
     assertTrue(et.dbEquals("", "\"OLINGO\"", "\"BusinessPartner\""), et.getTableName());
   }
 
   @Test
-  void checkDbEqualsTableFromParentWithFullQualifiedName() throws ODataJPAModelException {
+  void checkDbEqualsTableFromParentWithFullQualifiedName() {
     final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
     assertTrue(et.dbEquals("", "", "\"OLINGO\".\"BusinessPartner\""), et.getTableName());
@@ -1193,7 +1212,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
   @ParameterizedTest
   @MethodSource("entityTypeClassProvider")
-  <T> void checkAsUserGroupRestrictedCopiesUnrestrictedValues(Class<T> clazz) throws ODataJPAModelException { // NOSONAR
+  <T> void checkAsUserGroupRestrictedCopiesUnrestrictedValues(final Class<T> clazz) throws ODataJPAModelException { // NOSONAR
     final IntermediateEntityType<T> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(clazz), schema);
 
@@ -1258,7 +1277,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
   }
 
-  private static void assertAttributesEquals(List<JPAAttribute> expList, List<JPAAttribute> actList)
+  private static void assertAttributesEquals(final List<JPAAttribute> expList, final List<JPAAttribute> actList)
       throws ODataJPAModelException {
     for (final var exp : expList) {
       for (final var act : actList) {
@@ -1293,7 +1312,8 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
   }
 
-  private static void assertComplexEquals(JPAStructuredType exp, JPAStructuredType act) throws ODataJPAModelException {
+  private static void assertComplexEquals(final JPAStructuredType exp, final JPAStructuredType act)
+      throws ODataJPAModelException {
     if (exp != act) {
       assertEquals(exp.getExternalName(), exp.getExternalName());
       assertEquals(exp.getExternalFQN(), exp.getExternalFQN());

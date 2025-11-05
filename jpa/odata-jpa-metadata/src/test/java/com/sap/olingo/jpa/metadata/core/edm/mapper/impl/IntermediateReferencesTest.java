@@ -52,13 +52,13 @@ class IntermediateReferencesTest extends TestMappingRoot {
   private IntermediateReferences cut;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() {
     cut = new IntermediateReferences();
   }
 
   @Disabled("This test may not run because of proxy setting problems!! -> find alternative for Integration tests")
   @Test
-  void checkAddOnlyURI() throws ODataJPAModelException, URISyntaxException {
+  void checkAddOnlyURI() throws ODataJPAModelException {
     final String uri = CORE_V1_URL;
     cut.addReference(uri);
     final List<EdmxReference> act = cut.getEdmReferences();
@@ -67,13 +67,13 @@ class IntermediateReferencesTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExceptionOnEmptyPath() throws ODataJPAModelException, URISyntaxException {
+  void checkThrowsExceptionOnEmptyPath() {
 
     assertThrows(ODataJPAModelException.class, () -> cut.addReference(CORE_V1_URL, ""));
   }
 
   @Test
-  void checkAddURIandPath() throws ODataJPAModelException, URISyntaxException {
+  void checkAddURIandPath() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final String path = MEASURES_V1_PATH;
     cut.addReference(uri, path);
@@ -250,7 +250,7 @@ class IntermediateReferencesTest extends TestMappingRoot {
   }
 
   @Test
-  void checkAddReferenceWithURIRethrowsException() throws URISyntaxException, ODataVocabularyReadException {
+  void checkAddReferenceWithURIRethrowsException() throws URISyntaxException {
     final URI uri = new URI(CORE_V1_URL);
     final ODataVocabularyReadException act = assertThrows(ODataVocabularyReadException.class, () -> cut.addReference(
         uri, "Test"));
@@ -261,13 +261,19 @@ class IntermediateReferencesTest extends TestMappingRoot {
 
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
-        final String jpaManagedTypeClassName) {}
+        final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {}
+    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processEntityType(final IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {
+      // Not needed
+    }
 
     @Override
     public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {

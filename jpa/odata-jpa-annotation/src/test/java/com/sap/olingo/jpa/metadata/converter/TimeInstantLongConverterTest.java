@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  * 18.01.2022
  */
 class TimeInstantLongConverterTest {
-  private static long EPOCH_MILLIS = 1000000;
+  private static final long EPOCH_MILLIS = 1000000;
   private TimeInstantLongConverter cut;
 
   @BeforeEach

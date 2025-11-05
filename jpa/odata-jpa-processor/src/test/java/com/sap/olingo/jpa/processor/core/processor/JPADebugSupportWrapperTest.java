@@ -26,7 +26,7 @@ class JPADebugSupportWrapperTest {
   private OData odata;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() {
     warpped = mock(DebugSupport.class);
     odata = OData.newInstance();
     cut = new JPADebugSupportWrapper(warpped);

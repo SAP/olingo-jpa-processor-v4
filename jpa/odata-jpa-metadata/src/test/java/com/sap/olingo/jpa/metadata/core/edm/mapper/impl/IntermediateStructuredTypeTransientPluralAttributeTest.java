@@ -37,7 +37,7 @@ class IntermediateStructuredTypeTransientPluralAttributeTest extends TestMapping
   private Collection<String> collAttribute;
 
   @BeforeEach
-  void setup() throws ODataJPAModelException, NoSuchFieldException, SecurityException {
+  void setup() throws ODataJPAModelException, SecurityException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     managedType = mock(ManagedType.class);
   }
