@@ -485,6 +485,21 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
+  void checkInheritedWithMappingKeyPath() throws ODataJPAModelException {
+    final JPAEntityType et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        InheritanceByJoinLockedSavingAccount.class), schema);
+
+    assertEquals(1, et.getKey().size());
+    var key = et.getKey().get(0);
+    assertNotNull(key);
+    assertEquals("\"AccountId\"", ((IntermediateSimpleProperty) key).dbFieldName);
+
+    assertEquals(1, et.getKeyPath().size());
+    var keyPath = et.getKeyPath().get(0);
+    assertEquals("\"AccountId\"", keyPath.getDBFieldName());
+  }
+
+  @Test
   void checkHasStreamNoProperties() throws ODataJPAModelException {
     final IntermediateEntityType<PersonImage> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(PersonImage.class), schema);
@@ -677,6 +692,17 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
       final String[] pathElements = path.getAlias().split("/");
       assertEquals(pathElements.length, path.getPath().size());
     }
+  }
+
+  @Test
+  void checkAllPathContainsFieldMappingForInheritance() throws ODataJPAModelException {
+    final IntermediateStructuredType<InheritanceByJoinLockedSavingAccount> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), getEntityType(InheritanceByJoinLockedSavingAccount.class), schema);
+    final var act = et.getPathList();
+    final var key = act.stream().filter(path -> "AccountId".equals(path.getAlias())).findFirst();
+    assertTrue(key.isPresent());
+    assertEquals("\"AccountId\"", key.get().getDBFieldName());
   }
 
   @Test
@@ -1322,6 +1348,10 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertEquals(1, joinColumns.size());
     assertEquals("AccountId", joinColumns.get(0).getLeftPath().getAlias());
     assertEquals("AccountId", joinColumns.get(0).getRightPath().getAlias());
+    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    assertEquals(1, joinColumns.size());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getLeftPath().getAlias());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getRightPath().getAlias());
   }
 
   @Test
@@ -1334,7 +1364,16 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
     assertEquals(1, joinColumns.size());
     assertEquals("AccountId", joinColumns.get(0).getLeftPath().getAlias());
+    assertEquals("\"AccountId\"", joinColumns.get(0).getLeftPath().getDBFieldName());
     assertEquals("AccountId", joinColumns.get(0).getRightPath().getAlias());
+    assertEquals("\"ID\"", joinColumns.get(0).getRightPath().getDBFieldName());
+
+    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    assertEquals(1, joinColumns.size());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getRightPath().getAlias());
+    assertEquals("\"AccountId\"", reversedJoinColumns.get(0).getRightPath().getDBFieldName());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getLeftPath().getAlias());
+    assertEquals("\"ID\"", reversedJoinColumns.get(0).getLeftPath().getDBFieldName());
   }
 
   @Test
@@ -1360,6 +1399,24 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
         .getAlias())).findFirst();
     assertTrue(divisionCode.isPresent());
     assertEquals("\"PartCode\"", divisionCode.get().getLeftPath().getDBFieldName());
+
+    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    var partCode = reversedJoinColumns.stream().filter(column -> "\"PartCode\"".equals(column.getRightPath()
+        .getDBFieldName())).findFirst();
+    assertTrue(partCode.isPresent());
+    assertEquals("\"DivisionCode\"", partCode.get().getLeftPath().getDBFieldName());
+  }
+
+  @Test
+  void checkGetAttributesForJoinTableInheritanceTwoLevel() throws ODataJPAModelException {
+    final IntermediateEntityType<InheritanceByJoinLockedSavingAccount> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(InheritanceByJoinLockedSavingAccount.class), schema);
+
+    final var act = et.getAttributes();
+
+    assertEquals(6, act.size());
+    var key = act.stream().filter(attribute -> "accountId".equals(attribute.getInternalName())).findFirst();
+    assertEquals("\"AccountId\"", ((IntermediateProperty) key.get()).getDBFieldName());
   }
 
   @Test

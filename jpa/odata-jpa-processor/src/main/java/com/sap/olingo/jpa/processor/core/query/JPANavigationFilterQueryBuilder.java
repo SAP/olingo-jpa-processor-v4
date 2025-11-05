@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -15,9 +16,11 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceLambdaVariable;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.expression.Binary;
+import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -27,6 +30,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPACountExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
@@ -89,11 +93,30 @@ public class JPANavigationFilterQueryBuilder {
     return query;
   }
 
-  private JPAEntityType determineJpaEntityType() throws ODataJPAQueryException {
-    if (uriResource instanceof UriResourceProperty)
+  private JPAEntityType determineJpaEntityType() throws ODataJPAQueryException, ODataJPANotImplementedException {
+    if (uriResource instanceof UriResourceProperty) {
       return determineEntityType(association);
-    else
+    } else {
+      // ((UriResourceLambdaVariable)((Member)((Binary)expression).getLeftOperand()).getResourcePath().getUriResourceParts().get(0)).getSegmentValue(true)
+      if (expression instanceof Binary binaryExpression
+          && binaryExpression.getLeftOperand() instanceof Member memberExpression
+          && memberExpression.getResourcePath() != null
+          && memberExpression.getResourcePath().getUriResourceParts() != null
+          && !memberExpression.getResourcePath().getUriResourceParts().isEmpty()
+          && memberExpression.getResourcePath().getUriResourceParts().get(
+              0) instanceof UriResourceLambdaVariable lambda) {
+        var variableParts = lambda.getSegmentValue(true).split("/");
+        if (variableParts.length == 2) {
+          var cast = sd.getEntity(new FullQualifiedName(variableParts[1]));
+          if (cast != null)
+            return cast;
+        } else if (variableParts.length > 2) {
+          throw new ODataJPANotImplementedException("Chained cast not supported");
+        }
+      }
+
       return asJPAEntityType((EdmEntityType) uriResource.getType());
+    }
   }
 
   public JPANavigationFilterQueryBuilder setOdata(final OData odata) {

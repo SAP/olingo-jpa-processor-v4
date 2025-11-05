@@ -37,48 +37,48 @@ import com.sap.olingo.jpa.processor.core.testmodel.Team;
 abstract class CriteriaBuilderOverallTest {
   protected ProcessorCriteriaBuilder cb;
   protected EntityManager em;
-  protected StringBuilder stmt;
-  protected CriteriaQuery<Tuple> q;
+  protected StringBuilder statement;
+  protected CriteriaQuery<Tuple> query;
 
   void setup(final EntityManagerFactory emf, final JPAServiceDocument sd,
       final ProcessorSqlPatternProvider sqlPattern) {
     em = new EntityManagerWrapper(emf.createEntityManager(), sd, sqlPattern);
     cb = (ProcessorCriteriaBuilder) em.getCriteriaBuilder();
     assertNotNull(cb);
-    stmt = new StringBuilder();
-    q = cb.createTupleQuery();
+    statement = new StringBuilder();
+    query = cb.createTupleQuery();
   }
 
   @Test
   void testCriteriaBuilderImplReturnsSQLQuery() {
-    assertTrue(q instanceof SqlConvertible);
+    assertTrue(query instanceof SqlConvertible);
   }
 
   @Test
   void testSimpleQueryAll() {
-    final Root<?> team = q.from(Team.class);
+    final Root<?> team = query.from(Team.class);
 
-    q.multiselect(team);
-    ((SqlConvertible) q).asSQL(stmt);
-    assertEquals("SELECT E0.\"Active\" S0, E0.\"TeamKey\" S1, E0.\"Name\" S2 FROM \"OLINGO\".\"Team\" E0", stmt
+    query.multiselect(team);
+    ((SqlConvertible) query).asSQL(statement);
+    assertEquals("SELECT E0.\"Active\" S0, E0.\"TeamKey\" S1, E0.\"Name\" S2 FROM \"OLINGO\".\"Team\" E0", statement
         .toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(4, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testSimpleQueryMultiSelect() {
-    final Root<?> org = q.from(Organization.class);
+    final Root<?> org = query.from(Organization.class);
 
-    q.multiselect(org.get("type").alias("count"), org.get("iD"), org.get("eTag"));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(org.get("type").alias("count"), org.get("iD"), org.get("eTag"));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         "SELECT E0.\"Type\" S0, E0.\"ID\" S1, E0.\"ETag\" S2 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE (E0.\"Type\" = ?1)",
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(10, act.size());
     assertNotNull(act.get(0));
     assertEquals("2", act.get(0).get("count"));
@@ -88,32 +88,32 @@ abstract class CriteriaBuilderOverallTest {
   void testWhereWithMultipleAnd() {
     // SELECT E0."CodeID" FROM "OLINGO"."AdministrativeDivision" E0 WHERE (((E0."DivisionCode" = ?) AND (E0."CodeID" =
     // ?)) AND (E0."CodePublisher" = ?))
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> administrativeDivision = query.from(AdministrativeDivision.class);
 
-    q.multiselect(adminDiv.get("codeID"));
+    query.multiselect(administrativeDivision.get("codeID"));
     final Predicate[] restrictions = new Predicate[3];
-    restrictions[0] = cb.equal(adminDiv.get("codeID"), "NUTS2");
-    restrictions[1] = cb.equal(adminDiv.get("divisionCode"), "BE34");
-    restrictions[2] = cb.equal(adminDiv.get("codePublisher"), "Eurostat");
-    q.where(cb.and(restrictions));
-    ((SqlConvertible) q).asSQL(stmt);
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
-    assertNotNull(tq);
+    restrictions[0] = cb.equal(administrativeDivision.get("codeID"), "NUTS2");
+    restrictions[1] = cb.equal(administrativeDivision.get("divisionCode"), "BE34");
+    restrictions[2] = cb.equal(administrativeDivision.get("codePublisher"), "Eurostat");
+    query.where(cb.and(restrictions));
+    ((SqlConvertible) query).asSQL(statement);
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
+    assertNotNull(typedQuery);
     assertEquals(1, act.size());
   }
 
   @Test
   void testSimpleLikeQueryAll() {
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> adminDiv = query.from(AdministrativeDivision.class);
 
-    q.multiselect(adminDiv.get("codeID"));
-    q.where(cb.like(adminDiv.get("codeID"), "%6-1"));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(adminDiv.get("codeID"));
+    query.where(cb.like(adminDiv.get("codeID"), "%6-1"));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals("SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (E0.\"CodeID\" LIKE ?1)",
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(4, act.size());
     assertNotNull(act.get(0));
   }
@@ -121,88 +121,88 @@ abstract class CriteriaBuilderOverallTest {
   @Test
   void testSimpleLikeQueryAllWithEscape() {
 
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> adminDiv = query.from(AdministrativeDivision.class);
     final Expression<String> p = cb.literal("%6-1");
     final Expression<Character> e = cb.literal('/');
 
-    q.multiselect(adminDiv.get("codeID"));
-    q.where(cb.like(adminDiv.get("codeID"), p, e));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(adminDiv.get("codeID"));
+    query.where(cb.like(adminDiv.get("codeID"), p, e));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (E0.\"CodeID\" LIKE ?1 ESCAPE ?2)",
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(4, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testOrderByClause() {
-    final Root<?> team = q.from(Team.class);
+    final Root<?> team = query.from(Team.class);
 
-    q.multiselect(team);
-    q.orderBy(cb.asc(team.get("name")));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(team);
+    query.orderBy(cb.asc(team.get("name")));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         "SELECT E0.\"Active\" S0, E0.\"TeamKey\" S1, E0.\"Name\" S2 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC",
-        stmt
+        statement
             .toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(4, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testOrderByClauseTwoElements() {
-    final Root<?> team = q.from(Team.class);
+    final Root<?> team = query.from(Team.class);
 
-    q.multiselect(team);
-    q.orderBy(cb.asc(team.get("name")), cb.desc(team.get("iD")));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(team);
+    query.orderBy(cb.asc(team.get("name")), cb.desc(team.get("iD")));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         "SELECT E0.\"Active\" S0, E0.\"TeamKey\" S1, E0.\"Name\" S2 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC, E0.\"TeamKey\" DESC",
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(4, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testSimpleToLowerQuery() {
-    final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
+    final Root<?> adminDiv = query.from(AdministrativeDivisionDescription.class);
     final Expression<Boolean> equal = cb.equal(adminDiv.get("language"), "de");
     final Expression<Boolean> lower = cb.equal(cb.lower(adminDiv.get("name")), "brandenburg");
 
-    q.multiselect(adminDiv.get("codeID"));
-    q.where(cb.and(equal, lower));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(adminDiv.get("codeID"));
+    query.where(cb.and(equal, lower));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivisionDescription\" E0 WHERE ((E0.\"LanguageISO\" = ?1) AND (LOWER(E0.\"Name\") = ?2))",
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(1, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testSimpleSubstringQuery() {
-    final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
+    final Root<?> adminDiv = query.from(AdministrativeDivisionDescription.class);
     final Expression<Boolean> equal = cb.equal(adminDiv.get("language"), "de");
     final Expression<String> sub = cb.substring(adminDiv.get("name"), 1, 5);
     final Expression<Boolean> lower = cb.equal(cb.lower(sub), "north");
 
-    q.multiselect(adminDiv.get("codeID"));
-    q.where(cb.and(equal, lower));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(adminDiv.get("codeID"));
+    query.where(cb.and(equal, lower));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         expectedQuerySubstring(),
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(2, act.size());
     assertNotNull(act.get(0));
   }
@@ -212,80 +212,80 @@ abstract class CriteriaBuilderOverallTest {
 
   @Test
   void testSimpleLocateQuery() {
-    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> adminDiv = query.from(AdministrativeDivision.class);
     final Expression<Integer> locate = cb.locate(adminDiv.get("divisionCode"), "3");
 
-    q.multiselect(adminDiv.get("codeID"));
-    q.where(cb.equal(locate, 4));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(adminDiv.get("codeID"));
+    query.where(cb.equal(locate, 4));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (LOCATE(?1, E0.\"DivisionCode\") = ?2)",
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(7, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testSimpleConcatQuery() {
-    final Root<?> person = q.from(Person.class);
+    final Root<?> person = query.from(Person.class);
     final Expression<String> concat = cb.concat(cb.concat(person.get("lastName"), ","), person.get("firstName"));
 
-    q.multiselect(person.get("iD"));
-    q.where(cb.equal(concat, "Mustermann,Max"));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(person.get("iD"));
+    query.where(cb.equal(concat, "Mustermann,Max"));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         expectedQueryConcat(),
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(1, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testSimpleTimestampQuery() {
-    final Root<?> person = q.from(Person.class);
+    final Root<?> person = query.from(Person.class);
     final Expression<Timestamp> locate = person.get("administrativeInformation").get("created").get("at");
 
-    q.multiselect(person.get("iD"), person.get("creationDateTime"));
-    q.where(cb.lessThan(locate, cb.currentTimestamp()));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(person.get("iD"), person.get("creationDateTime"));
+    query.where(cb.lessThan(locate, cb.currentTimestamp()));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         "SELECT E0.\"ID\" S0, E0.\"CreatedAt\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((E0.\"CreatedAt\" < CURRENT_TIMESTAMP) AND (E0.\"Type\" = ?1))",
-        stmt.toString().trim());
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+        statement.toString().trim());
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(3, act.size());
     assertNotNull(act.get(0));
   }
 
   @Test
   void testSelectPrimitiveCollectionProperty() {
-    final Root<?> org = q.from(Organization.class);
+    final Root<?> org = query.from(Organization.class);
     final Join<Object, Object> comment = org.join("comment");
     final Path<Object> id = org.get("iD");
     id.alias("ID");
     comment.alias("Comment");
-    q.multiselect(id, comment);
-    q.where(cb.equal(id, '1'));
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+    query.multiselect(id, comment);
+    query.where(cb.equal(id, '1'));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(2, act.size());
   }
 
   @Test
   void testSelectComplexCollectionProperty() {
-    final Root<?> org = q.from(Person.class);
+    final Root<?> org = query.from(Person.class);
     final Join<Object, Object> addr = org.join("inhouseAddress");
     final Path<Object> id = org.get("iD");
     id.alias("ID");
     addr.alias("inhouseAddress");
-    q.multiselect(id, addr);
-    q.where(cb.equal(id, "99"));
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+    query.multiselect(id, addr);
+    query.where(cb.equal(id, "99"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(2, act.size());
     assertNotNull(act.get(0).get("inhouseAddress.Building"));
   }
@@ -293,39 +293,39 @@ abstract class CriteriaBuilderOverallTest {
   @Test
   void testSelectCountOneKey() {
     // SELECT COUNT(DISTINCT(*)) FROM "OLINGO"."BusinessPartnerProtected" E0 WHERE (E0."UserName" = ?)
-    final CriteriaQuery<Long> qc = cb.createQuery(Long.class);
+    final CriteriaQuery<Number> qc = cb.createQuery(Number.class);
     final Root<?> org = qc.from(BusinessPartnerProtected.class);
     qc.multiselect(cb.countDistinct(org));
     qc.where(cb.equal(org.get("userName"), "Willi"));
-    final TypedQuery<Long> tq = em.createQuery(qc);
-    final Long act = ((Number) tq.getSingleResult()).longValue();
+    final TypedQuery<Number> tq = em.createQuery(qc);
+    final Long act = tq.getSingleResult().longValue();
     assertEquals(3L, act);
   }
 
   @Test
   void testSelectDateTime() {
-    final Root<?> dateTime = q.from(DateTimeTest.class);
+    final Root<?> dateTime = query.from(DateTimeTest.class);
     final Path<Object> id = dateTime.get("iD");
-    q.multiselect(dateTime);
-    q.where(cb.equal(id, "99"));
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    final List<Tuple> act = tq.getResultList();
+    query.multiselect(dateTime);
+    query.where(cb.equal(id, "99"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(1, act.size());
-    assertEquals(LocalDate.parse("1999-04-01"), act.get(0).get("S2"));
-    assertEquals(LocalDateTime.parse("2016-01-20T09:21:23"), act.get(0).get("S1"));
+    assertEquals(LocalDate.parse("1999-04-01"), act.get(0).get("S0"));
+    assertEquals(LocalDateTime.parse("2016-01-20T09:21:23"), act.get(0).get("S2"));
   }
 
   @Test
   void testSelectLimitOffset() {
-    final Root<?> person = q.from(Person.class);
+    final Root<?> person = query.from(Person.class);
 
-    q.multiselect(person.get("iD"));
-    final TypedQuery<Tuple> tq = em.createQuery(q);
-    tq.setFirstResult(1);
-    tq.setMaxResults(1);
-    ((SqlConvertible) q).asSQL(stmt);
-    assertEquals(expectedQueryLimitOffset(), stmt.toString().trim());
-    final List<Tuple> act = tq.getResultList();
+    query.multiselect(person.get("iD"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(query);
+    typedQuery.setFirstResult(1);
+    typedQuery.setMaxResults(1);
+    ((SqlConvertible) query).asSQL(statement);
+    assertEquals(expectedQueryLimitOffset(), statement.toString().trim());
+    final List<Tuple> act = typedQuery.getResultList();
     assertEquals(1, act.size());
     assertNotNull(act.get(0));
   }

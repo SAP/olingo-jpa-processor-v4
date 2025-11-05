@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 
 /**
- * Represents a join for an inheritance relation
+ * Represents a join for an inheritance relation. From sub-type to super-type
  * @param <Z> the sub-type
  * @param <X> the super-type
  *
@@ -63,6 +63,16 @@ class InheritanceJoin<Z, X> extends AbstractJoinImp<Z, X> {
   @Override
   public JoinType getJoinType() {
     return JoinType.INNER;
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    return super.equals(other);
   }
 
 }

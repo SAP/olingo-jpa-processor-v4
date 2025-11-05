@@ -246,6 +246,11 @@ public class JPAEntityTypeDouble implements JPAEntityType {
       public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
         return List.of();
       }
+
+      @Override
+      public List<JPAOnConditionItem> getReversedJoinColumnsList() throws ODataJPAModelException {
+        return List.of();
+      }
     };
   }
 

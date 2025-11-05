@@ -19,4 +19,9 @@ class IntermediateInheritanceInformationSingleTable implements JPAInheritanceInf
     return List.of();
   }
 
+  @Override
+  public List<JPAOnConditionItem> getReversedJoinColumnsList() throws ODataJPAModelException {
+    return List.of();
+  }
+
 }

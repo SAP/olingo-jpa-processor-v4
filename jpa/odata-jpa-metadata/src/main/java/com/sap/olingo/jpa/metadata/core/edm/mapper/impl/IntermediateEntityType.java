@@ -52,7 +52,6 @@ import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.Applicability
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEtagValidator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceInformation;
@@ -262,42 +261,61 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       if (type != null) {
         intermediateKey.addAll(((IntermediateEntityType<?>) type).getKey());
       }
-      return Collections.unmodifiableList(mapPrimaryKey(intermediateKey));
+      return Collections.unmodifiableList(updateAttributeListDbFieldName(intermediateKey));
     } catch (ODataJPAModelException e) {
       throw new ODataJPAModelInternalException(e);
     }
   }
 
-  private List<JPAAttribute> mapPrimaryKey(List<JPAAttribute> intermediateKey) throws ODataJPAModelException {
-    final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
-    return updateDbFieldName(intermediateKey, mappings);
+  @Override
+  List<JPAAttribute> getBaseTypeAttributes() throws ODataJPAModelException {
+    final IntermediateStructuredType<? super T> superType = getBaseType();
+    if (superType != null) {
+      final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
+      final List<JPAAttribute> result = new ArrayList<>();
+      for (var attribute : superType.getAttributes()) {
+        result.add(updateAttributeDbFieldName(mappings, attribute));
+      }
+      return result;
+    }
+    return List.of();
   }
 
-  private final List<JPAAttribute> updateDbFieldName(List<JPAAttribute> intermediateKey,
-      final Map<String, PrimaryKeyJoinColumn> mappings) throws ODataJPAModelException {
+  private final JPAAttribute updateAttributeDbFieldName(final Map<String, PrimaryKeyJoinColumn> mappings,
+      JPAAttribute attribute) throws ODataJPAModelException {
+
+    if (attribute instanceof IntermediateSimpleProperty property
+        && mappings.containsKey(property.getDBFieldName())) {
+      LOGGER.debug("Key mapping (PrimaryKeyJoinColumn) found for " + jpaJavaType.getSimpleName() + "#" + property
+          .getInternalName());
+      final var targetDbName = mappings.get(property.getDBFieldName()).name();
+      if (targetDbName != null && !targetDbName.isBlank())
+        return new IntermediateSimpleProperty(property, mappings.get(property.getDBFieldName()).name());
+      else
+        LOGGER.warn("Missing 'name' at annotation PrimaryKeyJoinColumn mapping found for " + jpaJavaType
+            .getSimpleName() + "#" + property.getInternalName());
+    }
+    return attribute;
+  }
+
+  private final List<JPAAttribute> updateAttributeListDbFieldName(List<JPAAttribute> intermediateKey)
+      throws ODataJPAModelException {
+
+    final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
     for (int i = 0; i < intermediateKey.size(); i++) {
-      var key = intermediateKey.get(i);
-      if (key instanceof IntermediateSimpleProperty property
-          && mappings.containsKey(property.getDBFieldName())) {
-        LOGGER.debug("Key mapping (PrimaryKeyJoinColumn) found for " + jpaJavaType.getSimpleName() + "#" + property
-            .getInternalName());
-        final var targetDbName = mappings.get(property.getDBFieldName()).name();
-        if (targetDbName != null && !targetDbName.isBlank())
-          intermediateKey.set(i, new IntermediateSimpleProperty(property, mappings.get(property.getDBFieldName())
-              .name()));
-        else
-          LOGGER.warn("Missing 'name' at annotation PrimaryKeyJoinColumn mapping found for " + jpaJavaType
-              .getSimpleName() + "#" + property.getInternalName());
-      }
+      intermediateKey.set(i, updateAttributeDbFieldName(mappings, intermediateKey.get(i)));
     }
     return intermediateKey;
   }
 
-  private final Map<String, PrimaryKeyJoinColumn> getPrimaryKeyJoinColumns() {
+  private final Map<String, PrimaryKeyJoinColumn> getPrimaryKeyJoinColumns() throws ODataJPAModelException {
     final Map<String, PrimaryKeyJoinColumn> mappings;
     if (this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class) != null) {
       final var mapping = this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class);
-      mappings = Map.of(mapping.referencedColumnName(), this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class));
+      final var referenceColumn = !mapping.referencedColumnName().isEmpty()
+          ? mapping.referencedColumnName()
+          : ((JPAEntityType) getBaseType()).getKeyPath().get(0).getDBFieldName();
+      mappings = Map.of(referenceColumn, this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class));
     } else if (jpaJavaType.getAnnotation(PrimaryKeyJoinColumns.class) != null)
       mappings = Arrays.asList(this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumns.class).value())
           .stream()
@@ -320,43 +338,51 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     }
     final IntermediateStructuredType<?> type = getBaseType();
     if (type != null) {
-      result.addAll(mapPrimaryKeyPath(((IntermediateEntityType<?>) type).getKeyPath()));
+      result.addAll(updatePathListDbFieldName(((IntermediateEntityType<?>) type).getKeyPath()));
     }
     return Collections.unmodifiableList(result);
   }
 
-  private List<JPAPath> mapPrimaryKeyPath(List<JPAPath> keyPath) throws ODataJPAModelException {
-    final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
-    return updateLeaveDbFieldName(keyPath, mappings);
-  }
-
-  private List<JPAPath> updateLeaveDbFieldName(List<JPAPath> keyPath, Map<String, PrimaryKeyJoinColumn> mappings)
+  private List<JPAPath> updatePathListDbFieldName(List<JPAPath> keyPath)
       throws ODataJPAModelException {
-    final Map<String, JPAAttribute> keys = getKey().stream().collect(toMap(
-        k -> ((IntermediateSimpleProperty) k).dbFieldName, Function.identity()));
 
+    final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
     final List<JPAPath> result = new ArrayList<>();
     for (int i = 0; i < keyPath.size(); i++) {
       final var path = keyPath.get(i);
-      if (mappings.containsKey(path.getDBFieldName())) {
-        LOGGER.debug("Key mapping (PrimaryKeyJoinColumn) found for " + jpaJavaType.getSimpleName() + "#" + path
-            .getLeaf().getInternalName());
-        final var targetDbName = mappings.get(path.getDBFieldName()).name();
-        if (targetDbName != null && !targetDbName.isBlank()) {
-          var targetKey = keys.get(targetDbName);
-          var targetPath = new ArrayList<JPAElement>();
-          for (int j = 0; j < path.getPath().size() - 1; j++)
-            targetPath.add(path.getPath().get(j));
-          targetPath.add(targetKey);
-          result.add(new JPAPathImpl(path.getAlias(), mappings.get(path.getDBFieldName()).name(), targetPath));
-        } else
-          LOGGER.warn("Missing 'name' at annotation PrimaryKeyJoinColumn mapping found for " + jpaJavaType
-              .getSimpleName() + "#" + path.getLeaf().getInternalName());
-      } else {
-        result.add(path);
-      }
+      result.add(updatePathDbFieldName(mappings, path));
     }
     return result;
+  }
+
+  private final JPAPath updatePathDbFieldName(final Map<String, PrimaryKeyJoinColumn> mappings, final JPAPath path)
+      throws ODataJPAModelException {
+
+    if (mappings.containsKey(path.getDBFieldName())) {
+      LOGGER.debug("Key mapping (PrimaryKeyJoinColumn) found for " + jpaJavaType.getSimpleName() + "#" + path
+          .getLeaf().getInternalName());
+      final var targetDbName = mappings.get(path.getDBFieldName()).name();
+      if (targetDbName != null && !targetDbName.isBlank()) {
+        return new JPAPathImpl(path.getAlias(), mappings.get(path.getDBFieldName()).name(), path.getPath());
+      } else
+        LOGGER.warn("Missing 'name' at annotation PrimaryKeyJoinColumn mapping found for " + jpaJavaType
+            .getSimpleName() + "#" + path.getLeaf().getInternalName());
+    }
+    return path;
+  }
+
+  @Override
+  protected Map<String, JPAPath> getBaseTypeResolvedPathMap() throws ODataJPAModelException {
+    final IntermediateStructuredType<? super T> superType = getBaseType();
+    if (superType != null) {
+      final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
+      final Map<String, JPAPath> result = new HashMap<>();
+      for (var path : superType.getResolvedPathMap().entrySet()) {
+        result.put(path.getKey(), updatePathDbFieldName(mappings, path.getValue()));
+      }
+      return result;
+    }
+    return Map.of();
   }
 
   @Override
@@ -831,6 +857,11 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
     @Override
     public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
+      return List.of();
+    }
+
+    @Override
+    public List<JPAOnConditionItem> getReversedJoinColumnsList() throws ODataJPAModelException {
       return List.of();
     }
 

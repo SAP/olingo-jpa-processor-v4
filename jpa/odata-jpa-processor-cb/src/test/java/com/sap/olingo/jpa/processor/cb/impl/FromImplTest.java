@@ -2,10 +2,14 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +24,7 @@ import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.metamodel.CollectionAttribute;
 import jakarta.persistence.metamodel.ListAttribute;
 import jakarta.persistence.metamodel.MapAttribute;
@@ -35,12 +40,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinAccount;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCompoundSub;
 import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCurrentAccount;
 import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinLockedSavingAccount;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinSavingAccount;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
@@ -51,34 +60,34 @@ class FromImplTest extends BuilderBaseTest {
 
   @SuppressWarnings("rawtypes")
   static Stream<Arguments> notImplemented() throws NoSuchMethodException, SecurityException {
-    final Class<FromImpl> c = FromImpl.class;
+    final Class<FromImpl> clazz = FromImpl.class;
     return Stream.of(
-        arguments(c.getMethod("fetch", String.class)),
-        arguments(c.getMethod("fetch", String.class, JoinType.class)),
-        arguments(c.getMethod("fetch", SingularAttribute.class)),
-        arguments(c.getMethod("fetch", SingularAttribute.class, JoinType.class)),
-        arguments(c.getMethod("fetch", PluralAttribute.class)),
-        arguments(c.getMethod("fetch", PluralAttribute.class, JoinType.class)),
-        arguments(c.getMethod("join", SetAttribute.class)),
-        arguments(c.getMethod("join", SetAttribute.class, JoinType.class)),
-        arguments(c.getMethod("join", MapAttribute.class)),
-        arguments(c.getMethod("join", MapAttribute.class, JoinType.class)),
-        arguments(c.getMethod("join", ListAttribute.class)),
-        arguments(c.getMethod("join", ListAttribute.class, JoinType.class)),
-        arguments(c.getMethod("join", CollectionAttribute.class)),
-        arguments(c.getMethod("join", CollectionAttribute.class, JoinType.class)),
-        arguments(c.getMethod("join", SingularAttribute.class, JoinType.class)),
-        arguments(c.getMethod("joinCollection", String.class)),
-        arguments(c.getMethod("joinCollection", String.class, JoinType.class)),
-        arguments(c.getMethod("joinSet", String.class)),
-        arguments(c.getMethod("joinSet", String.class, JoinType.class)),
-        arguments(c.getMethod("joinMap", String.class)),
-        arguments(c.getMethod("joinMap", String.class, JoinType.class)),
-        arguments(c.getMethod("joinList", String.class)),
-        arguments(c.getMethod("joinList", String.class, JoinType.class)),
-        arguments(c.getMethod("join", SingularAttribute.class)),
-        arguments(c.getMethod("isCorrelated")),
-        arguments(c.getMethod("getCorrelationParent")));
+        arguments(clazz.getMethod("fetch", String.class)),
+        arguments(clazz.getMethod("fetch", String.class, JoinType.class)),
+        arguments(clazz.getMethod("fetch", SingularAttribute.class)),
+        arguments(clazz.getMethod("fetch", SingularAttribute.class, JoinType.class)),
+        arguments(clazz.getMethod("fetch", PluralAttribute.class)),
+        arguments(clazz.getMethod("fetch", PluralAttribute.class, JoinType.class)),
+        arguments(clazz.getMethod("join", SetAttribute.class)),
+        arguments(clazz.getMethod("join", SetAttribute.class, JoinType.class)),
+        arguments(clazz.getMethod("join", MapAttribute.class)),
+        arguments(clazz.getMethod("join", MapAttribute.class, JoinType.class)),
+        arguments(clazz.getMethod("join", ListAttribute.class)),
+        arguments(clazz.getMethod("join", ListAttribute.class, JoinType.class)),
+        arguments(clazz.getMethod("join", CollectionAttribute.class)),
+        arguments(clazz.getMethod("join", CollectionAttribute.class, JoinType.class)),
+        arguments(clazz.getMethod("join", SingularAttribute.class, JoinType.class)),
+        arguments(clazz.getMethod("joinCollection", String.class)),
+        arguments(clazz.getMethod("joinCollection", String.class, JoinType.class)),
+        arguments(clazz.getMethod("joinSet", String.class)),
+        arguments(clazz.getMethod("joinSet", String.class, JoinType.class)),
+        arguments(clazz.getMethod("joinMap", String.class)),
+        arguments(clazz.getMethod("joinMap", String.class, JoinType.class)),
+        arguments(clazz.getMethod("joinList", String.class)),
+        arguments(clazz.getMethod("joinList", String.class, JoinType.class)),
+        arguments(clazz.getMethod("join", SingularAttribute.class)),
+        arguments(clazz.getMethod("isCorrelated")),
+        arguments(clazz.getMethod("getCorrelationParent")));
   }
 
   @BeforeEach
@@ -282,6 +291,74 @@ class FromImplTest extends BuilderBaseTest {
     final JPAEntityType type = sd.getEntity(InheritanceByJoinLockedSavingAccount.class);
     final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
     assertEquals(InheritanceType.JOINED, from.getInheritanceType().get());
+  }
+
+  @Test
+  void testGetInheritanceJoinedAsSql() throws ODataJPAModelException {
+    final JPAEntityType type = sd.getEntity(InheritanceByJoinCurrentAccount.class);
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    var statement = new StringBuilder();
+    from.asSQL(statement);
+    assertTrue(statement.toString().contains("INNER JOIN"));
+  }
+
+  @Test
+  void testGetInheritanceJoinedWhere() throws ODataJPAModelException {
+    final Predicate exp = mock(Predicate.class);
+    final JPAEntityType type = sd.getEntity(InheritanceByJoinCurrentAccount.class);
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    when(cb.equal(any(PathImpl.class), any(String.class))).thenReturn(exp);
+    assertNull(from.createInheritanceWhere());
+  }
+
+  @Test
+  void testGetInheritanceJoinedWhereNullOnIntermediate() throws ODataJPAModelException {
+    final JPAEntityType type = sd.getEntity(InheritanceByJoinLockedSavingAccount.class);
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    assertTrue(from.getInheritanceJoin().isPresent());
+    var act = from.getInheritanceJoin().get();
+    assertNull(act.createInheritanceWhere());
+  }
+
+  @Test
+  void testGetInheritanceJoinedWhereNullDiscriminatorColumnNotFound() throws ODataJPAModelException {
+    final JPAEntityType type = sd.getEntity(InheritanceByJoinCompoundSub.class);
+
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+
+    assertNull(from.createInheritanceWhere());
+  }
+
+  @Test
+  void testGetInheritanceJoinedGetAlias() throws ODataJPAModelException {
+    final JPAEntityType type = sd.getEntity(InheritanceByJoinLockedSavingAccount.class);
+    final JPAEntityType parentType = sd.getEntity(InheritanceByJoinSavingAccount.class);
+    final JPAEntityType grandParentType = sd.getEntity(InheritanceByJoinAccount.class);
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    final var parent = from.getInheritanceJoin().get();
+    final var grandParent = parent.getInheritanceJoin().get();
+
+    var id = type.getKeyPath().get(0);
+    assertEquals(from.tableAlias, from.getAlias(id));
+    var parentId = parentType.getKeyPath().get(0);
+    assertEquals(parent.tableAlias, parent.getAlias(parentId));
+    var grandParentId = grandParentType.getKeyPath().get(0);
+    assertEquals(grandParent.tableAlias, grandParent.getAlias(grandParentId));
+
+    var typePath = type.getPath("Type");
+    assertEquals(grandParent.tableAlias, from.getAlias(typePath));
+    var ratePath = type.getPath("InterestRate");
+    assertEquals(parent.tableAlias, from.getAlias(ratePath));
+  }
+
+  @Test
+  void testGetInheritanceJoinedGetAliasThrowsExceptionOnModelException() throws ODataJPAModelException {
+    final JPAEntityType type = spy(sd.getEntity(InheritanceByJoinSavingAccount.class));
+    when(type.getDeclaredAttribute(anyString())).thenThrow(ODataJPAModelException.class);
+
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    var ratePath = type.getPath("InterestRate");
+    assertThrows(InternalServerError.class, () -> from.getAlias(ratePath));
   }
 
   @Test

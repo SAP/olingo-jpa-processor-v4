@@ -113,8 +113,9 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     return new NotPredicate(this);
   }
 
+  @SuppressWarnings("unchecked")
   private List<Expression<Boolean>> asExpression() {
-    return Collections.emptyList();
+    return expressions.stream().map(expression -> (Expression<Boolean>) expression).toList();
   }
 
   @Override

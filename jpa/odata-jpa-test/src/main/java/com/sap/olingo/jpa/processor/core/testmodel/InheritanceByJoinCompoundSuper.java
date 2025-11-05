@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -9,7 +8,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 
 @IdClass(AdministrativeDivisionKey.class)
-@DiscriminatorColumn(name = "\"Type\"")
 @Entity(name = "InheritanceByJoinCompoundSuper")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class InheritanceByJoinCompoundSuper {

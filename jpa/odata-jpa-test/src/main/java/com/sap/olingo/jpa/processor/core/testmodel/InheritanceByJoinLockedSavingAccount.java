@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 @DiscriminatorValue("LockedSavingAccount")
 @Entity(name = "InheritanceLockedSavingAccount")
 @Table(schema = "\"OLINGO\"", name = "\"InheritanceByJoinLockedSavingAccount\"")
-@PrimaryKeyJoinColumn(name = "\"ID\"")
+@PrimaryKeyJoinColumn(name = "\"AccountId\"")
 public class InheritanceByJoinLockedSavingAccount extends InheritanceByJoinSavingAccount {
 
   @Column(name = "\"LockingPeriod\"")

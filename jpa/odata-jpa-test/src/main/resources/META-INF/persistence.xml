@@ -107,6 +107,7 @@
         <class>com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCompoundSuper</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCompoundSub</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCompoundSubKey</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinTransaction</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="jakarta.persistence.validation.mode" value="NONE" />

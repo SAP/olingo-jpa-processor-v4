@@ -105,6 +105,11 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("NavigationPropertyToManyNestedWithJoinTable",
             "Organizations?$select=ID&$filter=SupportEngineers/any(s:s/AdministrativeInformation/Created/User/Roles/any(a:a/RoleCategory eq 'Y'))",
             2),
+        arguments("NavigationPropertyFromInheritance",
+            "InheritanceSavingAccounts?$select=AccountId&$filter=Transactions/any()", 2),
+        arguments("NavigationPropertyToInheritance",
+            "Persons?$select=ID&$filter=Accounts/any(s:s/com.sap.olingo.jpa.InheritanceLockedSavingAccount/InterestRate gt 3.0)",
+            1),
 
         arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll",
             "Organizations?$filter=Address/RegionName eq 'Kalifornien'", 3),
@@ -895,5 +900,13 @@ class TestJPAQueryWhereClause extends TestBase {
     final var starts = helper.getSingleValue().asInt();
 
     assertEquals(all, notStarts + starts);
+  }
+
+  @Test
+  void testInheritanceJoinWithFilter() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceSavingAccounts?$filter=InterestRate gt 3.0");
+    final ArrayNode accounts = helper.getValues();
+    assertEquals(2, accounts.size());
   }
 }

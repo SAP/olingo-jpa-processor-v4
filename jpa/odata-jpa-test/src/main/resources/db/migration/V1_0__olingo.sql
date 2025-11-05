@@ -989,14 +989,16 @@ INSERT INTO "TemporalWithValidityPeriod" values ('98', '2022-01-01', '9999-12-31
 ------Inhereitance by join------------------
 CREATE TABLE "InheritanceByJoinAccount"(
     "ID" VARCHAR(32) NOT NULL,
+    "Owner" VARCHAR(32) NOT NULL,
     "Type" VARCHAR(31) NOT NULL,
+    "Amount" DECIMAL(16,5),
     PRIMARY KEY ("ID"));    
 
-INSERT INTO "InheritanceByJoinAccount" values ('f371be9253ab434aaf79259427687a7e', 'CurrentAccount');
-INSERT INTO "InheritanceByJoinAccount" values ('626e6a63a1284d8180efb542c556f003', 'CurrentAccount');
-INSERT INTO "InheritanceByJoinAccount" values ('8ce66481d8114db0bbf7f0fc621dade7', 'SavingAccount');    
-INSERT INTO "InheritanceByJoinAccount" values ('5425c3635eae4548bc82a7adddcad14d', 'SavingAccount');    
-INSERT INTO "InheritanceByJoinAccount" values ('611b57e8b0784b169a0ccefc6379ff0a', 'LockedSavingAccount');    
+INSERT INTO "InheritanceByJoinAccount" values ('f371be9253ab434aaf79259427687a7e', '98' ,'CurrentAccount', 12540.0);
+INSERT INTO "InheritanceByJoinAccount" values ('626e6a63a1284d8180efb542c556f003', '99' ,'CurrentAccount', 922.31);
+INSERT INTO "InheritanceByJoinAccount" values ('8ce66481d8114db0bbf7f0fc621dade7', '97' ,'SavingAccount', 4210.6);    
+INSERT INTO "InheritanceByJoinAccount" values ('5425c3635eae4548bc82a7adddcad14d', '98' ,'SavingAccount', 3520.0);    
+INSERT INTO "InheritanceByJoinAccount" values ('611b57e8b0784b169a0ccefc6379ff0a', '99' ,'LockedSavingAccount', 20000.0);    
     
 CREATE TABLE "InheritanceByJoinSavingAccount"(
     "ID" VARCHAR(32) NOT NULL,
@@ -1008,9 +1010,9 @@ CREATE TABLE "InheritanceByJoinSavingAccount"(
  INSERT INTO "InheritanceByJoinSavingAccount" values ('611b57e8b0784b169a0ccefc6379ff0a', 3.1); 
  
 CREATE TABLE "InheritanceByJoinLockedSavingAccount"(
-    "ID" VARCHAR(32) NOT NULL,
+    "AccountId" VARCHAR(32) NOT NULL,
     "LockingPeriod" INT,
-    PRIMARY KEY ("ID"));
+    PRIMARY KEY ("AccountId"));
     
  INSERT INTO "InheritanceByJoinLockedSavingAccount" values ('611b57e8b0784b169a0ccefc6379ff0a', 2);
 
@@ -1024,6 +1026,17 @@ CREATE TABLE "InheritanceByJoinCurrentAccount"(
  INSERT INTO "InheritanceByJoinCurrentAccount" values ('f371be9253ab434aaf79259427687a7e', 1.2, 10.5, 10000);
  INSERT INTO "InheritanceByJoinCurrentAccount" values ('626e6a63a1284d8180efb542c556f003', 1.3, 12.5, 8000);    
     
+ 
+ CREATE TABLE "InheritanceByJoinTransaction"(
+    "ID" VARCHAR(32) NOT NULL,
+    "AccountID" VARCHAR(32) NOT NULL,
+    "Amount" DECIMAL(16,5),
+     PRIMARY KEY ("ID"));
+ INSERT INTO "InheritanceByJoinTransaction" values ('ac64b6a9f4f7405e9964025e8a611ddc', 'f371be9253ab434aaf79259427687a7e', 1000.20);
+ INSERT INTO "InheritanceByJoinTransaction" values ('6d21f36022a84192818f8dbc86a0acb3', '626e6a63a1284d8180efb542c556f003', -800);  
+ INSERT INTO "InheritanceByJoinTransaction" values ('783f30d2b4cc40a9a72e9fe6cc0adb9b', '611b57e8b0784b169a0ccefc6379ff0a', 20000);
+ INSERT INTO "InheritanceByJoinTransaction" values ('4397a9032fff4038a3a4bac068352415', '5425c3635eae4548bc82a7adddcad14d', 2500);
+ INSERT INTO "InheritanceByJoinTransaction" values ('6b320b7e1a164ae5bd848c2793236db2', '5425c3635eae4548bc82a7adddcad14d', -120);   
 -------------------------------------------- 
  
 -- CREATE TABLE "Pages"(

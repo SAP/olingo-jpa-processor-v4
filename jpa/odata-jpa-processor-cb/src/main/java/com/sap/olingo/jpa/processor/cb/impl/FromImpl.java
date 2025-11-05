@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -67,7 +68,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   private final AliasBuilder aliasBuilder;
   private InheritanceInfo inInfo;
   private final CriteriaBuilder cb;
-  final Optional<InheritanceJoin<X, ?>> inheritanceJoin;
+  Optional<? extends AbstractJoinImp<X, ?>> inheritanceJoin;
 
   FromImpl(final JPAEntityType type, final AliasBuilder aliasBuilder, final CriteriaBuilder cb) {
     this(type, null, aliasBuilder, cb);
@@ -99,6 +100,19 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     return Optional.empty();
   }
 
+  private Optional<InheritanceJoinReversed<X, ?>> addReverseInheritanceJoin(JPAEntityType target) {
+    try {
+      if (st != null
+          && target.getInheritanceInformation().getInheritanceType() == JPAInheritanceType.JOIN_TABLE
+          && target.getBaseType() != null) {
+        return Optional.of(new InheritanceJoinReversed<>(target, st, this, aliasBuilder, cb));
+      }
+    } catch (ODataJPAModelException e) {
+      throw new InternalServerError(e);
+    }
+    return Optional.empty();
+  }
+
   /**
    * Perform a type cast upon the expression, returning a new expression object.
    * This method does not cause type conversion:<br>
@@ -115,8 +129,15 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
       if (target == null)
         throw new IllegalArgumentException(type.getName() + " is unknown");
       if (isSubtype(type)) {
-        st = target;
-        inInfo = new InheritanceInfo(target);
+        if (target.getInheritanceInformation().getInheritanceType() == JPAInheritanceType.JOIN_TABLE) {
+          inheritanceJoin = addReverseInheritanceJoin(target);
+          inheritanceJoin.ifPresent(joins::add);
+          return (Expression<X>) inheritanceJoin.map(join -> (InheritanceJoinReversed<?, ?>) join)
+              .map(InheritanceJoinReversed::getTarget).orElse((From<Object, Object>) this);
+        } else {
+          st = target;
+          inInfo = new InheritanceInfo(target);
+        }
       }
       return (Expression<X>) this;
     } catch (final ODataJPAModelException e) {
@@ -548,7 +569,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     if (inInfo.getInheritanceType().filter(type -> type == InheritanceType.SINGLE_TABLE).isPresent()) {
       return createInheritanceWhereSingleTable();
     } else if (inInfo.getInheritanceType().filter(type -> type == InheritanceType.JOINED).isPresent()) {
-      createInheritanceWhereJoined();
+      return createInheritanceWhereJoined();
     }
     return null;
   }
@@ -556,20 +577,25 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   private final Expression<Boolean> createInheritanceWhereJoined() {
     // attribute from base, value from leave
     final Optional<String> columnName = inInfo.getDiscriminatorColumn();
-    if (!columnName.isPresent()) {
-      LOGGER.warn("Now discriminator column found at " + inInfo.getBaseClass().map(Class::getCanonicalName).orElse(
-          "?"));
-    } else {
-      if (!(this instanceof AbstractJoinImp)) {
-        var root = getInheritanceRoot();
-        final List<JPAPath> pathList = getInheritanceRootPathList(root);
-        final Path<?> columnPath = getDiscriminatorColumn(columnName, root, pathList);
-        final DiscriminatorValue value = st.getTypeClass().getDeclaredAnnotation(DiscriminatorValue.class);
-        if (value == null || columnPath == null)
-          throw new IllegalStateException("DiscriminatorValue annotation missing at " + st.getTypeClass()
-              .getCanonicalName());
-        return cb.equal(columnPath, value.value());
-      }
+//    if (!columnName.isPresent()) {
+//      LOGGER.warn("Now discriminator column found at " + inInfo.getBaseClass().map(Class::getCanonicalName).orElse(
+//          "?"));
+//    } else {
+//      if (!(this instanceof AbstractJoinImp)) {
+//        var root = getInheritanceRoot();
+//        final List<JPAPath> pathList = getInheritanceRootPathList(root);
+//        final Path<?> columnPath = getDiscriminatorColumn(columnName, root, pathList);
+//        final DiscriminatorValue value = st.getTypeClass().getDeclaredAnnotation(DiscriminatorValue.class);
+//        if (value == null || columnPath == null)
+//          throw new IllegalStateException("DiscriminatorValue annotation missing at " + st.getTypeClass()
+//              .getCanonicalName());
+//        return cb.equal(columnPath, value.value());
+//      }
+//    }
+    if (columnName.isPresent()) {
+      LOGGER.warn("Discriminator column found at " +
+          inInfo.getBaseClass().map(Class::getCanonicalName).orElse("?"));
+      LOGGER.warn("Discriminator columns are ignored in case of inheritance type JOINED");
     }
     return null;
   }
@@ -658,8 +684,8 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     return inInfo.getInheritanceType();
   }
 
-  Optional<String> getTableAlias() {
-    return tableAlias;
+  Optional<? extends AbstractJoinImp<X, ?>> getInheritanceJoin() {
+    return inheritanceJoin;
   }
 
   private JPAPath determinePath(final JPAAttribute joinAttribute) throws ODataJPAModelException {
@@ -712,7 +738,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
 
   }
 
-  private final Optional<String> getOwnAlias(JPAPath jpaPath) {
+  final Optional<String> getOwnAlias(JPAPath jpaPath) {
     try {
       if (st.getDeclaredAttribute(jpaPath.getPath().get(0).getInternalName()).isPresent()) {
         return tableAlias;

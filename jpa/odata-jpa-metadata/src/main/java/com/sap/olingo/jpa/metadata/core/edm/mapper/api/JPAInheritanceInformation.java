@@ -22,4 +22,6 @@ public interface JPAInheritanceInformation {
    * @throws ODataJPAModelException
    */
   List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException;
+
+  List<JPAOnConditionItem> getReversedJoinColumnsList() throws ODataJPAModelException;
 }

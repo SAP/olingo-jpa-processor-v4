@@ -24,4 +24,13 @@ class IntermediateInheritanceInformationJoinTable implements JPAInheritanceInfor
     return joinColumns;
   }
 
+  @Override
+  public List<JPAOnConditionItem> getReversedJoinColumnsList() throws ODataJPAModelException {
+    return joinColumns.stream().map(this::invertColumns).toList();
+  }
+
+  private JPAOnConditionItem invertColumns(JPAOnConditionItem jpaColumn) {
+    return new JPAOnConditionItemImpl(jpaColumn.getRightPath(), jpaColumn.getLeftPath());
+  }
+
 }
