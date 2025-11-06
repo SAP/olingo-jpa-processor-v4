@@ -1037,7 +1037,32 @@ CREATE TABLE "InheritanceByJoinCurrentAccount"(
  INSERT INTO "InheritanceByJoinTransaction" values ('783f30d2b4cc40a9a72e9fe6cc0adb9b', '611b57e8b0784b169a0ccefc6379ff0a', 20000);
  INSERT INTO "InheritanceByJoinTransaction" values ('4397a9032fff4038a3a4bac068352415', '5425c3635eae4548bc82a7adddcad14d', 2500);
  INSERT INTO "InheritanceByJoinTransaction" values ('6b320b7e1a164ae5bd848c2793236db2', '5425c3635eae4548bc82a7adddcad14d', -120);   
--------------------------------------------- 
+
+ CREATE TABLE "InheritanceByJoinCompoundSuper"(
+    "CodePublisher" VARCHAR(10) NOT NULL,
+    "CodeID" VARCHAR(10) NOT NULL,
+    "DivisionCode" VARCHAR(10) NOT NULL,
+    --Default DiscriminatorColumn for EclipseLink
+    "DTYPE"  VARCHAR(31) NOT NULL,
+    PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode"));
+ 
+insert into "InheritanceByJoinCompoundSuper" values( 'ISO', '3166-1','BEL', 'InheritanceByJoinCompoundSub');    
+insert into "InheritanceByJoinCompoundSuper" values( 'ISO', '3166-1','DEU', 'InheritanceByJoinCompoundSub');
+insert into "InheritanceByJoinCompoundSuper" values( 'ISO', '3166-1','USA', 'InheritanceByJoinCompoundSub');
+insert into "InheritanceByJoinCompoundSuper" values( 'ISO', '3166-1','CHE', 'InheritanceByJoinCompoundSub'); 
+
+ CREATE TABLE "InheritanceByJoinCompoundSub"(
+    "CodePublisher" VARCHAR(10) NOT NULL,
+    "CodeID" VARCHAR(10) NOT NULL,
+    "PartCode" VARCHAR(10) NOT NULL,
+    "Value" VARCHAR(31) ,
+    PRIMARY KEY ("CodePublisher", "CodeID", "PartCode"));
+ 
+insert into "InheritanceByJoinCompoundSub" values( 'ISO', '3166-1','BEL', 'Belgien');    
+insert into "InheritanceByJoinCompoundSub" values( 'ISO', '3166-1','DEU', 'Deutschland');
+insert into "InheritanceByJoinCompoundSub" values( 'ISO', '3166-1','USA', 'America');
+insert into "InheritanceByJoinCompoundSub" values( 'ISO', '3166-1','CHE', 'Schweiz'); 
+ -------------------------------------------- 
  
 -- CREATE TABLE "Pages"(
 --	"token" uuid NOT NULL,

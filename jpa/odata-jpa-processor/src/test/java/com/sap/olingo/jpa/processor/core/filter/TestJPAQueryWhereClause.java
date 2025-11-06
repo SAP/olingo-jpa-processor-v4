@@ -909,4 +909,13 @@ class TestJPAQueryWhereClause extends TestBase {
     final ArrayNode accounts = helper.getValues();
     assertEquals(2, accounts.size());
   }
+
+  @Test
+  void testInheritanceJoinCompoundKeyWithFilter() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceByJoinCompoundSubs?$filter=Value eq 'Schweiz'");
+    helper.assertStatus(200);
+    final ObjectNode sub = helper.getValue();
+    assertEquals("CHE", sub.get("value").get(0).get("DivisionCode").asText());
+  }
 }

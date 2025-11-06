@@ -6,9 +6,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
 
 @IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "InheritanceByJoinCompoundSuper")
+@Table(schema = "\"OLINGO\"", name = "\"InheritanceByJoinCompoundSuper\"")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class InheritanceByJoinCompoundSuper {
   @Id
@@ -21,6 +23,4 @@ public class InheritanceByJoinCompoundSuper {
   @Column(name = "\"DivisionCode\"", length = 10)
   private String divisionCode;
 
-  @Column(name = "\"Type\"", length = 31)
-  private String type;
 }
