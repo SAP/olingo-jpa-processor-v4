@@ -15,11 +15,11 @@
         <project.build.target>17</project.build.target>
         <maven.compiler.version>3.14.1</maven.compiler.version>
         <odata.version>5.0.0</odata.version>
-        <jackson.version>2.19.0</jackson.version>
+        <jackson.version>2.20.1</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <cf-logging.version>3.8.6</cf-logging.version>
-        <flyway.version>11.13.2</flyway.version>
+        <flyway.version>11.16.0</flyway.version>
         <jakarta.version>6.1.0</jakarta.version>
         <javax.version>4.0.1</javax.version>
         <jpa.version>3.1.0</jpa.version>
@@ -29,8 +29,7 @@
         <hibernate.version>6.4.0.Final</hibernate.version>
         <openjpa.version>4.0.0</openjpa.version>
         <derby.version>10.16.1.1</derby.version>
-        <junit.version>5.13.4</junit.version>
-        <junit-platform.version>1.13.2</junit-platform.version>
+        <junit.version>6.0.1</junit.version>
         <mockito.version>5.19.0</mockito.version>
         <jacoco.version>0.8.13</jacoco.version>
         <netty.version>4.2.5.Final</netty.version>
@@ -268,7 +267,7 @@
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-launcher</artifactId>
-                <version>${junit-platform.version}</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
