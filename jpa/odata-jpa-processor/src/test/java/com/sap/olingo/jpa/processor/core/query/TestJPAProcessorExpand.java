@@ -1290,7 +1290,7 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  void testExpandMultipleParentChildReturnsConsistantResult() throws IOException, ODataException {
+  void testExpandMultipleParentChildReturnsConsistentResult() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('2')?$select=ID,Country&$expand=Roles($orderby=RoleCategory;$expand=BusinessPartner"
             + "($select=ID,Country;$expand=Roles($orderby=RoleCategory)))");
@@ -1312,6 +1312,27 @@ class TestJPAProcessorExpand extends TestBase {
         assertEquals(roles.get(i).get("BusinessPartnerID"), role2.get("BusinessPartnerID"));
         assertEquals(roles.get(i).get("RoleCategory"), role2.get("RoleCategory"));
       }
+    }
+  }
+
+  @Test
+  void testExpandFromInheritanceByJoin() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceSavingAccounts?$select=AccountId&&$expand=Transactions");
+    helper.assertStatus(200);
+    final ArrayNode result = helper.getValues();
+    assertEquals(3, result.size());
+
+    for (var item : result) {
+      var transactions = (ArrayNode) item.get("Transactions");
+      if (item.get("AccountId").asText().equals("8ce66481d8114db0bbf7f0fc621dade7"))
+        assertEquals(0, transactions.size());
+      else if (item.get("AccountId").asText().equals("611b57e8b0784b169a0ccefc6379ff0a"))
+        assertEquals(1, transactions.size());
+      else if (item.get("AccountId").asText().equals("5425c3635eae4548bc82a7adddcad14d"))
+        assertEquals(2, transactions.size());
+      else
+        fail();
     }
   }
 

@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -13,11 +15,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
+import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.PrimaryKeyJoinColumns;
 import jakarta.persistence.Table;
 import jakarta.persistence.metamodel.EmbeddableType;
 import jakarta.persistence.metamodel.EntityType;
@@ -26,6 +35,8 @@ import jakarta.persistence.metamodel.ManagedType;
 import jakarta.persistence.metamodel.MappedSuperclassType;
 import jakarta.persistence.metamodel.Type;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
@@ -43,6 +54,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEtagValidator;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceInformation;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCache;
@@ -64,7 +78,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
  */
 final class IntermediateEntityType<T> extends IntermediateStructuredType<T> implements JPAEntityType,
     IntermediateEntityTypeAccess {
-
+  private static final Log LOGGER = LogFactory.getLog(IntermediateEntityType.class);
   private Optional<JPAPath> etagPath;
   private Optional<JPAEtagValidator> etagValidator;
   private final InstanceCache<JPAQueryExtension<EdmQueryExtensionProvider>> extensionQueryProvider;
@@ -74,6 +88,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   private final boolean asTopLevelOnly;
   private final boolean asEntitySet;
   private final boolean asSingleton;
+  private final InstanceCache<JPAInheritanceInformation> inheritanceType;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<T> et, final IntermediateSchema schema) {
     super(nameBuilder, et, schema);
@@ -84,6 +99,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     etagPath = Optional.empty();
     extensionQueryProvider = new InstanceCacheSupplier<>(this::determineExtensionQueryProvide);
     baseType = new InstanceCacheSupplier<>(this::determineBaseType);
+    inheritanceType = new InstanceCacheSupplier<>(this::determineInheritanceInformation);
     keyAttributes = new ListCacheSupplier<>(this::buildKeyAttributes);
     userGroups = new ListCacheSupplier<>(this::determineUserGroups);
   }
@@ -101,7 +117,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     userGroups = source.userGroups;
     baseType = new InstanceCacheFunction<>(this::baseTypeRestricted, source.getBaseType(),
         requesterUserGroups);
-
+    inheritanceType = source.inheritanceType;
     etagPath = source.etagPath;
     etagValidator = source.etagValidator;
     keyAttributes = new ListCacheSupplier<>(this::buildKeyAttributes);
@@ -245,10 +261,68 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       if (type != null) {
         intermediateKey.addAll(((IntermediateEntityType<?>) type).getKey());
       }
-      return Collections.unmodifiableList(intermediateKey);
+      return Collections.unmodifiableList(updateAttributeListDbFieldName(intermediateKey));
     } catch (ODataJPAModelException e) {
       throw new ODataJPAModelInternalException(e);
     }
+  }
+
+  @Override
+  List<JPAAttribute> getBaseTypeAttributes() throws ODataJPAModelException {
+    final IntermediateStructuredType<? super T> superType = getBaseType();
+    if (superType != null) {
+      final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
+      final List<JPAAttribute> result = new ArrayList<>();
+      for (var attribute : superType.getAttributes()) {
+        result.add(updateAttributeDbFieldName(mappings, attribute));
+      }
+      return result;
+    }
+    return List.of();
+  }
+
+  private final JPAAttribute updateAttributeDbFieldName(final Map<String, PrimaryKeyJoinColumn> mappings,
+      JPAAttribute attribute) throws ODataJPAModelException {
+
+    if (attribute instanceof IntermediateSimpleProperty property
+        && mappings.containsKey(property.getDBFieldName())) {
+      LOGGER.debug("Key mapping (PrimaryKeyJoinColumn) found for " + jpaJavaType.getSimpleName() + "#" + property
+          .getInternalName());
+      final var targetDbName = mappings.get(property.getDBFieldName()).name();
+      if (targetDbName != null && !targetDbName.isBlank())
+        return new IntermediateSimpleProperty(property, mappings.get(property.getDBFieldName()).name());
+      else
+        LOGGER.warn("Missing 'name' at annotation PrimaryKeyJoinColumn mapping found for " + jpaJavaType
+            .getSimpleName() + "#" + property.getInternalName());
+    }
+    return attribute;
+  }
+
+  private final List<JPAAttribute> updateAttributeListDbFieldName(List<JPAAttribute> intermediateKey)
+      throws ODataJPAModelException {
+
+    final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
+    for (int i = 0; i < intermediateKey.size(); i++) {
+      intermediateKey.set(i, updateAttributeDbFieldName(mappings, intermediateKey.get(i)));
+    }
+    return intermediateKey;
+  }
+
+  private final Map<String, PrimaryKeyJoinColumn> getPrimaryKeyJoinColumns() throws ODataJPAModelException {
+    final Map<String, PrimaryKeyJoinColumn> mappings;
+    if (this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class) != null) {
+      final var mapping = this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class);
+      final var referenceColumn = !mapping.referencedColumnName().isEmpty()
+          ? mapping.referencedColumnName()
+          : ((JPAEntityType) getBaseType()).getKeyPath().get(0).getDBFieldName();
+      mappings = Map.of(referenceColumn, this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class));
+    } else if (jpaJavaType.getAnnotation(PrimaryKeyJoinColumns.class) != null)
+      mappings = Arrays.asList(this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumns.class).value())
+          .stream()
+          .collect(toMap(PrimaryKeyJoinColumn::referencedColumnName, Function.identity()));
+    else
+      mappings = Map.of();
+    return mappings;
   }
 
   @Override
@@ -264,9 +338,51 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     }
     final IntermediateStructuredType<?> type = getBaseType();
     if (type != null) {
-      result.addAll(((IntermediateEntityType<?>) type).getKeyPath());
+      result.addAll(updatePathListDbFieldName(((IntermediateEntityType<?>) type).getKeyPath()));
     }
     return Collections.unmodifiableList(result);
+  }
+
+  private List<JPAPath> updatePathListDbFieldName(List<JPAPath> keyPath)
+      throws ODataJPAModelException {
+
+    final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
+    final List<JPAPath> result = new ArrayList<>();
+    for (int i = 0; i < keyPath.size(); i++) {
+      final var path = keyPath.get(i);
+      result.add(updatePathDbFieldName(mappings, path));
+    }
+    return result;
+  }
+
+  private final JPAPath updatePathDbFieldName(final Map<String, PrimaryKeyJoinColumn> mappings, final JPAPath path)
+      throws ODataJPAModelException {
+
+    if (mappings.containsKey(path.getDBFieldName())) {
+      LOGGER.debug("Key mapping (PrimaryKeyJoinColumn) found for " + jpaJavaType.getSimpleName() + "#" + path
+          .getLeaf().getInternalName());
+      final var targetDbName = mappings.get(path.getDBFieldName()).name();
+      if (targetDbName != null && !targetDbName.isBlank()) {
+        return new JPAPathImpl(path.getAlias(), mappings.get(path.getDBFieldName()).name(), path.getPath());
+      } else
+        LOGGER.warn("Missing 'name' at annotation PrimaryKeyJoinColumn mapping found for " + jpaJavaType
+            .getSimpleName() + "#" + path.getLeaf().getInternalName());
+    }
+    return path;
+  }
+
+  @Override
+  protected Map<String, JPAPath> getBaseTypeResolvedPathMap() throws ODataJPAModelException {
+    final IntermediateStructuredType<? super T> superType = getBaseType();
+    if (superType != null) {
+      final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
+      final Map<String, JPAPath> result = new HashMap<>();
+      for (var path : superType.getResolvedPathMap().entrySet()) {
+        result.put(path.getKey(), updatePathDbFieldName(mappings, path.getValue()));
+      }
+      return result;
+    }
+    return Map.of();
   }
 
   @Override
@@ -375,6 +491,11 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return baseType.get().orElse(null);
   }
 
+  @Override
+  public JPAInheritanceInformation getInheritanceInformation() throws ODataJPAModelException {
+    return inheritanceType.get().orElse(new NoInheritance());
+  }
+
   /**
    * Determines if the structured type has a super type that will be part of OData metadata. That is, the method will
    * return null in case the entity has a MappedSuperclass.
@@ -391,6 +512,58 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
         return baseEntity;
     }
     return null;
+  }
+
+  private JPAInheritanceInformation determineInheritanceInformation() {
+    final Class<?> superType = jpaManagedType.getJavaType().getSuperclass();
+    if (superType != Object.class) {
+      @SuppressWarnings("unchecked")
+      final IntermediateEntityType<? super T> baseEntity = (IntermediateEntityType<? super T>) schema
+          .getEntityType(superType);
+      Objects.requireNonNull(baseEntity);
+      try {
+        return copyInheritanceInfo(baseEntity);
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAModelInternalException(e);
+      }
+    } else {
+      return determineInheritanceType(jpaManagedType.getJavaType());
+    }
+  }
+
+  private JPAInheritanceInformation determineInheritanceType(Class<?> clazz) {
+    var inheritance = clazz.getAnnotation(Inheritance.class);
+    if (inheritance != null && inheritance.strategy() == InheritanceType.JOINED) {
+      return new IntermediateInheritanceInformationJoinTable(List.of());
+    }
+
+    var discriminator = clazz.getAnnotation(DiscriminatorColumn.class);
+    if (discriminator != null)
+      return new IntermediateInheritanceInformationSingleTable();
+    return new NoInheritance();
+  }
+
+  private JPAInheritanceInformation copyInheritanceInfo(JPAEntityType baseEntity) throws ODataJPAModelException {
+    var inheritanceInfo = baseEntity.getInheritanceInformation();
+    return inheritanceInfo.getInheritanceType() == JPAInheritanceType.JOIN_TABLE
+        ? new IntermediateInheritanceInformationJoinTable(buildInheritanceJoinColumns(baseEntity))
+        : inheritanceInfo;
+  }
+
+  private List<JPAOnConditionItem> buildInheritanceJoinColumns(JPAEntityType baseEntity) throws ODataJPAModelException {
+    final Map<String, PrimaryKeyJoinColumn> mappings = getPrimaryKeyJoinColumns();
+    final Map<String, JPAPath> subKeyPath = getKeyPath().stream().collect(toMap(JPAPath::getDBFieldName, Function
+        .identity()));
+    final List<JPAOnConditionItem> result = new ArrayList<>();
+    for (var superPath : baseEntity.getKeyPath()) {
+      if (mappings.containsKey(superPath.getDBFieldName())) {
+        var subDbFieldName = mappings.get(superPath.getDBFieldName()).name();
+        result.add(new JPAOnConditionItemImpl(subKeyPath.get(subDbFieldName), superPath));
+      } else {
+        result.add(new JPAOnConditionItemImpl(subKeyPath.get(superPath.getDBFieldName()), superPath));
+      }
+    }
+    return result;
   }
 
   @SuppressWarnings("unchecked")
@@ -680,4 +853,17 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       return List.of();
   }
 
+  private static class NoInheritance implements JPAInheritanceInformation {
+
+    @Override
+    public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
+      return List.of();
+    }
+
+    @Override
+    public List<JPAOnConditionItem> getReversedJoinColumnsList() throws ODataJPAModelException {
+      return List.of();
+    }
+
+  }
 }

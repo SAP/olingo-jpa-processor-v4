@@ -108,6 +108,11 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
   @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private UnionMembership unionMembership;
 
+  @OneToMany
+  @JoinColumn(name = "\"Owner\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,
+      nullable = true)
+  private List<InheritanceByJoinAccount> accounts;
+
   public Person() {
     type = "1";
   }

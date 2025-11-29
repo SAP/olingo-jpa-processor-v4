@@ -266,7 +266,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkPutChidrenThrowsExceptionOndenticalKey() throws ODataJPAModelException, ODataApplicationException {
+  void checkPutChildrenThrowsExceptionOnIdenticalKey() throws ODataJPAModelException, ODataApplicationException {
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
     tuples.add(tuple);
