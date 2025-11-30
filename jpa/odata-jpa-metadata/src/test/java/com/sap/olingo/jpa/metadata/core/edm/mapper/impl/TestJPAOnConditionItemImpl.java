@@ -7,8 +7,6 @@ import static org.mockito.Mockito.mock;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 class TestJPAOnConditionItemImpl {
   private JPAOnConditionItemImpl cut;
@@ -17,22 +15,22 @@ class TestJPAOnConditionItemImpl {
   void checkThrowsExceptionOnMissingLeft() {
     final JPAPath rightAttribute = mock(JPAPath.class);
 
-    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+    final NullPointerException act = assertThrows(NullPointerException.class,
         () -> new JPAOnConditionItemImpl(null, rightAttribute));
-    assertEquals(MessageKeys.ON_LEFT_ATTRIBUTE_NULL.getKey(), act.getId());
+    assertEquals("ON condition left attribute is null / not found.", act.getMessage());
   }
 
   @Test
   void checkThrowsExceptionOnMissingRight() {
     final JPAPath leftAttribute = mock(JPAPath.class);
 
-    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+    final NullPointerException act = assertThrows(NullPointerException.class,
         () -> new JPAOnConditionItemImpl(leftAttribute, null));
-    assertEquals(MessageKeys.ON_RIGHT_ATTRIBUTE_NULL.getKey(), act.getId());
+    assertEquals("ON condition right attribute is null / not found.", act.getMessage());
   }
 
   @Test
-  void checkReturnProvidedValues() throws ODataJPAModelException {
+  void checkReturnProvidedValues() {
     final JPAPath leftAttribute = mock(JPAPath.class);
     final JPAPath rightAttribute = mock(JPAPath.class);
     cut = new JPAOnConditionItemImpl(leftAttribute, rightAttribute);

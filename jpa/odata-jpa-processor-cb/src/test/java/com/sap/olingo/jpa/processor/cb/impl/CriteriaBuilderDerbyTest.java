@@ -52,15 +52,15 @@ class CriteriaBuilderDerbyTest extends CriteriaBuilderOverallTest {
   @Override
   @Test
   void testSimpleConcatQuery() {
-    final Root<?> person = q.from(Person.class);
+    final Root<?> person = query.from(Person.class);
     final Expression<String> concat = cb.concat(cb.concat(person.get("lastName"), ","), person.get("firstName"));
 
-    q.multiselect(person.get("iD"));
-    q.where(cb.equal(concat, "Mustermann,Max"));
-    ((SqlConvertible) q).asSQL(stmt);
+    query.multiselect(person.get("iD"));
+    query.where(cb.equal(concat, "Mustermann,Max"));
+    ((SqlConvertible) query).asSQL(statement);
     assertEquals(
         expectedQueryConcat(),
-        stmt.toString().trim());
+        statement.toString().trim());
 
     // Test need to be skipped, as the following error occurs:
     // Internal Exception: java.sql.SQLSyntaxErrorException: Comparisons between 'LONG VARCHAR (UCS_BASIC)' and 'LONG

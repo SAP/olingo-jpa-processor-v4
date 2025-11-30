@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 
 import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -25,6 +24,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataEtagHelper;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollection;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 
 public class JPAEntityResultConverter extends JPAStructuredResultConverter {
   private final EdmEntityType edmEntityType;
@@ -40,8 +41,9 @@ public class JPAEntityResultConverter extends JPAStructuredResultConverter {
   }
 
   @Override
-  public EntityCollection getResult() throws ODataApplicationException, SerializerException, URISyntaxException {
-    final EntityCollection odataEntityCollection = new EntityCollection();
+  public JPAEntityCollectionExtension getResult() throws ODataApplicationException, SerializerException,
+      URISyntaxException {
+    final JPAEntityCollection odataEntityCollection = new JPAEntityCollection();
     final List<Entity> odataResults = odataEntityCollection.getEntities();
 
     for (final Object row : jpaQueryResult) {

@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmCons
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoParameterConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongFunctionConstructor;
 
@@ -91,7 +93,7 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
       throws ODataJPAModelException {
 
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, functionName);
-    assertThrows(ODataJPAModelException.class, () -> act.getEdmItem(), message);
+    assertThrows(ODataJPAModelException.class, act::getEdmItem, message);
   }
 
   @Test
@@ -255,6 +257,12 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
 
   @Test
   void checkExceptConstructorWithoutParameter() throws ODataJPAModelException {
+    final IntermediateJavaFunction act = createFunction(ExampleJavaTwoFunctions.class, "multi");
+    assertNotNull(act.getEdmItem());
+  }
+
+  @Test
+  void checkExceptConstructorWithHeaderAndParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
     assertNotNull(act.getEdmItem());
   }
@@ -266,33 +274,27 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkExceptConstructorWithHeaderAnParameterParameter() throws ODataJPAModelException {
-    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
-    assertNotNull(act.getEdmItem());
-  }
-
-  @Test
   void checkExceptConstructorForFilterFunction() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleFunctionForFilter.class, "at");
     assertNotNull(act.getEdmItem());
   }
 
   @Test
-  void checkThrowsExceptionOnPrivateConstructor() throws ODataJPAModelException {
+  void checkThrowsExceptionOnPrivateConstructor() {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaPrivateConstructor.class, "sum");
     });
   }
 
   @Test
-  void checkThrowsExceptionOnNoConstructorAsSpecified() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNoConstructorAsSpecified() {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaTwoParameterConstructor.class, "sum");
     });
   }
 
   @Test
-  void checkThrowsExceptionOnNoConstructorWithEmAndQuery() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNoConstructorWithEmAndQuery() {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(WrongFunctionConstructor.class, "sum");
     });
@@ -303,6 +305,18 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
     final IntermediateJavaFunction act = createFunction(ExampleJavaEmConstructor.class, "sum");
     act.getEdmItem();
     assertNotNull(act.getReturnType());
+  }
+
+  @Test
+  void checkGetGroupsReturnsGiven() throws ODataJPAModelException {
+    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
+    assertArrayEquals(new String[] { "Person", "Company" }, act.getUserGroups().toArray(new String[] {}));
+  }
+
+  @Test
+  void checkGetGroupsReturnsEmptyListIfNoProvided() throws ODataJPAModelException {
+    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "determineLocation");
+    assertTrue(act.getUserGroups().isEmpty());
   }
 
   private IntermediateJavaFunction createFunction(final Class<? extends ODataFunction> clazz, final String method)

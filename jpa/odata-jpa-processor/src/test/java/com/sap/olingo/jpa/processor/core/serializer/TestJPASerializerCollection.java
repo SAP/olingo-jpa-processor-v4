@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.data.Annotatable;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -43,7 +42,7 @@ public abstract class TestJPASerializerCollection {
   protected UriInfo uriInfo;
   protected UriHelper uriHelper;
   protected ODataRequest request;
-  protected EntityCollection result;
+  protected JPAEntityCollectionExtension result;
   protected JPAODataSessionContextAccess context;
   protected Annotatable annotatable;
   protected EdmEntityType edmEt;
@@ -61,7 +60,7 @@ public abstract class TestJPASerializerCollection {
     serializer = mock(ODataSerializer.class);
     uriHelper = mock(UriHelper.class);
     request = mock(ODataRequest.class);
-    result = mock(EntityCollection.class);
+    result = mock(JPAEntityCollectionExtension.class);
     edmEt = mock(EdmEntityType.class);
     edmEs = mock(EdmEntitySet.class);
 
@@ -122,7 +121,7 @@ public abstract class TestJPASerializerCollection {
 
   @Test
   public void testRequestSerialize() throws ODataJPASerializerException, SerializerException {
-    assertNull(((JPAOperationSerializer) cut).serialize(request, result));
+    assertNull(cut.serialize(request, result));
   }
 
   protected abstract <T> ArgumentMatcher<T> createMatcher(final String pattern);

@@ -7,17 +7,18 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
 
+import org.apache.commons.logging.Log;
 import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
@@ -26,9 +27,11 @@ import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
@@ -48,6 +51,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
 import com.sap.olingo.jpa.processor.core.query.Utility;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 
 /**
  * Abstract super class for result converter, which convert Tuple based results.
@@ -55,7 +59,6 @@ import com.sap.olingo.jpa.processor.core.query.Utility;
  *
  */
 abstract class JPATupleResultConverter implements JPAResultConverter {
-
   protected static final String EMPTY_PREFIX = "";
   protected JPAEntityType jpaConversionTargetEntity;
   protected JPAExpandResult jpaQueryResult;
@@ -296,7 +299,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     return count != null ? count.intValue() : null;
   }
 
-  private Link getLink(final JPAAssociationPath association, final String linkURI) {
+  protected Link getLink(final JPAAssociationPath association, final String linkURI) {
     final Link link = new Link();
     link.setTitle(association.getLeaf().getExternalName());
     link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
@@ -305,7 +308,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     return link;
   }
 
-  private Link getLink(final JPAAssociationPath association, final Tuple parentRow, final JPAExpandResult child,
+  protected Link getLink(final JPAAssociationPath association, final Tuple parentRow, final JPAExpandResult child,
       final String linkURI, final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
     final Link link = new Link();
     link.setTitle(association.getLeaf().getExternalName());
@@ -315,15 +318,14 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       final var foreignKey = buildConcatenatedKey(parentRow, association.getLeftColumnsList());
       final List<JPAODataPageExpandInfo> newInfo = new ArrayList<>(expandInfo);
       newInfo.add(new JPAODataPageExpandInfo(association.getAlias(), foreignKey));
-      Collections.addAll(new ArrayList<>(expandInfo), newInfo);
-      final EntityCollection expandCollection = ((JPAConvertibleResult) child).getEntityCollection(foreignKey, this,
-          newInfo);
+      final JPAEntityCollectionExtension expandCollection = ((JPAConvertibleResult) child).getEntityCollection(
+          foreignKey, this, association, newInfo);
       expandCollection.setCount(determineCount(child, foreignKey));
       if (association.getLeaf().isCollection()) {
         if (!expandCollection.getEntities().isEmpty()) {
           expandCollection.setNext(createNextLink(child, newInfo));
         }
-        link.setInlineEntitySet(expandCollection);
+        link.setInlineEntitySet((EntityCollection) expandCollection);
         link.setHref(linkURI);
       } else {
         if (expandCollection.getEntities() != null && !expandCollection.getEntities().isEmpty()) {
@@ -351,4 +353,70 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
   }
+
+  protected List<Property> findOrCreateComplexProperty(List<Property> result, final JPAElement pathElement)
+      throws ODataJPAModelException {
+    boolean found = false;
+    for (final Property p : result) {
+      if (p.getName().equals(pathElement.getExternalName())) {
+        result = ((ComplexValue) p.getValue()).getValue();
+        found = true;
+        break;
+      }
+    }
+    if (!found
+        && pathElement instanceof final JPAAttribute attribute
+        && attribute.isComplex()
+        && !attribute.isCollection()) {
+      final Property path = new Property(
+          attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
+          attribute.getExternalName(),
+          ValueType.COMPLEX,
+          new ComplexValue());
+      result.add(path);
+      result = ((ComplexValue) path.getValue()).getValue();
+    }
+    return result;
+  }
+
+  protected URI createId(final Entity entity) {
+
+    try {
+      // No host-name and port as part of ID; only relative path
+      // http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792702
+
+      final StringBuilder uriString = new StringBuilder(setName);
+      uriString.append("(");
+      uriString.append(uriHelper.buildKeyPredicate(edmType, entity));
+      uriString.append(")");
+      return new URI(uriString.toString());
+    } catch (final URISyntaxException e) {
+      throw new ODataRuntimeException("Unable to create id for entity: " + edmType.getName(), e);
+    } catch (final IllegalArgumentException e) {
+      getLogger().debug(e.getMessage() + ": No URI created");
+      return null;
+    } catch (final SerializerException e) {
+      throw new ODataRuntimeException(e);
+    }
+  }
+
+  void createEtag(@Nonnull final JPAEntityType rowEntity, final Tuple row, final Entity odataEntity)
+      throws ODataJPAQueryException {
+
+    try {
+      if (rowEntity.hasEtag()) {
+        final String etagAlias = rowEntity.getEtagPath().getAlias();
+        final Object etag = row.get(etagAlias);
+        if (etag != null) {
+          odataEntity.setETag(requestContext.getEtagHelper().asEtag(rowEntity, etag));
+        }
+      }
+
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
+  }
+
+  protected abstract Log getLogger();
 }

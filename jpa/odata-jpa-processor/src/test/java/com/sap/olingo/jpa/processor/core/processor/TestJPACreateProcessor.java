@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.Edm;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -68,6 +67,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -605,8 +605,9 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     createKeyProperty(fqn, edmET, "CodeID", "NUTS2");
     createKeyProperty(fqn, edmET, "CodePublisher", "Eurostat");
 
-    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
-        serializerResult);
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(JPAEntityCollectionExtension.class)))
+        .thenReturn(
+            serializerResult);
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
 
     return request;

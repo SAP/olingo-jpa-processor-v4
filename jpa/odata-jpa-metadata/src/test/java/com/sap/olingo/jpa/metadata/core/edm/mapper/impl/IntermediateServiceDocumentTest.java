@@ -120,7 +120,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkHasEtagReturnsTrueOnVersion() throws ODataJPAModelException {
+  void checkHasEtagReturnsTrueOnVersion() {
     final EdmBindingTarget target = mock(EdmBindingTarget.class);
     final EdmEntityType et = mock(EdmEntityType.class);
     when(target.getEntityType()).thenReturn(et);
@@ -143,7 +143,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
 
   @ParameterizedTest
   @MethodSource("getEnumType")
-  void checkGetEnumType(final String enumName, final boolean isNull) throws ODataJPAModelException {
+  void checkGetEnumType(final String enumName, final boolean isNull) {
     if (isNull)
       assertNull(cut.getEnumType(enumName));
     else
@@ -171,8 +171,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
 
   @ParameterizedTest
   @MethodSource("getEntityTypeByFqn")
-  void checkGetEntityTypeByFqn(final FullQualifiedName etFqn, final boolean isNull)
-      throws ODataJPAModelException {
+  void checkGetEntityTypeByFqn(final FullQualifiedName etFqn, final boolean isNull) {
     if (isNull)
       assertNull(cut.getEntity(etFqn));
     else
@@ -204,7 +203,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetComplexTypeByEdmType() throws ODataJPAModelException {
+  void checkGetComplexTypeByEdmType() {
     final EdmComplexType type = mock(EdmComplexType.class);
     when(type.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(type.getName()).thenReturn("CommunicationData");
@@ -212,7 +211,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetComplexTypeByEdmTypeReturnNullOnUnknown() throws ODataJPAModelException {
+  void checkGetComplexTypeByEdmTypeReturnNullOnUnknown() {
     final EdmComplexType type = mock(EdmComplexType.class);
     when(type.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(type.getName()).thenReturn("Unknown");
@@ -220,7 +219,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetComplexTypeByEdmTypeReturnNullOnUnknownSchema() throws ODataJPAModelException {
+  void checkGetComplexTypeByEdmTypeReturnNullOnUnknownSchema() {
     final EdmComplexType type = mock(EdmComplexType.class);
     when(type.getNamespace()).thenReturn("Unknown");
     when(type.getName()).thenReturn("BoundNoImport");
@@ -228,12 +227,12 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetComplexTypeByClass() throws ODataJPAModelException {
+  void checkGetComplexTypeByClass() {
     assertNotNull(cut.getComplexType(AdministrativeDivisionDescriptionKey.class));
   }
 
   @Test
-  void checkGetComplexTypeByClassReturnNullOnUnknown() throws ODataJPAModelException {
+  void checkGetComplexTypeByClassReturnNullOnUnknown() {
     assertNull(cut.getComplexType(AdministrativeDivisionKey.class));
   }
 
@@ -262,7 +261,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetActionReturnNullOnUnknownAction() throws ODataJPAModelException {
+  void checkGetActionReturnNullOnUnknownAction() {
     final EdmAction action = mock(EdmAction.class);
     when(action.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(action.getName()).thenReturn("Unknown");
@@ -271,7 +270,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetActionReturnNullOnUnknownSchema() throws ODataJPAModelException {
+  void checkGetActionReturnNullOnUnknownSchema() {
     final EdmAction action = mock(EdmAction.class);
     when(action.getNamespace()).thenReturn("Unknown");
     when(action.getName()).thenReturn("BoundNoImport");
@@ -280,7 +279,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetFunction() throws ODataJPAModelException {
+  void checkGetFunction() {
     final EdmFunction function = mock(EdmFunction.class);
     when(function.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(function.getName()).thenReturn("ConvertToQkm");
@@ -288,7 +287,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetFunctionReturnNullOnUnknownFunction() throws ODataJPAModelException {
+  void checkGetFunctionReturnNullOnUnknownFunction() {
     final EdmFunction function = mock(EdmFunction.class);
     when(function.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(function.getName()).thenReturn("Unknown");
@@ -296,7 +295,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetFunctionReturnNullOnUnknownSchema() throws ODataJPAModelException {
+  void checkGetFunctionReturnNullOnUnknownSchema() {
     final EdmFunction function = mock(EdmFunction.class);
     when(function.getNamespace()).thenReturn("Unknown");
     when(function.getName()).thenReturn("BoundNoImport");
@@ -382,7 +381,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetEntityTypeOfSingleton() throws ODataJPAModelException {
+  void checkGetEntityTypeOfSingleton() {
     final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, "CurrentUser");
     final JPAEntityType act = cut.getEntity(fqn);
     assertNotNull(act);

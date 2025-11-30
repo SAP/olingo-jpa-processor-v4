@@ -26,7 +26,6 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.junit.jupiter.api.Test;
 
@@ -104,7 +103,7 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+  void testHeadersProvided() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
     final Map<String, List<String>> headers = new HashMap<>();
@@ -124,8 +123,7 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
-      ODataException {
+  void testClaimsProvided() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
 
@@ -143,15 +141,14 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
-      ODataException {
+  void testGroupsProvided() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
 
     final RequestHandleSpy spy = new RequestHandleSpy();
     final JPAODataGroupsProvider provider = new JPAODataGroupsProvider();
     provider.addGroup("Person");
-    // final List<String> groups = new ArrayList<>(Arrays.asList("Person"));
+
     final Optional<JPAODataGroupProvider> groups = Optional.of(provider);
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(requestContext.getGroupsProvider()).thenReturn(groups);
@@ -260,7 +257,7 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
 
     final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
-    // when(em.getTransaction()).thenReturn(transaction);
+
     when(transaction.isActive()).thenReturn(Boolean.FALSE);
     when(requestContext.getEntityManager()).thenReturn(em);
 

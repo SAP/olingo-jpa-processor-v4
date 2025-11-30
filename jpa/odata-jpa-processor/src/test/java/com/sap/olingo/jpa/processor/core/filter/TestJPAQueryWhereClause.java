@@ -81,9 +81,12 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("SubstringStartEndIndexToLower",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
             2),
+        // Filter on property with converter
+        arguments("Property with converter, from boolean to string", "Teams?$filter=Active eq false", 2),
         // IN expression
         arguments("Simple IN", "AdministrativeDivisions?$filter=ParentDivisionCode in ('BE1', 'BE2')", 6),
         arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 219),
+        arguments("IN via navigation", "AdministrativeDivisions?$filter=Parent/ParentDivisionCode in ('BE2')", 22),
         // Filter to many associations
         arguments("NavigationPropertyToManyValueAnyNoRestriction", "Organizations?$select=ID&$filter=Roles/any()", 4),
         arguments("NavigationPropertyToManyValueAnyMultiParameter",
@@ -102,6 +105,11 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("NavigationPropertyToManyNestedWithJoinTable",
             "Organizations?$select=ID&$filter=SupportEngineers/any(s:s/AdministrativeInformation/Created/User/Roles/any(a:a/RoleCategory eq 'Y'))",
             2),
+        arguments("NavigationPropertyFromInheritance",
+            "InheritanceSavingAccounts?$select=AccountId&$filter=Transactions/any()", 2),
+        arguments("NavigationPropertyToInheritance",
+            "Persons?$select=ID&$filter=Accounts/any(s:s/com.sap.olingo.jpa.InheritanceLockedSavingAccount/InterestRate gt 3.0)",
+            1),
 
         arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll",
             "Organizations?$filter=Address/RegionName eq 'Kalifornien'", 3),
@@ -892,5 +900,22 @@ class TestJPAQueryWhereClause extends TestBase {
     final var starts = helper.getSingleValue().asInt();
 
     assertEquals(all, notStarts + starts);
+  }
+
+  @Test
+  void testInheritanceJoinWithFilter() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceSavingAccounts?$filter=InterestRate gt 3.0");
+    final ArrayNode accounts = helper.getValues();
+    assertEquals(2, accounts.size());
+  }
+
+  @Test
+  void testInheritanceJoinCompoundKeyWithFilter() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceByJoinCompoundSubs?$filter=Value eq 'Schweiz'");
+    helper.assertStatus(200);
+    final ObjectNode sub = helper.getValue();
+    assertEquals("CHE", sub.get("value").get(0).get("DivisionCode").asText());
   }
 }

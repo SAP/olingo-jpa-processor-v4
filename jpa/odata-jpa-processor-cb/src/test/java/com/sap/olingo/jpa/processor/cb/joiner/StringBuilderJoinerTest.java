@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class StringBuilderJoinerTest {
-  private static final String delimiter = "//";
+  private static final String DELIMITER = "//";
   private StringBuilderJoiner<SqlConvertible> cut;
   private StringBuilder statement;
   private SqlConvertible first;
@@ -16,7 +16,7 @@ class StringBuilderJoinerTest {
   @BeforeEach
   void setup() {
     statement = new StringBuilder();
-    cut = new StringBuilderJoiner<>(statement, delimiter);
+    cut = new StringBuilderJoiner<>(statement, DELIMITER);
 
     first = mock(SqlConvertible.class);
     when(first.asSQL(statement)).thenAnswer(new AsSqlAnswer());

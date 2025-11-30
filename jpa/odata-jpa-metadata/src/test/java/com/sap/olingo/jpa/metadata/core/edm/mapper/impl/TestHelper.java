@@ -30,8 +30,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.UserType;
 
 public class TestHelper {
-  final private Metamodel jpaMetamodel;
-  final public IntermediateSchema schema;
+  private final Metamodel jpaMetamodel;
+  public final IntermediateSchema schema;
   final IntermediateAnnotationInformation annotationInfo;
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
@@ -44,7 +44,7 @@ public class TestHelper {
     final Reflections reflections = mock(Reflections.class);
     when(reflections.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class, AccessRights.class, UserType.class)));
-    annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), mock(IntermediateReferences.class));
+    annotationInfo = new IntermediateAnnotationInformation(annotationProviderList, mock(IntermediateReferences.class));
 
     this.jpaMetamodel = metamodel;
     this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, reflections,
@@ -85,6 +85,14 @@ public class TestHelper {
     return null;
   }
 
+  public <T> EmbeddableType<T> getComplexType(final Class<T> clazz) {
+    try {
+      return jpaMetamodel.embeddable(clazz);
+    } catch (final IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   public Attribute<?, ?> getDeclaredAttribute(final ManagedType<?> et, final String attributeName) {
     for (final Attribute<?, ?> attribute : et.getDeclaredAttributes()) {
       if (attribute.getName().equals(attributeName))
@@ -120,7 +128,7 @@ public class TestHelper {
 
   public EdmFunction getStoredProcedure(final EntityType<?> jpaEntityType, final String string) {
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
-      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
+      final EdmFunctions jpaStoredProcedureList = jpaEntityType.getJavaType()
           .getAnnotation(EdmFunctions.class);
       if (jpaStoredProcedureList != null) {
         for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {

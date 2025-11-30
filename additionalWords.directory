@@ -75,3 +75,7 @@ xml
 x
 y
 esc
+Clob
+Restrictable
+Discriminator
+org

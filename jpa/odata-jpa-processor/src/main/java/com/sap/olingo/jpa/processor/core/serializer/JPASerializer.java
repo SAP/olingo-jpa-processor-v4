@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.serializer;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.serializer.SerializerException;
@@ -14,7 +13,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
 public interface JPASerializer {
 
-  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+  public SerializerResult serialize(final ODataRequest request, final JPAEntityCollectionExtension result)
       throws SerializerException, ODataJPASerializerException;
 
   public ContentType getContentType();

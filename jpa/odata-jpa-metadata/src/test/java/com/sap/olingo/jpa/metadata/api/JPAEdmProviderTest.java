@@ -5,6 +5,7 @@ package com.sap.olingo.jpa.metadata.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,14 +61,14 @@ class JPAEdmProviderTest {
   private static final String ERROR_PUNIT = "error";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   private static EntityManagerFactory emf;
-  private static DataSource ds;
+  private static DataSource dataSource;
   private JPAEdmProvider cut;
-  private JPAEdmMetadataPostProcessor pp;
+  private JPAEdmMetadataPostProcessor postProcessor;
 
   @BeforeAll
-  public static void setupClass() throws ODataJPAModelException {
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
-    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
+  static void setupClass() {
+    dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
+    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
   }
 
   @BeforeEach
@@ -76,22 +77,22 @@ class JPAEdmProviderTest {
   }
 
   @Test
-  void checkReturnsDefaultNamerBuilderIfNotProvided() throws ODataException {
+  void checkReturnsDefaultNamerBuilderIfNotProvided() {
     assertTrue(cut.getEdmNameBuilder() instanceof JPADefaultEdmNameBuilder);
   }
 
   @Test
-  void checkReturnsReferencesFromServiceDocument() throws ODataException {
+  void checkReturnsReferencesFromServiceDocument() {
     assertEquals(cut.getServiceDocument().getReferences(), cut.getReferences());
   }
 
   @Test
-  void checkThrowsExceptionOnMissingNamespace() throws ODataException {
+  void checkThrowsExceptionOnMissingNamespace() {
     assertThrows(NullPointerException.class, () -> new JPAEdmProvider(null, emf, null, enumPackages));
   }
 
   @Test
-  void checkThrowsExceptionOnMissingEmf() throws ODataException {
+  void checkThrowsExceptionOnMissingEmf() {
     final EntityManagerFactory nullFactory = null;
     assertThrows(NullPointerException.class, () -> new JPAEdmProvider("Willi", nullFactory, null, enumPackages));
   }
@@ -278,8 +279,8 @@ class JPAEdmProviderTest {
 
   @Test
   void checkGetTermReturnsKnownTerm() throws ODataException {
-    pp = new PostProcessor();
-    cut = new JPAEdmProvider(PUNIT_NAME, emf, pp, enumPackages);
+    postProcessor = new PostProcessor();
+    cut = new JPAEdmProvider(PUNIT_NAME, emf, postProcessor, enumPackages);
     final CsdlTerm act = cut.getTerm(new FullQualifiedName("Org.OData.Measures.V1", "ISOCurrency"));
     assertNotNull(act);
   }
@@ -331,31 +332,45 @@ class JPAEdmProviderTest {
 
   @Test
   void checkConstructorThrowsExceptionOnMetadataError() throws ODataException {
-    final EntityManagerFactory error_emf = JPAEntityManagerFactory.getEntityManagerFactory(ERROR_PUNIT, ds);
-    final JPAEdmProvider edmProvider = new JPAEdmProvider(ERROR_PUNIT, error_emf, null, enumPackages);
+    final EntityManagerFactory errorEmf = JPAEntityManagerFactory.getEntityManagerFactory(ERROR_PUNIT, dataSource);
+    final JPAEdmProvider edmProvider = new JPAEdmProvider(ERROR_PUNIT, errorEmf, null, enumPackages);
 
     assertThrows(ODataException.class,
         () -> edmProvider.getEntityType(new FullQualifiedName(ERROR_PUNIT, "MissingCardinalityAnnotation")));
     assertThrows(ODataException.class,
         () -> edmProvider.getEntityType(new FullQualifiedName(ERROR_PUNIT, "MissingCardinalityAnnotation")));
+  }
+
+  @Test
+  void checkAsUserGroupRestricted() {
+    List<String> groups = List.of("Company");
+    final var act = cut.asUserGroupRestricted(groups);
+    assertNotEquals(cut, act);
+    assertEquals(groups, act.getUserGroups());
+    assertNotEquals(cut.getServiceDocument(), act.getServiceDocument());
   }
 
   private FullQualifiedName buildContainerFQN() {
     final String name = cut.getServiceDocument().getNameBuilder().buildContainerName();
-    final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, name);
-    return fqn;
+    return new FullQualifiedName(PUNIT_NAME, name);
   }
 
-  private class PostProcessor implements JPAEdmMetadataPostProcessor {
+  private static class PostProcessor implements JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
-        final String jpaManagedTypeClassName) {}
+        final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {}
+    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processEntityType(final IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {
+      // Not needed
+    }
 
     @Override
     public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {

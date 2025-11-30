@@ -14,6 +14,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
 @Embeddable
 public class PostalAddressDataWithGroup {
+
   @Column(name = "\"Address.StreetName\"", nullable = true)
   private String streetName;
   @Column(name = "\"Address.StreetNumber\"", nullable = true)

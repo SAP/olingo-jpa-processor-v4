@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,12 +30,17 @@ import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives.UuidSortOrder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
@@ -219,6 +225,66 @@ class JPAExpandQueryResultTest extends TestBase {
         emptyList(), empty());
     final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
+  }
+
+  @Test
+  void checkConstructor() {
+    cut = new JPAExpandQueryResult(et, List.of());
+    assertNotNull(cut);
+  }
+
+  @Test
+  void checkRemoveResult() throws ODataJPAModelException {
+    final Map<String, Object> key = new HashMap<>(1);
+    final TupleDouble tuple = new TupleDouble(key);
+    tuples.add(tuple);
+    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
+        emptyList(), empty());
+    assertNotNull(cut.removeResult("root"));
+    assertNull(cut.removeResult("root"));
+  }
+
+  @Test
+  void checkHasCountFalse() throws ODataJPAModelException {
+    final Map<String, Object> key = new HashMap<>(1);
+    final TupleDouble tuple = new TupleDouble(key);
+    tuples.add(tuple);
+    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
+        emptyList(), empty());
+    assertFalse(cut.hasCount());
+  }
+
+  @Test
+  void checkHasCountTrue() throws ODataJPAModelException {
+    final Map<String, Object> key = new HashMap<>(1);
+    final TupleDouble tuple = new TupleDouble(key);
+    tuples.add(tuple);
+    final Map<String, Long> counts = new HashMap<>(1);
+    cut = new JPAExpandQueryResult(queryResult, counts, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
+        emptyList(), empty());
+    assertTrue(cut.hasCount());
+  }
+
+  @Test
+  void checkPutChildrenThrowsExceptionOnIdenticalKey() throws ODataJPAModelException, ODataApplicationException {
+    final Map<String, Object> key = new HashMap<>(1);
+    final TupleDouble tuple = new TupleDouble(key);
+    tuples.add(tuple);
+    et = helper.getJPAEntityType(AdministrativeDivision.class);
+    final Map<JPAAssociationPath, JPAExpandResult> childResults = Map.of(et.getAssociationPath("Parent"),
+        new JPAExpandQueryResult(et, List.of()));
+    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(AdministrativeDivision.class),
+        emptyList(), empty());
+    cut.putChildren(childResults);
+    assertThrows(ODataJPAQueryException.class, () -> cut.putChildren(childResults));
+  }
+
+  @Test
+  void checkConvert() throws ODataJPAModelException {
+    final JPAResultConverter converter = mock(JPAResultConverter.class);
+    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(AdministrativeDivision.class),
+        emptyList(), empty());
+    assertThrows(IllegalAccessError.class, () -> cut.convert(converter));
   }
 
   private void addTuple(final Integer value) {

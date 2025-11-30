@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Version;
@@ -42,12 +43,22 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   private static final Log LOGGER = LogFactory.getLog(IntermediateSimpleProperty.class);
   private EdmMediaStream streamInfo;
+  private Boolean isKey;
 
   IntermediateSimpleProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
-      final IntermediateSchema schema)
-      throws ODataJPAModelException {
-
+      final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);
+  }
+
+  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final List<String> userGroups)
+      throws ODataJPAModelException {
+    super(source, userGroups);
+  }
+
+  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final String newDbFieldName)
+      throws ODataJPAModelException {
+    super(source, source.getUserGroups());
+    this.dbFieldName = newDbFieldName;
   }
 
   @Override
@@ -67,10 +78,18 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   public boolean isKey() {
-    if (jpaAttribute instanceof SingularAttribute<?, ?>)
-      return ((SingularAttribute<?, ?>) jpaAttribute).isId();
+    return isKey != null ? isKey : isIdAttribute();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups) // NOSONAR
+      throws ODataJPAModelException { // NOSONAR
+
+    if (this.isComplex())
+      return (T) new IntermediateSimpleProperty(this, userGroups);
     else
-      return false;
+      return (T) this;
   }
 
   @Override
@@ -173,5 +192,11 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   @Override
   boolean isStream() {
     return streamInfo != null && streamInfo.stream();
+  }
+
+  private Boolean isIdAttribute() {
+    isKey = jpaAttribute instanceof final SingularAttribute<?, ?> singular
+        && singular.isId();
+    return isKey;
   }
 }

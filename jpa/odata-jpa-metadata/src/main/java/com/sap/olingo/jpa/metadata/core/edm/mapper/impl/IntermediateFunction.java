@@ -54,6 +54,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
       edmFunction.setBound(jpaFunction.isBound());
       // TODO edmFunction.setComposable(isComposable)
       edmFunction.setComposable(false);
+      determineUserGroups(this.jpaFunction.visibleFor());
       /*
        * Bound actions and functions that return an entity or a collection of entities MAY specify an entity set path if
        * the entity set of the returned entities depends on the entity set of the binding parameter value.

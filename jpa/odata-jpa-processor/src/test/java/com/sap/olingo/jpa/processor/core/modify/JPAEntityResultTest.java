@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 class JPAEntityResultTest extends JPACreateResultTest {
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     headers = new HashMap<>();
     jpaEntity = new Organization();
     helper = new TestHelper(emf, PUNIT_NAME);
@@ -162,14 +162,14 @@ class JPAEntityResultTest extends JPACreateResultTest {
 
     final Person person = new Person();
     final List<InhouseAddress> addresses = person.getInhouseAddress();
-    InhouseAddress addr = new InhouseAddress();
-    addr.setBuilding("A");
-    addr.setTaskID("DEV");
-    addresses.add(addr);
-    addr = new InhouseAddress();
-    addr.setBuilding("C");
-    addr.setTaskID("MAIN");
-    addresses.add(addr);
+    InhouseAddress address = new InhouseAddress();
+    address.setBuilding("A");
+    address.setTaskID("DEV");
+    addresses.add(address);
+    address = new InhouseAddress();
+    address.setBuilding("C");
+    address.setTaskID("MAIN");
+    addresses.add(address);
 
     jpaEntity = person;
 
@@ -187,14 +187,14 @@ class JPAEntityResultTest extends JPACreateResultTest {
     complex.setNumber(2L);
     collection.setComplex(complex);
 
-    InhouseAddress addr = new InhouseAddress();
-    addr.setBuilding("A");
-    addr.setTaskID("DEV");
-    addresses.add(addr);
-    addr = new InhouseAddress();
-    addr.setBuilding("C");
-    addr.setTaskID("MAIN");
-    addresses.add(addr);
+    InhouseAddress address = new InhouseAddress();
+    address.setBuilding("A");
+    address.setTaskID("DEV");
+    addresses.add(address);
+    address = new InhouseAddress();
+    address.setBuilding("C");
+    address.setTaskID("MAIN");
+    addresses.add(address);
 
     jpaEntity = collection;
     cut = new JPAEntityResult(et, jpaEntity, headers, converter);
@@ -245,14 +245,14 @@ class JPAEntityResultTest extends JPACreateResultTest {
     firstLevel.setLevelID(3);
     firstLevel.setSecondLevel(secondLevel);
 
-    InhouseAddress addr = new InhouseAddress();
-    addr.setBuilding("A");
-    addr.setTaskID("DEV");
-    addresses.add(addr);
-    addr = new InhouseAddress();
-    addr.setBuilding("C");
-    addr.setTaskID("MAIN");
-    addresses.add(addr);
+    InhouseAddress address = new InhouseAddress();
+    address.setBuilding("A");
+    address.setTaskID("DEV");
+    addresses.add(address);
+    address = new InhouseAddress();
+    address.setBuilding("C");
+    address.setTaskID("MAIN");
+    addresses.add(address);
 
     jpaEntity = collection;
     cut = new JPAEntityResult(et, jpaEntity, headers, converter);

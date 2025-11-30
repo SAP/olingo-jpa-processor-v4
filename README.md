@@ -46,7 +46,11 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
+<<<<<<< HEAD
     <version>2.3.2</version>
+=======
+    <version>2.4.0</version>
+>>>>>>> refs/remotes/public/main
 </dependency>
 ```
 
@@ -56,7 +60,11 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
+<<<<<<< HEAD
     <version>2.3.2</version>
+=======
+    <version>2.4.0</version>
+>>>>>>> refs/remotes/public/main
 </dependency>
 ```
 
@@ -86,7 +94,7 @@ New versions will follow [Semantic Versioning](https://semver.org).
 
 ## License
 
-Copyright (c) 2016-2023 SAP SE or an SAP affiliate company and olingo-jpa-processor-v4 contributors. Please see our [LICENSE.txt](LICENSE.txt) for copyright and license information.
+Copyright (c) 2016-2025 SAP SE or an SAP affiliate company and olingo-jpa-processor-v4 contributors. Please see our [LICENSE.txt](LICENSE.txt) for copyright and license information.
 Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4).
 
 ## Release Notes
@@ -105,4 +113,10 @@ Detailed information including third-party components and their licensing/copyri
 |2.2.0| - Fix for issue [#378](https://github.com/SAP/olingo-jpa-processor-v4/issues/378)<br> - Fix for issue [#361](https://github.com/SAP/olingo-jpa-processor-v4/issues/361)<br> - Fix for issue [#352](https://github.com/SAP/olingo-jpa-processor-v4/issues/352)<br> - Fix for issue [#307](https://github.com/SAP/olingo-jpa-processor-v4/issues/307) <br> - Enhancement according to [#314](https://github.com/SAP/olingo-jpa-processor-v4/issues/314)|No|
 |2.3.0| - Add support for handling multiple API version. Issue [#308](https://github.com/SAP/olingo-jpa-processor-v4/issues/308)<br>  - Fix for issue [#359](https://github.com/SAP/olingo-jpa-processor-v4/issues/359)<br> - Fix for issue [#406](https://github.com/SAP/olingo-jpa-processor-v4/issues/406)<br>  - Fix for issue [#397](https://github.com/SAP/olingo-jpa-processor-v4/issues/397)|No|
 |2.3.1| - Issue [#424](https://github.com/SAP/olingo-jpa-processor-v4/issues/424)<br>  - Issue [#407](https://github.com/SAP/olingo-jpa-processor-v4/issues/407)<br> - Issue [#285](https://github.com/SAP/olingo-jpa-processor-v4/issues/285)<br> |No|
+<<<<<<< HEAD
 |2.3.2| - Issue [#431](https://github.com/SAP/olingo-jpa-processor-v4/issues/431)|No|
+=======
+|2.3.2| - Issue [#431](https://github.com/SAP/olingo-jpa-processor-v4/issues/431)|No|
+|2.3.3| - Issue [#494](https://github.com/SAP/olingo-jpa-processor-v4/issues/494)<br> - Issue [#493](https://github.com/SAP/olingo-jpa-processor-v4/issues/493)<br> - Issue [#455](https://github.com/SAP/olingo-jpa-processor-v4/issues/455)|No|
+|2.4.0| - New feature: restrict visibility of entity types [#465](https://github.com/SAP/olingo-jpa-processor-v4/issues/465)<br>  - New feature: usage of JPA join table for inheritance [#538](https://github.com/SAP/olingo-jpa-processor-v4/issues/538)<br>- Fix for issue with memory consumption during the query result conversion|No|
+>>>>>>> refs/remotes/public/main

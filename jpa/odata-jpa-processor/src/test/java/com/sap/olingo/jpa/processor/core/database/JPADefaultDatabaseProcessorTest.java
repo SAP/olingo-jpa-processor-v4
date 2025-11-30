@@ -38,37 +38,37 @@ class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
   }
 
   @Test
-  void testNotSupportedConvertBooleanOperator() throws ODataApplicationException {
+  void testNotSupportedConvertBooleanOperator() {
     final JPABooleanOperator operator = mock(JPABooleanOperator.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void testNotSupportedConvertAggregationOperator() throws ODataApplicationException {
+  void testNotSupportedConvertAggregationOperator() {
     final JPAAggregationOperation operator = mock(JPAAggregationOperation.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void testNotSupportedConvertArithmeticOperator() throws ODataApplicationException {
+  void testNotSupportedConvertArithmeticOperator() {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void testNotSupportedConvertMethodCall() throws ODataApplicationException {
+  void testNotSupportedConvertMethodCall() {
     final JPAMethodCall operator = mock(JPAMethodCall.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void testNotSupportedConvertUnaryBooleanOperator() throws ODataApplicationException {
+  void testNotSupportedConvertUnaryBooleanOperator() {
     final JPAUnaryBooleanOperator operator = mock(JPAUnaryBooleanOperator.class);
     assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
-  void testNotSupportedConvertComparisonOperatorOthersThenHAS() throws ODataApplicationException {
+  void testNotSupportedConvertComparisonOperatorOthersThenHAS() {
     @SuppressWarnings("unchecked")
     final JPAComparisonOperator<String> operator = mock(JPAComparisonOperator.class);
     when(operator.getOperator()).then(new Answer<BinaryOperatorKind>() {
@@ -114,7 +114,7 @@ class JPADefaultDatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
   }
 
   @Test
-  void testNotSupportedSearch() throws ODataApplicationException {
+  void testNotSupportedSearch() {
     assertThrows(ODataJPADBAdaptorException.class, () -> {
       cut.createSearchWhereClause(null, null, null, null, null);
     });

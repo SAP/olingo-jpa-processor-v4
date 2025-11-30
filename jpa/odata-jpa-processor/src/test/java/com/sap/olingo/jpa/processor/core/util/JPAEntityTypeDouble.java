@@ -17,6 +17,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEtagValidator;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceInformation;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
@@ -190,7 +192,7 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) throws ODataJPAModelException {
     return base.searchChildPath(selectItemPath);
   }
 
@@ -231,8 +233,25 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public JPAStructuredType getBaseType() {
+  public JPAStructuredType getBaseType() throws ODataJPAModelException {
     return base.getBaseType();
+  }
+
+  @Override
+  public JPAInheritanceInformation getInheritanceInformation() throws ODataJPAModelException {
+    fail();
+    return new JPAInheritanceInformation() {
+
+      @Override
+      public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
+        return List.of();
+      }
+
+      @Override
+      public List<JPAOnConditionItem> getReversedJoinColumnsList() throws ODataJPAModelException {
+        return List.of();
+      }
+    };
   }
 
   @Override
@@ -255,5 +274,11 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   private boolean failWithFalse() {
     fail();
     return false;
+  }
+
+  @Override
+  public List<String> getUserGroups() throws ODataJPAModelException {
+    fail();
+    return List.of();
   }
 }

@@ -24,7 +24,6 @@ import javax.annotation.Nonnull;
 import jakarta.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -73,6 +72,8 @@ import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 import com.sap.olingo.jpa.processor.core.query.Utility;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollection;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 
 public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
@@ -511,7 +512,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       createMinimalCreateResponse(response, location);
     } else {
       final Entity createdEntity = convertEntity(et, result, request.getAllHeaders());
-      final EntityCollection entities = new EntityCollection();
+      final JPAEntityCollection entities = new JPAEntityCollection();
       entities.getEntities().add(createdEntity);
       createSuccessResponse(response, responseFormat, serializer.serialize(request, entities), entities);
       response.setHeader(HttpHeader.LOCATION, location);
@@ -702,7 +703,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         updatedEntity = convertEntity(requestEntity.getEntityType(), updateResult.modifiedEntity(), request
             .getAllHeaders());
       }
-      final EntityCollection entities = new EntityCollection();
+      final JPAEntityCollectionExtension entities = new JPAEntityCollection();
       entities.getEntities().add(updatedEntity);
       createSuccessResponse(response, responseFormat, serializer.serialize(request, entities), entities);
     }

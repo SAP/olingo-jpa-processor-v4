@@ -123,8 +123,6 @@ class JPAODataInternalRequestContextTest {
 
     when(odata.createETagHelper()).thenReturn(olingoEtagHelper);
 
-    when(odata.createETagHelper()).thenReturn(olingoEtagHelper);
-
     when(contextAccess.getTransactionFactory()).thenReturn(transactionFactory);
     when(contextAccess.getRequestParameter()).thenReturn(customParameter);
     when(contextAccess.getEntityManager()).thenReturn(em);
@@ -346,6 +344,20 @@ class JPAODataInternalRequestContextTest {
   void testGetEdmProvider() throws ODataException {
     cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     assertEquals(edmProvider, cut.getEdmProvider());
+  }
+
+  @Test
+  void testGetEdmProviderRestricted() throws ODataException {
+    final var groupsProvider = mock(JPAODataGroupProvider.class);
+    final List<String> groupList = List.of("Company");
+    final var restrictedProvider = mock(JPAEdmProvider.class);
+
+    when(requestContext.getGroupsProvider()).thenReturn(Optional.of(groupsProvider));
+    when(groupsProvider.getGroups()).thenReturn(groupList);
+    when(edmProvider.asUserGroupRestricted(groupList)).thenReturn(restrictedProvider);
+
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
+    assertEquals(restrictedProvider, cut.getEdmProvider());
   }
 
   @Test

@@ -8,7 +8,7 @@ import javax.annotation.CheckForNull;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
+public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable, JPAUserGroupRestrictable {
   /**
    * Searches for a Collection Property defined by the name used in the OData metadata in all the collection properties
    * that are available for this type via the OData service. That is:
@@ -25,7 +25,7 @@ public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
 
   /**
    *
-   * @return Mime type of streaming content
+   * @return Mime type of streaming content. Empty if no stream property exists
    * @throws ODataJPAModelException
    */
   public String getContentType() throws ODataJPAModelException;
@@ -78,6 +78,7 @@ public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
   /**
    *
    * @return Name of the database table. The table name is composed from schema name and table name
+   * @throws ODataJPAModelException
    */
   public String getTableName();
 
@@ -90,4 +91,9 @@ public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable {
 
   public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException;
+
+  /**
+   * @return Type of inheritance of {@link JPAInheritanceType#NON}
+   */
+  public JPAInheritanceInformation getInheritanceInformation() throws ODataJPAModelException;
 }

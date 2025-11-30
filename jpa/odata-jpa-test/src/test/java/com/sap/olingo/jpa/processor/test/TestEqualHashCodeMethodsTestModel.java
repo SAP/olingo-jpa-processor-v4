@@ -30,7 +30,7 @@ class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));

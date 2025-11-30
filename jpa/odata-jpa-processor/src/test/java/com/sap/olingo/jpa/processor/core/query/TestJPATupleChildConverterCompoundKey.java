@@ -13,7 +13,6 @@ import java.util.Map;
 
 import jakarta.persistence.Tuple;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -77,7 +76,7 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "BusinessPartnerID");
     keyPredicates.put("3", "BusinessPartnerID='3',RoleCategory='C'");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
         "BusinessPartnerRoles"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());
@@ -112,7 +111,7 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "DivisionCode");
     keyPredicates.put("DEU", "CodePublisher='ISO',CodeID='3166-1',DivisionCode='DEU',Language='en'");
 
-    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
+    final var act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
         "AdministrativeDivisionDescriptions"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());

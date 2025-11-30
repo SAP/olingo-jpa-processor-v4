@@ -51,13 +51,13 @@ class ExpressionImplTest {
   }
 
   @BeforeEach
-  void setup() throws ODataJPAModelException {
+  void setup() {
     cut = new ExpressionTest();
   }
 
   @ParameterizedTest
   @MethodSource("notImplemented")
-  void testThrowsNotImplemented(final Method m) throws IllegalAccessException, IllegalArgumentException {
+  void testThrowsNotImplemented(final Method m) throws IllegalArgumentException {
     InvocationTargetException e;
     if (m.getParameterCount() >= 1) {
       final Class<?>[] params = m.getParameterTypes();

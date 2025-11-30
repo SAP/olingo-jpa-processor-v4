@@ -4,17 +4,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import jakarta.persistence.EntityManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -30,13 +28,11 @@ import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 
 public class JPAExamplePagingProvider implements JPAODataPagingProvider {
 
-  private static final Log LOGGER = LogFactory.getLog(JPAExamplePagingProvider.class);
-
   private static final Object lock = new Object();
   private static final int DEFAULT_BUFFER_SIZE = 100;
   private final Map<String, Integer> maxPageSizes;
-  private final Map<String, CacheEntry> pageCache;
-  private final Queue<String> index;
+  private final Map<Integer, CacheEntry> pageCache;
+  private final Queue<Integer> index;
   private final int cacheSize;
 
   public JPAExamplePagingProvider(final Map<String, Integer> pageSizes) {
@@ -53,16 +49,16 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
   @Override
   public Optional<JPAODataPage> getNextPage(@Nonnull final String skipToken, final OData odata,
       final ServiceMetadata serviceMetadata, final JPARequestParameterMap requestParameter, final EntityManager em) {
-    final var previousPage = pageCache.get(skipToken.replace("'", ""));
+    final var previousPage = pageCache.get(Integer.valueOf(skipToken.replace("'", "")));
     if (previousPage != null) {
       // Calculate next page
       final Integer skip = previousPage.page().skip() + previousPage.page().top();
-      // Create a new skip token if next page is not the last one
-      String nextToken = null;
-      if (skip + previousPage.page().top() < previousPage.maxTop())
-        nextToken = UUID.randomUUID().toString();
       final var top = (int) ((skip + previousPage.page().top()) < previousPage.maxTop() ? previousPage
           .page().top() : previousPage.maxTop() - skip);
+      // Create a new skip token if next page is not the last one
+      Integer nextToken = null;
+      if (skip + previousPage.page().top() < previousPage.maxTop())
+        nextToken = Objects.hash(previousPage.page().uriInfo(), skip, top);
       final var page = new JPAODataPage(previousPage.page().uriInfo(), skip, top, nextToken);
       if (nextToken != null)
         addToCache(page, previousPage.maxTop());
@@ -102,9 +98,9 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
         final Long last = topValue != null && (topValue + skipValue) < maxResults
             ? (topValue + skipValue) : maxResults;
         // Create a unique skip token if needed
-        String skipToken = null;
+        Integer skipToken = null;
         if (pageSize < count)
-          skipToken = UUID.randomUUID().toString();
+          skipToken = Objects.hash(uriInfo, skipValue, pageSize);
         // Create page information
         final var page = new JPAODataPage(uriInfo, skipValue, pageSize, skipToken);
         // Cache page to be able to fulfill next link based request
@@ -121,9 +117,9 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
     synchronized (lock) {
       if (pageCache.size() == cacheSize)
         pageCache.remove(index.poll());
-      LOGGER.info("Cache size: " + pageCache.size());
-      pageCache.put((String) page.skipToken(), new CacheEntry(count, page));
-      index.add((String) page.skipToken());
+
+      pageCache.put((Integer) page.skipToken(), new CacheEntry(count, page));
+      index.add((Integer) page.skipToken());
     }
   }
 

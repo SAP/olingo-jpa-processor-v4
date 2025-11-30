@@ -1122,6 +1122,17 @@ class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  void testExpandStarViaExpand() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('1')?$expand = SupportEngineers($expand=*)",
+        new JavaBasedCapabilitiesAnnotationsProvider());
+    helper.assertStatus(200);
+
+    final ObjectNode organization = helper.getValue();
+    assertNotNull(organization);
+  }
+
+  @Test
   void testExpandWithNavigationCountFilter() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=Parent/Children/$count eq 2 &$expand=Parent",
@@ -1276,6 +1287,53 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals("JoinSources?$skiptoken=Complex/OneToManyComplex", complex.get("OneToManyComplex@odata.nextLink")
         .asText());
 
+  }
+
+  @Test
+  void testExpandMultipleParentChildReturnsConsistentResult() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('2')?$select=ID,Country&$expand=Roles($orderby=RoleCategory;$expand=BusinessPartner"
+            + "($select=ID,Country;$expand=Roles($orderby=RoleCategory)))");
+    helper.assertStatus(200);
+    final ObjectNode result = helper.getValue();
+    final String country = result.get("Country").asText();
+    final ArrayNode roles = (ArrayNode) result.get("Roles");
+    assertNotNull(roles);
+    assertNotNull(country);
+    for (final var role : roles) {
+      final var partner = role.get("BusinessPartner");
+      assertNotNull(partner);
+      assertEquals("2", partner.get("ID").asText());
+      assertEquals(country, partner.get("Country").asText());
+      final ArrayNode roles2 = (ArrayNode) partner.get("Roles");
+      assertNotNull(roles2);
+      for (int i = 0; i < roles.size(); i++) {
+        final var role2 = roles2.get(i);
+        assertEquals(roles.get(i).get("BusinessPartnerID"), role2.get("BusinessPartnerID"));
+        assertEquals(roles.get(i).get("RoleCategory"), role2.get("RoleCategory"));
+      }
+    }
+  }
+
+  @Test
+  void testExpandFromInheritanceByJoin() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceSavingAccounts?$select=AccountId&&$expand=Transactions");
+    helper.assertStatus(200);
+    final ArrayNode result = helper.getValues();
+    assertEquals(3, result.size());
+
+    for (var item : result) {
+      var transactions = (ArrayNode) item.get("Transactions");
+      if (item.get("AccountId").asText().equals("8ce66481d8114db0bbf7f0fc621dade7"))
+        assertEquals(0, transactions.size());
+      else if (item.get("AccountId").asText().equals("611b57e8b0784b169a0ccefc6379ff0a"))
+        assertEquals(1, transactions.size());
+      else if (item.get("AccountId").asText().equals("5425c3635eae4548bc82a7adddcad14d"))
+        assertEquals(2, transactions.size());
+      else
+        fail();
+    }
   }
 
   private JPAODataPagingProvider createPagingProvider() throws ODataApplicationException {

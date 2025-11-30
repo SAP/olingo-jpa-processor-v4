@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -18,6 +17,7 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
 abstract class JPAAbstractRequestProcessor {
@@ -46,7 +46,7 @@ abstract class JPAAbstractRequestProcessor {
   }
 
   protected final void createSuccessResponse(final ODataResponse response, final ContentType responseFormat,
-      final SerializerResult serializerResult, @Nullable final EntityCollection entityCollection) {
+      final SerializerResult serializerResult, @Nullable final JPAEntityCollectionExtension entityCollection) {
 
     response.setContent(serializerResult.getContent());
     response.setStatusCode(successStatusCode);
@@ -55,7 +55,7 @@ abstract class JPAAbstractRequestProcessor {
   }
 
   protected final void createNotModifiedResponse(final ODataResponse response,
-      final EntityCollection entityCollection) {
+      final JPAEntityCollectionExtension entityCollection) {
     response.setStatusCode(HttpStatusCode.NOT_MODIFIED.getStatusCode());
     createETagHeader(response, entityCollection);
   }
@@ -64,9 +64,9 @@ abstract class JPAAbstractRequestProcessor {
     response.setStatusCode(HttpStatusCode.PRECONDITION_FAILED.getStatusCode());
   }
 
-  private void createETagHeader(final ODataResponse response, final EntityCollection entityCollection) {
-    if (entityCollection != null && entityCollection.getEntities().size() == 1) {
-      final var etag = entityCollection.getEntities().get(0).getETag();
+  private void createETagHeader(final ODataResponse response, final JPAEntityCollectionExtension entityCollection) {
+    if (entityCollection != null && entityCollection.hasSingleResult()) {
+      final var etag = entityCollection.getFirstResult().getETag();
       if (etag != null)
         response.setHeader(HttpHeader.ETAG, etag);
     }
