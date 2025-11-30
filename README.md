@@ -46,7 +46,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
-    <version>2.3.3</version>
+    <version>2.4.0</version>
 </dependency>
 ```
 
@@ -56,7 +56,7 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
-    <version>2.3.3</version>
+    <version>2.4.0</version>
 </dependency>
 ```
 
@@ -107,3 +107,4 @@ Detailed information including third-party components and their licensing/copyri
 |2.3.1| - Issue [#424](https://github.com/SAP/olingo-jpa-processor-v4/issues/424)<br>  - Issue [#407](https://github.com/SAP/olingo-jpa-processor-v4/issues/407)<br> - Issue [#285](https://github.com/SAP/olingo-jpa-processor-v4/issues/285)<br> |No|
 |2.3.2| - Issue [#431](https://github.com/SAP/olingo-jpa-processor-v4/issues/431)|No|
 |2.3.3| - Issue [#494](https://github.com/SAP/olingo-jpa-processor-v4/issues/494)<br> - Issue [#493](https://github.com/SAP/olingo-jpa-processor-v4/issues/493)<br> - Issue [#455](https://github.com/SAP/olingo-jpa-processor-v4/issues/455)|No|
+|2.4.0| - New feature: restrict visibility of entity types [#465](https://github.com/SAP/olingo-jpa-processor-v4/issues/465)<br>  - New feature: usage of JPA join table for inheritance [#538](https://github.com/SAP/olingo-jpa-processor-v4/issues/538)<br>- Fix for issue with memory consumption during the query result conversion|No|
