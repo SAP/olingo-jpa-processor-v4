@@ -55,6 +55,12 @@ class IntermediateSimpleProperty extends IntermediateProperty {
     super(source, userGroups);
   }
 
+  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final String newDbFieldName)
+      throws ODataJPAModelException {
+    super(source, source.getUserGroups());
+    this.dbFieldName = newDbFieldName;
+  }
+
   @Override
   public boolean isAssociation() {
     return false;

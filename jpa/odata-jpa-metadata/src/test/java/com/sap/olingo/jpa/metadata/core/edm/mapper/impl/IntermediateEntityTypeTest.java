@@ -53,6 +53,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEtagValidator;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
@@ -85,6 +86,12 @@ import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
 import com.sap.olingo.jpa.processor.core.testmodel.EmptyQueryExtensionProvider;
 import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinAccount;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCompoundSub;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCompoundSuper;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinCurrentAccount;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinLockedSavingAccount;
+import com.sap.olingo.jpa.processor.core.testmodel.InheritanceByJoinSavingAccount;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinRelation;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -461,6 +468,38 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
+  void checkEmbeddedIdInheritedWithMappingKeyPath() throws ODataJPAModelException {
+    final JPAEntityType et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        InheritanceByJoinCompoundSub.class), schema);
+
+    assertEquals(3, et.getKey().size());
+    var divisionKey = et.getKey().stream().filter(key -> "DivisionCode".equals(key.getExternalName())).findFirst();
+    assertNotNull(divisionKey);
+    assertEquals("\"PartCode\"", ((IntermediateSimpleProperty) divisionKey.get()).dbFieldName);
+
+    assertEquals(3, et.getKeyPath().size());
+    var divisionCode = et.getKeyPath().stream().filter(path -> "DivisionCode".equals(path.getAlias()))
+        .findFirst();
+    assertTrue(divisionCode.isPresent());
+    assertEquals("\"PartCode\"", divisionCode.get().getDBFieldName());
+  }
+
+  @Test
+  void checkInheritedWithMappingKeyPath() throws ODataJPAModelException {
+    final JPAEntityType et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        InheritanceByJoinLockedSavingAccount.class), schema);
+
+    assertEquals(1, et.getKey().size());
+    var key = et.getKey().get(0);
+    assertNotNull(key);
+    assertEquals("\"AccountId\"", ((IntermediateSimpleProperty) key).dbFieldName);
+
+    assertEquals(1, et.getKeyPath().size());
+    var keyPath = et.getKeyPath().get(0);
+    assertEquals("\"AccountId\"", keyPath.getDBFieldName());
+  }
+
+  @Test
   void checkHasStreamNoProperties() throws ODataJPAModelException {
     final IntermediateEntityType<PersonImage> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(PersonImage.class), schema);
@@ -653,6 +692,17 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
       final String[] pathElements = path.getAlias().split("/");
       assertEquals(pathElements.length, path.getPath().size());
     }
+  }
+
+  @Test
+  void checkAllPathContainsFieldMappingForInheritance() throws ODataJPAModelException {
+    final IntermediateStructuredType<InheritanceByJoinLockedSavingAccount> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), getEntityType(InheritanceByJoinLockedSavingAccount.class), schema);
+    final var act = et.getPathList();
+    final var key = act.stream().filter(path -> "AccountId".equals(path.getAlias())).findFirst();
+    assertTrue(key.isPresent());
+    assertEquals("\"AccountId\"", key.get().getDBFieldName());
   }
 
   @Test
@@ -1275,6 +1325,107 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertEquals(et.getAttributes().size(), act.getAttributes().size());
     assertEquals(et.getDeclaredAttributes().size(), act.getDeclaredAttributes().size());
 
+  }
+
+  @Test
+  void checkGetBaseTypeForSingleTableInheritance() throws ODataJPAModelException {
+    final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
+
+    assertEquals(schema.getEntityType(BusinessPartner.class), et.getBaseType());
+    assertEquals(JPAInheritanceType.SINGLE_TABLE, et.getInheritanceInformation().getInheritanceType());
+    assertTrue(et.getInheritanceInformation().getJoinColumnsList().isEmpty());
+  }
+
+  @Test
+  void checkGetBaseTypeForJoinTableInheritance() throws ODataJPAModelException {
+    final IntermediateEntityType<InheritanceByJoinCurrentAccount> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(InheritanceByJoinCurrentAccount.class), schema);
+
+    assertEquals(schema.getEntityType(InheritanceByJoinAccount.class), et.getBaseType());
+    assertEquals(JPAInheritanceType.JOIN_TABLE, et.getInheritanceInformation().getInheritanceType());
+    var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
+    assertEquals(1, joinColumns.size());
+    assertEquals("AccountId", joinColumns.get(0).getLeftPath().getAlias());
+    assertEquals("AccountId", joinColumns.get(0).getRightPath().getAlias());
+    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    assertEquals(1, joinColumns.size());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getLeftPath().getAlias());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getRightPath().getAlias());
+  }
+
+  @Test
+  void checkGetBaseTypeForJoinTableInheritanceTwoLevel() throws ODataJPAModelException {
+    final IntermediateEntityType<InheritanceByJoinLockedSavingAccount> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(InheritanceByJoinLockedSavingAccount.class), schema);
+
+    assertEquals(schema.getEntityType(InheritanceByJoinSavingAccount.class), et.getBaseType());
+    assertEquals(JPAInheritanceType.JOIN_TABLE, et.getInheritanceInformation().getInheritanceType());
+    var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
+    assertEquals(1, joinColumns.size());
+    assertEquals("AccountId", joinColumns.get(0).getLeftPath().getAlias());
+    assertEquals("\"AccountId\"", joinColumns.get(0).getLeftPath().getDBFieldName());
+    assertEquals("AccountId", joinColumns.get(0).getRightPath().getAlias());
+    assertEquals("\"ID\"", joinColumns.get(0).getRightPath().getDBFieldName());
+
+    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    assertEquals(1, joinColumns.size());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getRightPath().getAlias());
+    assertEquals("\"AccountId\"", reversedJoinColumns.get(0).getRightPath().getDBFieldName());
+    assertEquals("AccountId", reversedJoinColumns.get(0).getLeftPath().getAlias());
+    assertEquals("\"ID\"", reversedJoinColumns.get(0).getLeftPath().getDBFieldName());
+  }
+
+  @Test
+  void checkGetBaseTypeForJoinTableWithCompoundKey() throws ODataJPAModelException {
+    final IntermediateEntityType<InheritanceByJoinCompoundSub> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(InheritanceByJoinCompoundSub.class), schema);
+
+    assertEquals(schema.getEntityType(InheritanceByJoinCompoundSuper.class), et.getBaseType());
+    assertEquals(JPAInheritanceType.JOIN_TABLE, et.getInheritanceInformation().getInheritanceType());
+    var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
+    assertEquals(3, joinColumns.size());
+    var codePublisher = joinColumns.stream().filter(column -> "CodePublisher".equals(column.getRightPath()
+        .getAlias())).findFirst();
+    assertTrue(codePublisher.isPresent());
+    assertEquals("\"CodePublisher\"", codePublisher.get().getLeftPath().getDBFieldName());
+
+    var codeID = joinColumns.stream().filter(column -> "CodeID".equals(column.getRightPath()
+        .getAlias())).findFirst();
+    assertTrue(codeID.isPresent());
+    assertEquals("\"CodeID\"", codeID.get().getLeftPath().getDBFieldName());
+
+    var divisionCode = joinColumns.stream().filter(column -> "DivisionCode".equals(column.getRightPath()
+        .getAlias())).findFirst();
+    assertTrue(divisionCode.isPresent());
+    assertEquals("\"PartCode\"", divisionCode.get().getLeftPath().getDBFieldName());
+
+    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    var partCode = reversedJoinColumns.stream().filter(column -> "\"PartCode\"".equals(column.getRightPath()
+        .getDBFieldName())).findFirst();
+    assertTrue(partCode.isPresent());
+    assertEquals("\"DivisionCode\"", partCode.get().getLeftPath().getDBFieldName());
+  }
+
+  @Test
+  void checkGetAttributesForJoinTableInheritanceTwoLevel() throws ODataJPAModelException {
+    final IntermediateEntityType<InheritanceByJoinLockedSavingAccount> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(InheritanceByJoinLockedSavingAccount.class), schema);
+
+    final var act = et.getAttributes();
+
+    assertEquals(6, act.size());
+    var key = act.stream().filter(attribute -> "accountId".equals(attribute.getInternalName())).findFirst();
+    assertEquals("\"AccountId\"", ((IntermediateProperty) key.get()).getDBFieldName());
+  }
+
+  @Test
+  void checkGetBaseTypeWithoutInheritance() throws ODataJPAModelException {
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+
+    assertNull(et.getBaseType());
+    assertEquals(JPAInheritanceType.NON, et.getInheritanceInformation().getInheritanceType());
   }
 
   private static void assertAttributesEquals(final List<JPAAttribute> expList, final List<JPAAttribute> actList)

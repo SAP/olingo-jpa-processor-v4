@@ -10,7 +10,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCache;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheSupplier;
@@ -137,4 +139,20 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
     return null;
   }
 
+  @Override
+  protected Map<String, JPAPath> getBaseTypeResolvedPathMap() throws ODataJPAModelException {
+    final IntermediateStructuredType<? super T> superType = getBaseType();
+    if (superType != null) {
+      return superType.getResolvedPathMap();
+    }
+    return Map.of();
+  }
+
+  @Override
+  List<JPAAttribute> getBaseTypeAttributes() throws ODataJPAModelException {
+    final IntermediateStructuredType<? super T> baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getAttributes();
+    return List.of();
+  }
 }

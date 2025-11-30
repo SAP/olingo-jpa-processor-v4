@@ -29,8 +29,7 @@
         <hibernate.version>6.4.0.Final</hibernate.version>
         <openjpa.version>4.0.0</openjpa.version>
         <derby.version>10.16.1.1</derby.version>
-        <junit.version>5.13.4</junit.version>
-        <junit-platform.version>1.13.2</junit-platform.version>
+        <junit.version>6.0.1</junit.version>
         <mockito.version>5.19.0</mockito.version>
         <jacoco.version>0.8.13</jacoco.version>
         <netty.version>4.2.5.Final</netty.version>
@@ -268,7 +267,7 @@
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-launcher</artifactId>
-                <version>${junit-platform.version}</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>

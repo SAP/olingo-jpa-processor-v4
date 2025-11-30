@@ -91,4 +91,9 @@ public interface JPAEntityType extends JPAStructuredType, JPAAnnotatable, JPAUse
 
   public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException;
+
+  /**
+   * @return Type of inheritance of {@link JPAInheritanceType#NON}
+   */
+  public JPAInheritanceInformation getInheritanceInformation() throws ODataJPAModelException;
 }

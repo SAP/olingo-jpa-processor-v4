@@ -26,6 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 
 /**
@@ -56,7 +57,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     this.path = Objects.requireNonNull(path);
     this.parent = Objects.requireNonNull(parent);
     this.st = type;
-    this.tableAlias = Optional.ofNullable(tableAlias.orElseGet(this::tableAliasFromParent));
+    this.tableAlias = Optional.ofNullable(tableAliasFromParent(tableAlias));
     if (st == null)
       LogFactory.getLog(getClass()).info("Type not provided for " + path);
   }
@@ -193,10 +194,15 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
       throw new IllegalStateException();
   }
 
-  private boolean isKeyPath(final JPAPath jpaPath) throws ODataJPAModelException {
-    return st.getKeyPath()
-        .stream()
-        .anyMatch(keyPath -> keyPath.getAlias().equals(jpaPath.getAlias()));
+  boolean isKeyPath(final JPAPath jpaPath) {
+
+    try {
+      return st.getKeyPath()
+          .stream()
+          .anyMatch(keyPath -> keyPath.getAlias().equals(jpaPath.getAlias()));
+    } catch (ODataJPAModelException e) {
+      throw new InternalServerError(e);
+    }
   }
 
   /**
@@ -237,10 +243,15 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     return Arrays.asList(path.orElseThrow(IllegalStateException::new));
   }
 
-  private String tableAliasFromParent() {
-    if (parent.isPresent())
-      return parent.get().tableAlias.orElse(null);
-    return null;
+  private String tableAliasFromParent(Optional<String> alias) {
+    if (parent.isPresent()) {
+      if (path.isPresent() && parent.get() instanceof FromImpl<?, ?> from) {
+        return from.getAlias(path.get()).orElse(alias.orElse(null));
+      } else {
+        return parent.get().tableAlias.orElse(alias.orElse(null));
+      }
+    }
+    return alias.orElse(null);
   }
 
   @SuppressWarnings("unchecked")

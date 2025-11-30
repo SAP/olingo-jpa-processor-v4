@@ -90,7 +90,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   private static final Log LOGGER = LogFactory.getLog(IntermediateStructuredType.class);
   private final MapCache<String, IntermediateProperty> declaredPropertiesMap;
   private final MapCache<String, IntermediateNavigationProperty<?>> declaredNavigationPropertiesMap;
-  private final MapCache<String, JPAPathImpl> resolvedPathMap;
+  private final MapCache<String, JPAPath> resolvedPathMap;
   private final MapCache<String, JPAPath> intermediatePathMap;
   private final MapCache<String, JPAAssociationPathImpl> resolvedAssociationPathMap;
   private final InstanceCache<CsdlStructuralType> edmStructuralType;
@@ -208,21 +208,27 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   @Override
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException {
     final List<JPAAttribute> result = new ArrayList<>();
+    result.addAll(getOwnProperties());
+    result.addAll(getBaseTypeAttributes());
+    return result;
+  }
+
+  abstract List<JPAAttribute> getBaseTypeAttributes() throws ODataJPAModelException;
+
+  private List<JPAAttribute> getOwnProperties() throws ODataJPAModelException {
+    final List<JPAAttribute> result = new ArrayList<>();
     for (final Entry<String, IntermediateProperty> property : getDeclaredPropertiesMap().entrySet()) {
       final IntermediateProperty attribute = property.getValue();
       if (!attribute.ignore())
         result.add(attribute);
     }
-    final IntermediateStructuredType<? super T> baseType = getBaseType();
-    if (baseType != null)
-      result.addAll(baseType.getAttributes());
     return result;
   }
 
   @Override
   public List<JPAPath> getCollectionAttributesPath() throws ODataJPAModelException {
     final List<JPAPath> pathList = new ArrayList<>();
-    for (final Entry<String, JPAPathImpl> path : getResolvedPathMap().entrySet()) {
+    for (final Entry<String, JPAPath> path : getResolvedPathMap().entrySet()) {
       if (!path.getValue().ignore() && path.getValue().getLeaf() instanceof JPACollectionAttribute)
         pathList.add(path.getValue());
     }
@@ -297,7 +303,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   @Override
   public List<JPAPath> getPathList() throws ODataJPAModelException {
     final List<JPAPath> pathList = new ArrayList<>();
-    for (final Entry<String, JPAPathImpl> path : getResolvedPathMap().entrySet()) {
+    for (final var path : getResolvedPathMap().entrySet()) {
       if (!path.getValue().ignore())
         pathList.add(path.getValue());
     }
@@ -615,7 +621,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     return getPropertyByDBFieldInternal(getDeclaredPropertiesMap(), dbFieldName);
   }
 
-  Map<String, JPAPathImpl> getResolvedPathMap() throws ODataJPAModelException {
+  Map<String, JPAPath> getResolvedPathMap() throws ODataJPAModelException {
     return resolvedPathMap.get();
   }
 
@@ -954,45 +960,50 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     }
   }
 
-  private synchronized Map<String, JPAPathImpl> buildCompletePathMap() throws ODataJPAModelInternalException {
-    ArrayList<JPAElement> pathList;
-    final Map<String, JPAPathImpl> result = new HashMap<>();
+  private synchronized Map<String, JPAPath> buildCompletePathMap() throws ODataJPAModelInternalException {
+    final Map<String, JPAPath> result = new HashMap<>();
     try {
-      for (final Entry<String, IntermediateProperty> propertyEntity : getDeclaredPropertiesMap().entrySet()) {
-        final IntermediateProperty property = propertyEntity.getValue();
-        if (property.isComplex()) {
-          final Map<String, JPAPathImpl> resolvedPath = ((IntermediateStructuredType<?>) property
-              .getStructuredType()).getResolvedPathMap();
-
-          for (final Entry<String, JPAPathImpl> path : resolvedPath.entrySet()) {
-            pathList = new ArrayList<>(path.getValue().getPath());
-            pathList.add(0, property);
-            JPAPathImpl newPath;
-            if (property.isKey()) {
-              newPath = new JPAPathImpl(path.getKey(), determineDBFieldName(property, resolvedPath.get(path.getKey())),
-                  pathList);
-            } else {
-
-              newPath = new JPAPathImpl(buildPath(property.getExternalName(), path.getKey()),
-                  determineDBFieldName(property, path.getValue()), rebuildPathList(pathList));
-            }
-            result.put(newPath.getAlias(), newPath);
-
-          }
-        } else {
-          result.put(property.getExternalName(), new JPAPathImpl(property.getExternalName(), property
-              .getDBFieldName(), property));
-        }
-      }
-      final IntermediateStructuredType<? super T> baseType = getBaseType();
-      if (baseType != null) {
-        result.putAll(baseType.getResolvedPathMap());
-      }
+      result.putAll(buildOwnResolvedPathMap());
+      result.putAll(getBaseTypeResolvedPathMap());
       return result;
     } catch (ODataJPAModelException e) {
       throw new ODataJPAModelInternalException(e);
     }
   }
+
+  private final Map<String, JPAPath> buildOwnResolvedPathMap() throws ODataJPAModelException {
+    final Map<String, JPAPath> result = new HashMap<>();
+    ArrayList<JPAElement> pathList;
+    for (final Entry<String, IntermediateProperty> propertyEntity : getDeclaredPropertiesMap().entrySet()) {
+      final IntermediateProperty property = propertyEntity.getValue();
+      if (property.isComplex()) {
+        final var resolvedPath = ((IntermediateStructuredType<?>) property
+            .getStructuredType()).getResolvedPathMap();
+
+        for (final var path : resolvedPath.entrySet()) {
+          pathList = new ArrayList<>(path.getValue().getPath());
+          pathList.add(0, property);
+          JPAPathImpl newPath;
+          if (property.isKey()) {
+            newPath = new JPAPathImpl(path.getKey(), determineDBFieldName(property, resolvedPath.get(path.getKey())),
+                pathList);
+          } else {
+
+            newPath = new JPAPathImpl(buildPath(property.getExternalName(), path.getKey()),
+                determineDBFieldName(property, path.getValue()), rebuildPathList(pathList));
+          }
+          result.put(newPath.getAlias(), newPath);
+
+        }
+      } else {
+        result.put(property.getExternalName(), new JPAPathImpl(property.getExternalName(), property
+            .getDBFieldName(), property));
+      }
+    }
+    return result;
+  }
+
+  protected abstract Map<String, JPAPath> getBaseTypeResolvedPathMap() throws ODataJPAModelException;
 
   protected abstract Map<String, IntermediateProperty> buildCompletePropertyMap();
 
@@ -1000,7 +1011,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     return declaredPropertiesMap.get();
   }
 
-  private Map<String, JPAPathImpl> restrictedPathMap(final Map<String, JPAPathImpl> source,
+  private Map<String, JPAPath> restrictedPathMap(final Map<String, JPAPath> source,
       final List<String> requesterUserGroups) {
     return source;
   }
