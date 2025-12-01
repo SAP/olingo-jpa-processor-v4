@@ -1,5 +1,5 @@
 general:
-  buildTool: 'docker'
+  buildTool: 'maven'
   productiveBranch: 'master'
   vaultPath: 'piper/sap-project-odata-jpa-3ab8029f-91ea-45a4-a943-bac0e44a0db6'
   vaultBasePath: 'piper/sap-project-odata-jpa-3ab8029f-91ea-45a4-a943-bac0e44a0db6'
