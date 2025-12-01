@@ -10,8 +10,32 @@
   <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
   
       <modules>
-        
         <module>jpa</module>
       </modules>
   
+      <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.source>17</project.build.source>
+        <project.build.target>17</project.build.target>
+        <maven.compiler.version>3.14.1</maven.compiler.version>
+      </properties>
+     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler.version}</version>
+                    <configuration>
+                        <source>${project.build.source}</source>
+                        <target>${project.build.target}</target>
+                        <showWarnings>true</showWarnings>
+                        <showDeprecation>true</showDeprecation>
+                        <compilerArgument>-Xlint:unchecked</compilerArgument>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build> 
 </project>

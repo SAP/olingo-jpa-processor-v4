@@ -15,10 +15,6 @@
     <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.source>17</project.build.source>
-        <project.build.target>17</project.build.target>
-        <maven.compiler.version>3.14.1</maven.compiler.version>
         <odata.version>5.0.0</odata.version>
         <jackson.version>2.20.1</jackson.version>
         <powermock.version>1.7.1</powermock.version>
