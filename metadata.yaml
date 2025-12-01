@@ -5,7 +5,7 @@
 kind: Component
 metadata:
   displayName: odata-v4-jpa-processor
-  description: # Component description
+  description: OData JPA Processor
   labels:
     language: java
     # anyKey: anyValue
