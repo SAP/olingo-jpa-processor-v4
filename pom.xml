@@ -10,7 +10,8 @@
   <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
   
       <modules>
-        <module>odata-jpa</module>
-    </modules>
+        
+        <module>jpa</module>
+      </modules>
   
 </project>
