@@ -1,5 +1,5 @@
 general:
-  buildTool: 'maven'
+  buildTool: 'docker'
   productiveBranch: 'master'
   vaultPath: 'piper/sap-project-odata-jpa-3ab8029f-91ea-45a4-a943-bac0e44a0db6'
   vaultBasePath: 'piper/sap-project-odata-jpa-3ab8029f-91ea-45a4-a943-bac0e44a0db6'
@@ -20,4 +20,6 @@ steps:
   sonarExecuteScan:
     serverUrl: 'https://sonar.tools.sap'
   sapCumulusUpload:
-    pipelineId: 'a9cd03e0-93fe-4dc8-864f-e5f74d27a4c6'
+    pipelineId: '70b19124-d0cc-4a8d-a068-791412581176'
+  kanikoExecute:
+    containerImageName: 'odata-v4-jpa-processor'
