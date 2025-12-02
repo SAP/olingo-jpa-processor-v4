@@ -23,3 +23,5 @@ steps:
     pipelineId: '70b19124-d0cc-4a8d-a068-791412581176'
   kanikoExecute:
     containerImageName: 'odata-v4-jpa-processor'
+  mavenBuild:
+    dockerImage: 'maven:3-sapmachine-21'
