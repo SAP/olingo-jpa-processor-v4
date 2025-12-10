@@ -1,0 +1,32 @@
+name: "CodeQL SAST Scan"
+on:
+  push:
+    branches: [master] # A push to one of these branches triggers a scan (of the pushed commit).
+  pull_request:
+    branches: [master] # A PR that targets these branches triggers a scan of the tip of that PR.
+  # It is also recommended to schedule a scan for the case that CodeQL was updated and may discover new types of vulnerabilities.
+  # You should schedule a weekly scan at a random time:
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │  ┌───────────── hour (0 - 23)
+    #        │  │ ┌───────────── day of the month (1 - 31)
+    #        │  │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │  │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        │  │ │ │ │
+    #        *  * * * *
+    - cron: '40 4 * * 1'
+  # This allows you to trigger this workflow manually from GitHub:    
+  workflow_dispatch:
+
+jobs:
+  CodeQL:
+    uses: "Security-Testing/security-tools-workflows/.github/workflows/codeql.yml@main"
+    secrets: inherit
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    with:
+      languages: "java"
