@@ -56,7 +56,7 @@ class JPAODataServiceContextBuilderTest {
   private static DataSource dataSource;
 
   @BeforeAll
-  public static void classSetup() {
+  static void classSetup() {
     dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
   }
 

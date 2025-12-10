@@ -65,7 +65,7 @@ class TestCreateRequestEntity {
   protected static EdmBindingTargetInfo targetInfo;
 
   @BeforeAll
-  public static void setupClass() throws ODataException {
+  static void setupClass() throws ODataException {
     final JPAEdmMetadataPostProcessor postProcessor = mock(JPAEdmMetadataPostProcessor.class);
     targetInfo = mock(EdmBindingTargetInfo.class);
     annotationProvider = new ArrayList<>();

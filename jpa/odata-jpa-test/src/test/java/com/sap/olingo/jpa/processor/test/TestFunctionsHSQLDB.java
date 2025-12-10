@@ -33,7 +33,7 @@ class TestFunctionsHSQLDB {
   private static DataSource ds;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
 
     final Map<String, Object> properties = new HashMap<>();
 
@@ -48,7 +48,7 @@ class TestFunctionsHSQLDB {
   private CriteriaBuilder cb;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     em = emf.createEntityManager();
     cb = em.getCriteriaBuilder();
   }

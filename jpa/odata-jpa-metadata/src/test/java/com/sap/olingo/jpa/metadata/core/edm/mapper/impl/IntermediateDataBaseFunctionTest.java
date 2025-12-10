@@ -265,7 +265,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
 
     final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         function, Person.class, helper.schema);
-    assertThrows(ODataJPAModelException.class, () -> act.getEdmItem());
+    assertThrows(ODataJPAModelException.class, act::getEdmItem);
   }
 
   @Test

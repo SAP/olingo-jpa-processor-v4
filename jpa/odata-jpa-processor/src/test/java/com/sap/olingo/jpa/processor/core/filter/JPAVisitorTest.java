@@ -47,7 +47,7 @@ class JPAVisitorTest {
   private JPAOperationConverter converter;
 
   @BeforeEach
-  public void setUp() throws ODataException {
+  void setUp() throws ODataException {
     final JPAODataQueryDirectives directives = JPAODataServiceContext.with()
         .useQueryDirectives()
         .build()

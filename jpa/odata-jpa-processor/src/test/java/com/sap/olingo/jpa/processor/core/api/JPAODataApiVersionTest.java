@@ -34,7 +34,7 @@ class JPAODataApiVersionTest {
   private EntityManagerFactory emf;
 
   @BeforeAll
-  public static void classSetup() {
+  static void classSetup() {
     dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
   }
 

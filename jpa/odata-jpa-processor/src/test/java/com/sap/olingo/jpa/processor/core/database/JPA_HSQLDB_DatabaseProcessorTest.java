@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 class JPA_HSQLDB_DatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     initEach();
     oneParameterResult = "SELECT * FROM TABLE (Example(?1))";
     twoParameterResult = "SELECT * FROM TABLE (Example(?1,?2))";

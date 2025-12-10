@@ -45,7 +45,7 @@ public class TestGroupBase extends TestBase {
   }
 
   @BeforeEach
-  public void setup() throws ODataException, ODataJPAIllegalAccessException {
+  void setup() throws ODataException, ODataJPAIllegalAccessException {
     uriInfo = buildUriInfo("BusinessPartnerWithGroupss", "BusinessPartnerWithGroups");
 
     helper = new TestHelper(emf, PUNIT_NAME);
@@ -67,12 +67,12 @@ public class TestGroupBase extends TestBase {
   }
 
   protected UriInfo buildUriInfo(final String esName, final String etName) {
-    final UriInfo uriInfo = mock(UriInfo.class);
+    final UriInfo result = mock(UriInfo.class);
     final EdmEntitySet odataEs = mock(EdmEntitySet.class);
     final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
-    when(uriInfo.getUriResourceParts()).thenReturn(resources);
+    when(result.getUriResourceParts()).thenReturn(resources);
     when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
     when(esResource.getEntitySet()).thenReturn(odataEs);
     when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
@@ -82,7 +82,7 @@ public class TestGroupBase extends TestBase {
     when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);
-    return uriInfo;
+    return result;
   }
 
 }

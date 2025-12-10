@@ -52,7 +52,7 @@ class TestCriteriaBuilder {
   private CriteriaBuilder cb;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));

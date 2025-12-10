@@ -140,7 +140,7 @@ class IntermediateSchemaTest extends TestMappingRoot {
     final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaModel,
         reflections, annotationInfo);
 
-    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> schema.lazyBuildEdmItem());
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, schema::lazyBuildEdmItem);
     assertTrue(act.getCause() instanceof NullPointerException);
   }
 
@@ -156,7 +156,7 @@ class IntermediateSchemaTest extends TestMappingRoot {
     final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaModel,
         reflections, annotationInfo);
 
-    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> schema.lazyBuildEdmItem());
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, schema::lazyBuildEdmItem);
     assertNull(act.getCause());
   }
 }
