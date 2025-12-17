@@ -1281,7 +1281,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertEquals(et.getContentTypeAttributePath(), act.getContentTypeAttributePath());
     assertEquals(et.getEtagPath(), act.getEtagPath());
     assertEquals(et.getEtagValidator(), act.getEtagValidator());
-    assertEquals(et.getKey(), act.getKey());
+    assertListEquals(et.getKey(), act.getKey(), JPAAttribute.class);
     assertListEquals(et.getKeyPath(), act.getKeyPath(), JPAPath.class);
     assertEquals(et.getQueryExtension(), act.getQueryExtension());
     assertEquals(et.getSearchablePath(), act.getSearchablePath());

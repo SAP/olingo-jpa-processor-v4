@@ -6,8 +6,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
 @Entity(name = "OneToManySource")
 @Table(schema = "\"OLINGO\"", name = "\"AssociationOneToOneSource\"")
@@ -37,8 +40,17 @@ public class AssociationOneToManySource {
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "defaultSource")
   private List<AssociationOneToManyTarget> defaultMappedTarget;
 
-  /*
-   * NOT SUPPORTED:
-   * Mapped by, but target is annotated with @EdmIgnore
-   */
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "ignoreSource")
+  @EdmIgnore
+  private List<AssociationOneToManyTarget> ignoreMappedSource;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "ignoreTarget")
+  private List<AssociationOneToManyTarget> ignoreMappedTarget;
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "ignoreTarget")
+  @JoinColumn(name = "IGNORESOURCE_KEY", referencedColumnName = "key")
+  private List<AssociationOneToManyTarget> explicitColumnTarget;
+
+//  @OneToMany(fetch = FetchType.LAZY)
+//  private List<AssociationOneToManyTarget> noMappedTarget;
 }

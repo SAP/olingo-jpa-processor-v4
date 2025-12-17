@@ -156,6 +156,8 @@
         <class>com.sap.olingo.jpa.processor.core.errormodel.SingletonAsEntitySet</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.LocalDateTimeConverter</class>
 	    <class>com.sap.olingo.jpa.processor.core.errormodel.MissingCardinalityAnnotation</class>
+	    <class>com.sap.olingo.jpa.processor.core.errormodel.AssociationOneToManySourceError</class>
+	    <class>com.sap.olingo.jpa.processor.core.errormodel.AssociationOneToManyTargetError</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="eclipselink.logging.parameters" value="true" />

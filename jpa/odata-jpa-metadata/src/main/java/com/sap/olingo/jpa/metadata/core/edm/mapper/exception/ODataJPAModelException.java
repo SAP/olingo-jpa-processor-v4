@@ -91,6 +91,7 @@ public class ODataJPAModelException extends ODataJPAException {
     FILE_NOT_FOUND,
     MISSING_ONE_TO_ONE_ANNOTATION,
     ENTITY_TYPE_NOT_FOUND,
+    CYCLE_DETECTED,
 
     VERSION_ID_MISSING,
     VERSION_EMF_MISSING;

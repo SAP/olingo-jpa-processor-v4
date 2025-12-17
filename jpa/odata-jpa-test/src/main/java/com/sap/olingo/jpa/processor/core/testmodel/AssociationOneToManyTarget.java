@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+
 @Entity(name = "OneToManyTarget")
 @Table(schema = "\"OLINGO\"", name = "\"AssociationOneToManyTarget\"")
 public class AssociationOneToManyTarget {
@@ -40,4 +42,10 @@ public class AssociationOneToManyTarget {
   @ManyToOne(fetch = FetchType.LAZY)
   private AssociationOneToManySource defaultSource;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  private AssociationOneToManySource ignoreSource;
+
+  @EdmIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  private AssociationOneToManySource ignoreTarget;
 }

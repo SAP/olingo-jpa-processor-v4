@@ -14,6 +14,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelIntern
 
 class ListCacheSupplierTest {
 
+  private ListCacheSupplier<String> cycle;
+
   @Test
   void checkCacheReturnsGivenValue() throws ODataJPAModelException {
     var act = new ListCacheSupplier<>(this::supplierReturnString);
@@ -35,6 +37,12 @@ class ListCacheSupplierTest {
     assertThrows(ODataJPAModelException.class, act::get);
   }
 
+  @Test
+  void checkThrowsExceptionOnCallDuringConstruction() throws ODataJPAModelException {
+    cycle = new ListCacheSupplier<>(this::supplierCallsSupplier);
+    cycle.get();
+  }
+
   List<String> supplierReturnString() {
     return List.of("Test", "String");
   }
@@ -45,5 +53,14 @@ class ListCacheSupplierTest {
 
   List<String> supplierThrows() {
     throw new ODataJPAModelInternalException(new ODataJPAModelException(MessageKeys.DB_TYPE_NOT_DETERMINED));
+  }
+
+  List<String> supplierCallsSupplier() {
+    try {
+      cycle.get();
+    } catch (ODataJPAModelException e) {
+      assertEquals(MessageKeys.CYCLE_DETECTED.getKey(), e.getId());
+    }
+    return List.of();
   }
 }

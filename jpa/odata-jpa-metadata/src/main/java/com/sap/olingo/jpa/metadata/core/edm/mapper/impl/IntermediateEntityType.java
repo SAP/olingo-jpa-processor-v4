@@ -247,15 +247,14 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   private List<JPAAttribute> buildKeyAttributes() {
     final List<JPAAttribute> intermediateKey = new ArrayList<>(); // Cycle break
     try {
-      buildCompletePropertyMap();
-
-      addKeyAttribute(intermediateKey, Arrays.asList(this.getTypeClass().getDeclaredFields()));
+      var properties = buildPropertyList();
+      addKeyAttribute(intermediateKey, Arrays.asList(this.getTypeClass().getDeclaredFields()), properties);
 
       addKeyAttribute(intermediateKey, mappedSuperclass.stream()
           .map(ManagedType::getJavaType)
           .map(Class::getDeclaredFields)
           .flatMap(Arrays::stream)
-          .toList());
+          .toList(), properties);
 
       final IntermediateStructuredType<? super T> type = getBaseType();
       if (type != null) {
@@ -725,10 +724,11 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return mappedSuperclass;
   }
 
-  private void addKeyAttribute(final List<JPAAttribute> intermediateKey, final List<Field> keyFields)
+  private void addKeyAttribute(final List<JPAAttribute> intermediateKey, final List<Field> keyFields,
+      Map<String, IntermediateProperty> properties)
       throws ODataJPAModelException {
     for (final Field candidate : keyFields) {
-      final JPAAttribute attribute = this.getDeclaredPropertiesMap().get(candidate.getName());
+      final JPAAttribute attribute = properties.get(candidate.getName());
       if (attribute != null && attribute.isKey()) {
         if (attribute.isComplex()) {
           intermediateKey.addAll(buildEmbeddedIdKey(attribute));

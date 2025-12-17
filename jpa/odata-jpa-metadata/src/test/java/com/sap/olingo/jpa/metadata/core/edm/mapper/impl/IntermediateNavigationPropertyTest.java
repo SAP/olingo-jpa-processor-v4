@@ -61,10 +61,12 @@ import com.sap.olingo.jpa.metadata.odata.v4.core.terms.ExampleProperties;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Terms;
 import com.sap.olingo.jpa.metadata.odata.v4.general.Aliases;
 import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCoreAnnotationsProvider;
+import com.sap.olingo.jpa.processor.core.errormodel.AssociationOneToManySourceError;
 import com.sap.olingo.jpa.processor.core.errormodel.MissingCardinalityAnnotation;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent;
+import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManySource;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManyTarget;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneTarget;
@@ -814,7 +816,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkManyTooMappedWithDefaultColumnName() throws ODataJPAModelException {
+  void checkManyToOneMappedWithDefaultColumnName() throws ODataJPAModelException {
     final IntermediateStructuredType<AssociationOneToManyTarget> et = schema.getEntityType(
         AssociationOneToManyTarget.class);
     final Attribute<?, ?> attribute = helper.getAttribute(helper.getEntityType(AssociationOneToManyTarget.class),
@@ -825,6 +827,74 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     assertEquals(1, act.size());
     assertEquals("DEFAULTSOURCE_KEY", act.get(0).getName());
     assertEquals("key", act.get(0).getReferencedColumnName());
+  }
+
+  @Test
+  void checkOneToManyMappedSourceIgnoredSource() throws ODataJPAModelException {
+    final IntermediateStructuredType<AssociationOneToManySource> et = schema.getEntityType(
+        AssociationOneToManySource.class);
+    final Attribute<?, ?> attribute = helper.getCollectionAttribute(helper.getEntityType(
+        AssociationOneToManySource.class), "ignoreMappedSource");
+    final IntermediateNavigationProperty<AssociationOneToManySource> property =
+        new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), et, attribute, schema);
+    final List<? extends JPAJoinColumn> act = property.getJoinColumns();
+    assertEquals(1, act.size());
+    assertEquals("IGNORESOURCE_KEY", act.get(0).getReferencedColumnName());
+    assertEquals("key", act.get(0).getName());
+  }
+
+  @Test
+  void checkOneToManyMappedSourceIgnoredTarget() throws ODataJPAModelException {
+    final IntermediateStructuredType<AssociationOneToManyTarget> et = schema.getEntityType(
+        AssociationOneToManyTarget.class);
+    final Attribute<?, ?> attribute = helper.getAttribute(helper.getEntityType(
+        AssociationOneToManyTarget.class), "ignoreSource");
+    final IntermediateNavigationProperty<AssociationOneToManyTarget> property =
+        new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), et, attribute, schema);
+    final List<? extends JPAJoinColumn> act = property.getJoinColumns();
+    assertEquals(1, act.size());
+    assertEquals("key", act.get(0).getReferencedColumnName());
+    assertEquals("IGNORESOURCE_KEY", act.get(0).getName());
+  }
+
+  @Test
+  void checkOneToManyMappedTargetIgnoredSource() throws ODataJPAModelException {
+    final IntermediateStructuredType<AssociationOneToManySource> et = schema.getEntityType(
+        AssociationOneToManySource.class);
+    final Attribute<?, ?> attribute = helper.getCollectionAttribute(helper.getEntityType(
+        AssociationOneToManySource.class), "ignoreMappedTarget");
+    final IntermediateNavigationProperty<AssociationOneToManySource> property =
+        new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), et, attribute, schema);
+    final List<? extends JPAJoinColumn> act = property.getJoinColumns();
+    assertEquals(1, act.size());
+    assertEquals("IGNORETARGET_KEY", act.get(0).getReferencedColumnName());
+    assertEquals("key", act.get(0).getName());
+  }
+
+  @Test
+  void checkOneToManyMappedTargetIgnoredTarget() throws ODataJPAModelException {
+    final IntermediateStructuredType<AssociationOneToManyTarget> et = schema.getEntityType(
+        AssociationOneToManyTarget.class);
+    final Attribute<?, ?> attribute = helper.getAttribute(helper.getEntityType(
+        AssociationOneToManyTarget.class), "ignoreTarget");
+    final IntermediateNavigationProperty<AssociationOneToManyTarget> property =
+        new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), et, attribute, schema);
+    final List<? extends JPAJoinColumn> act = property.getJoinColumns();
+    assertEquals(1, act.size());
+    assertEquals("key", act.get(0).getReferencedColumnName());
+    assertEquals("IGNORETARGET_KEY", act.get(0).getName());
+  }
+
+  @Test
+  void checkOneToManyThrowsExceptionOnMissingMappedBy() throws ODataJPAModelException {
+    final IntermediateStructuredType<AssociationOneToManySourceError> et = errorSchema.getEntityType(
+        AssociationOneToManySourceError.class);
+    final Attribute<?, ?> attribute = helper.getCollectionAttribute(errorHelper.getEntityType(
+        AssociationOneToManySourceError.class), "noMappedTarget");
+    final IntermediateNavigationProperty<AssociationOneToManySourceError> property =
+        new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(ERROR_PUNIT), et, attribute, errorSchema);
+    var act = assertThrows(ODataJPAModelException.class, property::getEdmItem);
+    assertEquals(MessageKeys.CYCLE_DETECTED.getKey(), act.getId());
   }
 
   @Test

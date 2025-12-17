@@ -152,7 +152,12 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
 
   @Override
   public JPAAssociationAttribute getAssociation(final String internalName) throws ODataJPAModelException {
-    for (final JPAAttribute attribute : this.getAssociations()) {
+    return getAssociation(internalName, true);
+  }
+
+  JPAAssociationAttribute getAssociation(final String internalName, final boolean respectIgnore)
+      throws ODataJPAModelException {
+    for (final JPAAttribute attribute : this.getAssociations(respectIgnore)) {
       if (attribute.getInternalName().equals(internalName))
         return (JPAAssociationAttribute) attribute;
     }
@@ -520,12 +525,16 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   }
 
   List<JPAAttribute> getAssociations() throws ODataJPAModelException {
+    return getAssociations(true);
+  }
+
+  List<JPAAttribute> getAssociations(final boolean respectIgnore) throws ODataJPAModelException {
 
     final List<JPAAttribute> jpaAttributes = new ArrayList<>();
     for (final Entry<String, IntermediateNavigationProperty<?>> naviProperty : getDeclaredNavigationPropertiesMap()
         .entrySet()) {
       final IntermediateNavigationProperty<?> property = naviProperty.getValue();
-      if (!property.ignore())
+      if (!property.ignore() || !respectIgnore)
         jpaAttributes.add(property);
     }
     final IntermediateStructuredType<? super T> baseType = getBaseType();
@@ -559,7 +568,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
 
   List<IntermediateJoinColumn> getJoinColumns(final String relationshipName) throws ODataJPAModelException {
 
-    final JPAAssociationAttribute association = this.getAssociation(relationshipName);
+    final JPAAssociationAttribute association = this.getAssociation(relationshipName, false);
     if (association != null) {
       return ((IntermediateNavigationProperty<?>) association).getJoinColumns();
     }

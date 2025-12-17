@@ -172,17 +172,11 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
 
   @Override
   public JPAStructuredType getStructuredType() throws ODataJPAModelException {
-    if (edmNavigationProperty == null) {
-      lazyBuildEdmItem();
-    }
     return sourceType;
   }
 
   @Override
   public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
-    if (edmNavigationProperty == null) {
-      lazyBuildEdmItem();
-    }
     return targetType;
   }
 
@@ -367,7 +361,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
         final var isSourceOne = !mappedBy.isPresent();
         if (mappedBy.isPresent()) {
           joinTable = ((IntermediateJoinTable) ((IntermediateNavigationProperty<?>) targetType.getAssociation(
-              mappedBy.get())).getJoinTable());
+              mappedBy.get(), false)).getJoinTable());
           if (joinTable == null)
             columns = buildJoinColumnsMapped(mappedBy.get());
           else
@@ -572,7 +566,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
       // at the BusinessPartner and at the Roles. JPA only defines the
       // "mappedBy" at the Parent.
       if (mappedBy.isPresent()) {
-        partner = targetType.getAssociation(mappedBy.get());
+        partner = targetType.getAssociation(mappedBy.get(), false);
         edmNavigationProperty.setPartner(partner.getExternalName());
       } else {
         partner = targetType.getCorrespondingAssociation(sourceType, getInternalName());
