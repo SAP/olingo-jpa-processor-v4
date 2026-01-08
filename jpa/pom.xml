@@ -290,6 +290,12 @@
                 <artifactId>archunit-junit5</artifactId>
                 <version>1.4.1</version>
             </dependency>
+            <!-- fix CVE-2024-47554 -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.14.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
