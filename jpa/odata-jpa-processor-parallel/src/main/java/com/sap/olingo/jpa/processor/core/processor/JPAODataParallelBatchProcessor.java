@@ -1,7 +1,5 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPABatchException.MessageKeys.UNSUPPORTED_BATCH_PARTS;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -121,6 +119,6 @@ public class JPAODataParallelBatchProcessor extends JPAODataBatchProcessor {
 
   private void checkPartConsistency(final BatchRequestPart part) throws ODataJPABatchException {
     if (part.getRequests().size() > 1 && !part.isChangeSet())
-      throw new ODataJPABatchException(UNSUPPORTED_BATCH_PARTS, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPABatchException(HttpStatusCode.INTERNAL_SERVER_ERROR);
   }
 }

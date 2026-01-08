@@ -246,7 +246,7 @@ class TestJPAExpandQueryCreateResult extends TestBase {
 
     final List<Tuple> result = new ArrayList<>();
     final HashMap<String, Object> oneResult = new HashMap<>();
-    oneResult.put("SupportEngineers" + JPAExpandJoinQuery.ALIAS_SEPARATOR + "ID", "2");
+    oneResult.put("SupportEngineers" + JPAAbstractJoinQuery.ALIAS_SEPARATOR + "ID", "2");
     oneResult.put("ID", "97");
     final Tuple tuple = new TupleDouble(oneResult);
     result.add(tuple);

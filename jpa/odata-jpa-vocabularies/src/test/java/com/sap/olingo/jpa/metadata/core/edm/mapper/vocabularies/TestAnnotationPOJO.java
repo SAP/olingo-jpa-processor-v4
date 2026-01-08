@@ -8,39 +8,38 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 class TestAnnotationPOJO {
   private final String terms =
-      "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">"
-          + "<edmx:Reference Uri=\"http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml\">"
-          + "<edmx:Include Alias=\"Core\" Namespace=\"Org.OData.Core.V1\" />"
-          + "</edmx:Reference>"
-          + "<edmx:DataServices>"
-          + "<Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Namespace=\"Org.OData.Measures.V1\" Alias=\"Measures\"> "
-          + "<Annotation Term=\"Core.Description\"> "
-          + "<String>Terms describing monetary amounts and measured quantities</String> "
-          + "</Annotation> "
-          + "<Term Name=\"ISOCurrency\" Type=\"Edm.String\" AppliesTo=\"Property\"> "
-          + "<Annotation Term=\"Core.Description\" String=\"The currency for this monetary amount as an ISO 4217 currency code\" /> "
-          + "</Term> "
-          + "<Term Name=\"Scale\" Type=\"Edm.Byte\" AppliesTo=\"Property\"> "
-          + "<Annotation Term=\"Core.Description\" "
-          + "String=\"The number of significant decimal places in the scale part (less than or equal to the number declared in the Scale facet)\" /> "
-          + "<Annotation Term=\"Core.RequiresType\" String=\"Edm.Decimal\" /> "
-          + "</Term> "
-          + "<Term Name=\"Unit\" Type=\"Edm.String\" AppliesTo=\"Property\"> "
-          + "<Annotation Term=\"Core.Description\" String=\"The unit of measure for this measured quantity, e.g. cm for centimeters or % for percentages\" /> "
-          + "</Term> "
-          + "</Schema>   "
-          + "</edmx:DataServices>"
-          + "</edmx:Edmx>";
+      """
+          <edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">\
+          <edmx:Reference Uri="http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml">\
+          <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1" />\
+          </edmx:Reference>\
+          <edmx:DataServices>\
+          <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Measures.V1" Alias="Measures"> \
+          <Annotation Term="Core.Description"> \
+          <String>Terms describing monetary amounts and measured quantities</String> \
+          </Annotation> \
+          <Term Name="ISOCurrency" Type="Edm.String" AppliesTo="Property"> \
+          <Annotation Term="Core.Description" String="The currency for this monetary amount as an ISO 4217 currency code" /> \
+          </Term> \
+          <Term Name="Scale" Type="Edm.Byte" AppliesTo="Property"> \
+          <Annotation Term="Core.Description" \
+          String="The number of significant decimal places in the scale part (less than or equal to the number declared in the Scale facet)" /> \
+          <Annotation Term="Core.RequiresType" String="Edm.Decimal" /> \
+          </Term> \
+          <Term Name="Unit" Type="Edm.String" AppliesTo="Property"> \
+          <Annotation Term="Core.Description" String="The unit of measure for this measured quantity, e.g. cm for centimeters or % for percentages" /> \
+          </Term> \
+          </Schema>   \
+          </edmx:DataServices>\
+          </edmx:Edmx>""";
 
   @Test
-  void TestSimpleXMLConverted() throws JsonParseException, JsonMappingException, IOException {
+  void TestSimpleXMLConverted() throws IOException {
     final JacksonXmlModule module = new JacksonXmlModule();
     module.setDefaultUseWrapper(false);
     final XmlMapper xmlMapper = new XmlMapper(module);

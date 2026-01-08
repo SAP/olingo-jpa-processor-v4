@@ -7,7 +7,6 @@ import java.util.Map;
 
 import jakarta.persistence.Tuple;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -19,10 +18,12 @@ import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollection;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 
 abstract class JPANavigationLinkResult extends JPACreateResult implements JPAConvertibleResult {
 
-  Map<String, EntityCollection> odataResult;
+  Map<String, JPAEntityCollectionExtension> odataResult;
   final Map<String, List<Tuple>> result;
 
   JPANavigationLinkResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
@@ -32,24 +33,25 @@ abstract class JPANavigationLinkResult extends JPACreateResult implements JPACon
   }
 
   @Override
-  public Map<String, EntityCollection> asEntityCollection(final JPAResultConverter converter)
+  public Map<String, JPAEntityCollectionExtension> asEntityCollection(final JPAResultConverter converter)
       throws ODataApplicationException {
     convert(converter);
     return odataResult;
   }
 
   @Override
-  public EntityCollection getEntityCollection(final String key, final JPAResultConverter converter,
-      final List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException {
+  public JPAEntityCollectionExtension getEntityCollection(final String key, final JPAResultConverter converter,
+      final JPAAssociationPath association, final List<JPAODataPageExpandInfo> expandInfo)
+      throws ODataApplicationException {
     if (odataResult == null)
       asEntityCollection(converter);
-    return odataResult.containsKey(key) ? odataResult.get(key) : new EntityCollection();
+    return odataResult.containsKey(key) ? odataResult.get(key) : new JPAEntityCollection();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public void convert(final JPAResultConverter converter) throws ODataApplicationException {
-    odataResult = (Map<String, EntityCollection>) converter.getResult(this, Collections.emptySet());
+    odataResult = (Map<String, JPAEntityCollectionExtension>) converter.getResult(this, Collections.emptySet());
   }
 
   @Override
@@ -61,6 +63,11 @@ abstract class JPANavigationLinkResult extends JPACreateResult implements JPACon
   @Override
   public List<Tuple> getResult(final String key) {
     return result.get(key);
+  }
+
+  @Override
+  public List<Tuple> removeResult(final String key) {
+    return result.put(key, null);
   }
 
   @Override

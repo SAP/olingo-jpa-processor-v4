@@ -28,7 +28,7 @@ class JPAArithmeticOperatorTest {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     converter = mock(JPAOperationConverter.class);
     cb = mock(CriteriaBuilder.class);
     expression = mock(Path.class);
@@ -158,7 +158,7 @@ class JPAArithmeticOperatorTest {
   }
 
   @Test
-  void testGetMemberMemberGetRightAsNumber_Exception() throws ODataApplicationException {
+  void testGetMemberMemberGetRightAsNumber_Exception() {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -172,7 +172,7 @@ class JPAArithmeticOperatorTest {
   }
 
   @Test
-  void testGetBooleanMemberGetRightAsNumber_Exception() throws ODataApplicationException {
+  void testGetBooleanMemberGetRightAsNumber_Exception() {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPABooleanOperatorImp left = mock(JPABooleanOperatorImp.class);
 
@@ -182,7 +182,7 @@ class JPAArithmeticOperatorTest {
   }
 
   @Test
-  void testGetMemberBooleanGetRightAsNumber_Exception() throws ODataApplicationException {
+  void testGetMemberBooleanGetRightAsNumber_Exception() {
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
     final JPABooleanOperatorImp right = mock(JPABooleanOperatorImp.class);
 

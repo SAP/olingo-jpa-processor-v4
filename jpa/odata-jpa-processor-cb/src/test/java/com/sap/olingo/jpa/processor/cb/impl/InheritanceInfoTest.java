@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.testobjects.SubJoined;
 import com.sap.olingo.jpa.processor.cb.testobjects.SubTablePerClass;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
@@ -22,7 +21,7 @@ class InheritanceInfoTest {
   private JPAEntityType et;
 
   @BeforeEach
-  void setup() throws ODataJPAModelException {
+  void setup() {
     et = mock(JPAEntityType.class);
   }
 

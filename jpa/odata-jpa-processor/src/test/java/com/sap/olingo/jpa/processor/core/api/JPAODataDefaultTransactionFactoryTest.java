@@ -73,7 +73,7 @@ class JPAODataDefaultTransactionFactoryTest {
   }
 
   @Test
-  void testIsActiveReturnFalseIfNoTransactionHasBeenCreated() throws ODataJPATransactionException {
+  void testIsActiveReturnFalseIfNoTransactionHasBeenCreated() {
 
     cut = new JPAODataDefaultTransactionFactory(em);
     assertFalse(cut.hasActiveTransaction());
@@ -116,8 +116,7 @@ class JPAODataDefaultTransactionFactoryTest {
   }
 
   @Test
-  void testIsActiveReturnTrueNotCreatedButActiveTransactionThrowsException()
-      throws ODataJPATransactionException {
+  void testIsActiveReturnTrueNotCreatedButActiveTransactionThrowsException() {
 
     when(transaction.isActive()).thenReturn(true);
     cut = new JPAODataDefaultTransactionFactory(em);
@@ -139,7 +138,7 @@ class JPAODataDefaultTransactionFactoryTest {
     doThrow(RuntimeException.class).when(transaction).commit();
     cut = new JPAODataDefaultTransactionFactory(em);
     final JPAODataTransaction act = cut.createTransaction();
-    assertThrows(ODataJPATransactionException.class, () -> act.commit());
+    assertThrows(ODataJPATransactionException.class, act::commit);
   }
 
   @Test
@@ -157,7 +156,7 @@ class JPAODataDefaultTransactionFactoryTest {
     doThrow(RuntimeException.class).when(transaction).rollback();
     cut = new JPAODataDefaultTransactionFactory(em);
     final JPAODataTransaction act = cut.createTransaction();
-    assertThrows(ODataJPATransactionException.class, () -> act.rollback());
+    assertThrows(ODataJPATransactionException.class, act::rollback);
   }
 
   @Test
@@ -175,6 +174,6 @@ class JPAODataDefaultTransactionFactoryTest {
     when(transaction.getRollbackOnly()).thenThrow(RuntimeException.class);
     cut = new JPAODataDefaultTransactionFactory(em);
     final JPAODataTransaction act = cut.createTransaction();
-    assertThrows(ODataJPATransactionException.class, () -> act.rollbackOnly());
+    assertThrows(ODataJPATransactionException.class, act::rollbackOnly);
   }
 }

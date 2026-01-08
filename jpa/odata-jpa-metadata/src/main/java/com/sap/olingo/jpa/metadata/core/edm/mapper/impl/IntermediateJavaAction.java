@@ -184,6 +184,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       edmAction.setParameters(returnNullIfEmpty(determineEdmInputParameter()));
       edmAction.setReturnType(determineEdmResultType(jpaAction.returnType(), javaAction));
       edmAction.setEntitySetPath(setEntitySetPath());
+      determineUserGroups(this.jpaAction.visibleFor());
     }
   }
 

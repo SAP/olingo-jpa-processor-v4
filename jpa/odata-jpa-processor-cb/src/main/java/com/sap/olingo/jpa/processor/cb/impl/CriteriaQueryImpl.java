@@ -39,7 +39,7 @@ import com.sap.olingo.jpa.processor.cb.joiner.ExpressionCollector;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
-class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible {
+class CriteriaQueryImpl<T> extends Pageable implements ProcessorCriteriaQuery<T>, SqlConvertible {
   private final Class<T> resultType;
   private final Set<FromImpl<?, ?>> roots = new HashSet<>();
   private final JPAServiceDocument sd;
@@ -51,23 +51,17 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
   private Optional<List<Order>> orderList;
   private Optional<List<Expression<?>>> groupBy;
   private Optional<Expression<Boolean>> having;
-  private Optional<Integer> maxResults;
-  private Optional<Integer> firstResult;
   private final CriteriaBuilder cb;
-  private final ProcessorSqlPatternProvider sqlPattern;
 
   CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final AliasBuilder ab,
       final CriteriaBuilder cb, final ProcessorSqlPatternProvider sqlPattern) {
-    super();
+    super(sqlPattern);
     this.resultType = clazz;
     this.sd = sd;
-    this.sqlPattern = sqlPattern;
     this.where = Optional.empty();
     this.orderList = Optional.empty();
     this.groupBy = Optional.empty();
     this.having = Optional.empty();
-    this.firstResult = Optional.empty();
-    this.maxResults = Optional.empty();
     this.aliasBuilder = ab;
     this.cb = cb;
     this.selectAliasBuilder = new AliasBuilder("S");
@@ -115,17 +109,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
           .append(" ");
       ((SqlConvertible) e).asSQL(statement);
     });
-    if (sqlPattern.maxResultsFirst()) {
-      maxResults.ifPresent(limit -> statement.append(" ")
-          .append(SqlPagingFunctions.LIMIT.toString(sqlPattern, limit)));
-      firstResult.ifPresent(offset -> statement.append(" ")
-          .append(SqlPagingFunctions.OFFSET.toString(sqlPattern, offset)));
-    } else {
-      firstResult.ifPresent(offset -> statement.append(" ")
-          .append(SqlPagingFunctions.OFFSET.toString(sqlPattern, offset)));
-      maxResults.ifPresent(limit -> statement.append(" ")
-          .append(SqlPagingFunctions.LIMIT.toString(sqlPattern, limit)));
-    }
+    paging(statement);
     return statement;
   }
 
@@ -473,12 +457,12 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public int getFirstResult() {
-    return firstResult.orElse(0);
+    return super.getStartResult();
   }
 
   @Override
   public void setFirstResult(final int startPosition) {
-    firstResult = Optional.of(startPosition);
+    super.setStartResult(startPosition);
   }
 
   /**
@@ -490,11 +474,11 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public int getMaxResults() {
-    return maxResults.orElse(Integer.MAX_VALUE);
+    return super.getMaxResults();
   }
 
   @Override
   public void setMaxResults(final int maxResult) {
-    this.maxResults = Optional.of(maxResult);
+    super.setNumberOfResults(maxResult);
   }
 }

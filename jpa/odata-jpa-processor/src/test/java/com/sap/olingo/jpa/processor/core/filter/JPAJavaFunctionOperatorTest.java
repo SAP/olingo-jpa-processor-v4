@@ -48,7 +48,7 @@ class JPAJavaFunctionOperatorTest {
   private List<UriParameter> uriParameters;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     jpaVisitor = mock(JPAVisitor.class);
     jpaFunction = mock(JPAJavaFunction.class);
     resource = mock(UriResourceFunction.class);

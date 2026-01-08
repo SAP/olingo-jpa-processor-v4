@@ -106,6 +106,7 @@ public final class JPAODataServiceContext implements JPAODataSessionContextAcces
     return operationConverter;
   }
 
+  @Override
   public JPAODataPagingProvider getPagingProvider() {
     return pagingProvider;
   }

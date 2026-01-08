@@ -15,6 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
@@ -29,7 +30,8 @@ public class ExampleJavaFunctions implements ODataFunction {
     super();
   }
 
-  @EdmFunction(name = "Add", isBound = true, hasFunctionImport = true, returnType = @ReturnType)
+  @EdmFunction(name = "Add", isBound = true, hasFunctionImport = true, returnType = @ReturnType,
+      visibleFor = @EdmVisibleFor({ "Person", "Company" }))
   public Integer sum(
       @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {
     return a + b;

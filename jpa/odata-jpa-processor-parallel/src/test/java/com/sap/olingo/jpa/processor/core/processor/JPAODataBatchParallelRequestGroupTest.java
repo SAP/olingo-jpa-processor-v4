@@ -10,8 +10,6 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpMethod;
-import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.deserializer.batch.BatchRequestPart;
@@ -29,7 +27,7 @@ class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstractRequest
 
   @Override
   @BeforeEach
-  void setup() throws ODataApplicationException, ODataLibraryException {
+  void setup() {
     super.setup();
     cut = new JPAODataBatchParallelRequestGroup(processor, groupElements);
   }
@@ -110,7 +108,7 @@ class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstractRequest
   }
 
   @Test
-  void testExecuteRethrowsException() throws ODataApplicationException, ODataLibraryException {
+  void testExecuteRethrowsException() {
     final BatchRequestPart part = mock(BatchRequestPart.class);
     final List<ODataRequest> post = new ArrayList<>(1);
     final ODataRequest request = mock(ODataRequest.class);

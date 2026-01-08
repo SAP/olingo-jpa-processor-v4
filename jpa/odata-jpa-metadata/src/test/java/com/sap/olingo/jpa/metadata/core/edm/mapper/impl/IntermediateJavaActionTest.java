@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testaction.ActionWithOverload;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testaction.Actions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaActions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;
@@ -41,13 +43,6 @@ class IntermediateJavaActionTest extends TestMappingRoot {
 
   @Test
   void checkInternalNameEqualMethodName() throws ODataJPAModelException {
-    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
-
-    assertEquals("unboundWithImport", act.getInternalName());
-  }
-
-  @Test
-  void checkInternalNameGiven() throws ODataJPAModelException {
     final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertEquals("unboundWithImport", act.getInternalName());
@@ -125,7 +120,7 @@ class IntermediateJavaActionTest extends TestMappingRoot {
   void checkEmptyParameterNameThrowsException() throws ODataJPAModelException {
     final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "nameEmpty");
 
-    assertThrows(ODataJPAModelException.class, () -> act.getParameter());
+    assertThrows(ODataJPAModelException.class, act::getParameter);
   }
 
   @Test
@@ -287,8 +282,8 @@ class IntermediateJavaActionTest extends TestMappingRoot {
   void checkProvidesParameterByDeclared() throws ODataJPAModelException, NoSuchMethodException,
       SecurityException {
 
-    final Method m = ExampleJavaActions.class.getMethod("unboundWithImport", short.class, int.class);
-    final Parameter[] params = m.getParameters();
+    final Method method = ExampleJavaActions.class.getMethod("unboundWithImport", short.class, int.class);
+    final Parameter[] params = method.getParameters();
     final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
     assertNotNull(act.getParameter(params[0]));
     assertEquals("A", act.getParameter(params[0]).getName());
@@ -312,14 +307,14 @@ class IntermediateJavaActionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExceptionOnPrivateConstructor() throws ODataJPAModelException {
+  void checkThrowsExceptionOnPrivateConstructor() {
     assertThrows(ODataJPAModelException.class, () -> {
       createAction(ExampleJavaPrivateConstructor.class, "mul");
     });
   }
 
   @Test
-  void checkThrowsExceptionOnNoConstructorAsSpecified() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNoConstructorAsSpecified() {
     assertThrows(ODataJPAModelException.class, () -> {
       createAction(ExampleJavaTwoParameterConstructor.class, "mul");
     });
@@ -338,7 +333,7 @@ class IntermediateJavaActionTest extends TestMappingRoot {
         "errorPrimitiveTypeWithEntitySetPath")
         .map(name -> createActionNoThrow(clazz, name))
         .map(function -> dynamicTest(function.internalName,
-            () -> assertThrows(ODataJPAModelException.class, () -> function.getEdmItem())
+            () -> assertThrows(ODataJPAModelException.class, function::getEdmItem)
 
         ));
   }
@@ -370,6 +365,18 @@ class IntermediateJavaActionTest extends TestMappingRoot {
     final IntermediateJavaAction act = createAction(ActionWithOverload.class, "baseAction");
     assertNotNull(act.getConstructor());
     assertEquals(3, act.getConstructor().getParameterCount());
+  }
+
+  @Test
+  void checkGetGroupsReturnsGiven() throws ODataJPAModelException {
+    final IntermediateJavaAction act = createAction(Actions.class, "protectedAction");
+    assertArrayEquals(new String[] { "Person" }, act.getUserGroups().toArray(new String[] {}));
+  }
+
+  @Test
+  void checkGetGroupsReturnsEmptyListIfNoProvided() throws ODataJPAModelException {
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEmbeddable");
+    assertTrue(act.getUserGroups().isEmpty());
   }
 
   private IntermediateJavaAction createAction(final Class<? extends ODataAction> clazz, final String method)

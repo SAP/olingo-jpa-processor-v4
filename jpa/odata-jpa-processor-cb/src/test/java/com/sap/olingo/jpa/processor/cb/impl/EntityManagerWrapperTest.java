@@ -246,7 +246,7 @@ class EntityManagerWrapperTest {
   @ParameterizedTest
   @MethodSource("notImplementedMethod")
   void testThrowsNotImplemented(final Method m, final Object p1, final Object p2)
-      throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+      throws IllegalArgumentException {
 
     Exception e = null;
     if (m.getParameterCount() == 1) {

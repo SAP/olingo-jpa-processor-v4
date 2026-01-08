@@ -80,6 +80,11 @@ abstract class JPACreateResult implements JPAExpandResult {
     return null;
   }
 
+  @Override
+  public Collection<JPAPath> getRequestedSelection() {
+    return List.of();
+  }
+
   protected void addValueToTuple(final JPATuple tuple, final JPAPath path, final int index, final Object value)
       throws ODataJPAProcessorException {
     if (path.getPath().get(index) instanceof final JPADescriptionAttribute descriptionAttribute) {

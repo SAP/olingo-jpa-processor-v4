@@ -93,7 +93,7 @@ class CollectionJoinImplTest {
 
   @SuppressWarnings("unlikely-arg-type")
   @Test
-  void testEquals() throws ODataJPAModelException {
+  void testEquals() {
 
     assertTrue(cut.equals(cut)); // NOSONAR
     assertFalse(cut.equals(null));// NOSONAR

@@ -17,6 +17,7 @@ public class InhouseAddressWithProtection {
 
   @Column(name = "\"Floor\"")
   private Short floor;
+
   @Column(name = "\"RoomNumber\"")
   private Integer roomNumber;
 

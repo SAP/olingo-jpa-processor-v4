@@ -37,9 +37,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAInheritanceType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
@@ -59,12 +61,14 @@ import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
  */
 @SuppressWarnings("hiding")
 class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
+
   private static final Log LOGGER = LogFactory.getLog(FromImpl.class);
   private final Set<Join<X, ?>> joins;
   private final Set<Fetch<X, ?>> fetches;
   private final AliasBuilder aliasBuilder;
   private InheritanceInfo inInfo;
   private final CriteriaBuilder cb;
+  Optional<? extends AbstractJoinImp<X, ?>> inheritanceJoin;
 
   FromImpl(final JPAEntityType type, final AliasBuilder aliasBuilder, final CriteriaBuilder cb) {
     this(type, null, aliasBuilder, cb);
@@ -77,6 +81,36 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     this.aliasBuilder = aliasBuilder;
     this.cb = cb;
     this.inInfo = new InheritanceInfo(type);
+    this.inheritanceJoin = addInheritanceJoin();
+    this.inheritanceJoin.ifPresent(joins::add);
+  }
+
+  private Optional<InheritanceJoin<X, ?>> addInheritanceJoin() {
+    var strategy = inInfo.getInheritanceType();
+    try {
+      if (st != null
+          && strategy.isPresent()
+          && strategy.get() == InheritanceType.JOINED
+          && st.getBaseType() != null) {
+        return Optional.of(new InheritanceJoin<>(st, this, aliasBuilder, cb));
+      }
+    } catch (ODataJPAModelException e) {
+      throw new InternalServerError(e);
+    }
+    return Optional.empty();
+  }
+
+  private Optional<InheritanceJoinReversed<X, ?>> addReverseInheritanceJoin(JPAEntityType target) {
+    try {
+      if (st != null
+          && target.getInheritanceInformation().getInheritanceType() == JPAInheritanceType.JOIN_TABLE
+          && target.getBaseType() != null) {
+        return Optional.of(new InheritanceJoinReversed<>(target, st, this, aliasBuilder, cb));
+      }
+    } catch (ODataJPAModelException e) {
+      throw new InternalServerError(e);
+    }
+    return Optional.empty();
   }
 
   /**
@@ -95,8 +129,15 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
       if (target == null)
         throw new IllegalArgumentException(type.getName() + " is unknown");
       if (isSubtype(type)) {
-        st = target;
-        inInfo = new InheritanceInfo(target);
+        if (target.getInheritanceInformation().getInheritanceType() == JPAInheritanceType.JOIN_TABLE) {
+          inheritanceJoin = addReverseInheritanceJoin(target);
+          inheritanceJoin.ifPresent(joins::add);
+          return (Expression<X>) inheritanceJoin.map(join -> (InheritanceJoinReversed<?, ?>) join)
+              .map(InheritanceJoinReversed::getTarget).orElse((From<Object, Object>) this);
+        } else {
+          st = target;
+          inInfo = new InheritanceInfo(target);
+        }
       }
       return (Expression<X>) this;
     } catch (final ODataJPAModelException e) {
@@ -109,6 +150,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     statement.append(st.getTableName());
     tableAlias.ifPresent(alias -> statement.append(" ").append(alias));
     statement.append(joins.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " ")));
+
     return statement;
   }
 
@@ -525,29 +567,93 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
 
   Expression<Boolean> createInheritanceWhere() {
     if (inInfo.getInheritanceType().filter(type -> type == InheritanceType.SINGLE_TABLE).isPresent()) {
-      final Optional<String> columnName = inInfo.getDiscriminatorColumn();
-      if (!columnName.isPresent())
-        throw new IllegalStateException("DiscriminatorColumn annotation missing at " + st.getTypeClass().getSuperclass()
-            .getCanonicalName());
-      Path<?> columnPath = null;
-      try {
-        for (final JPAPath a : st.getPathList()) {
-          if (a.getDBFieldName().equals(columnName.get()))
-            columnPath = new PathImpl<>(a, parent, st, tableAlias);
-        }
-      } catch (final ODataJPAModelException e) {
-        throw new IllegalStateException("Internal server error", e);
-      }
-
-      final DiscriminatorValue value = st.getTypeClass().getDeclaredAnnotation(DiscriminatorValue.class);
-      if (value == null)
-        throw new IllegalStateException("DiscriminatorValue annotation missing at " + st.getTypeClass()
-            .getCanonicalName());
-      return cb.equal(columnPath, value.value());
+      return createInheritanceWhereSingleTable();
     } else if (inInfo.getInheritanceType().filter(type -> type == InheritanceType.JOINED).isPresent()) {
-      LOGGER.warn("Unsupported inheritance type " + inInfo.getInheritanceType() + " not supported");
+      return createInheritanceWhereJoined();
     }
     return null;
+  }
+
+  private final Expression<Boolean> createInheritanceWhereJoined() {
+    // attribute from base, value from leave
+    final Optional<String> columnName = inInfo.getDiscriminatorColumn();
+//    if (!columnName.isPresent()) {
+//      LOGGER.warn("Now discriminator column found at " + inInfo.getBaseClass().map(Class::getCanonicalName).orElse(
+//          "?"));
+//    } else {
+//      if (!(this instanceof AbstractJoinImp)) {
+//        var root = getInheritanceRoot();
+//        final List<JPAPath> pathList = getInheritanceRootPathList(root);
+//        final Path<?> columnPath = getDiscriminatorColumn(columnName, root, pathList);
+//        final DiscriminatorValue value = st.getTypeClass().getDeclaredAnnotation(DiscriminatorValue.class);
+//        if (value == null || columnPath == null)
+//          throw new IllegalStateException("DiscriminatorValue annotation missing at " + st.getTypeClass()
+//              .getCanonicalName());
+//        return cb.equal(columnPath, value.value());
+//      }
+//    }
+    if (columnName.isPresent()) {
+      LOGGER.warn("Discriminator column found at " +
+          inInfo.getBaseClass().map(Class::getCanonicalName).orElse("?"));
+      LOGGER.warn("Discriminator columns are ignored in case of inheritance type JOINED");
+    }
+    return null;
+  }
+
+  private final Path<?> getDiscriminatorColumn(final Optional<String> columnName, Optional<FromImpl<?, ?>> root,
+      final List<JPAPath> pathList) {
+    if (columnName.isPresent() && root.isPresent()) {
+      PathImpl<?> parent = root.get();
+      Path<?> columnPath = null;
+      for (final JPAPath p : pathList) {
+        if (p.getDBFieldName().equals(columnName.get()))
+          columnPath = new PathImpl<>(p, Optional.of(parent), root.get().st, tableAlias);
+      }
+      return columnPath;
+    }
+    return null;
+  }
+
+  private final List<JPAPath> getInheritanceRootPathList(Optional<FromImpl<?, ?>> root) {
+
+    if (root.isPresent()) {
+      try {
+        return root.get().st.getPathList();
+      } catch (ODataJPAModelException e) {
+        throw new InternalServerError(e);
+      }
+    }
+    return List.of();
+  }
+
+  @SuppressWarnings("unchecked")
+  private final Optional<FromImpl<?, ?>> getInheritanceRoot() {
+    var from = this;
+    while (from != null && from.inheritanceJoin.isPresent())
+      from = (FromImpl<Z, X>) from.inheritanceJoin.get();
+    return Optional.ofNullable(from);
+  }
+
+  private final Expression<Boolean> createInheritanceWhereSingleTable() {
+    final Optional<String> columnName = inInfo.getDiscriminatorColumn();
+    if (!columnName.isPresent())
+      throw new IllegalStateException("DiscriminatorColumn annotation missing at " + st.getTypeClass().getSuperclass()
+          .getCanonicalName());
+    Path<?> columnPath = null;
+    try {
+      for (final JPAPath a : st.getPathList()) {
+        if (a.getDBFieldName().equals(columnName.get()))
+          columnPath = new PathImpl<>(a, parent, st, tableAlias);
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new IllegalStateException("Internal server error", e);
+    }
+
+    final DiscriminatorValue value = st.getTypeClass().getDeclaredAnnotation(DiscriminatorValue.class);
+    if (value == null)
+      throw new IllegalStateException("DiscriminatorValue annotation missing at " + st.getTypeClass()
+          .getCanonicalName());
+    return cb.equal(columnPath, value.value());
   }
 
   @SuppressWarnings("unchecked")
@@ -576,6 +682,10 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
 
   Optional<InheritanceType> getInheritanceType() {
     return inInfo.getInheritanceType();
+  }
+
+  Optional<? extends AbstractJoinImp<X, ?>> getInheritanceJoin() {
+    return inheritanceJoin;
   }
 
   private JPAPath determinePath(final JPAAttribute joinAttribute) throws ODataJPAModelException {
@@ -614,4 +724,30 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   public boolean equals(final Object object) {
     return super.equals(object);
   }
+
+  Optional<String> getAlias(JPAPath jpaPath) {
+
+    if (isKeyPath(jpaPath))
+      return tableAlias;
+    if (inheritanceJoin.isPresent()) {
+      return Optional.ofNullable(
+          inheritanceJoin.get().getAlias(jpaPath)
+              .orElseGet(() -> getOwnAlias(jpaPath).orElse(null)));
+    }
+    return getOwnAlias(jpaPath);
+
+  }
+
+  final Optional<String> getOwnAlias(JPAPath jpaPath) {
+    try {
+      if (st.getDeclaredAttribute(jpaPath.getPath().get(0).getInternalName()).isPresent()) {
+        return tableAlias;
+      }
+      return Optional.empty();
+    } catch (ODataJPAModelException e) {
+      throw new InternalServerError(e);
+    }
+
+  }
+
 }

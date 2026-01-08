@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
@@ -18,10 +17,7 @@ import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.apache.olingo.server.api.uri.queryoption.SkipOption;
-import org.apache.olingo.server.api.uri.queryoption.SkipTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
-import org.apache.olingo.server.api.uri.queryoption.TopOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
@@ -95,26 +91,6 @@ public class JPACollectionExpandWrapper implements JPAExpandItem {
   @Override
   public SelectOption getSelectOption() {
     return selectOption;
-  }
-
-  @Override
-  public SkipOption getSkipOption() {
-    return null;
-  }
-
-  @Override
-  public SkipTokenOption getSkipTokenOption() {
-    return null;
-  }
-
-  @Override
-  public TopOption getTopOption() {
-    return null;
-  }
-
-  @Override
-  public ApplyOption getApplyOption() {
-    return null;
   }
 
   @Override

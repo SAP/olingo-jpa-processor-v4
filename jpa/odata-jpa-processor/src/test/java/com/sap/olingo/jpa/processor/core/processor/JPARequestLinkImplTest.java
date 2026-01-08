@@ -51,7 +51,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateMultipleStringKeysChildren() throws ODataJPAModelException, ODataException {
+  void testCreateMultipleStringKeysChildren() throws ODataException {
     createAdminDivisionChildrenRelation();
     final Map<String, Object> act = cut.getRelatedKeys();
     assertNotNull(act);
@@ -61,7 +61,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateMultipleStringValuesChildren() throws ODataJPAModelException, ODataException {
+  void testCreateMultipleStringValuesChildren() throws ODataException {
     createAdminDivisionChildrenRelation();
     final Map<String, Object> act = cut.getValues();
 
@@ -72,7 +72,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateMultipleStringKeysParent() throws ODataJPAModelException, ODataException {
+  void testCreateMultipleStringKeysParent() throws ODataException {
     createAdminDivisionParentRelation();
     final Map<String, Object> act = cut.getRelatedKeys();
     assertNotNull(act);
@@ -82,7 +82,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateMultipleStringValuesParent() throws ODataJPAModelException, ODataException {
+  void testCreateMultipleStringValuesParent() throws ODataException {
     createAdminDivisionParentRelation();
     final Map<String, Object> act = cut.getValues();
 
@@ -93,7 +93,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateSingleStringKey() throws ODataJPAModelException, ODataException {
+  void testCreateSingleStringKey() throws ODataException {
     final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
@@ -105,7 +105,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateSingleStringValue() throws ODataJPAModelException, ODataException {
+  void testCreateSingleStringValue() throws ODataException {
     final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
     completeJPAPath(false);
@@ -115,7 +115,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateSingleStringKeyInverse() throws ODataJPAModelException, ODataException {
+  void testCreateSingleStringKeyInverse() throws ODataException {
     final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
@@ -127,7 +127,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateSingleStringValueInverse() throws ODataJPAModelException, ODataException {
+  void testCreateSingleStringValueInverse() throws ODataException {
     final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
     completeJPAPath(true);
@@ -137,7 +137,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateSingleStringValueThrowsException() throws ODataJPAModelException, ODataException {
+  void testCreateSingleStringValueThrowsException() throws ODataException {
     final String link = "BusinessPartners('123456')";
     when(path.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
     cut = new JPARequestLinkImpl(path, link, helper);
@@ -146,7 +146,7 @@ class JPARequestLinkImplTest {
   }
 
   @Test
-  void testCreateSingleStringKeyThrowsException() throws ODataJPAModelException, ODataException {
+  void testCreateSingleStringKeyThrowsException() throws ODataException {
     final String link = "BusinessPartners('123456')";
     when(path.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
     cut = new JPARequestLinkImpl(path, link, helper);

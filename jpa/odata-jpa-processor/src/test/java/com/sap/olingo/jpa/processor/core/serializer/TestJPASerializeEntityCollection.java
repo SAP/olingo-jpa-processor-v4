@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
@@ -27,7 +26,7 @@ public class TestJPASerializeEntityCollection extends TestJPAOperationSerializer
       ODataJPASerializerException {
     when(context.useAbsoluteContextURL()).thenReturn(true);
     when(request.getRawBaseUri()).thenReturn("localhost:8080/v1");
-    cut.serialize(request, result);
+    cut.serialize(request, (JPAEntityCollectionExtension) result);
     verify(serializer).entityCollection(any(), any(), any(), argThat(new EntityCollectionSerializerOptionsMatcher(
         "localhost:8080/v1/")));
   }
@@ -45,7 +44,7 @@ public class TestJPASerializeEntityCollection extends TestJPAOperationSerializer
 
   @Override
   protected void initTest(final List<UriResource> resourceParts) {
-    annotatable = mock(EntityCollection.class);
+    annotatable = mock(JPAEntityCollection.class);
     cut = new JPASerializeEntityCollection(serviceMetadata, serializer, uriHelper, uriInfo,
         ContentType.APPLICATION_JSON, context);
   }
@@ -53,7 +52,7 @@ public class TestJPASerializeEntityCollection extends TestJPAOperationSerializer
   @Override
   protected <T> void verifySerializerCall(final ODataSerializer serializer, final String pattern)
       throws SerializerException {
-    
+
     verify(serializer).entityCollection(any(), any(), any(), argThat(createMatcher(pattern)));
   }
 }

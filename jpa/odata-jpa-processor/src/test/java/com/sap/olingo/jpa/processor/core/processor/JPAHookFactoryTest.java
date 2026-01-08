@@ -54,8 +54,7 @@ class JPAHookFactoryTest {
   }
 
   @Test
-  void testGetCalculatorReturnsEmptyOptionalIfNotTransient() throws ODataJPAModelException,
-      ODataJPAProcessorException {
+  void testGetCalculatorReturnsEmptyOptionalIfNotTransient() throws ODataJPAProcessorException {
     final JPAAttribute attribute = mock(JPAAttribute.class);
     when(attribute.isTransient()).thenReturn(false);
     assertFalse(cut.getTransientPropertyCalculator(attribute).isPresent());
@@ -121,7 +120,7 @@ class JPAHookFactoryTest {
   @SuppressWarnings("unchecked")
   @Test
   void testGetCalculatorReturnsInstanceThreeParams() throws ODataJPAModelException, ODataJPAProcessorException,
-      NoSuchMethodException, SecurityException {
+      SecurityException {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
     final Constructor<?> c = ThreeParameterTransientPropertyConverter.class.getConstructors()[0];
@@ -163,7 +162,7 @@ class JPAHookFactoryTest {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   void testGetQueryExtensionReturnsInstanceNoParameter() throws ODataJPAModelException, ODataJPAProcessorException,
-      NoSuchMethodException, SecurityException {
+      SecurityException {
 
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);
@@ -182,7 +181,7 @@ class JPAHookFactoryTest {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   void testGetQueryExtensionReturnsInstanceEntityManagerParameter() throws ODataJPAModelException,
-      ODataJPAProcessorException, NoSuchMethodException, SecurityException {
+      ODataJPAProcessorException, SecurityException {
 
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);
@@ -201,7 +200,7 @@ class JPAHookFactoryTest {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   void testGetQueryExtensionReturnsInstanceAllParameter() throws ODataJPAModelException,
-      ODataJPAProcessorException, NoSuchMethodException, SecurityException {
+      ODataJPAProcessorException, SecurityException {
 
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);

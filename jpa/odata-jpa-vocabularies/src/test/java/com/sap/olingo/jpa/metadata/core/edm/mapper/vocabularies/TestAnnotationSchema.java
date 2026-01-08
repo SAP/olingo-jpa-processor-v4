@@ -47,7 +47,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetAliasFromPath() throws IOException, ODataJPAVocabulariesException {
+  void testGetAliasFromPath() {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -56,7 +56,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetTermsFromPath() throws IOException, ODataJPAVocabulariesException {
+  void testGetTermsFromPath() {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -65,7 +65,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetTypeDefinitionFromPath() throws IOException, ODataJPAVocabulariesException {
+  void testGetTypeDefinitionFromPath() {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -76,7 +76,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetTypeDefinitions() throws IOException, ODataJPAVocabulariesException {
+  void testGetTypeDefinitions() {
 
     final CsdlSchema act = cutTest.getSchemas().get("Org.OData.Capabilities.V1");
     assertEquals(3, act.getTypeDefinitions().size());
@@ -104,7 +104,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetEnumSchemaFromPath() throws IOException, ODataJPAVocabulariesException {
+  void testGetEnumSchemaFromPath() {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -116,7 +116,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetSimpleComplexTypes() throws IOException, ODataJPAVocabulariesException {
+  void testGetSimpleComplexTypes() {
 
     final Map<String, ? extends CsdlSchema> act = cutTest.getSchemas();
     assertEquals(2, act.size());
@@ -135,7 +135,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetDeepComplexTypes() throws IOException, ODataJPAVocabulariesException {
+  void testGetDeepComplexTypes() {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     assertNotNull(actCt);
@@ -149,7 +149,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetSimpleProperty() throws IOException, ODataJPAVocabulariesException {
+  void testGetSimpleProperty() {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("Deletable");
@@ -165,7 +165,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetDecimalProperty() throws IOException, ODataJPAVocabulariesException {
+  void testGetDecimalProperty() {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestDecimals");
@@ -181,7 +181,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetStringProperty() throws IOException, ODataJPAVocabulariesException {
+  void testGetStringProperty() {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestString");
@@ -197,7 +197,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetGeoProperty() throws IOException, ODataJPAVocabulariesException {
+  void testGetGeoProperty() {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestGeo");
@@ -214,7 +214,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetCollectionProperty() throws IOException, ODataJPAVocabulariesException {
+  void testGetCollectionProperty() {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("NonDeletableNavigationProperties");
@@ -225,14 +225,14 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetEnum() throws IOException, ODataJPAVocabulariesException {
+  void testGetEnum() {
     final CsdlSchema act = cutCapabilities.getSchemas()
         .get("Org.OData.Capabilities.V1");
     assertEquals(5, act.getEnumTypes().size());
   }
 
   @Test
-  void testGetEnumNotAsFlags() throws IOException, ODataJPAVocabulariesException {
+  void testGetEnumNotAsFlags() {
     final CsdlEnumType actEnum = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getEnumType("RollupType");
     assertNotNull(actEnum);
@@ -243,7 +243,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetEnumAsFlags() throws IOException, ODataJPAVocabulariesException {
+  void testGetEnumAsFlags() {
     final CsdlEnumType actEnum = cutCapabilities.getSchemas()
         .get("Org.OData.Capabilities.V1").getEnumType("IsolationLevel");
     assertNotNull(actEnum);
@@ -257,14 +257,14 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetFunctions() throws IOException, ODataJPAVocabulariesException {
+  void testGetFunctions() {
     final CsdlSchema act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1");
     assertEquals(5, act.getFunctions().size());
   }
 
   @Test
-  void testGetFunctionAttributes() throws IOException, ODataJPAVocabulariesException {
+  void testGetFunctionAttributes() {
     final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isleaf");
     assertEquals(1, act.size());
@@ -277,7 +277,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetFunctionParameter() throws IOException, ODataJPAVocabulariesException {
+  void testGetFunctionParameter() {
     final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isancestor");
 
@@ -294,7 +294,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetFunctionParameterFacet() throws IOException, ODataJPAVocabulariesException {
+  void testGetFunctionParameterFacet() {
     final List<CsdlFunction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getFunctions("TestTheRest1");
 
@@ -317,7 +317,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetFunctionReturnType() throws IOException, ODataJPAVocabulariesException {
+  void testGetFunctionReturnType() {
     final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isancestor");
 
@@ -334,7 +334,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetFunctionReturnTypeFacet() throws IOException, ODataJPAVocabulariesException {
+  void testGetFunctionReturnTypeFacet() {
     final List<CsdlFunction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getFunctions("TestTheRest1");
 
@@ -352,14 +352,14 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetActions() throws IOException, ODataJPAVocabulariesException {
+  void testGetActions() {
     final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions();
     assertEquals(2, act.size());
   }
 
   @Test
-  void testGetActionParameter() throws IOException, ODataJPAVocabulariesException {
+  void testGetActionParameter() {
     final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions("UpsertTimeExample");
 
@@ -375,7 +375,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetActionReturnType() throws IOException, ODataJPAVocabulariesException {
+  void testGetActionReturnType() {
     final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions("UpsertTimeExample");
 

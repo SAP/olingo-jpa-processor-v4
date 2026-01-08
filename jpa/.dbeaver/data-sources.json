@@ -1,0 +1,116 @@
+{
+	"folders": {},
+	"connections": {
+		"postgres-jdbc-18d652c2b95-113570e0ec869f1d": {
+			"provider": "postgresql",
+			"driver": "postgres-jdbc",
+			"name": "postgres",
+			"save-password": true,
+			"configuration": {
+				"host": "localhost",
+				"port": "5432",
+				"database": "postgres",
+				"url": "jdbc:postgresql://localhost:5432/postgres",
+				"configurationType": "MANUAL",
+				"home": "postgresql-x64-16",
+				"type": "dev",
+				"closeIdleConnection": false,
+				"auth-model": "native"
+			}
+		},
+		"postgres-jdbc-18d7dab8ffc-6870c0ec5fa5f049": {
+			"provider": "postgresql",
+			"driver": "postgres-jdbc",
+			"name": "Olingo",
+			"save-password": true,
+			"configuration": {
+				"host": "localhost",
+				"port": "5432",
+				"database": "Olingo",
+				"url": "jdbc:postgresql://localhost:5432/Olingo",
+				"configurationType": "MANUAL",
+				"home": "postgresql-x64-16",
+				"type": "dev",
+				"closeIdleConnection": false,
+				"auth-model": "native"
+			}
+		},
+		"sap_hana-18d83921104-7dd425d3aee15bf1": {
+			"provider": "hana",
+			"driver": "sap_hana",
+			"name": "localhost",
+			"save-password": true,
+			"configuration": {
+				"host": "localhost",
+				"port": "30015",
+				"url": "jdbc:sap://localhost:30015",
+				"configurationType": "MANUAL",
+				"type": "dev",
+				"closeIdleConnection": false,
+				"provider-properties": {
+					"edition": "GENERIC"
+				},
+				"auth-model": "native"
+			}
+		},
+		"postgres-jdbc-18dec2e5845-6df665f2f5a08171": {
+			"provider": "postgresql",
+			"driver": "postgres-jdbc",
+			"name": "compass",
+			"save-password": true,
+			"configuration": {
+				"host": "localhost",
+				"port": "5432",
+				"database": "compass",
+				"url": "jdbc:postgresql://localhost:5432/compass",
+				"configurationType": "MANUAL",
+				"home": "postgresql-x64-16",
+				"type": "dev",
+				"closeIdleConnection": true,
+				"provider-properties": {
+					"@dbeaver-show-non-default-db@": "false"
+				},
+				"auth-model": "native"
+			}
+		},
+		"mysql8-18f81c6ea39-153fa1c6870708de": {
+			"provider": "mysql",
+			"driver": "mysql8",
+			"name": "MySql-Olingo",
+			"save-password": true,
+			"configuration": {
+				"host": "localhost",
+				"port": "3306",
+				"database": "Olingo",
+				"url": "jdbc:mysql://localhost:3306/Olingo?allowPublicKeyRetrieval=true&useSSL=false",
+				"configurationType": "URL",
+				"home": "mysql_client",
+				"type": "dev",
+				"closeIdleConnection": true,
+				"properties": {
+					"rewriteBatchedStatements": "true",
+					"connectTimeout": "20000",
+					"enabledTLSProtocols": "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3"
+				},
+				"auth-model": "native",
+				"handlers": {}
+			}
+		}
+	},
+	"connection-types": {
+		"dev": {
+			"name": "Development",
+			"color": "255,255,255",
+			"description": "Regular development database",
+			"auto-commit": true,
+			"confirm-execute": false,
+			"confirm-data-change": false,
+			"smart-commit": false,
+			"smart-commit-recover": false,
+			"auto-close-transactions": true,
+			"close-transactions-period": 1800,
+			"auto-close-connections": true,
+			"close-connections-period": 14400
+		}
+	}
+}

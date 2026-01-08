@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,9 +55,9 @@ class ParameterExpressionImplTest {
 
   @Test
   void testAsSQL() {
-    final StringBuilder stmt = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final String exp = "?10";
-    assertEquals(exp, cut.asSQL(stmt).toString());
+    assertEquals(exp, cut.asSQL(statement).toString());
   }
 
   @Test
@@ -81,6 +82,23 @@ class ParameterExpressionImplTest {
 
   @SuppressWarnings("unchecked")
   @Test
+  void testGetValueWithConverter() {
+    final AttributeConverter<Object, Object> converter = mock(AttributeConverter.class);
+    final JPAEntityType et = mock(JPAEntityType.class);
+    final JPAPath pX = mock(JPAPath.class);
+    final JPAAttribute aX = mock(JPAAttribute.class);
+    final Expression<?> x = new PathImpl<>(pX, Optional.empty(), et, Optional.of("P1"));
+    when(pX.getLeaf()).thenReturn(aX);
+    when(aX.getConverter()).thenReturn(null);
+    when(aX.getRawConverter()).thenReturn(converter);
+    when(converter.convertToDatabaseColumn(any())).thenReturn("db");
+
+    cut = new ParameterExpression<>(2, "attribute", x);
+    assertEquals("db", cut.getValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
   void testGetValueHasConverterDifferentType() {
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAPath jpaPath = mock(JPAPath.class);
@@ -90,6 +108,7 @@ class ParameterExpressionImplTest {
 
     when(jpaPath.getLeaf()).thenReturn(leaf);
     when(leaf.getConverter()).thenReturn(converter);
+    when(leaf.getRawConverter()).thenReturn(converter);
     when(converter.convertToDatabaseColumn("Value")).thenReturn(Integer.valueOf(100));
     cut.setPath(path);
     assertEquals(100, cut.getValue());
@@ -106,6 +125,7 @@ class ParameterExpressionImplTest {
 
     when(jpaPath.getLeaf()).thenReturn(leaf);
     when(leaf.getConverter()).thenReturn(converter);
+    when(leaf.getRawConverter()).thenReturn(converter);
     when(converter.convertToDatabaseColumn("Value")).thenReturn("eulaV");
     cut.setPath(path);
     assertEquals("eulaV", cut.getValue());

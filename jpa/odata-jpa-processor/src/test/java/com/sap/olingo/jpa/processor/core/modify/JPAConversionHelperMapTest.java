@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     cut = new JPAConversionHelper();
   }
 
@@ -27,12 +27,12 @@ public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
   public void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
-    Map<String, Object> newPOJO = new HashMap<>();
+    final Map<String, Object> newPOJO = new HashMap<>();
     newPOJO.put("businessPartnerID", "35");
     newPOJO.put("roleCategory", "A");
 
     prepareConvertCompoundKeyToLocation();
-    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
+    final String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
     assertEquals("localhost.test/BusinessPartnerRoles(BusinessPartnerID='35',RoleCategory='A')", act);
   }
 
@@ -41,8 +41,8 @@ public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
   public void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
-    Map<String, Object> newPOJO = new HashMap<>();
-    Map<String, Object> primaryKey = new HashMap<>();
+    final Map<String, Object> newPOJO = new HashMap<>();
+    final Map<String, Object> primaryKey = new HashMap<>();
 
     primaryKey.put("codeID", "NUTS1");
     primaryKey.put("codePublisher", "Eurostat");
@@ -52,7 +52,7 @@ public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
 
     prepareConvertEmbeddedIdToLocation();
 
-    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
+    final String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
     assertEquals(
         "localhost.test/AdministrativeDivisionDescriptions(DivisionCode='BE1',CodeID='NUTS1',CodePublisher='Eurostat',Language='fr')",
         act);
@@ -63,18 +63,18 @@ public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
   public void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
-    Map<String, Object> newPOJO = new HashMap<>();
+    final Map<String, Object> newPOJO = new HashMap<>();
     newPOJO.put("iD", "35");
 
     prepareConvertSimpleKeyToLocation();
     when(et.getTypeClass()).then(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return Organization.class;
       }
     });
 
-    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
+    final String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
     assertEquals("localhost.test/Organisation('35')", act);
   }
 }

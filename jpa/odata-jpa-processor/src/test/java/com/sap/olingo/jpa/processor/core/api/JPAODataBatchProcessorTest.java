@@ -188,8 +188,7 @@ class JPAODataBatchProcessorTest {
   void whenTransactionCouldNotBeCreatedThenThrowWith501() throws ODataApplicationException,
       ODataLibraryException {
 
-    when(factory.createTransaction()).thenThrow(new ODataJPATransactionException(
-        ODataJPATransactionException.MessageKeys.CANNOT_CREATE_NEW_TRANSACTION));
+    when(factory.createTransaction()).thenThrow(new ODataJPATransactionException());
     when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());
 
     final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, () -> cut.processChangeSet(

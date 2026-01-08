@@ -48,7 +48,7 @@ public class TestQueryBase extends TestBase {
   }
 
   @BeforeEach
-  public void setup() throws ODataException, ODataJPAIllegalAccessException {
+  protected void setup() throws ODataException, ODataJPAIllegalAccessException {
     buildUriInfo("BusinessPartners", "BusinessPartner");
     odata = mock(OData.class);
     helper = new TestHelper(emf, PUNIT_NAME);

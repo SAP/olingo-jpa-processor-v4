@@ -66,7 +66,7 @@ public class IntegrationTestHelper {
   private final ArgumentCaptor<Integer> captorStatus;
   private final ArgumentCaptor<String> captorHeader;
   private final ArgumentCaptor<String> captorHeaderValue;
-  public static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
+  public static final String URI_PREFIX = "http://localhost:8080/Test/Olingo.svc/";
   public static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath) throws IOException,
@@ -157,7 +157,7 @@ public class IntegrationTestHelper {
     captorStatus = ArgumentCaptor.forClass(Integer.class);
     captorHeader = ArgumentCaptor.forClass(String.class);
     captorHeaderValue = ArgumentCaptor.forClass(String.class);
-    this.request = getRequestMock(uriPrefix + urlPath,
+    this.request = getRequestMock(URI_PREFIX + urlPath,
         requestBody == null ? null : new StringBuilder(requestBody.toString()), headers);
     this.response = getResponseMock();
     if (functionPackage != null)
@@ -257,8 +257,7 @@ public class IntegrationTestHelper {
     final JsonNode node = mapper.readTree(getRawResult());
     if (!(node.get("value") instanceof ArrayNode))
       fail("Wrong result type; ArrayNode expected");
-    final ArrayNode values = (ArrayNode) node.get("value");
-    return values;
+    return (ArrayNode) node.get("value");
   }
 
   public ObjectNode getValue() throws IOException {
@@ -419,7 +418,7 @@ public class IntegrationTestHelper {
 
     @Override
     public void setWriteListener(final WriteListener writeListener) {
-
+      // Not yet needed
     }
   }
 

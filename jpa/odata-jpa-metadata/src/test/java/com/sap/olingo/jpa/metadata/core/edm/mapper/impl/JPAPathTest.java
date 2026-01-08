@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,62 +38,62 @@ class JPAPathTest extends TestMappingRoot {
   }
 
   @Test
-  void checkOnePathElementAlias() throws ODataApplicationException, ODataJPAModelException {
+  void checkOnePathElementAlias() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Name1");
     assertEquals("Name1", cut.getAlias());
   }
 
   @Test
-  void checkOnePathElementPathSize() throws ODataApplicationException, ODataJPAModelException {
+  void checkOnePathElementPathSize() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Name1");
     assertEquals(1, cut.getPath().size());
   }
 
   @Test
-  void checkOnePathElementElement() throws ODataApplicationException, ODataJPAModelException {
+  void checkOnePathElementElement() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Name1");
     assertEquals("name1", cut.getPath().get(0).getInternalName());
   }
 
   @Test
-  void checkOnePathElementFromSuperTypeAlias() throws ODataApplicationException, ODataJPAModelException {
+  void checkOnePathElementFromSuperTypeAlias() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Type");
     assertEquals("Type", cut.getAlias());
   }
 
   @Test
-  void checkTwoPathElementAlias() throws ODataApplicationException, ODataJPAModelException {
+  void checkTwoPathElementAlias() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Address/Country");
     assertEquals("Address/Country", cut.getAlias());
   }
 
   @Test
-  void checkTwoPathElementPathSize() throws ODataApplicationException, ODataJPAModelException {
+  void checkTwoPathElementPathSize() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Address/Country");
     assertEquals(2, cut.getPath().size());
   }
 
   @Test
-  void checkTwoPathElementPathElements() throws ODataApplicationException, ODataJPAModelException {
+  void checkTwoPathElementPathElements() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Address/Country");
     assertEquals("address", cut.getPath().get(0).getInternalName());
     assertEquals("country", cut.getPath().get(1).getInternalName());
   }
 
   @Test
-  void checkThreePathElementAlias() throws ODataApplicationException, ODataJPAModelException {
+  void checkThreePathElementAlias() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
     assertEquals("AdministrativeInformation/Created/By", cut.getAlias());
   }
 
   @Test
-  void checkThreePathElementPathSize() throws ODataApplicationException, ODataJPAModelException {
+  void checkThreePathElementPathSize() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
     assertEquals(3, cut.getPath().size());
   }
 
   @Test
-  void checkThreePathElementPathElements() throws ODataApplicationException, ODataJPAModelException {
+  void checkThreePathElementPathElements() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
     assertEquals("administrativeInformation", cut.getPath().get(0).getInternalName());
     assertEquals("created", cut.getPath().get(1).getInternalName());
@@ -151,12 +150,12 @@ class JPAPathTest extends TestMappingRoot {
 
     final IntermediateProperty complex = mock(IntermediateProperty.class);
     when(complex.isPartOfGroup()).thenReturn(true);
-    when(complex.getGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
+    when(complex.getUserGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
     attributes.add(complex);
 
     final IntermediateProperty primitive = mock(IntermediateProperty.class);
     when(primitive.isPartOfGroup()).thenReturn(true);
-    when(primitive.getGroups()).thenReturn(Arrays.asList("Dummy"));
+    when(primitive.getUserGroups()).thenReturn(Arrays.asList("Dummy"));
     attributes.add(primitive);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
@@ -172,12 +171,12 @@ class JPAPathTest extends TestMappingRoot {
 
     final IntermediateProperty complex = mock(IntermediateProperty.class);
     when(complex.isPartOfGroup()).thenReturn(true);
-    when(complex.getGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
+    when(complex.getUserGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
     attributes.add(complex);
 
     final IntermediateProperty primitive = mock(IntermediateProperty.class);
     when(primitive.isPartOfGroup()).thenReturn(true);
-    when(primitive.getGroups()).thenReturn(Arrays.asList("Dummy", "Willi"));
+    when(primitive.getUserGroups()).thenReturn(Arrays.asList("Dummy", "Willi"));
     attributes.add(primitive);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
@@ -193,12 +192,12 @@ class JPAPathTest extends TestMappingRoot {
 
     final IntermediateProperty complex = mock(IntermediateProperty.class);
     when(complex.isPartOfGroup()).thenReturn(true);
-    when(complex.getGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
+    when(complex.getUserGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
     attributes.add(complex);
 
     final IntermediateProperty primitive = mock(IntermediateProperty.class);
     when(primitive.isPartOfGroup()).thenReturn(true);
-    when(primitive.getGroups()).thenReturn(Arrays.asList("Dummy", "Test", "Willi"));
+    when(primitive.getUserGroups()).thenReturn(Arrays.asList("Dummy", "Test", "Willi"));
     attributes.add(primitive);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
@@ -209,14 +208,14 @@ class JPAPathTest extends TestMappingRoot {
   }
 
   @Test
-  void checkTwoNotEqualIfAliasNotEqual() throws ODataApplicationException, ODataJPAModelException {
+  void checkTwoNotEqualIfAliasNotEqual() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Address/Country");
     final JPAPath act = new JPAPathImpl("Address", cut.getDBFieldName(), cut.getPath());
     assertNotEquals(act, cut);
   }
 
   @Test
-  void checkTwoNotEqualIfElementListNotEqual() throws ODataApplicationException, ODataJPAModelException {
+  void checkTwoNotEqualIfElementListNotEqual() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Address/Country");
     final List<JPAElement> pathList = new ArrayList<>(cut.getPath());
     pathList.remove(0);
@@ -225,7 +224,7 @@ class JPAPathTest extends TestMappingRoot {
   }
 
   @Test
-  void checkTwoEqualIfSame() throws ODataApplicationException, ODataJPAModelException {
+  void checkTwoEqualIfSame() throws ODataJPAModelException {
     final JPAPath cut = organization.getPath("Address/Country");
     assertEquals(cut, cut);
   }

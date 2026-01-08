@@ -14,9 +14,6 @@ import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 class TermTest {
   private static final String TEST_ANNOTATIONS = "annotations/Org.Olingo.Test.V1.xml";
   private static final String CORE_ANNOTATIONS = "annotations/Org.OData.Core.V1.xml";
@@ -33,8 +30,7 @@ class TermTest {
   }
 
   @Test
-  void testGetTermsOneSchemaFromPath() throws JsonParseException, JsonMappingException, IOException,
-      ODataJPAVocabulariesException {
+  void testGetTermsOneSchemaFromPath() {
 
     final Map<String, Map<String, CsdlTerm>> act = cutCore.getTerms();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -43,7 +39,7 @@ class TermTest {
   }
 
   @Test
-  void testGetAppliesTo() throws JsonParseException, JsonMappingException, IOException, ODataJPAVocabulariesException {
+  void testGetAppliesTo() {
     final Map<String, Map<String, CsdlTerm>> act = cutCore.getTerms();
     assertNotNull(act.get("Org.OData.Core.V1"));
     final Map<String, CsdlTerm> terms = act.get("Org.OData.Core.V1");
@@ -55,16 +51,14 @@ class TermTest {
   }
 
   @Test
-  void testGetTermsTwoSchemaFromPath() throws JsonParseException, JsonMappingException, IOException,
-      ODataJPAVocabulariesException {
+  void testGetTermsTwoSchemaFromPath() {
     final Map<String, Map<String, CsdlTerm>> act = cutTest.getTerms();
     assertNotNull(act.get("Org.OData.Measures.V1"));
     assertNotNull(act.get("Org.OData.Capabilities.V1"));
   }
 
   @Test
-  void testGetTermWithScalePrecision() throws JsonParseException, JsonMappingException, IOException,
-      ODataJPAVocabulariesException {
+  void testGetTermWithScalePrecision() {
     final Map<String, Map<String, CsdlTerm>> act = cutTest.getTerms();
 
     final Map<String, CsdlTerm> terms = act.get("Org.OData.Measures.V1");
@@ -75,8 +69,7 @@ class TermTest {
   }
 
   @Test
-  void testGetTermWithBaseTypeMaxLength() throws JsonParseException, JsonMappingException, IOException,
-      ODataJPAVocabulariesException {
+  void testGetTermWithBaseTypeMaxLength() {
     final Map<String, Map<String, CsdlTerm>> act = cutTest.getTerms();
 
     final Map<String, CsdlTerm> terms = act.get("Org.OData.Measures.V1");
@@ -87,8 +80,7 @@ class TermTest {
   }
 
   @Test
-  void testGetTermWithSrid() throws JsonParseException, JsonMappingException, IOException,
-      ODataJPAVocabulariesException {
+  void testGetTermWithSrid() {
     final Map<String, Map<String, CsdlTerm>> act = cutTest.getTerms();
 
     final Map<String, CsdlTerm> terms = act.get("Org.OData.Measures.V1");
@@ -98,8 +90,7 @@ class TermTest {
   }
 
   @Test
-  void testGetTermWithSridVariableNotSupported() throws JsonParseException, JsonMappingException, IOException,
-      ODataJPAVocabulariesException {
+  void testGetTermWithSridVariableNotSupported() {
 
     final Term cut = new Term();
     cut.setSrid("variable");
@@ -107,8 +98,7 @@ class TermTest {
   }
 
   @Test
-  void testGetTermWithScaleVariableNotSupported() throws JsonParseException, JsonMappingException, IOException,
-      ODataJPAVocabulariesException {
+  void testGetTermWithScaleVariableNotSupported() {
 
     final Term cut = new Term();
     assertThrows(ODataJPAVocabulariesException.class, () -> cut.setScale("variable"));

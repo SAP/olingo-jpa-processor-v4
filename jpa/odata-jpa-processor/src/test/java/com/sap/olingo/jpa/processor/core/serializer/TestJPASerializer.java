@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,9 +58,10 @@ public abstract class TestJPASerializer {
     serializer = mock(ODataSerializer.class);
     uriHelper = mock(UriHelper.class);
     request = mock(ODataRequest.class);
-    result = mock(EntityCollection.class);
+    result = mock(EntityCollection.class, withSettings().extraInterfaces(JPAEntityCollectionExtension.class));
     edmEt = mock(EdmEntityType.class);
     edmEs = mock(EdmEntitySet.class);
+    annotatable = mock(Annotatable.class, withSettings().extraInterfaces(JPAEntityCollectionExtension.class));
 
     final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
     final List<UriParameter> keys = Collections.emptyList();
@@ -91,7 +93,7 @@ public abstract class TestJPASerializer {
 
     when(context.useAbsoluteContextURL()).thenReturn(true);
     when(request.getRawBaseUri()).thenReturn("localhost:8080/v1/");
-    cut.serialize(request, result);
+    cut.serialize(request, (JPAEntityCollectionExtension) result);
     verifySerializerCall(serializer, "localhost:8080/v1/");
   }
 
@@ -101,7 +103,7 @@ public abstract class TestJPASerializer {
 
     when(context.useAbsoluteContextURL()).thenReturn(true);
     when(request.getRawBaseUri()).thenReturn("localhost:8080/v1");
-    cut.serialize(request, result);
+    cut.serialize(request, (JPAEntityCollectionExtension) result);
     verifySerializerCall(serializer, "localhost:8080/v1/");
   }
 
@@ -110,7 +112,7 @@ public abstract class TestJPASerializer {
       ODataJPASerializerException {
 
     when(context.useAbsoluteContextURL()).thenReturn(false);
-    cut.serialize(request, result);
+    cut.serialize(request, (JPAEntityCollectionExtension) result);
     verifySerializerCall(serializer, null);
   }
 

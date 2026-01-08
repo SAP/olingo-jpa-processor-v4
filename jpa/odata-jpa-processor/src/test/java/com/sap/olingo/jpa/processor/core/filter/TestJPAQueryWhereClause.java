@@ -81,9 +81,12 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("SubstringStartEndIndexToLower",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
             2),
+        // Filter on property with converter
+        arguments("Property with converter, from boolean to string", "Teams?$filter=Active eq false", 2),
         // IN expression
         arguments("Simple IN", "AdministrativeDivisions?$filter=ParentDivisionCode in ('BE1', 'BE2')", 6),
         arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 219),
+        arguments("IN via navigation", "AdministrativeDivisions?$filter=Parent/ParentDivisionCode in ('BE2')", 22),
         // Filter to many associations
         arguments("NavigationPropertyToManyValueAnyNoRestriction", "Organizations?$select=ID&$filter=Roles/any()", 4),
         arguments("NavigationPropertyToManyValueAnyMultiParameter",
@@ -102,6 +105,11 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("NavigationPropertyToManyNestedWithJoinTable",
             "Organizations?$select=ID&$filter=SupportEngineers/any(s:s/AdministrativeInformation/Created/User/Roles/any(a:a/RoleCategory eq 'Y'))",
             2),
+        arguments("NavigationPropertyFromInheritance",
+            "InheritanceSavingAccounts?$select=AccountId&$filter=Transactions/any()", 2),
+        arguments("NavigationPropertyToInheritance",
+            "Persons?$select=ID&$filter=Accounts/any(s:s/com.sap.olingo.jpa.InheritanceLockedSavingAccount/InterestRate gt 3.0)",
+            1),
 
         arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll",
             "Organizations?$filter=Address/RegionName eq 'Kalifornien'", 3),
@@ -135,10 +143,6 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("CountCollectionPropertyTwoJoinOne", "CollectionWithTwoKeys?$filter=Nested/$count eq 1", 1),
         arguments("CountCollectionPropertyTwoJoinZero", "CollectionWithTwoKeys?$filter=Nested/$count eq 0", 3),
         // To one association null
-        arguments("NavigationPropertyIsNull",
-            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),
-        arguments("NavigationPropertyIsNull",
-            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget ne null", 3),
         arguments("NavigationPropertyIsNullOneHop",
             "AdministrativeDivisions?$filter=Parent/Parent eq null and CodePublisher eq 'Eurostat'", 11),
         arguments("NavigationPropertyMixCountAndNull",
@@ -152,6 +156,15 @@ class TestJPAQueryWhereClause extends TestBase {
             "AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'", 1),
         arguments("NavigationPropertyToOneValueViaComplexType",
             "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'", 8));
+  }
+
+  static Stream<Arguments> getFilterQueryDerivedProperty() {
+    return Stream.of(
+        // To one association null
+        arguments("NavigationPropertyIsNull",
+            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget eq null", 1),
+        arguments("NavigationPropertyIsNull",
+            "AssociationOneToOneSources?$format=json&$filter=ColumnTarget ne null", 3));
   }
 
   static Stream<Arguments> getEnumQuery() {
@@ -267,8 +280,19 @@ class TestJPAQueryWhereClause extends TestBase {
 
   @ParameterizedTest
   @MethodSource("getFilterQuery")
-  // @Tag(Assertions.CB_ONLY_TEST)
   void testFilterOne(final String text, final String queryString, final int numberOfResults)
+      throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
+    helper.assertStatus(200);
+
+    final ArrayNode organizations = helper.getValues();
+    assertEquals(numberOfResults, organizations.size(), text);
+  }
+
+  @ParameterizedTest
+  @MethodSource("getFilterQueryDerivedProperty")
+  @Tag(Assertions.CB_ONLY_TEST)
+  void testFilterOneDerivedProperty(final String text, final String queryString, final int numberOfResults)
       throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
     helper.assertStatus(200);
@@ -876,5 +900,22 @@ class TestJPAQueryWhereClause extends TestBase {
     final var starts = helper.getSingleValue().asInt();
 
     assertEquals(all, notStarts + starts);
+  }
+
+  @Test
+  void testInheritanceJoinWithFilter() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceSavingAccounts?$filter=InterestRate gt 3.0");
+    final ArrayNode accounts = helper.getValues();
+    assertEquals(2, accounts.size());
+  }
+
+  @Test
+  void testInheritanceJoinCompoundKeyWithFilter() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "InheritanceByJoinCompoundSubs?$filter=Value eq 'Schweiz'");
+    helper.assertStatus(200);
+    final ObjectNode sub = helper.getValue();
+    assertEquals("CHE", sub.get("value").get(0).get("DivisionCode").asText());
   }
 }

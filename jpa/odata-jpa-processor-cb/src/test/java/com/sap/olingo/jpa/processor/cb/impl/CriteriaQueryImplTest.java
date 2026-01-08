@@ -38,7 +38,7 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
   private ProcessorSqlPatternProvider sqlPattern;
 
   @BeforeEach
-  void setup() throws ODataJPAModelException {
+  void setup() {
     sqlPattern = new SqlDefaultPattern();
     cb = new CriteriaBuilderImpl(sd, sqlPattern);
     cut = new CriteriaQueryImpl<>(Object.class, sd, cb, sqlPattern);
@@ -84,9 +84,8 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
   void testResetOrderByWithArray() {
     final Root<?> adminDivision = cut.from(AdministrativeDivision.class);
     final Order[] nullArray = null;
-    CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDivision.get("codeID")), cb.asc(adminDivision
-        .get("divisionCode"))));
-    act = cut.orderBy(nullArray);
+    cut.orderBy(Arrays.asList(cb.desc(adminDivision.get("codeID")), cb.asc(adminDivision.get("divisionCode"))));
+    CriteriaQuery<Object> act = cut.orderBy(nullArray);
     assertNotNull(act.getOrderList());
     assertEquals(0, act.getOrderList().size());
   }
@@ -95,9 +94,8 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
   void testResetOrderByWithList() {
     final Root<?> adminDivision = cut.from(AdministrativeDivision.class);
     final List<Order> nullList = null;
-    CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDivision.get("codeID")), cb.asc(adminDivision
-        .get("divisionCode"))));
-    act = cut.orderBy(nullList);
+    cut.orderBy(Arrays.asList(cb.desc(adminDivision.get("codeID")), cb.asc(adminDivision.get("divisionCode"))));
+    CriteriaQuery<Object> act = cut.orderBy(nullList);
     assertNotNull(act.getOrderList());
     assertEquals(0, act.getOrderList().size());
   }

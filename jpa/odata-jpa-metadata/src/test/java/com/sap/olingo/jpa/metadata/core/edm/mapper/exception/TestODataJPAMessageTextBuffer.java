@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.processor.core.testmodel.LocaleEnumeration;
 
 class TestODataJPAMessageTextBuffer {
-  private static String BUNDLE_NAME = "test-i18n";
+  private static final String BUNDLE_NAME = "test-i18n";
   private ODataJPAMessageTextBuffer cut;
 
   @BeforeEach
@@ -84,7 +84,7 @@ class TestODataJPAMessageTextBuffer {
     // First set to German
     checkSetLocaleGerman();
     // Then reset default
-    final Enumeration<Locale> locales = new LocaleEnumeration(new ArrayList<Locale>());
+    final Enumeration<Locale> locales = new LocaleEnumeration(new ArrayList<>());
     cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, locales);
     final String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("An English message", act);

@@ -54,7 +54,7 @@ class IntermediateEmbeddedIdPropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkEmbeddedIdThrowsExceptionIfTransient() throws ODataJPAModelException {
+  void checkEmbeddedIdThrowsExceptionIfTransient() {
     final EntityType<?> et = errorHelper.getEntityType(TeamWithTransientEmbeddableKey.class);
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(et, "key");
     assertException(ODataJPAModelException.class,

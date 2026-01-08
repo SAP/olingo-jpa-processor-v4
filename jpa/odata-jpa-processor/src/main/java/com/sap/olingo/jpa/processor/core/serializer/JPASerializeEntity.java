@@ -4,7 +4,6 @@ import java.net.URISyntaxException;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -51,7 +50,7 @@ final class JPASerializeEntity implements JPAOperationSerializer {
   public SerializerResult serialize(final Annotatable annotatable, final EdmType entityType, final ODataRequest request)
       throws SerializerException, ODataJPASerializerException {
 
-    final EntityCollection result = (EntityCollection) annotatable;
+    final JPAEntityCollectionExtension result = (JPAEntityCollectionExtension) annotatable;
     final String selectList = uriHelper.buildContextURLSelectList((EdmEntityType) entityType, uriInfo.getExpandOption(),
         uriInfo.getSelectOption());
     try {
@@ -67,21 +66,19 @@ final class JPASerializeEntity implements JPAOperationSerializer {
           .expand(uriInfo.getExpandOption())
           .build();
 
-      return serializer.entity(serviceMetadata, (EdmEntityType) entityType, result
-          .getEntities()
-          .get(0),
-          options);
+      return serializer.entity(serviceMetadata, (EdmEntityType) entityType,
+          result.getFirstResult(), options);
     } catch (final URISyntaxException e) {
       throw new ODataJPASerializerException(e, HttpStatusCode.BAD_REQUEST);
     }
   }
 
   @Override
-  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+  public SerializerResult serialize(final ODataRequest request, final JPAEntityCollectionExtension result)
       throws SerializerException, ODataJPASerializerException {
 
     final EdmBindingTarget targetEdmBindingTarget = Utility.determineBindingTarget(uriInfo.getUriResourceParts());
     final EdmEntityType entityType = targetEdmBindingTarget.getEntityType();
-    return serialize(result, entityType, request);
+    return serialize((Annotatable) result, entityType, request);
   }
 }

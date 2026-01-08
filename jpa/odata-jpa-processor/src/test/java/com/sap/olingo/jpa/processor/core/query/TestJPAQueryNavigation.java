@@ -83,7 +83,10 @@ class TestJPAQueryNavigation extends TestBase {
         Arguments.of(
             // maybe the expected status is wrong, but it is hard to implement an 404
             "BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')/BusinessPartner/com.sap.olingo.jpa.Person",
-            null, null, 0, 204, "NavigationWithCastWrongDerivedType"));
+            null, null, 0, 204, "NavigationWithCastWrongDerivedType"),
+        Arguments.of(
+            "Persons('99')/Accounts/com.sap.olingo.jpa.InheritanceLockedSavingAccount",
+            "LockedSavingAccount", "Type", 1, 200, "NavigationWithCastInheritanceJoined"));
   }
 
   @ParameterizedTest
@@ -95,7 +98,10 @@ class TestJPAQueryNavigation extends TestBase {
     helper.assertStatus(status);
     if (noResults == 1) {
       final ObjectNode created = helper.getValue();
-      assertEquals(exp, created.get(propertyName).asText(), message);
+      if (created.get("value") == null)
+        assertEquals(exp, created.get(propertyName).asText(), message);
+      else
+        assertEquals(exp, created.get("value").get(0).get(propertyName).asText(), message);
     } else if (noResults > 1) {
       final ArrayNode created = helper.getValues();
       assertEquals(noResults, created.size());

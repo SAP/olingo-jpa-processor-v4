@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -14,6 +13,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinCountQuery;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollection;
+import com.sap.olingo.jpa.processor.core.serializer.JPAEntityCollectionExtension;
 
 /**
  * <a href=
@@ -42,7 +43,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
     }
   }
 
-  protected final EntityCollection countEntities()
+  protected final JPAEntityCollectionExtension countEntities()
       throws ODataException {
 
     JPAJoinCountQuery query = null;
@@ -53,7 +54,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
-    final var entityCollection = new EntityCollection();
+    final var entityCollection = new JPAEntityCollection();
     entityCollection.setCount(query.countResults().intValue());
     return entityCollection;
   }

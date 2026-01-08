@@ -42,7 +42,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkByEntityAnnotationCreate() throws ODataJPAModelException {
+  void checkByEntityAnnotationCreate() {
     assertNotNull(new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getStoredProcedure(
         helper.getEntityType(BusinessPartner.class), "CountRoles"), BusinessPartner.class, helper.schema));
   }
@@ -57,7 +57,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkByEntityAnnotationGetFunctionName() throws ODataJPAModelException {
+  void checkByEntityAnnotationGetFunctionName() {
     final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         helper
             .getStoredProcedure(
@@ -230,7 +230,6 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   void checkReturnTypeEmbedded() throws ODataJPAModelException {
     final EdmFunction function = mock(EdmFunction.class);
     final EdmFunction.ReturnType returnType = mock(EdmFunction.ReturnType.class);
-    // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
     when(function.returnType()).thenReturn(returnType);
     when(function.parameter()).thenReturn(new EdmParameter[0]);
     when(returnType.type()).thenAnswer(new Answer<Class<?>>() {
@@ -260,7 +259,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExceptionOnEntitySetGivenUnbound() throws ODataJPAModelException {
+  void checkThrowsExceptionOnEntitySetGivenUnbound() {
     final EdmFunction function = createBoundFunction();
     when(function.isBound()).thenReturn(false);
 
@@ -270,7 +269,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExceptionOnEntitySetGivenNoEntityReturnType() throws ODataJPAModelException {
+  void checkThrowsExceptionOnEntitySetGivenNoEntityReturnType() {
     final EdmFunction function = createBoundFunction();
     when(function.returnType().type()).thenAnswer(new Answer<Class<?>>() {
       @Override
@@ -281,14 +280,13 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
 
     final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         function, Person.class, helper.schema);
-    assertThrows(ODataJPAModelException.class, () -> act.getEdmItem());
+    assertThrows(ODataJPAModelException.class, act::getEdmItem);
   }
 
   @Test
   void checkReturnTypeUnknown() throws ODataJPAModelException {
     final EdmFunction function = mock(EdmFunction.class);
     final EdmFunction.ReturnType returnType = mock(EdmFunction.ReturnType.class);
-    // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
     when(function.returnType()).thenReturn(returnType);
     when(function.parameter()).thenReturn(new EdmParameter[0]);
     when(returnType.type()).thenAnswer(new Answer<Class<?>>() {
@@ -307,6 +305,26 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
       return;
     }
     fail();
+  }
+
+  @Test
+  void checkGetGroupsReturnsGiven() throws ODataJPAModelException {
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "max"), BusinessPartner.class, helper.schema);
+
+    assertEquals(List.of("Person"), function.getUserGroups());
+  }
+
+  @Test
+  void checkGetGroupsReturnsEmptyListIfNoProvided() throws ODataJPAModelException {
+    final IntermediateFunction function = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        helper
+            .getStoredProcedure(
+                helper.getEntityType(BusinessPartner.class), "IsPrime"), BusinessPartner.class, helper.schema);
+
+    assertTrue(function.getUserGroups().isEmpty());
   }
 
   private EdmFunction createBoundFunction() {

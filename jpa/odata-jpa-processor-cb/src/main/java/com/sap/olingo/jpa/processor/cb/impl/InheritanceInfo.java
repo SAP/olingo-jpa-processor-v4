@@ -21,12 +21,16 @@ class InheritanceInfo {
   private final Optional<Class<?>> baseClass;
   private final Optional<String> discriminatorColumn;
 
-  InheritanceInfo(final JPAEntityType type) {
+  InheritanceInfo(@Nonnull final JPAEntityType type) {
     baseClass = Optional.ofNullable(determineBaseClass(type));
     inType = Optional.ofNullable(baseClass.map(this::determineInType).orElse(null));
     discriminatorColumn = Optional.ofNullable(baseClass.map(this::determineColumn).orElse(null));
   }
 
+  /**
+   *
+   * @return Root of an inheritance hierarchy
+   */
   Optional<Class<?>> getBaseClass() {
     return baseClass;
   }
@@ -53,8 +57,9 @@ class InheritanceInfo {
   }
 
   private String determineColumn(@Nonnull final Class<?> clazz) {
-    return inType.filter(t -> t.equals(InheritanceType.SINGLE_TABLE))
-        .map(t -> clazz.getDeclaredAnnotation(DiscriminatorColumn.class).name())
+    return inType
+        .map(type -> clazz.getDeclaredAnnotation(DiscriminatorColumn.class))
+        .map(column -> column.name())
         .orElse(null);
   }
 
@@ -81,4 +86,5 @@ class InheritanceInfo {
     final Inheritance inheritance = baseClass.getDeclaredAnnotation(Inheritance.class);
     return inheritance.strategy();
   }
+
 }

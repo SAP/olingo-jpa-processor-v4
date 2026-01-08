@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
@@ -62,7 +63,12 @@ class IntermediateModelElementTest {
     assertNull(cut.findModelElementByEdmItem("Willi", new HashMap<>()));
   }
 
-  private class IntermediateModelElementImpl extends IntermediateModelElement {
+  @Test
+  void checkAsUserGroupRestrictedReturnsThis() throws ODataJPAModelException {
+    assertEquals(cut, cut.asUserGroupRestricted(List.of("Willi")));
+  }
+
+  private static class IntermediateModelElementImpl extends IntermediateModelElement {
 
     public IntermediateModelElementImpl(final JPADefaultEdmNameBuilder nameBuilder, final String internalName,
         final IntermediateAnnotationInformation annotationInfo) {

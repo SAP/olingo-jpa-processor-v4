@@ -52,7 +52,7 @@ class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.get().skip());
     assertEquals(2, act.get().top());
-    assertNotNull(toODataString((String) act.get().skipToken()));
+    assertNotNull(toODataString(act.get().skipToken().toString()));
     assertEquals(info, act.get().uriInfo());
   }
 
@@ -64,7 +64,7 @@ class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.get().skip());
     assertEquals(5, act.get().top());
-    assertNotNull(toODataString((String) act.get().skipToken()));
+    assertNotNull(toODataString(act.get().skipToken().toString()));
     assertEquals(info, act.get().uriInfo());
   }
 
@@ -77,7 +77,7 @@ class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.get().skip());
     assertEquals(10, act.get().top());
-    assertNotNull(toODataString((String) act.get().skipToken()));
+    assertNotNull(toODataString(act.get().skipToken().toString()));
     assertEquals(info, act.get().uriInfo());
   }
 
@@ -86,7 +86,7 @@ class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrganizationCut(5);
     Optional<JPAODataPage> act = cut.getFirstPage(null, null, info, null, countQuery, null);
-    act = cut.getNextPage(toODataString((String) act.get().skipToken()), null, null, null, null);
+    act = cut.getNextPage(toODataString(act.get().skipToken().toString()), null, null, null, null);
 
     assertEquals(5, act.get().skip());
     assertEquals(5, act.get().top());
@@ -119,7 +119,7 @@ class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.get().skip());
     assertEquals(3, act.get().top());
-    assertNotNull(toODataString((String) act.get().skipToken()));
+    assertNotNull(toODataString(act.get().skipToken().toString()));
     assertEquals(info, act.get().uriInfo());
   }
 
@@ -128,11 +128,11 @@ class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrganizationCut(5);
     Optional<JPAODataPage> act = cut.getFirstPage(null, null, info, 3, countQuery, null);
-    act = cut.getNextPage(toODataString((String) act.get().skipToken()), null, null, null, null);
+    act = cut.getNextPage(toODataString(act.get().skipToken().toString()), null, null, null, null);
 
     assertEquals(3, act.get().skip());
     assertEquals(3, act.get().top());
-    assertNotNull(toODataString((String) act.get().skipToken()));
+    assertNotNull(toODataString((act.get().skipToken().toString())));
     assertEquals(info, act.get().uriInfo());
   }
 
@@ -141,7 +141,7 @@ class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrganizationCut(5);
     Optional<JPAODataPage> act = cut.getFirstPage(null, null, info, null, countQuery, null);
-    act = cut.getNextPage(toODataString((String) act.get().skipToken()), null, null, null, null);
+    act = cut.getNextPage(toODataString(act.get().skipToken().toString()), null, null, null, null);
 
     assertNull(act.get().skipToken());
   }
@@ -160,9 +160,9 @@ class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrganizationCut(2);
     Optional<JPAODataPage> act = cut.getFirstPage(null, null, info, null, countQuery, null);
-    act = cut.getNextPage(toODataString((String) act.get().skipToken()), null, null, null, null);
+    act = cut.getNextPage(toODataString(act.get().skipToken().toString()), null, null, null, null);
 
-    assertNotNull(toODataString((String) act.get().skipToken()));
+    assertNotNull(toODataString(act.get().skipToken().toString()));
   }
 
   @Test
@@ -170,10 +170,10 @@ class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrganizationCut(2);
     Optional<JPAODataPage> act = cut.getFirstPage(null, null, info, null, countQuery, null);
-    act = cut.getNextPage(toODataString((String) act.get().skipToken()), null, null, null, null);
-    act = cut.getNextPage(toODataString((String) act.get().skipToken()), null, null, null, null);
+    act = cut.getNextPage(toODataString(act.get().skipToken().toString()), null, null, null, null);
+    act = cut.getNextPage(toODataString(act.get().skipToken().toString()), null, null, null, null);
 
-    assertNotNull(toODataString((String) act.get().skipToken()));
+    assertNotNull(toODataString(act.get().skipToken().toString()));
   }
 
   @Test
@@ -204,7 +204,7 @@ class JPAExamplePagingProviderTest {
     addTopSkipToUri(info);
     final JPAExamplePagingProvider cut = createOrganizationCut(5);
     Optional<JPAODataPage> act = cut.getFirstPage(null, null, info, null, countQuery, null);
-    act = cut.getNextPage(toODataString((String) act.get().skipToken()), null, null, null, null);
+    act = cut.getNextPage(toODataString(act.get().skipToken().toString()), null, null, null, null);
 
     assertEquals(7, act.get().skip());
     assertEquals(2, act.get().top());
@@ -229,12 +229,12 @@ class JPAExamplePagingProviderTest {
 
     final JPAExamplePagingProvider cut = new JPAExamplePagingProvider(sizes, 2);
     final Optional<JPAODataPage> first = cut.getFirstPage(null, null, info, null, countQuery, null);
-    assertNotNull(cut.getNextPage((String) first.get().skipToken(), null, null, null, null));
-    final Optional<JPAODataPage> second = cut.getNextPage((String) first.get().skipToken(), null, null, null, null);
-    assertTrue(cut.getNextPage((String) second.get().skipToken(), null, null, null, null).isPresent());
-    final Optional<JPAODataPage> third = cut.getNextPage((String) second.get().skipToken(), null, null, null, null);
-    assertTrue(cut.getNextPage((String) third.get().skipToken(), null, null, null, null).isPresent());
-    assertTrue(cut.getNextPage((String) first.get().skipToken(), null, null, null, null).isEmpty());
+    assertNotNull(cut.getNextPage((first.get().skipToken()).toString(), null, null, null, null));
+    final Optional<JPAODataPage> second = cut.getNextPage(first.get().skipToken().toString(), null, null, null, null);
+    assertTrue(cut.getNextPage((second.get().skipToken()).toString(), null, null, null, null).isPresent());
+    final Optional<JPAODataPage> third = cut.getNextPage((second.get().skipToken().toString()), null, null, null, null);
+    assertTrue(cut.getNextPage(third.get().skipToken().toString(), null, null, null, null).isPresent());
+    assertTrue(cut.getNextPage(first.get().skipToken().toString(), null, null, null, null).isEmpty());
   }
 
   @Test
@@ -245,12 +245,12 @@ class JPAExamplePagingProviderTest {
 
     final JPAExamplePagingProvider cut = new JPAExamplePagingProvider(sizes, 10);
     final Optional<JPAODataPage> first = cut.getFirstPage(null, null, info, null, countQuery, null);
-    assertNotNull(cut.getNextPage((String) first.get().skipToken(), null, null, null, null));
-    final Optional<JPAODataPage> second = cut.getNextPage((String) first.get().skipToken(), null, null, null, null);
-    assertTrue(cut.getNextPage((String) second.get().skipToken(), null, null, null, null).isPresent());
-    final Optional<JPAODataPage> third = cut.getNextPage((String) second.get().skipToken(), null, null, null, null);
-    assertTrue(cut.getNextPage((String) third.get().skipToken(), null, null, null, null).isPresent());
-    assertTrue(cut.getNextPage((String) first.get().skipToken(), null, null, null, null).isPresent());
+    assertNotNull(cut.getNextPage(first.get().skipToken().toString(), null, null, null, null));
+    final Optional<JPAODataPage> second = cut.getNextPage(first.get().skipToken().toString(), null, null, null, null);
+    assertTrue(cut.getNextPage(second.get().skipToken().toString(), null, null, null, null).isPresent());
+    final Optional<JPAODataPage> third = cut.getNextPage(second.get().skipToken().toString(), null, null, null, null);
+    assertTrue(cut.getNextPage(third.get().skipToken().toString(), null, null, null, null).isPresent());
+    assertTrue(cut.getNextPage(first.get().skipToken().toString(), null, null, null, null).isPresent());
   }
 
   private UriInfo buildUriInfo() {

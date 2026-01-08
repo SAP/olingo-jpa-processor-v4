@@ -27,7 +27,6 @@ import org.mockito.stubbing.Answer;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 class JPAPathWrapperTest {
 
@@ -64,7 +63,7 @@ class JPAPathWrapperTest {
   }
 
   @Test
-  void testIsPartOfGroupsIsFalse() throws ODataJPAModelException {
+  void testIsPartOfGroupsIsFalse() {
     assertFalse(cut.isPartOfGroups(Collections.singletonList("Test")));
   }
 

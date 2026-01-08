@@ -36,7 +36,7 @@ class JPACoreDebuggerTest {
   private PrintStream printOut;
 
   @BeforeAll
-  public static void classSetup() {
+  static void classSetup() {
     // Redirect log to System out
     System.getProperties().put("org.slf4j.simpleLogger.logFile", "System.err");
     System.getProperties().put(
@@ -67,13 +67,13 @@ class JPACoreDebuggerTest {
   }
 
   @Test
-  void testMeasurementCreated() throws Exception {
+  void testMeasurementCreated() {
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
-  void testNoMeasurementDebugFalls() throws Exception {
+  void testNoMeasurementDebugFalls() {
     cutDebugOn = new JPACoreDebugger(false);
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
     assertTrue(cutDebugOn.getRuntimeInformation().isEmpty());
@@ -105,7 +105,7 @@ class JPACoreDebuggerTest {
 
   @SuppressWarnings("resource")
   @Test
-  void testMemoryMeasurement() throws InterruptedException {
+  void testMemoryMeasurement() {
     final JPARuntimeMeasurement measurement;
     try (final JPARuntimeMeasurement m = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       @SuppressWarnings("unused")
@@ -159,7 +159,7 @@ class JPACoreDebuggerTest {
 
   @SuppressWarnings("resource")
   @Test
-  void testMemoryConsumption() throws InterruptedException {
+  void testMemoryConsumption() {
     final JPARuntimeMeasurement act;
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       act = measurement;

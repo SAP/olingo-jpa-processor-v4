@@ -59,4 +59,6 @@ public interface JPAAssociationPath extends ODataNavigationPath {
   boolean isCollection();
 
   List<JPAPath> getForeignKeyColumns() throws ODataJPAModelException;
+
+  Cardinality cardinality();
 }

@@ -109,16 +109,6 @@ class TestJPAQuerySelectByPath extends TestBase {
   }
 
   @Test
-  void testNavigationToComplexPropertyExpand() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address");
-    helper.assertStatus(200);
-
-    final ObjectNode org = helper.getValue();
-    assertEquals("USA", org.get("Country").asText());
-  }
-
-  @Test
   void testNavigationToComplexPrimitiveProperty() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Address/Region");
@@ -318,7 +308,7 @@ class TestJPAQuerySelectByPath extends TestBase {
     assertTrue(act.has(property));
     final JsonNode target = act.get(property);
     if (target instanceof ObjectNode) {
-      ((ObjectNode) target).forEach(n -> assertTrue(n.isNull()));
+      target.forEach(n -> assertTrue(n.isNull()));
     } else {
       assertTrue(target.isNull());
     }
@@ -338,7 +328,7 @@ class TestJPAQuerySelectByPath extends TestBase {
     final JsonNode target = act.get(property);
     if (target instanceof ArrayNode) {
       assertTrue(((ArrayNode) target).size() > 0);
-      ((ArrayNode) target).forEach(n -> assertFalse(n.isNull()));
+      target.forEach(n -> assertFalse(n.isNull()));
       assertTrue(target.get(0).get(nullProperty).isNull());
     } else {
       fail();

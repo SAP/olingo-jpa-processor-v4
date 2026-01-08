@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
-import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.serializer.FixedFormatSerializer;
@@ -15,7 +14,7 @@ final class JPASerializeCount implements JPASerializer {
   }
 
   @Override
-  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+  public SerializerResult serialize(final ODataRequest request, final JPAEntityCollectionExtension result)
       throws SerializerException {
     return new JPAValueSerializerResult(serializer.count(result.getCount()));
   }

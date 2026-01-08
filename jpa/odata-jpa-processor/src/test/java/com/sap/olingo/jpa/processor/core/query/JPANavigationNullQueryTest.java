@@ -42,7 +42,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
@@ -70,7 +69,7 @@ class JPANavigationNullQueryTest extends TestBase {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  public void setup() throws ODataException, ODataJPAIllegalAccessException {
+  void setup() throws ODataException {
     helper = getHelper();
     em = mock(EntityManager.class);
     parent = mock(JPAAbstractQuery.class);
@@ -80,7 +79,7 @@ class JPANavigationNullQueryTest extends TestBase {
     uriResourceItem = mock(UriResourceNavigation.class);
     jpaEntityType = helper.getJPAEntityType(BusinessPartnerProtected.class);
     cq = mock(CriteriaQuery.class);
-    cb = mock(CriteriaBuilder.class); // emf.getCriteriaBuilder();
+    cb = mock(CriteriaBuilder.class);
     subQuery = mock(Subquery.class);
     queryRoot = mock(Root.class);
     from = mock(From.class);
@@ -89,7 +88,6 @@ class JPANavigationNullQueryTest extends TestBase {
     final UriParameter key = mock(UriParameter.class);
 
     when(em.getCriteriaBuilder()).thenReturn(cb);
-    // when(uriResourceItem.getType()).thenReturn(jpaEntityType);
     when(uriResourceItem.getKeyPredicates()).thenReturn(Collections.singletonList(key));
     when(parent.getQuery()).thenReturn(cq);
     when(cq.subquery(any(Class.class))).thenReturn(subQuery);

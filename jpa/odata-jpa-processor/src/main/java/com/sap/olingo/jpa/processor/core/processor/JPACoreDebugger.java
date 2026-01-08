@@ -82,6 +82,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
     private final MemoryReader memoryReader;
     private boolean closed;
     private long usedMemory;
+    private long memoryStart;
 
     public Measurement(final Object instance, final String methodName, final MemoryReader memoryReader) {
       this.setTimeStarted(System.nanoTime());
@@ -90,6 +91,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
       this.memoryReader = memoryReader;
       this.closed = false;
       this.usedMemory = memoryReader.getCurrentThreadMemoryConsumption() / 1000;
+      this.memoryStart = getUsedMemory();
     }
 
     @Override
@@ -99,21 +101,27 @@ class JPACoreDebugger implements JPAServiceDebugger {
       final long threadID = Thread.currentThread().getId();
       final long runtime = (this.getTimeStopped() - this.getTimeStarted()) / 1000;
       final Long memory = memoryReader.getCurrentThreadMemoryConsumption() / 1000;
+      final long consumedMemory = (getUsedMemory() - memoryStart) / 1000;
       usedMemory = memory - usedMemory;
       LogFactory.getLog(this.getClassName())
           .debug(String.format(
-              "thread: %d, method: %s,  runtime [µs]: %d; over all memory [kb]: %d; additional memory [kb]: %d",
+              "thread: %d, method: %s,  runtime [µs]: %d; over all memory [kb]: %d; additional memory [kb]: %d, %d",
               threadID,
               this.getMethodName(),
               runtime,
               memory,
-              usedMemory));
+              usedMemory,
+              consumedMemory));
     }
 
     @Override
     public long getMemoryConsumption() {
       assert closed;
       return usedMemory;
+    }
+
+    private long getUsedMemory() {
+      return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
   }
 

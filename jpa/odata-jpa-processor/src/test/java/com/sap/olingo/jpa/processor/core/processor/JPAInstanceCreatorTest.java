@@ -255,7 +255,7 @@ class JPAInstanceCreatorTest {
   }
 
   @Test
-  void testCreateInstanceRethrowsException() throws ODataJPAProcessorException, ODataJPAModelException {
+  void testCreateInstanceRethrowsException() throws ODataJPAModelException {
 
     final List<JPAAttribute> keys = Arrays.asList(fillOneKey("key", UUID.class, EdmPrimitiveTypeKind.Guid));
     buildTypeWithSingleKey(keys);
@@ -321,7 +321,8 @@ class JPAInstanceCreatorTest {
     when(et.getKey()).thenReturn(keys);
   }
 
-  private JPAAttribute fillOneKey(final String name, final Class<?> type, final EdmPrimitiveTypeKind edmType) throws ODataJPAModelException {
+  private JPAAttribute fillOneKey(final String name, final Class<?> type, final EdmPrimitiveTypeKind edmType)
+      throws ODataJPAModelException {
     final JPAAttribute id1 = mock(JPAAttribute.class);
     final JPAPath id1Path = mock(JPAPath.class);
     final CsdlProperty id1Property = mock(CsdlProperty.class);

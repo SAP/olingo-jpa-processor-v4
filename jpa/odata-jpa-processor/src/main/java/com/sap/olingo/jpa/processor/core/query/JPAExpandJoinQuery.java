@@ -33,7 +33,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurement;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.properties.JPAProcessorAttribute;
+import com.sap.olingo.jpa.processor.core.properties.JPAProcessorCountAttribute;
 
 /**
  * A query to retrieve the expand entities.
@@ -149,24 +149,9 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandJoinQuery impleme
         groups));
     if (association.hasJoinTable()) {
       // For associations with JoinTable the join columns, linking columns to the parent, need to be added
-      createAdditionSelectionForJoinTable(selections);
+      selections.addAll(createAdditionSelectionForJoinTable(association));
     }
     return selections;
-  }
-
-  private void createAdditionSelectionForJoinTable(final List<Selection<?>> selections) throws ODataJPAQueryException {
-    final From<?, ?> parent = determineParentFrom(); // e.g. JoinSource
-    try {
-      for (final JPAPath p : association.getLeftColumnsList()) {
-        final Path<?> selection = ExpressionUtility.convertToCriteriaPath(parent, p.getPath());
-        // If source and target of an association use the same name for their key we get conflicts with the alias.
-        // Therefore it is necessary to unify them.
-        selection.alias(association.getAlias() + ALIAS_SEPARATOR + p.getAlias());
-        selections.add(selection);
-      }
-    } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
   }
 
   /**
@@ -243,7 +228,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandJoinQuery impleme
           orderByAttributes, lastInfo.getUriInfo()));
 
       cq.orderBy(orderBy);
-      if (orderByAttributes.stream().anyMatch(JPAProcessorAttribute::requiresJoin)) {
+      if (orderByAttributes.stream().anyMatch(attribute -> attribute.requiresJoin()
+          && attribute instanceof JPAProcessorCountAttribute)) {
         cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent(), orderByPaths));
       }
 

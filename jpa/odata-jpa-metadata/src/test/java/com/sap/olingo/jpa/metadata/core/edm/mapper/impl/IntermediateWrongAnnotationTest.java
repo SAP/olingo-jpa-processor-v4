@@ -115,7 +115,7 @@ class IntermediateWrongAnnotationTest {
     et.getEdmItem();
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> et.getProtections());
+        et::getProtections);
 
     assertEquals(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH.name(), act.getId());
     assertFalse(act.getMessage().isEmpty());
@@ -123,7 +123,7 @@ class IntermediateWrongAnnotationTest {
   }
 
   @Test
-  void checkErrorOnNavigationPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnNavigationPropertyPartOfGroup() {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         NavigationPropertyPartOfGroup.class), "teams");
     final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(NavigationPropertyPartOfGroup.class);
@@ -137,7 +137,7 @@ class IntermediateWrongAnnotationTest {
   }
 
   @Test
-  void checkErrorOnMandatoryPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnMandatoryPropertyPartOfGroup() {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         MandatoryPartOfGroup.class), "eTag");
 
@@ -149,7 +149,7 @@ class IntermediateWrongAnnotationTest {
   }
 
   @Test
-  void checkErrorOnKeyPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnKeyPropertyPartOfGroup() {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         KeyPartOfGroup.class), "iD");
 
@@ -161,7 +161,7 @@ class IntermediateWrongAnnotationTest {
   }
 
   @Test
-  void checkErrorOnEmbeddedKeyPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnEmbeddedKeyPropertyPartOfGroup() {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         EmbeddedKeyPartOfGroup.class), "key");
 
@@ -173,7 +173,7 @@ class IntermediateWrongAnnotationTest {
   }
 
   @Test
-  void checkErrorOnTransientFieldWithUnknownRequired() throws ODataJPAModelException {
+  void checkErrorOnTransientFieldWithUnknownRequired() {
     final EntityType<TeamWithTransientError> jpaEt = helper.getEntityType(TeamWithTransientError.class);
     final IntermediateEntityType<TeamWithTransientError> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), jpaEt, helper.schema);

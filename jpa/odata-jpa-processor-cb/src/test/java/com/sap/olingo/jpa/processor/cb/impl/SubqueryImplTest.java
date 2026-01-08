@@ -4,7 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -38,65 +42,68 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
+import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 class SubqueryImplTest extends BuilderBaseTest {
 
   private SubqueryImpl<Long> cut;
   private ProcessorCriteriaBuilder cb;
-  private AliasBuilder ab;
+  private AliasBuilder aliasBuilder;
   private CriteriaQueryImpl<?> parent;
+  private ProcessorSqlPatternProvider patternProvider;
 
   @SuppressWarnings("rawtypes")
   static Stream<Arguments> notImplemented() throws NoSuchMethodException, SecurityException {
-    final Class<SubqueryImpl> c = SubqueryImpl.class;
+    final Class<SubqueryImpl> clazz = SubqueryImpl.class;
     return Stream.of(
-        arguments(c.getMethod("correlate", Join.class)),
-        arguments(c.getMethod("correlate", CollectionJoin.class)),
-        arguments(c.getMethod("correlate", SetJoin.class)),
-        arguments(c.getMethod("correlate", ListJoin.class)),
-        arguments(c.getMethod("correlate", MapJoin.class)),
-        arguments(c.getMethod("correlate", Root.class)),
-        arguments(c.getMethod("getCorrelatedJoins")),
-        arguments(c.getMethod("isNull")),
-        arguments(c.getMethod("isNotNull")),
-        arguments(c.getMethod("in", Object[].class)),
-        arguments(c.getMethod("in", Expression[].class)),
-        arguments(c.getMethod("in", Collection.class)),
-        arguments(c.getMethod("in", Expression.class)),
-        arguments(c.getMethod("as", Class.class)),
-        arguments(c.getMethod("alias", String.class)),
-        arguments(c.getMethod("where", Predicate[].class)),
-        arguments(c.getMethod("getAlias")));
+        arguments(clazz.getMethod("correlate", Join.class)),
+        arguments(clazz.getMethod("correlate", CollectionJoin.class)),
+        arguments(clazz.getMethod("correlate", SetJoin.class)),
+        arguments(clazz.getMethod("correlate", ListJoin.class)),
+        arguments(clazz.getMethod("correlate", MapJoin.class)),
+        arguments(clazz.getMethod("correlate", Root.class)),
+        arguments(clazz.getMethod("getCorrelatedJoins")),
+        arguments(clazz.getMethod("isNull")),
+        arguments(clazz.getMethod("isNotNull")),
+        arguments(clazz.getMethod("in", Object[].class)),
+        arguments(clazz.getMethod("in", Expression[].class)),
+        arguments(clazz.getMethod("in", Collection.class)),
+        arguments(clazz.getMethod("in", Expression.class)),
+        arguments(clazz.getMethod("as", Class.class)),
+        arguments(clazz.getMethod("alias", String.class)),
+        arguments(clazz.getMethod("where", Predicate[].class)),
+        arguments(clazz.getMethod("getAlias")));
   }
 
   @SuppressWarnings("rawtypes")
   static Stream<Arguments> returnsSelf() throws NoSuchMethodException, SecurityException {
-    final Class<SubqueryImpl> c = SubqueryImpl.class;
+    final Class<SubqueryImpl> clazz = SubqueryImpl.class;
     return Stream.of(
-        arguments(c.getMethod("select", Expression.class), mock(Expression.class)),
-        arguments(c.getMethod("where", Expression.class), mock(Expression.class)),
-        arguments(c.getMethod("groupBy", List.class), new ArrayList<>()),
-        arguments(c.getMethod("groupBy", Expression[].class), new Predicate[] {}),
-        arguments(c.getMethod("having", Expression.class), mock(Predicate.class)),
-        arguments(c.getMethod("having", Predicate[].class), new Predicate[] {}),
-        arguments(c.getMethod("distinct", boolean.class), true),
-        arguments(c.getMethod("setMaxResults", Integer.class), Integer.valueOf(10)),
-        arguments(c.getMethod("setFirstResult", Integer.class), Integer.valueOf(10)),
-        arguments(c.getMethod("multiselect", List.class), new ArrayList<>()),
-        arguments(c.getMethod("multiselect", Selection[].class), new Selection[] {}),
-        arguments(c.getMethod("orderBy", List.class), new ArrayList<>()),
-        arguments(c.getMethod("orderBy", Order[].class), new Order[] {}));
+        arguments(clazz.getMethod("select", Expression.class), mock(Expression.class)),
+        arguments(clazz.getMethod("where", Expression.class), mock(Expression.class)),
+        arguments(clazz.getMethod("groupBy", List.class), new ArrayList<>()),
+        arguments(clazz.getMethod("groupBy", Expression[].class), new Predicate[] {}),
+        arguments(clazz.getMethod("having", Expression.class), mock(Predicate.class)),
+        arguments(clazz.getMethod("having", Predicate[].class), new Predicate[] {}),
+        arguments(clazz.getMethod("distinct", boolean.class), true),
+        arguments(clazz.getMethod("setMaxResults", Integer.class), Integer.valueOf(10)),
+        arguments(clazz.getMethod("setFirstResult", Integer.class), Integer.valueOf(10)),
+        arguments(clazz.getMethod("multiselect", List.class), new ArrayList<>()),
+        arguments(clazz.getMethod("multiselect", Selection[].class), new Selection[] {}),
+        arguments(clazz.getMethod("orderBy", List.class), new ArrayList<>()),
+        arguments(clazz.getMethod("orderBy", Order[].class), new Order[] {}));
 
   }
 
   @BeforeEach
   void setup() {
     cb = mock(ProcessorCriteriaBuilder.class);
-    ab = mock(AliasBuilder.class);
+    aliasBuilder = mock(AliasBuilder.class);
     parent = mock(CriteriaQueryImpl.class);
+    patternProvider = spy(SqlDefaultPattern.class);
     when(parent.getServiceDocument()).thenReturn(sd);
-    cut = new SubqueryImpl<>(Long.class, parent, ab, cb, new SqlDefaultPattern(), sd);
+    cut = new SubqueryImpl<>(Long.class, parent, aliasBuilder, cb, patternProvider, sd);
   }
 
   @ParameterizedTest
@@ -117,32 +124,32 @@ class SubqueryImplTest extends BuilderBaseTest {
   @Test
   void testGroupByArray() {
     @SuppressWarnings("unchecked")
-    final Expression<Long> e = mock(Expression.class);
-    cut.groupBy(e);
-    assertEquals(e, cut.getGroupList().get(0));
+    final Expression<Long> expression = mock(Expression.class);
+    cut.groupBy(expression);
+    assertEquals(expression, cut.getGroupList().get(0));
   }
 
   @Test
   void testGroupByList() {
     @SuppressWarnings("unchecked")
-    final Expression<Long> e = mock(Expression.class);
-    cut.groupBy(Arrays.asList(e));
-    assertEquals(e, cut.getGroupList().get(0));
+    final Expression<Long> expression = mock(Expression.class);
+    cut.groupBy(Arrays.asList(expression));
+    assertEquals(expression, cut.getGroupList().get(0));
   }
 
   @Test
   void testHaving() {
-    final Expression<Boolean> e = mock(Predicate.class);
-    cut.having(e);
-    assertEquals(e, cut.getGroupRestriction());
+    final Expression<Boolean> expression = mock(Predicate.class);
+    cut.having(expression);
+    assertEquals(expression, cut.getGroupRestriction());
   }
 
   @Test
   void testHavingArray() {
-    final Predicate p1 = mock(Predicate.class);
-    final Predicate[] p2 = { p1 };
-    cut.having(p2);
-    assertEquals(p1, cut.getGroupRestriction());
+    final Predicate predicate = mock(Predicate.class);
+    final Predicate[] predicates = { predicate };
+    cut.having(predicates);
+    assertEquals(predicate, cut.getGroupRestriction());
   }
 
   @Test
@@ -169,7 +176,7 @@ class SubqueryImplTest extends BuilderBaseTest {
     when(jpaEt.getJavaType()).thenReturn(Person.class);
     when(sd.getEntity(Person.class)).thenReturn(et);
     when(et.getTypeClass()).thenAnswer(new ClassAnswer(Person.class));
-    when(ab.getNext()).thenReturn("Test");
+    when(aliasBuilder.getNext()).thenReturn("Test");
     assertNotNull(cut.from(jpaEt));
     assertNotNull(cut.getRoots());
     assertEquals(1, cut.getRoots().size());
@@ -217,5 +224,31 @@ class SubqueryImplTest extends BuilderBaseTest {
     assertNotNull(cut.getCompoundSelectionItems());
     assertEquals(1, cut.getCompoundSelectionItems().size());
     assertEquals(expression, ((SelectionImpl<?>) cut.getCompoundSelectionItems().get(0)).selection);
+  }
+
+  @Test
+  void testAsSQLUsesSqlPatternForLimit() {
+    var statement = new StringBuilder();
+    @SuppressWarnings("unchecked")
+    final ExpressionImpl<Long> expression = mock(ExpressionImpl.class);
+    when(expression.asSQL(any())).thenReturn(statement);
+    cut.select(expression);
+
+    cut.setNumberOfResults(10);
+    cut.asSQL(statement);
+    verify(patternProvider, times(1)).getMaxResultsPattern();
+  }
+
+  @Test
+  void testAsSQLUsesSqlPatternForOffset() {
+    var statement = new StringBuilder();
+    @SuppressWarnings("unchecked")
+    final ExpressionImpl<Long> expression = mock(ExpressionImpl.class);
+    when(expression.asSQL(any())).thenReturn(statement);
+    cut.select(expression);
+
+    cut.setFirstResult(8);
+    cut.asSQL(statement);
+    verify(patternProvider, times(1)).getFirstResultPattern();
   }
 }

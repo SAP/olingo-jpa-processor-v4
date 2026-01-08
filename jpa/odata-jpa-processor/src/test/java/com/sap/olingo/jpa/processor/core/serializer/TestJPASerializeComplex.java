@@ -56,6 +56,7 @@ public class TestJPASerializeComplex extends TestJPAOperationSerializer {
     resultEntities.add(resultEntity);
     when(resultEntity.getProperties()).thenReturn(Collections.emptyList());
     when(result.getEntities()).thenReturn(resultEntities);
+    when(((JPAEntityCollectionExtension) result).getFirstResult()).thenReturn(resultEntity);
 
     cut = new JPASerializeComplex(serviceMetadata, serializer, uriHelper, uriInfo, ContentType.APPLICATION_JSON,
         context);

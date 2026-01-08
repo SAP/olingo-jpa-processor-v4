@@ -100,7 +100,7 @@ class TestJPAQueryTopSkip extends TestBase {
         .getApiVersion(JPAODataApiVersionAccess.DEFAULT_VERSION).getEdmProvider(),
         new ArrayList<>()));
 
-    final var request = IntegrationTestHelper.getRequestMock(IntegrationTestHelper.uriPrefix + "Persons?$top=5000");
+    final var request = IntegrationTestHelper.getRequestMock(IntegrationTestHelper.URI_PREFIX + "Persons?$top=5000");
     final var response = IntegrationTestHelper.getResponseMock();
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.process(request, response);

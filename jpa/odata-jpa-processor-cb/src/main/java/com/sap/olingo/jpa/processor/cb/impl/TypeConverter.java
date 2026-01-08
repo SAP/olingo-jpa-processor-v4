@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 class TypeConverter {
+  private static final String NO_CONVERTER_FOUND_TEXT = "No converter found to convert ";
   private static final Log LOGGER = LogFactory.getLog(TypeConverter.class);
 
   private TypeConverter() {}
@@ -46,8 +47,11 @@ class TypeConverter {
       }
       if (target == Duration.class) {
         return convertDuration(source);
+      }
+      if (target == Timestamp.class) {
+        return convertTimestamp(source);
       } else {
-        LOGGER.debug("No converter found to convert " + source.getClass().getSimpleName() + " to " + target
+        LOGGER.debug(NO_CONVERTER_FOUND_TEXT + source.getClass().getSimpleName() + " to " + target
             .getSimpleName());
         throw new IllegalArgumentException(createCastException(source, target));
       }
@@ -61,7 +65,7 @@ class TypeConverter {
       LOGGER.debug("Implicit conversion to Character from String only supported if String not longer than 1");
       throw new IllegalArgumentException("String to long");
     }
-    if (source.length() == 0)
+    if (source.isEmpty())
       return ' ';
     return source.charAt(0);
   }
@@ -71,7 +75,7 @@ class TypeConverter {
       return Duration.ofSeconds((long) source);
     if (source.getClass() == String.class)
       return Duration.parse((String) source);
-    LOGGER.debug("No converter found to convert " + source.getClass().getSimpleName() + " to Duration");
+    LOGGER.debug(NO_CONVERTER_FOUND_TEXT + source.getClass().getSimpleName() + " to Duration");
     throw new IllegalArgumentException(createCastException(source, Duration.class));
   }
 
@@ -136,6 +140,17 @@ class TypeConverter {
       return OffsetDateTime.ofInstant(((Timestamp) source).toInstant(), ZoneId.of("UTC"));
     }
     return OffsetDateTime.parse((String) source);
+  }
+
+  private static Timestamp convertTimestamp(Object source) {
+    if (source instanceof LocalDateTime ldt)
+      return Timestamp.valueOf(ldt);
+    if (source instanceof LocalDate ld)
+      return Timestamp.valueOf(LocalDateTime.of(ld, LocalTime.of(0, 0)));
+    if (source instanceof String s)
+      return Timestamp.valueOf(s);
+    LOGGER.debug(NO_CONVERTER_FOUND_TEXT + source.getClass().getSimpleName() + " to Timestamp");
+    throw new IllegalArgumentException(createCastException(source, Timestamp.class));
   }
 
   public static Class<?> boxed(final Class<?> javaType) {

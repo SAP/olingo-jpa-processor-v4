@@ -39,6 +39,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   private final IntermediateAnnotationInformation annotationInformation;
   private boolean toBeIgnored;
   private String externalName;
+  private final boolean isRestricted;
 
   static void setPostProcessor(final JPAEdmMetadataPostProcessor processor) {
     postProcessor = processor;
@@ -51,6 +52,17 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     this.internalName = internalName;
     this.edmAnnotations = new ArrayList<>();
     this.annotationInformation = annotationInformation;
+    this.isRestricted = false;
+  }
+
+  IntermediateModelElement(final JPAEdmNameBuilder nameBuilder, final String internalName,
+      final IntermediateAnnotationInformation annotationInformation, final boolean restricted) {
+    super();
+    this.nameBuilder = nameBuilder;
+    this.internalName = internalName;
+    this.edmAnnotations = new ArrayList<>();
+    this.annotationInformation = annotationInformation;
+    this.isRestricted = restricted;
   }
 
   @Override
@@ -292,6 +304,12 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return findJavaAnnotation(packageName, annotatedElement.getAnnotations());
   }
 
+  @SuppressWarnings("unchecked")
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups) // NOSONAR
+      throws ODataJPAModelException { // NOSONAR
+    return (T) this;
+  }
+
   private Map<String, Annotation> findJavaAnnotation(final String packageName, final Annotation[] annotations) {
     final Map<String, Annotation> result = new HashMap<>();
     for (final Annotation a : annotations) {
@@ -312,11 +330,14 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   }
 
   protected Object getAnnotationCollectionValue(final CsdlDynamicExpression expression) {
-    final List<Object> parthList = new ArrayList<>();
+    final List<Object> pathList = new ArrayList<>();
     for (final var item : expression.asCollection().getItems()) {
-      parthList.add(getAnnotationValue("", item));
+      pathList.add(getAnnotationValue("", item));
     }
-    return parthList;
+    return pathList;
   }
 
+  protected boolean isRestricted() {
+    return isRestricted;
+  }
 }

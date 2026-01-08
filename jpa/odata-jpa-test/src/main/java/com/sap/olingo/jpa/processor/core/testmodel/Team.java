@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.util.List;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
@@ -18,6 +19,10 @@ public class Team {
 
   @Column(name = "\"Name\"")
   private String name;
+
+  @Column(name = "\"Active\"")
+  @Convert(converter = BooleanConverter.class)
+  private Boolean active;
 
   @ManyToMany(mappedBy = "teams")
   private List<Person> member;

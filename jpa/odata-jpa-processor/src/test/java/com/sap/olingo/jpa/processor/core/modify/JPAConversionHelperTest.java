@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-public abstract class JPAConversionHelperTest {
+abstract class JPAConversionHelperTest {
 
   protected JPAConversionHelper cut;
   protected EdmEntitySet edmEntitySet;
@@ -45,19 +45,18 @@ public abstract class JPAConversionHelperTest {
   }
 
   @Test
-  public abstract void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
+  abstract void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException;
 
   @Test
-  public abstract void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
+  abstract void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException;
 
   @Test
-  public abstract void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
+  abstract void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException;
 
-  protected void prepareConvertCompoundKeyToLocation() throws ODataJPAModelException,
-      SerializerException, ODataJPAProcessorException {
+  protected void prepareConvertCompoundKeyToLocation() throws ODataJPAModelException {
 
     final List<JPAPath> keyPath = new ArrayList<>();
 

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -287,6 +288,25 @@ abstract class JPACreateResultTest extends TestBase {
   void testConvertNoException() throws ODataJPAModelException, ODataApplicationException {
     createCutProvidesEmptyMap();
     assertDoesNotThrow(() -> cut.convert(converter));
+  }
+
+  @Test
+  void testGetRequestedSelectionReturnsEmptyList() throws ODataJPAModelException, ODataApplicationException {
+    createCutProvidesEmptyMap();
+    assertEquals(List.of(), cut.getRequestedSelection());
+  }
+
+  @Test
+  void testGetSkipTokenReturnsNull() throws ODataJPAModelException, ODataApplicationException {
+    createCutProvidesEmptyMap();
+    assertNull(cut.getSkipToken(List.of()));
+  }
+
+  @Test
+  void testRemoveResultProvidesNullOnSecondCall() throws ODataJPAModelException, ODataApplicationException {
+    createCutGetResultSimpleEntity();
+    assertNotNull(cut.removeResult("root"));
+    assertNull(cut.removeResult("root"));
   }
 
   private void assertDoesNotContain(final List<Tuple> result, final String prefix) {

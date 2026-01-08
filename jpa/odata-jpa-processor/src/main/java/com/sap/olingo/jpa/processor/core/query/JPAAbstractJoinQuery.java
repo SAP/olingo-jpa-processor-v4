@@ -674,7 +674,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       throws ODataJPAModelException, ODataJPAQueryException {
 
     final JPAAttribute keyElement = keyElements.get(secondaryIndex);
-    return new BoundaryInfo<Y>(getKeyPath(et, from, keyElement),
+    return new BoundaryInfo<Y>(getKeyPath(et, from, keyElement), // NOSONAR
         jpaKeyPair.getMinElement(keyElement),
         jpaKeyPair.getMaxElement(keyElement));
   }

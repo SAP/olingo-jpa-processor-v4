@@ -9,7 +9,8 @@ import java.lang.annotation.Target;
 /**
  * Metadata of a function, see <a href =
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398010">
- * edm:Function.</a><p>
+ * edm:Function.</a>
+ * <p>
  * @author Oliver Grande
  *
  */
@@ -42,7 +43,8 @@ public @interface EdmFunction {
     EdmGeospatial srid() default @EdmGeospatial();
 
     /**
-     * Define the return type for the function import.<p>
+     * Define the return type for the function import.
+     * <p>
      *
      * @return Class of java parameter (row) type. This can be either a simple type like <code> Integer.class</code> or
      * the POJO defining an Entity. If the type is not set and the
@@ -68,13 +70,15 @@ public @interface EdmFunction {
   String functionName() default "";
 
   /**
-   * Indicates that the Function is bound. <p>
+   * Indicates that the Function is bound.
+   * <p>
    * If isBound is false a function is treated as <i>unbound</i>, so it can be accessed either via a Function Import or
    * be used in <i>filter</i> or <i>orderby</i> expression. Otherwise the function is treated as bound.
    * For details see:
    * <a href =
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398013"
-   * />OData Version 4.0 Part 3 - 12.2.2 Attribute IsBound</a> <p>
+   * />OData Version 4.0 Part 3 - 12.2.2 Attribute IsBound</a>
+   * <p>
    * <b>If the function is java based isBound is ignored and always set to false</b>
    * @return
    */
@@ -84,8 +88,10 @@ public @interface EdmFunction {
    * Indicates that a Function Import shall be generated into the Container. For details see:
    * <a href =
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042"
-   * />OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a> <p>
-   * hasFunctionImport is handled as follows:<p>
+   * />OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a>
+   * <p>
+   * hasFunctionImport is handled as follows:
+   * <p>
    * <ol>
    * <li>For <b>bound</b> functions hasFunctionImport is always treated as <b>false</b></li>
    * <li>For <b>unbound</b> functions in case hasFunctionImport is <b>true</b> a function import is generated, which
@@ -107,7 +113,8 @@ public @interface EdmFunction {
    * <p>
    * <a href =
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398015"
-   * />OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a> <p>
+   * />OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a>
+   * <p>
    *
    */
   String entitySetPath() default "";
@@ -118,4 +125,9 @@ public @interface EdmFunction {
    * @return return type of this function
    */
   ReturnType returnType();
+
+  /**
+   * Restrict the access to the function to the give user groups. Default is unrestricted access.
+   */
+  EdmVisibleFor visibleFor() default @EdmVisibleFor;
 }

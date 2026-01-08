@@ -432,7 +432,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     void setPath(@Nullable final Expression<?> expression) {
       if (expression instanceof PathImpl && ((PathImpl<?>) expression).path.isPresent()) {
         jpaPath = Optional.of(((PathImpl<?>) expression).path.get()); // NOSONAR
-        converter = Optional.ofNullable(jpaPath.get().getLeaf().getConverter());
+        converter = Optional.ofNullable(jpaPath.get().getLeaf().getRawConverter());
       } else {
         this.converter = Optional.empty();
         this.jpaPath = Optional.empty();

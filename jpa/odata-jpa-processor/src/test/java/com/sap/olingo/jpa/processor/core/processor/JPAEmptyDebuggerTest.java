@@ -18,7 +18,7 @@ class JPAEmptyDebuggerTest {
   }
 
   @Test
-  void testMeasurementCreated() throws Exception {
+  void testMeasurementCreated() {
     try (JPARuntimeMeasurement measurement = cut.newMeasurement(cut, "firstTest")) {
       assertEquals(0L, measurement.getMemoryConsumption());
     }

@@ -20,16 +20,16 @@ public class ActionWithOverload implements ODataAction {
 
   @EdmAction(name = "DoSometingFunny", isBound = true)
   public void baseAction(@EdmParameter(name = "Binding") final BusinessPartner partner) {
-
+    // Not needed
   }
 
   @EdmAction(name = "DoSometingFunny", isBound = true)
   public void overloadedAction(@EdmParameter(name = "Binding") final Person partner) {
-
+    // Not needed
   }
 
   @EdmAction(name = "DoSometingFunny", isBound = true)
   public void overloadedAction(@EdmParameter(name = "Binding") final AdministrativeDivision partner) {
-
+    // Not needed
   }
 }

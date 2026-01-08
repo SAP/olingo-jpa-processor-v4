@@ -171,11 +171,12 @@ class JPAOrderByBuilderTest extends TestBase {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     when(uriResource.getTopOption()).thenReturn(top);
 
-    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriInfo);
+    final List<Order> act = cut.createOrderByList(joinTables, orderByAttributes, uriResource);
 
     assertFalse(act.isEmpty());
     assertEquals(String.class, act.get(0).getExpression().getJavaType());
     assertEquals("DivisionCode", act.get(0).getExpression().getAlias());
+    assertEquals(4, act.size());
   }
 
   @Test
@@ -201,7 +202,7 @@ class JPAOrderByBuilderTest extends TestBase {
     assertFalse(act.isEmpty());
     assertEquals(String.class, act.get(0).getExpression().getJavaType());
     assertEquals("DivisionCode", act.get(0).getExpression().getAlias());
-    assertEquals(5, act.size());
+    assertEquals(4, act.size());
   }
 
   private List<UriResource> createOrderByClause(final Boolean isDescending) {

@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import jakarta.persistence.metamodel.Attribute.PersistentAttributeType;
 
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.Cardinality;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -272,5 +273,16 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public List<JPAPath> getForeignKeyColumns() throws ODataJPAModelException {
     return hasJoinTable() ? getLeftColumnsList() : getRightColumnsList();
+  }
+
+  @Override
+  public Cardinality cardinality() {
+    return switch (cardinality) {
+      case MANY_TO_ONE -> Cardinality.MANY_TO_ONE;
+      case ONE_TO_ONE -> Cardinality.ONE_TO_ONE;
+      case MANY_TO_MANY -> Cardinality.MANY_TO_MANY;
+      case ONE_TO_MANY -> Cardinality.ONE_TO_MANY;
+      default -> null;
+    };
   }
 }

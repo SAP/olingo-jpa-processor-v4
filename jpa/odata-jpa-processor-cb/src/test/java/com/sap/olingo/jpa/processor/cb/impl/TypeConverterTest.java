@@ -152,7 +152,12 @@ class TypeConverterTest {
         arguments(LocalDateTime.parse("2007-12-03T10:15:30.05"), "2007-12-03T10:15:30.05", LocalDateTime.class),
         arguments(OffsetTime.parse("10:15:30+01:00"), "10:15:30+01:00", OffsetTime.class),
         arguments(OffsetDateTime.parse("2007-12-03T10:15:30+01:00"), "2007-12-03T10:15:30+01:00",
-            OffsetDateTime.class));
+            OffsetDateTime.class),
+        arguments(Timestamp.valueOf("2007-12-03 10:15:30.05"), LocalDateTime.parse("2007-12-03T10:15:30.05"),
+            Timestamp.class),
+        arguments(Timestamp.valueOf("2007-12-03 00:00:00"), LocalDate.parse("2007-12-03"),
+            Timestamp.class),
+        arguments(Timestamp.valueOf("2007-12-03 10:15:30.05"), "2007-12-03 10:15:30.05", Timestamp.class));
   }
 
   static Stream<Arguments> durationConversion() {

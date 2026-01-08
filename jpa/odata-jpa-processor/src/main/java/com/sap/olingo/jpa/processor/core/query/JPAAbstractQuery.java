@@ -586,9 +586,10 @@ public abstract class JPAAbstractQuery {
    * @param baseType
    * @param potentialDerivedType
    * @return true if potentialDerivedType is indeed a derived type of baseType
+   * @throws ODataJPAModelException
    */
   boolean derivedTypeRequested(@Nonnull final JPAStructuredType baseType,
-      @Nonnull final JPAStructuredType potentialDerivedType) {
+      @Nonnull final JPAStructuredType potentialDerivedType) throws ODataJPAModelException {
     JPAStructuredType type = potentialDerivedType;
     while (type != null && type.getBaseType() != null) {
       if (baseType.equals(type.getBaseType()))

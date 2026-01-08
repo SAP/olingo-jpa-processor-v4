@@ -246,4 +246,49 @@ class PredicateImplTest extends BuilderBaseTest {
   void testGetOperator() {
     assertNull(cut.getOperator());
   }
+
+  static Stream<Arguments> illegalArgumentsAndOr() throws SecurityException {
+    final var predicate = mock(Predicate.class, withSettings().extraInterfaces(SqlConvertible.class));
+
+    return Stream.of(
+        arguments(null, "Array is null"),
+        arguments(new Predicate[] {}, "Array is empty"),
+        arguments(new Predicate[] { predicate }, "Array one entry"),
+        arguments(new Predicate[] { predicate, null }, "Array first entry null"),
+        arguments(new Predicate[] { null, predicate }, "Array second entry null"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("illegalArgumentsAndOr")
+  void testAndThrowsException(final Predicate[] restrictions, final String text) {
+    assertThrows(IllegalArgumentException.class, () -> PredicateImpl.and(restrictions), text);
+  }
+
+  @ParameterizedTest
+  @MethodSource("illegalArgumentsAndOr")
+  void testOrThrowsException(final Predicate[] restrictions, final String text) {
+    assertThrows(IllegalArgumentException.class, () -> PredicateImpl.or(restrictions), text);
+  }
+
+  static Stream<Arguments> legalArgumentsAndOr() throws SecurityException {
+    final var predicate = mock(Predicate.class, withSettings().extraInterfaces(SqlConvertible.class));
+
+    return Stream.of(
+        arguments(new Predicate[] { predicate, predicate }, "Array two entries"),
+        arguments(new Predicate[] { predicate, predicate, predicate }, "Array three entries"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("legalArgumentsAndOr")
+  void testAndReturnsPredicate(final Predicate[] restrictions, final String text) {
+    final var act = PredicateImpl.and(restrictions);
+    assertNotNull(act, text);
+  }
+
+  @ParameterizedTest
+  @MethodSource("legalArgumentsAndOr")
+  void testOrReturnsPredicate(final Predicate[] restrictions, final String text) {
+    final var act = PredicateImpl.or(restrictions);
+    assertNotNull(act, text);
+  }
 }

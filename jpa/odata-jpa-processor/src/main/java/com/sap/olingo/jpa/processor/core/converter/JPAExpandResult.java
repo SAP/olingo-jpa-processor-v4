@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.converter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPageExpandInfo;
 
 public interface JPAExpandResult { // NOSONAR
@@ -31,6 +33,8 @@ public interface JPAExpandResult { // NOSONAR
 
   List<Tuple> getResult(final String key);
 
+  List<Tuple> removeResult(final String key);
+
   Map<String, List<Tuple>> getResults();
 
   boolean hasCount();
@@ -40,4 +44,5 @@ public interface JPAExpandResult { // NOSONAR
   @CheckForNull
   String getSkipToken(@Nonnull final List<JPAODataPageExpandInfo> newInfo);
 
+  Collection<JPAPath> getRequestedSelection();
 }

@@ -16,9 +16,9 @@ requires the knowledge about a couple of details such as:
 This makes a general implementation impossible. Instead the JPA Processor provides a hook to calculate the pages of a request. 
 This hook must implement interface https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPagingProvider.java[`JPAODataPagingProvider`], 
 which contains two methods `getFirstPage` and `getNextPage`. `getFirstPage` is called in case a query does not contain a `$skiptoken`. 
-It either returns an instance of https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPage.java[`JPAODataPage`], 
-which describes the subset of the requested entities that shall be returned or null, so all entities are returned. 
-If a request has a `$skiptoken` method `getNextPage` is called. In case this method does not return a `JPAODataPage` instance, which describes the next page to be retrieved, a _http 410, "Gone"_, exception is raised.
+It either returns an `Optional` of https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPage.java[`JPAODataPage`], 
+which describes the subset of the requested entities that shall be returned. In case the `Optional` is empty all entities are returned. 
+If a request has a `$skiptoken` method `getNextPage` is called. In case this method returns an empty `Optional` of `JPAODataPage`, which would describes the next page to be retrieved, a _http 410, "Gone"_, exception is raised.
 
 As a paging provider connects to multiple requests, it is put to the session context:
 
@@ -55,17 +55,18 @@ Implementing server-driven paging, we must answer some questions. The first, gen
 There are two obvious options: 
 
 . The skip-token is a string that contains all the information needed to build the next page and to determine the last page.
-. The skip-token is a random key.
+. The skip-token is a (random) key.
 
-Both have drawbacks. If we provide a string, the client can manipulate it, so the server must check e.g., that the client does not request to many entities. 
-If a random skip-token is used, the server must store information about the query.
+Both have drawbacks. If we provide a string, that just contains the OData functions for the next request, so includes $skip and $top, has the problem that the original request could already contain these functions.
+This makes it one the one hand difficult to know which is the last page and on the other hand opens for the client to manipulate it, so the server must check e.g., 
+that the client does not request too many entities. If a key based skip-token is used, the server must store information about the query.
 
 For this tutorial we use the second option, as it seams to be easier to implement. So, lets have a look at the next questions that need to be answered:
 
 . How to store the necessary information to build a query from the skip-token?
 . How to prevent to many open skip-token and create a memory leak?
-. Can skip-token be used multiple times?
 . What page sizes should be used?
+. Can skip-token be used multiple times?
 
 For this case, single service instance and just one thread, we can cache the necessary information in a `Map` with the skip-token as key. 
 To limit the memory consumption, we add a `Queue` that gives the skip-token an order. This enable us to remove the oldest entry, if the 
@@ -84,8 +85,8 @@ The frame of out paging provider will look as follows:
 public class PagingProvider implements JPAODataPagingProvider {
 
   private static final int BUFFER_SIZE = 500; //<1>
-  private final Map<String, CacheEntry> pageCache; //<2>
-  private final Queue<String> index; //<3>
+  private final Map<Integer, CacheEntry> pageCache; //<2>
+  private final Queue<Integer> index; //<3>
   private final Map<String, Integer> maxPageSizes; //<4>
   
   public PagingProvider(final Map<String, Integer> pageSizes) { //<4>
@@ -97,27 +98,29 @@ public class PagingProvider implements JPAODataPagingProvider {
   ... 
 }
 ----
-<1> Definition of the size of the cache. So, we wont have more then 500 skip-token in the cache.
+<1> Definition of the size of the cache. So, we wont have more then 500 skip-token in the cache. The answer to the second question.
 <2> Map to cache the query information.
 <3> Queue to control the cache limit.
-<4> Map to store the page sizes per entity type, which is provided when an instance of the paging provider is created.
+<4> Map to store the page sizes per entity type, which is provided when an instance of the paging provider is created. So 
+the answer to question three is injected into the paging provider.
 
 If we look carefully at the first part of the implementation, we see that we need a class that takes the information 
-needed to create the next page:
+needed to create the next page, so the answer to the first question:
 
 [source,java]
 ----
   private static record CacheEntry(Long last, //<1>
   		JPAODataPage page) {} //<2>
 ----
-<1> The last index to be returned for the request. 
+<1> The last row to be returned for the request. 
 <2> The page provided.
 
 [NOTE]
 ====
-If the cache stores to last top value, it could happen that entries are missed in case they are created while a 
-client retrieves page by page. Nevertheless, as determine the last top include a count query, so a round trip to the database,
-this information is not calculated again.
+If the cache stores the last top value, it could happen that entries are missed in case they are created while a 
+client retrieves page by page. This could be avoided by determine the last row to be selected over and over again.
+Nevertheless, as determine the last row include a count query, so a round trip to the database,
+this information should not calculated again.
 ====
 
 Having done this preparation, we can start to implement `getFirstPage` and `getNextPage`. 
@@ -161,9 +164,9 @@ First things first. Let's implement `getFirstPage`:
         final Long last = topValue != null && (topValue + skipValue) < maxResults
             ? (topValue + skipValue) : maxResults; //<6>
         // Create a unique skip token if needed
-        String skipToken = null;
+        Integer skipToken = null;
         if (pageSize < count)
-          skipToken = UUID.randomUUID().toString(); //<7>
+          skipToken = skipToken = Objects.hash(uriInfo, skipValue, pageSize); //<7>
         // Create page information
         final JPAODataPage page = new JPAODataPage(uriInfo, skipValue, pageSize, skipToken);
         // Cache page to be able to fulfill next link based request
@@ -178,26 +181,28 @@ First things first. Let's implement `getFirstPage`:
 
 <1> UriInfo is a class provided by Olingo. It contains the parsed request information. The implementation looks at 
 the root of the request to decide if paging shall be considered. This may not always be the right thing, as 
-for chains of navigations the last part is retrieved from the database and will get the page limitation, based on the root.
+for chains of navigations the last part is retrieved from the database and should rule the page limitation.
 <2> A client can ask for certain page size by using `odata.maxpagesize` preference header. The paging provider shall respect this as
 long as the value is lower the maximum supported.
 <3> Skip further processing if no paging is required.
 <4> Determine maximum number of results that can be expected.
 <5> Determine requested number of results. Needed to decide if paging is needed.
 <6> Determine the last result requested. Needed to be able to stop the paging.
-<7> If paging is required, create a random skip-token.
+<7> If paging is required, create a hash value as skip token. Here the most simple way is used. 
+Other types of hash values like MD5 are also possible. Using a random UUID can also be an option. 
 <8> Add the page to the cache.
 
-Now we must implement method `addToCache`, which is responsible to organize it:
+Now we must implement method `addToCache`, which is responsible to organize the cache. We choose a round robin caching. 
+When the cache is full the first entry will be removed. 
 
 [source, java]
 ----
   private void addToCache(final JPAODataPage page, final Long count) {
-    if (pageCache.size() == BUFFER_SIZE) //<1>
-      pageCache.remove(index.poll());
-
-    pageCache.put((String) page.skipToken(), new CacheEntry(count, page));
-    index.add((String) page.skipToken());
+    if (pageCache.size() == cacheSize)
+      pageCache.remove(index.poll()); //<1>
+    
+    pageCache.put((Integer) page.skipToken(), new CacheEntry(count, page));
+    index.add((Integer) page.skipToken());
   }
 ----
 
@@ -206,7 +211,7 @@ Now we must implement method `addToCache`, which is responsible to organize it:
 With the implementation we already have, plus an empty one for `getNextPage`, we can test the paging and see 
 if the skip-token is provided in the response of the request.
 
-Last step is to implement `getNextPage`:
+Now, the last step is to implement `getNextPage`:
 
 [source, java]
 ----
@@ -217,16 +222,16 @@ Last step is to implement `getNextPage`:
       final ServiceMetadata serviceMetadata, 
       final JPARequestParameterMap requestParameter, 
       final EntityManager em) {
-    final CacheEntry previousPage = pageCache.get(skipToken.replace("'", "")); //<1>
+    final var previousPage = pageCache.get(Integer.valueOf(skipToken.replace("'", ""))); //<1>
     if (previousPage != null) {
       // Calculate next page
       final Integer skip = previousPage.page().skip() + previousPage.page().top();
-      // Create a new skip token, if next page is not the last one
-      String nextToken = null;
-      if (skip + previousPage.page().top() < previousPage.last()) //<2>
-        nextToken = UUID.randomUUID().toString();
-      final int top = (int) ((skip + previousPage.page().top()) < previousPage.last()
-          ? previousPage.page().top() : previousPage.last() - skip); //<3>
+      final var top = (int) ((skip + previousPage.page().top()) < previousPage.maxTop() ? previousPage
+          .page().top() : previousPage.maxTop() - skip); //<2>
+      // Create a new skip token if next page is not the last one
+      Integer nextToken = null;
+      if (skip + previousPage.page().top() < previousPage.maxTop()) //<3>
+        nextToken = Objects.hash(previousPage.page().uriInfo(), skip, top);     
       final JPAODataPage page = new JPAODataPage(previousPage.page().uriInfo(), skip, top, nextToken);
       if (nextToken != null)
         addToCache(page, previousPage.last());
@@ -238,8 +243,12 @@ Last step is to implement `getNextPage`:
 ----
 
 <1> Look for query information in the cache.
-<2> Check if this is the last page.
-<3> Calculate the value of $top, which may be different for the last page.
+<2> Calculate the value of $top, which may be different for the last page.
+<3> Check if this is the last page.
+
+With this implementation we answer the fourth question with yes. A cache entry, for a skip token, is not removed 
+when the corresponding page is requested. This is also the reason why a key that can be regenerated is used. In case a skip token is used
+multiple times, only one cache entry for the following page is created. 
 
 We are done and can test our complete server-driven paging.
 
@@ -263,8 +272,8 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
       if (pageCache.size() == cacheSize)
         pageCache.remove(index.poll());
         
-      pageCache.put((String) page.skipToken(), new CacheEntry(count, page));
-      index.add((String) page.skipToken());
+      pageCache.put((Integer) page.skipToken(), new CacheEntry(count, page));
+      index.add((Integer) page.skipToken());
     }
   }  
   
@@ -292,10 +301,10 @@ We have already a backing service in place, the database. To store the pages, we
 [source,sql]
 ----
 CREATE TABLE "Trippin"."Pages" (
-	"token" varchar(255) NOT NULL,
+	"token" int4 NOT NULL,
 	"skip" int4 NOT NULL,
 	"top" int4 NOT NULL,
-	"count" int4 NOT NULL,
+	"last" int4 NOT NULL,
 	"baseUri" varchar(1000) NULL,
 	"oDataPath" varchar(1000) NULL,
 	"queryPath" varchar(1000) NULL,
@@ -322,7 +331,7 @@ public class Pages {
 
   @Id
   @Column(name = "\"token\"")
-  private String token;
+  private Integer token;
 
   @Column(name = "\"skip\"")
   private Integer skip;
@@ -349,7 +358,7 @@ public class Pages {
     // Needed for JPA
   }
 
-  public Pages(final String token, final Integer skip, final Integer top, final Integer last, final String baseUri,
+  public Pages(final Integer token, final Integer skip, final Integer top, final Integer last, final String baseUri,
       final String oDataPath, final String queryPath, final String fragments) {
     super();
     this.token = token;
@@ -362,7 +371,7 @@ public class Pages {
     this.fragments = fragments;
   }
 
-  public Pages(final Pages previousPage, final int skip, final String token) {
+  public Pages(final Pages previousPage, final int skip, final Integer token) {
     super();
     this.token = token;
     this.skip = skip;
@@ -374,7 +383,7 @@ public class Pages {
     this.fragments = previousPage.fragments;
   }
 
-  public String getToken() {
+  public Integer getToken() {
     return token;
   }
 
@@ -439,7 +448,7 @@ The `savePage` looks as follows:
       final JPAODataPage page) {
 
     if (page.skipToken() != null) {
-      final Pages pagesItem = new Pages((String) page.skipToken(), page.skip(), page.top(), last > Integer.MAX_VALUE
+      final Pages pagesItem = new Pages((Integer) page.skipToken(), page.skip(), page.top(), last > Integer.MAX_VALUE
             ? Integer.MAX_VALUE : last.intValue(),
             pathInformation.baseUri(), pathInformation.oDataPath(), pathInformation.queryPath(),
             pathInformation.fragments());
@@ -453,11 +462,11 @@ The `savePage` looks as follows:
 Having done that, we have to go ahead and handle the retrieval of the next page: 
 
 [source,java]
-----
+----  
   @Override
   public Optional<JPAODataPage> getNextPage(@Nonnull final String skipToken, final OData odata,
       final ServiceMetadata serviceMetadata, final JPARequestParameterMap requestParameter, final EntityManager em) {
-    final Pages previousPage = em.find(Pages.class, skipToken.replace("'", "")); //<1>
+    final Pages previousPage = em.find(Pages.class, Integer.valueOf(skipToken.replace("'", ""))); //<1>
     if (previousPage != null) {
       try {
         final UriInfo uriInfo = new Parser(serviceMetadata.getEdm(), odata)
@@ -466,7 +475,8 @@ Having done that, we have to go ahead and handle the retrieval of the next page:
         final Integer skipValue = previousPage.getSkip() + previousPage.getTop();
         final Integer topValue = skipValue + previousPage.getTop() > previousPage.getLast()
             ? previousPage.getLast() - skipValue : previousPage.getTop();
-        final String newToken = skipValue + topValue < previousPage.getLast() ? UUID.randomUUID().toString() : null;
+        final Integer newToken = skipValue + topValue < previousPage.getLast() ? Objects.hash(uriInfo, skipValue,
+            topValue) : null;
         final JPAODataPage nextPage = new JPAODataPage(uriInfo, skipValue, topValue, newToken);
         replacePage(previousPage, nextPage, em); //<3>
         return Optional.of(nextPage);
@@ -490,7 +500,7 @@ For this variant we want to remove the already processed page on the database be
     em.getTransaction().begin();
     em.remove(previousPage);
     if (newPage.skipToken() != null) {
-      final Pages pagesItem = new Pages(previousPage, newPage.skip(), (String) newPage.skipToken());
+      final Pages pagesItem = new Pages(previousPage, newPage.skip(), (Integer) newPage.skipToken());
       em.persist(pagesItem);
     }
     em.getTransaction().commit();
@@ -499,7 +509,7 @@ For this variant we want to remove the already processed page on the database be
 
 [WARNING]
 ====
-We cannot force the client to read all pages. That is, we must take into account that over the time the Page table
+We cannot force the client to read all pages. That is, we must take into account that over the time the Pages table
 get bigger and bigger, filled with garbage. To get rid of it, we have to have a clean-up job, removing old entries.
 
 ====
@@ -508,7 +518,7 @@ get bigger and bigger, filled with garbage. To get rid of it, we have to have a 
 === Use an external cache
 As an alternative we can use an external cache that offers a lifetime for its entries. There might be other option, but
 for this tutorial, we use Redis. It will not be described how to set it up. There are a lot of tutorial out there that handle this topic.  
-For the tutorial we assume Redis it is available. +
+For the tutorial we assume Redis is available.
 Even so Spring offers an encapsulation to access Redis, we use Jedis as Java API. We get it by adding the following dependency to our POM:
 
 [source,XML]
@@ -581,6 +591,12 @@ the interface of `savePage`
       final EntityManager em) throws ODataApplicationException {
       
 	...
+    // Create a unique skip token if needed
+    String skipToken = null;
+    if (pageSize < count)
+      skipToken = String.valueOf(Objects.hash(uriInfo, skipValue, topValue));
+
+    final JPAODataPage page = new JPAODataPage(uriInfo, skipValue, pageSize, skipToken);
     if(skipToken != null)
       savePage(pathInformation, last, page, requestParameter.get(ProcessorConfiguration.REDIS));//<2>
     ...
@@ -649,17 +665,17 @@ Also `getNextPage` has to be adopted:
         final Integer skipValue = getInteger(previousPage, SKIP) + getInteger(previousPage, TOP);
         final Integer topValue = skipValue + getInteger(previousPage, TOP) > getInteger(previousPage, LAST)
             ? getInteger(previousPage, LAST) - skipValue : getInteger(previousPage, TOP);
-        final String newToken = skipValue + topValue < getInteger(previousPage, LAST) ? UUID.randomUUID().toString()
-            : null;
+        final String newToken = skipValue + topValue < getInteger(previousPage, LAST) ? String.valueOf(Objects.hash(
+            uriInfo, skipValue, topValue)) : null;
         final JPAODataPage nextPage = new JPAODataPage(uriInfo, skipValue, topValue, newToken);
         replacePage(previousPage, nextPage, requestParameter.get(ProcessorConfiguration.REDIS)); //<2>
         return Optional.of(nextPage);
       } catch (final ODataException e) {
-        Optional.empty();
+        return Optional.empty();
       }
     }
     return Optional.empty();
-  }
+  }  
   
   private Map<String, String> getPreviousPage(final String skipToken, final Object pool) {
     if (skipToken != null

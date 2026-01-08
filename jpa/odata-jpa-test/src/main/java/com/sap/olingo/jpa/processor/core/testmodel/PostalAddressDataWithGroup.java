@@ -14,6 +14,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
 @Embeddable
 public class PostalAddressDataWithGroup {
+
   @Column(name = "\"Address.StreetName\"", nullable = true)
   private String streetName;
   @Column(name = "\"Address.StreetNumber\"", nullable = true)
@@ -43,7 +44,6 @@ public class PostalAddressDataWithGroup {
 
   @EdmDescriptionAssociation(languageAttribute = "key/language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
-
   @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
       insertable = false, updatable = false)
   @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
