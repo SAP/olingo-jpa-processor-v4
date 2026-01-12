@@ -32,7 +32,7 @@
         <junit.version>6.0.1</junit.version>
         <mockito.version>5.19.0</mockito.version>
         <jacoco.version>0.8.14</jacoco.version>
-        <netty.version>4.2.8.Final</netty.version>
+        <netty.version>4.2.9.Final</netty.version>
         <org.slf4j.version>2.0.17</org.slf4j.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
