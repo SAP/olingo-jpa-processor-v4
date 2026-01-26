@@ -61,7 +61,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
     etList = emf.getMetamodel().getEmbeddables();
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
     schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(
-        Reflections.class), annotationInfo);
+        Reflections.class), annotationInfo, true);
   }
 
   @Test
@@ -362,7 +362,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
 
   @ParameterizedTest
   @MethodSource("complexTypeClassProvider")
-  <T> void checkAsUserGroupRestrictedCopiesUnrestrictedValues(Class<T> clazz) throws ODataJPAModelException {
+  <T> void checkAsUserGroupRestrictedCopiesUnrestrictedValues(final Class<T> clazz) throws ODataJPAModelException {
 
     final IntermediateStructuredType<T> ct = new IntermediateComplexType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEmbeddableType(clazz), schema);

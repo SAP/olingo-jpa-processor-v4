@@ -51,9 +51,11 @@ final class IntermediateSchema extends IntermediateModelElement {
   private IntermediateEntityContainer container;
   private final Reflections reflections;
   private CsdlSchema edmSchema;
+  private final boolean emfIsWrapped;
 
   IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel, final Reflections reflections,
-      final IntermediateAnnotationInformation annotationInfo) throws ODataJPAModelException {
+      final IntermediateAnnotationInformation annotationInfo, final boolean emfIsWrapped)
+      throws ODataJPAModelException {
 
     super(nameBuilder, nameBuilder.getNamespace(), annotationInfo);
     this.jpaMetamodel = jpaMetamodel;
@@ -63,11 +65,13 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.entityTypeListInternalKey = buildEntityTypeList();
     this.functionListInternalKey = buildFunctionList();
     this.actionListByKey = buildActionList();
+    this.emfIsWrapped = emfIsWrapped;
   }
 
   private IntermediateSchema(final IntermediateSchema source, final List<String> userGroups)
       throws ODataJPAModelException {
     super(source.nameBuilder, source.nameBuilder.getNamespace(), source.getAnnotationInformation());
+    emfIsWrapped = source.emfIsWrapped;
     jpaMetamodel = source.jpaMetamodel;
     reflections = source.reflections;
     complexTypeListInternalKey = copyRestricted(source.complexTypeListInternalKey, userGroups);
@@ -270,6 +274,10 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   void setContainer(final IntermediateEntityContainer container) {
     this.container = container;
+  }
+
+  boolean emfIsWrapped() {
+    return emfIsWrapped;
   }
 
   private Map<ODataActionKey, IntermediateJavaAction> buildActionList() throws ODataJPAModelException {

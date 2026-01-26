@@ -8,7 +8,6 @@
 	<version>${version}</version>
 	<packaging>jar</packaging>
 
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -17,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<processor.version>2.4.2-SNAPSHOT</processor.version>
+		<processor.version>2.5.0-SNAPSHOT</processor.version>
 		<java.version>17</java.version>
 		<build.sourceEncoding>UTF-8</build.sourceEncoding>
 		<eclipselink.version>4.0.3</eclipselink.version>

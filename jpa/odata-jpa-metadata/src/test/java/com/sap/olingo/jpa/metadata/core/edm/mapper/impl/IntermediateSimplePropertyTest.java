@@ -140,7 +140,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
         "oneAttribute");
     final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
-    assertEquals("\"oneAttribute\"", property.getDBFieldName(), "Wrong name");
+    assertEquals("oneAttribute", property.getDBFieldName(), "Wrong name");
   }
 
   @Test

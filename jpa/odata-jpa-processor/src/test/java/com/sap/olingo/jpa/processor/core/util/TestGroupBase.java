@@ -19,7 +19,6 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.junit.jupiter.api.BeforeEach;
 
-import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
@@ -52,8 +51,7 @@ public class TestGroupBase extends TestBase {
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartnerWithGroupss");
     createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        emf, dataSource, null, null, null);
+    context = new JPAODataContextAccessDouble(helper.edmProvider, emf, dataSource, null, null, null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     odata = OData.newInstance();

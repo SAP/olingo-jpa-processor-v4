@@ -86,13 +86,13 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   void setup() throws ODataJPAModelException {
     annotationProvider = new ArrayList<>();
     cut = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider);
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider, true);
   }
 
   @Test
   void checkServiceDocumentCanBeCreated() throws ODataJPAModelException {
     assertNotNull(new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider));
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider, true));
   }
 
   @Test
@@ -137,7 +137,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     when(et.getFullQualifiedName()).thenReturn(new FullQualifiedName(PUNIT_NAME, "Country"));
 
     final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null,
-        annotationProvider);
+        annotationProvider, true);
     assertFalse(svc.hasETag(target));
   }
 
@@ -244,7 +244,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     when(action.getBindingParameterTypeFqn()).thenReturn(new FullQualifiedName(PUNIT_NAME, "Person"));
     when(action.isBound()).thenReturn(true);
     final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider);
+        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider, true);
     assertNotNull(svc.getAction(action));
   }
 
@@ -256,7 +256,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     when(action.getBindingParameterTypeFqn()).thenReturn(null);
     when(action.isBound()).thenReturn(false);
     final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider);
+        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider, true);
     assertNotNull(svc.getAction(action));
   }
 
@@ -315,7 +315,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetEntityTypeReturnsEdmTypCustomName() throws ODataJPAModelException {
+  void checkGetEntityTypeReturnsEdmTypeCustomName() throws ODataJPAModelException {
     cut = createCutWithCustomNameBuilder();
     final EdmType edmType = mock(EdmType.class);
     when(edmType.getName()).thenReturn("Business_Partner");
@@ -405,10 +405,20 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
       assertTrue(cut.getTopLevelEntity(esName).isPresent());
   }
 
+  @Test
+  void checkCopyConstructor() throws ODataJPAModelException {
+    final var source = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider, true);
+
+    cut = source.asUserGroupRestricted(List.of("Manager"));
+    assertTrue(cut.emfIsWrapped());
+  }
+
   private IntermediateServiceDocument createCutWithCustomNameBuilder() throws ODataJPAModelException {
     return new IntermediateServiceDocument(new CustomJPANameBuilder(), emf.getMetamodel(), null,
         new String[] { "com.sap.olingo.jpa.processor.core.testmodel",
-            "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" }, annotationProvider);
+            "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" },
+        annotationProvider, true);
   }
 
 }

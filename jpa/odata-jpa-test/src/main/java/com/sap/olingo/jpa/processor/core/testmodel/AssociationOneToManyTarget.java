@@ -10,14 +10,14 @@ import jakarta.persistence.Table;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
 @Entity(name = "OneToManyTarget")
-@Table(schema = "\"OLINGO\"", name = "\"AssociationOneToManyTarget\"")
+@Table(schema = "\"OLINGO\"", name = "\"AssociationOneToOneTarget\"")
 public class AssociationOneToManyTarget {
 
   @Id
   @Column(name = "\"ID\"")
-  protected String iD;
+  protected String id;
 
-  @Column(name = "source_key")
+  @Column(name = "SOURCE")
   protected String sourceKey;
 
   /**
@@ -37,7 +37,7 @@ public class AssociationOneToManyTarget {
    * referencing entity or embeddable class; ""; the name of the referenced primary key column. ...</i>
    * <p>
    *
-   * The name has to be here &lt;SourceEntity&gt;_&lt;SourceKeyProperty&gt; so: [DEFAULTSOURCE_KEY]
+   * The name has to be here &lt;SourceEntity&gt;_&lt;SourceKeyProperty&gt; so: [DEFAULTSOURCE_ID]
    */
   @ManyToOne(fetch = FetchType.LAZY)
   private AssociationOneToManySource defaultSource;

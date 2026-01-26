@@ -25,6 +25,7 @@ import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.PrimaryKeyJoinColumns;
 import jakarta.persistence.Table;
@@ -515,7 +516,8 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   private JPAInheritanceInformation determineInheritanceInformation() {
     final Class<?> superType = jpaManagedType.getJavaType().getSuperclass();
-    if (superType != Object.class) {
+    final var mappedSuperClass = superType.getAnnotation(MappedSuperclass.class);
+    if (superType != Object.class && mappedSuperClass == null) {
       @SuppressWarnings("unchecked")
       final IntermediateEntityType<? super T> baseEntity = (IntermediateEntityType<? super T>) schema
           .getEntityType(superType);

@@ -5,12 +5,15 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.metamodel.Metamodel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
@@ -40,9 +43,13 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocumentFactory;
 
 public class JPAEdmProvider extends CsdlAbstractEdmProvider {
+  private static final Log LOGGER = LogFactory.getLog(JPAEdmProvider.class);
+
   private final JPAEdmNameBuilder nameBuilder;
   private final JPAServiceDocument serviceDocument;
   private final List<String> userGroups;
+
+  private final Boolean wrapperAvailable;
 
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
   public JPAEdmProvider(@Nonnull final String namespace, @Nonnull final EntityManagerFactory emf,
@@ -66,24 +73,34 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   public JPAEdmProvider(final Metamodel jpaMetamodel, final JPAEdmMetadataPostProcessor postProcessor,
       final String[] packageName, final JPAEdmNameBuilder nameBuilder,
       final List<AnnotationProvider> annotationProvider) throws ODataException {
+
+    this(jpaMetamodel, new JPADefaultWrapperChecker(), postProcessor, packageName, nameBuilder, annotationProvider);
+  }
+
+  public JPAEdmProvider(final Metamodel jpaMetamodel, final JPAWrapperChecker wrapperChecker,
+      final JPAEdmMetadataPostProcessor postProcessor,
+      final String[] packageName, final JPAEdmNameBuilder nameBuilder,
+      final List<AnnotationProvider> annotationProvider) throws ODataException {
     super();
     this.nameBuilder = nameBuilder;
+    this.wrapperAvailable = wrapperChecker.isWrapped();
     // After this call either a schema exists or an exception has been thrown
     this.serviceDocument = new JPAServiceDocumentFactory().getServiceDocument(nameBuilder, jpaMetamodel, postProcessor,
-        packageName, annotationProvider);
+        packageName, annotationProvider, wrapperAvailable);
     this.userGroups = List.of();
   }
 
-  private JPAEdmProvider(JPAEdmProvider source, List<String> userGroups) throws ODataJPAModelException {
+  private JPAEdmProvider(final JPAEdmProvider source, final List<String> userGroups) throws ODataJPAModelException {
     this.nameBuilder = source.nameBuilder;
+    this.wrapperAvailable = source.wrapperAvailable;
     this.serviceDocument = new JPAServiceDocumentFactory().asUserGroupRestricted(source.serviceDocument, userGroups);
     this.userGroups = userGroups;
   }
 
-  public JPAEdmProvider asUserGroupRestricted(List<String> userGroups) {
+  public JPAEdmProvider asUserGroupRestricted(final List<String> userGroups) {
     try {
       return new JPAEdmProvider(this, userGroups);
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAModelCopyException("Could not create restricted metadata", e);
     }
   }
@@ -351,4 +368,19 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     return new FullQualifiedName(nameBuilder.getNamespace(), name);
   }
 
+  private static class JPADefaultWrapperChecker implements JPAWrapperChecker {
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean isWrapped() {
+      try {
+        final var wrapper = Optional.ofNullable((Class<? extends EntityManagerFactory>) Class
+            .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper"));
+        return wrapper.isPresent();
+      } catch (final ClassNotFoundException e) {
+        LOGGER.trace("No Criteria Builder Extension found");
+        return false;
+      }
+    }
+  }
 }

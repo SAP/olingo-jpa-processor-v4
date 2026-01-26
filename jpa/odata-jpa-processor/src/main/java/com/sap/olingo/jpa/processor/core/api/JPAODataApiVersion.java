@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.api;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.persistence.EntityManagerFactory;
 
@@ -22,12 +23,14 @@ class JPAODataApiVersion implements JPAODataApiVersionAccess {
   private final JPAEdmProvider edmProvider;
   private final EntityManagerFactory emf;
   private String mappingPath;
+  private final Optional<Class<? extends EntityManagerFactory>> wrapperClass;
 
   JPAODataApiVersion(final JPAApiVersion version, final JPAEdmNameBuilder nameBuilder,
       final List<AnnotationProvider> annotationProviders, final ProcessorSqlPatternProvider sqlPattern)
       throws ODataException {
 
     this.id = version.getId();
+    this.wrapperClass = determineWrapperClass();
     this.edmProvider = createEdmProvider(version, nameBuilder, annotationProviders);
     this.emf = createEmfWrapper(version.getEntityManagerFactory(), edmProvider, sqlPattern);
     this.mappingPath = version.getRequestMappingPath();
@@ -37,6 +40,7 @@ class JPAODataApiVersion implements JPAODataApiVersionAccess {
     this.id = id;
     this.edmProvider = edmProvider;
     this.emf = emf;
+    this.wrapperClass = determineWrapperClass();
   }
 
   @Override
@@ -66,14 +70,22 @@ class JPAODataApiVersion implements JPAODataApiVersionAccess {
   }
 
   @SuppressWarnings("unchecked")
+  private Optional<Class<? extends EntityManagerFactory>> determineWrapperClass() {
+    try {
+      return Optional.ofNullable((Class<? extends EntityManagerFactory>) Class
+          .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper"));
+    } catch (final ClassNotFoundException e) {
+      LOGGER.trace("No Criteria Builder Extension found: use provided Entity Manager Factory");
+      return Optional.empty();
+    }
+  }
+
   private EntityManagerFactory createEmfWrapper(final EntityManagerFactory factory, final JPAEdmProvider jpaEdm,
       final ProcessorSqlPatternProvider sqlPattern) {
     try {
-      final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class
-          .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
-      if (wrapperClass != null) {
+      if (wrapperClass.isPresent()) {
         LOGGER.trace("Criteria Builder Extension found. It will be used");
-        return wrapperClass.getConstructor(EntityManagerFactory.class,
+        return wrapperClass.get().getConstructor(EntityManagerFactory.class,
             JPAServiceDocument.class, ProcessorSqlPatternProvider.class)
             .newInstance(factory, jpaEdm.getServiceDocument(), sqlPattern);
       } else
@@ -81,9 +93,6 @@ class JPAODataApiVersion implements JPAODataApiVersionAccess {
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
         | NoSuchMethodException | SecurityException e) {
       LOGGER.debug("Exception thrown while trying to create instance of emf wrapper", e);
-    } catch (final ClassNotFoundException e) {
-      // No Criteria Extension: everything is fine
-      LOGGER.trace("No Criteria Builder Extension found: use provided Entity Manager Factory");
     }
     return factory;
   }

@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManagerFactory;
@@ -21,6 +22,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 
 public class TestHelper {
   private final Metamodel jpaMetamodel;
@@ -29,7 +31,9 @@ public class TestHelper {
 
   public TestHelper(final EntityManagerFactory emf, final String namespace) throws ODataException {
     this.jpaMetamodel = emf.getMetamodel();
-    edmProvider = new JPAEdmProvider(namespace, emf, null, TestBase.enumPackages);
+    edmProvider = new JPAEdmProvider(emf.getMetamodel(), new TestWrapperChecker(), null, TestBase.enumPackages,
+        new JPADefaultEdmNameBuilder(namespace), List.of());
+
     sd = edmProvider.getServiceDocument();
     sd.getEdmEntityContainer();
   }

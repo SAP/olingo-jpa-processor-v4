@@ -24,8 +24,10 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 public class TestBase {
 
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
+  protected static final String ERROR_PUNIT = "error";
   public static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   protected static EntityManagerFactory emf;
+  protected static EntityManagerFactory errorEmf;
   protected TestHelper helper;
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
@@ -33,9 +35,11 @@ public class TestBase {
   protected HashMap<String, From<?, ?>> joinTables;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
+    errorEmf = JPAEntityManagerFactory.getEntityManagerFactory(ERROR_PUNIT, DataSourceHelper.createDataSource(
+        DataSourceHelper.DB_H2));
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
   }
 

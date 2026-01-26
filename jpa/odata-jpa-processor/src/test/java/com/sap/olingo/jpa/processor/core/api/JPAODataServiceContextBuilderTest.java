@@ -28,6 +28,7 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.processor.ErrorProcessor;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAApiVersion;
@@ -47,6 +48,7 @@ import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAPostgresqlSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
+import com.sap.olingo.jpa.processor.core.util.Assertions;
 
 class JPAODataServiceContextBuilderTest {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -75,29 +77,6 @@ class JPAODataServiceContextBuilderTest {
         .getEdmProvider();
     assertNotNull(act);
   }
-
-//  @Test
-//  void checkEmptyArrayOnNoPackagesProvided() throws ODataException {
-//    cut = JPAODataServiceContext.with()
-//        .setDataSource(dataSource)
-//        .setPUnit(PUNIT_NAME)
-//        .build();
-//
-//    assertNotNull(cut.getPackageName());
-//    assertEquals(0, cut.getPackageName().size());
-//  }
-//
-//  @Test
-//  void checkArrayOnProvidedPackages() throws ODataException {
-//    cut = JPAODataServiceContext.with()
-//        .setDataSource(dataSource)
-//        .setPUnit(PUNIT_NAME)
-//        .setTypePackage("org.apache.olingo.jpa.bl", "com.sap.olingo.jpa.processor.core.testmodel")
-//        .build();
-//
-//    assertNotNull(cut.getPackageName());
-//    assertEquals(2, cut.getPackageName().size());
-//  }
 
   @Test
   void checkReturnsProvidedPagingProvider() throws ODataException {
@@ -190,6 +169,7 @@ class JPAODataServiceContextBuilderTest {
     assertEquals(provider, cut.getSqlPatternProvider());
   }
 
+  @Tag(Assertions.CB_ONLY_TEST)
   @Test
   void checkJPAEdmContainsPostProcessor() throws ODataException {
 

@@ -41,6 +41,11 @@ class IntermediateVirtualProperty extends IntermediateProperty {
   }
 
   @Override
+  public boolean isVirtual() {
+    return true;
+  }
+
+  @Override
   public boolean ignore() {
     return true;
   }

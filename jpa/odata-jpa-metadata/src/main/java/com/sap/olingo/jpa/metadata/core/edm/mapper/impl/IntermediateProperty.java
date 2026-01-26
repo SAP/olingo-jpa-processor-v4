@@ -107,7 +107,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     buildProperty(nameBuilder);
   }
 
-  IntermediateProperty(IntermediateProperty source, List<String> userGroups) throws ODataJPAModelException {
+  IntermediateProperty(final IntermediateProperty source, final List<String> userGroups) throws ODataJPAModelException {
     super(source.nameBuilder, source.getInternalName(), source.getAnnotationInformation(), true);
     this.jpaAttribute = source.jpaAttribute;
     this.schema = source.schema;
@@ -216,7 +216,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   @Override
   public boolean isEnum() {
     return isEnum;
-
   }
 
   private void determineIsEnum() {
@@ -306,7 +305,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       edmProperty.setMapping(createMapper());
       edmProperty.setAnnotations(edmAnnotations);
 
-      if (type != null && type instanceof IntermediateModelElement element) {
+      if (type != null && type instanceof final IntermediateModelElement element) {
         element.getEdmItem();
       }
     }
@@ -603,7 +602,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       }
     }
     if (dbFieldName == null || dbFieldName.isEmpty())
-      dbFieldName = internalName;
+      dbFieldName = nameBuilder.buildColumnName(internalName);
   }
 
   /**

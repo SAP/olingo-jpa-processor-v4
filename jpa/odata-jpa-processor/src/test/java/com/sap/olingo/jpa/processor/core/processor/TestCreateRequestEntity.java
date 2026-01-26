@@ -45,6 +45,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -52,6 +53,7 @@ import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
+import com.sap.olingo.jpa.processor.core.util.TestWrapperChecker;
 
 class TestCreateRequestEntity {
   protected static final String ENTITY_SET_NAME = "AdministrativeDivisions";
@@ -72,9 +74,8 @@ class TestCreateRequestEntity {
 
     dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), postProcessor, TestBase.enumPackages,
-        annotationProvider);
-
+    jpaEdm = new JPAEdmProvider(emf.getMetamodel(), new TestWrapperChecker(), postProcessor, TestBase.enumPackages,
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), annotationProvider);
   }
 
   private OData odata;

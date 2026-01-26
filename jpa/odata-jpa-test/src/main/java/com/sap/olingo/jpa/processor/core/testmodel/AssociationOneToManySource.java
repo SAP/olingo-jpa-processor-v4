@@ -17,7 +17,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 public class AssociationOneToManySource {
 
   @Id
-  @Column(name = "key")
+  @Column(name = "\"ID\"")
   protected String key;
 
   /*
@@ -48,9 +48,7 @@ public class AssociationOneToManySource {
   private List<AssociationOneToManyTarget> ignoreMappedTarget;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "ignoreTarget")
-  @JoinColumn(name = "IGNORESOURCE_KEY", referencedColumnName = "key")
+  @JoinColumn(name = "\"IGNORESOURCE_KEY\"", referencedColumnName = "\"ID\"")
   private List<AssociationOneToManyTarget> explicitColumnTarget;
 
-//  @OneToMany(fetch = FetchType.LAZY)
-//  private List<AssociationOneToManyTarget> noMappedTarget;
 }
