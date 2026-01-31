@@ -112,7 +112,7 @@ class IntermediateVirtualProperty extends IntermediateProperty {
   }
 
   @Override
-  boolean isPartOfGroup() {
+  boolean hasUserGroupRestriction() {
     return false;
   }
 

@@ -1009,6 +1009,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertTrue(act.isEmpty());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   void checkAsUserGroupRestrictedUser() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
@@ -1016,7 +1017,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     final var property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
 
-    final IntermediateSimpleProperty act = property.asUserGroupRestricted(List.of("Company"));
+    final IntermediateSimpleProperty act = property.asUserGroupRestricted(List.of("Company"), true);
     assertNotEquals(property, act);
     assertTrue(((IntermediateStructuredType<RestrictedEntityComplex>) act.getStructuredType()).isRestricted());
   }

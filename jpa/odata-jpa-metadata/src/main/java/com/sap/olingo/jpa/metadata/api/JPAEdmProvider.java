@@ -90,16 +90,18 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     this.userGroups = List.of();
   }
 
-  private JPAEdmProvider(final JPAEdmProvider source, final List<String> userGroups) throws ODataJPAModelException {
+  private JPAEdmProvider(final JPAEdmProvider source, final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     this.nameBuilder = source.nameBuilder;
     this.wrapperAvailable = source.wrapperAvailable;
-    this.serviceDocument = new JPAServiceDocumentFactory().asUserGroupRestricted(source.serviceDocument, userGroups);
+    this.serviceDocument = new JPAServiceDocumentFactory().asUserGroupRestricted(source.serviceDocument, userGroups,
+        hideRestrictedProperties);
     this.userGroups = userGroups;
   }
 
-  public JPAEdmProvider asUserGroupRestricted(final List<String> userGroups) {
+  public JPAEdmProvider asUserGroupRestricted(final List<String> userGroups, final boolean hideRestrictedProperties) {
     try {
-      return new JPAEdmProvider(this, userGroups);
+      return new JPAEdmProvider(this, userGroups, hideRestrictedProperties);
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAModelCopyException("Could not create restricted metadata", e);
     }

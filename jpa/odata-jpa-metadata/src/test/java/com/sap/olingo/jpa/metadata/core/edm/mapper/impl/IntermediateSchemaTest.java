@@ -176,7 +176,7 @@ class IntermediateSchemaTest extends TestMappingRoot {
     final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
         .getMetamodel(), reflections, annotationInfo, true);
 
-    final var cut = (IntermediateSchema) schema.asUserGroupRestricted(List.of("Manager"));
+    final var cut = (IntermediateSchema) schema.asUserGroupRestricted(List.of("Manager"), true);
     assertTrue(cut.emfIsWrapped());
   }
 }

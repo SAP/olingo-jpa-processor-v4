@@ -195,14 +195,14 @@ class IntermediateSingletonTest extends TestMappingRoot {
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(CurrentUser.class), schema);
     final var singleton = new IntermediateSingleton(nameBuilder, et, annotationInfo);
 
-    final IntermediateSingleton act = singleton.asUserGroupRestricted(List.of("Company"));
+    final IntermediateSingleton act = singleton.asUserGroupRestricted(List.of("Company"), true);
     assertEquals(singleton.getExternalFQN(), act.getExternalFQN());
     assertEquals(singleton.getExternalName(), act.getExternalName());
     assertEquals(singleton.getInternalName(), act.getInternalName());
     assertListEquals(singleton.getEdmItem().getNavigationPropertyBindings(), act.getEdmItem()
         .getNavigationPropertyBindings(),
         CsdlNavigationPropertyBinding.class);
-    final IntermediateSingleton act2 = singleton.asUserGroupRestricted(List.of("Person"));
+    final IntermediateSingleton act2 = singleton.asUserGroupRestricted(List.of("Person"), true);
     assertEquals(singleton.getExternalFQN(), act2.getExternalFQN());
     assertEquals(singleton.getExternalName(), act2.getExternalName());
     assertEquals(singleton.getInternalName(), act2.getInternalName());

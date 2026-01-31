@@ -24,6 +24,7 @@ class JPAODataApiVersion implements JPAODataApiVersionAccess {
   private final EntityManagerFactory emf;
   private String mappingPath;
   private final Optional<Class<? extends EntityManagerFactory>> wrapperClass;
+  private boolean hideRestrictedProperties;
 
   JPAODataApiVersion(final JPAApiVersion version, final JPAEdmNameBuilder nameBuilder,
       final List<AnnotationProvider> annotationProviders, final ProcessorSqlPatternProvider sqlPattern)
@@ -34,6 +35,7 @@ class JPAODataApiVersion implements JPAODataApiVersionAccess {
     this.edmProvider = createEdmProvider(version, nameBuilder, annotationProviders);
     this.emf = createEmfWrapper(version.getEntityManagerFactory(), edmProvider, sqlPattern);
     this.mappingPath = version.getRequestMappingPath();
+    this.hideRestrictedProperties = version.hideRestrictedProperties();
   }
 
   JPAODataApiVersion(final String id, final JPAEdmProvider edmProvider, final EntityManagerFactory emf) {
@@ -61,6 +63,11 @@ class JPAODataApiVersion implements JPAODataApiVersionAccess {
   @Override
   public String getMappingPath() {
     return mappingPath;
+  }
+
+  @Override
+  public boolean hideRestrictedProperties() {
+    return hideRestrictedProperties;
   }
 
   private JPAEdmProvider createEdmProvider(final JPAApiVersion version, final JPAEdmNameBuilder nameBuilder,

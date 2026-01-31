@@ -14,4 +14,6 @@ public interface JPAODataApiVersionAccess {
   EntityManagerFactory getEntityManagerFactory();
 
   String getMappingPath();
+
+  boolean hideRestrictedProperties();
 }

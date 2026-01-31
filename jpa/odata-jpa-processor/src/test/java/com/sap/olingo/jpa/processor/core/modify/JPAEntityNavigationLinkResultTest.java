@@ -3,7 +3,9 @@ package com.sap.olingo.jpa.processor.core.modify;
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -45,6 +48,7 @@ class JPAEntityNavigationLinkResultTest extends TestBase {
   private JPAODataRequestContext context;
   private JPAODataSessionContextAccess sessionContext;
   private OData odata;
+  private JPAODataApiVersionAccess version;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -55,19 +59,22 @@ class JPAEntityNavigationLinkResultTest extends TestBase {
     uriHelper = new UriHelperDouble();
     keyPredicates = new HashMap<>();
     uriHelper.setKeyPredicates(keyPredicates, "ID");
+    version = mock(JPAODataApiVersionAccess.class);
+
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
+    when(version.getEntityManagerFactory()).thenReturn(emf);
+    when(sessionContext.getApiVersion(any())).thenReturn(version);
     odata = mock(OData.class);
     requestContext = new JPAODataInternalRequestContext(context, sessionContext, odata);
     childConverter = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder,
-        "Organization"),
-        requestContext);
+        "Organization"), requestContext);
   }
 
   @Test
   void checkConvertsOneResultOneKeyWithLink() throws ODataApplicationException, ODataJPAModelException {
     final var et = helper.getJPAEntityType(Organization.class);
-    final var assoziation = et.getAssociationPath("Roles");
+    final var association = et.getAssociationPath("Roles");
     final Map<String, Object> result = new HashMap<>();
     keyPredicates.put("1", "'1'");
     result.put("ID", "1");
@@ -75,7 +82,7 @@ class JPAEntityNavigationLinkResultTest extends TestBase {
 
     final var jpaResult = new JPAExpandQueryResult(createResult, null, et, List.of(), empty());
     final var linkResult = new JPAEntityNavigationLinkResult(et, List.of(new BusinessPartnerRole("1", "2")), headers,
-        childConverter, assoziation.getForeignKeyColumns());
+        childConverter, association.getForeignKeyColumns());
 
     final Map<JPAAssociationPath, JPAExpandResult> childResults = Map.of(et.getAssociationPath("Roles"), linkResult);
     jpaResult.putChildren(childResults);

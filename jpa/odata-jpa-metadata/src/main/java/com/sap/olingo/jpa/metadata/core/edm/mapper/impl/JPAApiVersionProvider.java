@@ -18,6 +18,7 @@ public class JPAApiVersionProvider implements JPAApiVersion {
   private final String[] packageNames;
   private final String requestMappingPath;
   private final JPAEdmMetadataPostProcessor metadataPostProcessor;
+  private final Boolean hideRestrictedProperties;
 
   private JPAApiVersionProvider(final Builder builder) {
     id = builder.id;
@@ -25,6 +26,7 @@ public class JPAApiVersionProvider implements JPAApiVersion {
     packageNames = builder.packageNames;
     requestMappingPath = builder.mappingPath;
     metadataPostProcessor = builder.metadataPostProcessor;
+    hideRestrictedProperties = builder.hideRestrictedProperties;
   }
 
   public static Builder with() {
@@ -37,6 +39,7 @@ public class JPAApiVersionProvider implements JPAApiVersion {
     private String[] packageNames;
     private String mappingPath;
     private JPAEdmMetadataPostProcessor metadataPostProcessor;
+    private Boolean hideRestrictedProperties;
 
     /**
      *
@@ -89,6 +92,12 @@ public class JPAApiVersionProvider implements JPAApiVersion {
       return this;
     }
 
+    @Override
+    public Builder setHideRestrictedProperties(final boolean hideRestrictedProperties) {
+      this.hideRestrictedProperties = hideRestrictedProperties;
+      return this;
+    }
+
     public JPAApiVersion build() throws ODataJPAModelException {
       if (id == null || id.isBlank())
         throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.VERSION_ID_MISSING);
@@ -98,9 +107,10 @@ public class JPAApiVersionProvider implements JPAApiVersion {
         packageNames = new String[0];
       if (metadataPostProcessor == null)
         metadataPostProcessor = new DefaultEdmPostProcessor();
+      if (hideRestrictedProperties == null)
+        hideRestrictedProperties = false;
       return new JPAApiVersionProvider(this);
     }
-
   }
 
   @Override
@@ -126,6 +136,11 @@ public class JPAApiVersionProvider implements JPAApiVersion {
   @Override
   public JPAEdmMetadataPostProcessor getMetadataPostProcessor() {
     return metadataPostProcessor;
+  }
+
+  @Override
+  public boolean hideRestrictedProperties() {
+    return hideRestrictedProperties;
   }
 
 }

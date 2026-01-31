@@ -26,9 +26,9 @@ public final class JPAServiceDocumentFactory {
   }
 
   public JPAServiceDocument asUserGroupRestricted(final JPAServiceDocument serviceDocument,
-      final List<String> userGroups) throws ODataJPAModelException {
+      final List<String> userGroups, final boolean hideRestrictedProperties) throws ODataJPAModelException {
     if (serviceDocument instanceof final IntermediateServiceDocument intermediate)
-      return intermediate.asUserGroupRestricted(userGroups);
+      return intermediate.asUserGroupRestricted(userGroups, hideRestrictedProperties);
     return serviceDocument;
   }
 }

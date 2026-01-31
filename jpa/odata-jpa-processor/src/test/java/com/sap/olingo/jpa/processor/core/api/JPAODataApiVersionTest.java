@@ -46,6 +46,7 @@ class JPAODataApiVersionTest {
     when(version.getId()).thenReturn(VERSION_ID);
     when(version.getRequestMappingPath()).thenReturn(PATH);
     when(version.getEntityManagerFactory()).thenReturn(emf);
+    when(version.hideRestrictedProperties()).thenReturn(true);
 
     cut = new JPAODataApiVersion(version, new JPADefaultEdmNameBuilder(PUNIT_NAME), List.of(), sqlPattern);
   }
@@ -79,5 +80,10 @@ class JPAODataApiVersionTest {
   @Test
   void testGetEdmProvider() {
     assertNotNull(cut.getEdmProvider());
+  }
+
+  @Test
+  void testHideRestrictedProperties() {
+    assertTrue(cut.hideRestrictedProperties());
   }
 }

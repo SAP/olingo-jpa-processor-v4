@@ -53,9 +53,9 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
     baseType = new InstanceCacheSupplier<>(this::determineBaseType);
   }
 
-  private IntermediateComplexType(IntermediateComplexType<T> source, List<String> requesterUserGroups)
-      throws ODataJPAModelException {
-    super(source, requesterUserGroups);
+  private IntermediateComplexType(final IntermediateComplexType<T> source, final List<String> requesterUserGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
+    super(source, requesterUserGroups, hideRestrictedProperties);
     setExternalName(source.getExternalName());
     baseType = new InstanceCacheFunction<>(this::baseTypeRestricted, source.getBaseType(),
         requesterUserGroups);
@@ -63,9 +63,9 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <X extends IntermediateModelElement> X asUserGroupRestricted(List<String> userGroups)
-      throws ODataJPAModelException {
-    return (X) new IntermediateComplexType<>(this, userGroups);
+  protected <X extends IntermediateModelElement> X asUserGroupRestricted(final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
+    return (X) new IntermediateComplexType<>(this, userGroups, hideRestrictedProperties);
   }
 
   @Override
@@ -76,7 +76,7 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
   @Override
   synchronized CsdlComplexType buildEdmItem() {
     try {
-      var edmComplexType = new CsdlComplexType();
+      final var edmComplexType = new CsdlComplexType();
 
       edmComplexType.setName(this.getExternalName());
       edmComplexType.setProperties(extractEdmModelElements(getDeclaredPropertiesMap()));
@@ -91,7 +91,7 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
             internalName);
       checkPropertyConsistency();
       return edmComplexType;
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAModelInternalException(e);
     }
   }
@@ -99,12 +99,12 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
   @Override
   protected synchronized Map<String, IntermediateProperty> buildCompletePropertyMap() {
     try {
-      Map<String, IntermediateProperty> result = new HashMap<>();
+      final Map<String, IntermediateProperty> result = new HashMap<>();
       result.putAll(buildPropertyList());
       result.putAll(addDescriptionProperty());
       result.putAll(addTransientProperties());
       return result;
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAModelInternalException(e);
     }
   }

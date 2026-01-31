@@ -70,7 +70,7 @@ class IntermediateVirtualPropertyTest extends TestMappingRoot {
         dynamicTest("isComplex returns false", () -> assertFalse(cut.isComplex())),
         dynamicTest("isKey returns false", () -> assertFalse(cut.isKey())),
         dynamicTest("isStream returns false", () -> assertFalse(cut.isStream())),
-        dynamicTest("isPartOfGroup returns false", () -> assertFalse(cut.isPartOfGroup())));
+        dynamicTest("isPartOfGroup returns false", () -> assertFalse(cut.hasUserGroupRestriction())));
   }
 
   @TestFactory

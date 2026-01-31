@@ -20,9 +20,9 @@ class JPAServiceDocumentFactoryTest {
   }
 
   @Test
-  void testAs() throws ODataJPAModelException {
+  void testAsUserGroupRestricted() throws ODataJPAModelException {
     final var sd = mock(JPAServiceDocument.class);
 
-    assertEquals(sd, cut.asUserGroupRestricted(sd, List.of()));
+    assertEquals(sd, cut.asUserGroupRestricted(sd, List.of(), true));
   }
 }

@@ -50,14 +50,16 @@ class IntermediateSimpleProperty extends IntermediateProperty {
     super(nameBuilder, jpaAttribute, schema);
   }
 
-  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final List<String> userGroups)
+  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final List<String> userGroups,
+      final boolean hideRestrictedProperties)
       throws ODataJPAModelException {
-    super(source, userGroups);
+    super(source, userGroups, hideRestrictedProperties);
   }
 
-  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final String newDbFieldName)
+  IntermediateSimpleProperty(final IntermediateSimpleProperty source, final String newDbFieldName,
+      final boolean hideRestrictedProperties)
       throws ODataJPAModelException {
-    super(source, source.getUserGroups());
+    super(source, source.getUserGroups(), hideRestrictedProperties);
     this.dbFieldName = newDbFieldName;
   }
 
@@ -83,11 +85,12 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups) // NOSONAR
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups,
+      final boolean hideRestrictedProperties) // NOSONAR
       throws ODataJPAModelException { // NOSONAR
 
     if (this.isComplex())
-      return (T) new IntermediateSimpleProperty(this, userGroups);
+      return (T) new IntermediateSimpleProperty(this, userGroups, hideRestrictedProperties);
     else
       return (T) this;
   }
@@ -95,10 +98,10 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   @Override
   void checkConsistency() throws ODataJPAModelException {
     final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
-    if (jpaColumn != null && isPartOfGroup() && !jpaColumn.nullable())
+    if (jpaColumn != null && hasUserGroupRestriction() && !jpaColumn.nullable())
       throw new ODataJPAModelException(NOT_SUPPORTED_MANDATORY_PART_OF_GROUP, jpaAttribute.getDeclaringType()
           .getJavaType().getCanonicalName(), jpaAttribute.getName());
-    if (isPartOfGroup() && isKey())
+    if (hasUserGroupRestriction() && isKey())
       throw new ODataJPAModelException(NOT_SUPPORTED_KEY_PART_OF_GROUP, jpaAttribute.getDeclaringType()
           .getJavaType().getCanonicalName(), jpaAttribute.getName());
   }

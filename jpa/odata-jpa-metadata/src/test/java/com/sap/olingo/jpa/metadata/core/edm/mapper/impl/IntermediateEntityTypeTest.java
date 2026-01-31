@@ -82,6 +82,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
@@ -1288,7 +1289,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateEntityType<T> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(clazz), schema);
 
-    final IntermediateEntityType<T> act = et.asUserGroupRestricted(List.of("Company"));
+    final IntermediateEntityType<T> act = et.asUserGroupRestricted(List.of("Company"), true);
 
     assertEquals(et.getExternalFQN(), act.getExternalFQN());
     assertEquals(et.asTopLevelOnly(), act.asTopLevelOnly());
@@ -1323,7 +1324,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
 
-    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"));
+    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"), true);
     assertNotEquals(et.getBaseType(), act.getBaseType());
   }
 
@@ -1332,14 +1333,14 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
 
-    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"));
+    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"), true);
     assertListEquals(et.getDeclaredAssociations(), act.getDeclaredAssociations(), JPAAssociationAttribute.class);
     assertListEquals(et.getAssociationPathList(), act.getAssociationPathList(), JPAAssociationPath.class);
     assertListEquals(et.getEdmItem().getNavigationProperties(), act.getEdmItem().getNavigationProperties(),
         CsdlNavigationProperty.class);
     assertAttributesEquals(et.getAttributes(), act.getAttributes());
 
-    final IntermediateEntityType<Person> act2 = et.asUserGroupRestricted(List.of("Person"));
+    final IntermediateEntityType<Person> act2 = et.asUserGroupRestricted(List.of("Person"), true);
     assertEquals(et.getDeclaredAssociations().size() - 1, act2.getDeclaredAssociations().size());
     assertEquals(et.getAssociationPathList().size() - 1, act2.getAssociationPathList().size());
     assertEquals(et.getEdmItem().getNavigationProperties().size() - 1, act2.getEdmItem().getNavigationProperties()
@@ -1476,6 +1477,32 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertDoesNotThrow(et::getEdmItem);
   }
 
+  @Test
+  void checkAsUserGroupRestrictedCopiesComplex() throws ODataJPAModelException {
+    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(RestrictedEntityUnrestrictedSource.class), schema);
+
+    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> act = et.asUserGroupRestricted(List.of("Company"),
+        true);
+    assertNotEquals(et.getProperty("relation"), act.getProperty("relation"));
+    assertTrue(act.getProperty("relation").isRestricted());
+
+  }
+
+  @Test
+  void checkAsUserGroupRestrictedHidesRestrictedProperties() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartnerWithGroups> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(BusinessPartnerWithGroups.class), schema);
+
+    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> act = et.asUserGroupRestricted(List.of("Person"),
+        true);
+    assertNull(act.getProperty("creationDateTime"));
+    assertNotNull(act.getProperty("country"));
+
+    assertNull(act.getEdmItem().getProperty("CreationDateTime"));
+    assertNotNull(act.getEdmItem().getProperty("Country"));
+  }
+
   private static void assertAttributesEquals(final List<JPAAttribute> expList, final List<JPAAttribute> actList)
       throws ODataJPAModelException {
     for (final var exp : expList) {
@@ -1526,18 +1553,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     }
   }
 
-  @Test
-  void checkAsUserGroupRestrictedCopiesComplex() throws ODataJPAModelException {
-    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> et = new IntermediateEntityType<>(
-        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(RestrictedEntityUnrestrictedSource.class), schema);
-
-    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> act = et.asUserGroupRestricted(List.of("Company"));
-    assertNotEquals(et.getProperty("relation"), act.getProperty("relation"));
-    assertTrue(act.getProperty("relation").isRestricted());
-
-  }
-
-  void assertComplexAnnotated(final List<JPAProtectionInfo> act, final String expClaimName,
+  private void assertComplexAnnotated(final List<JPAProtectionInfo> act, final String expClaimName,
       final String pathElement) {
     for (final JPAProtectionInfo info : act) {
       if (info.getClaimName().equals(expClaimName)) {

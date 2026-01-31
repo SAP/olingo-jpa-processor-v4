@@ -410,7 +410,7 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     final var source = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
         new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }, annotationProvider, true);
 
-    cut = source.asUserGroupRestricted(List.of("Manager"));
+    cut = source.asUserGroupRestricted(List.of("Manager"), true);
     assertTrue(cut.emfIsWrapped());
   }
 

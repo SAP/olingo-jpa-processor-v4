@@ -101,12 +101,14 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   protected final IntermediateSchema schema;
   protected final ListCacheSupplier<JPAProtectionInfo> protectedAttributes;
   private Optional<List<IntermediateSimpleProperty>> streamProperty;
+  final boolean hideRestrictedProperties;
 
   IntermediateStructuredType(final JPAEdmNameBuilder nameBuilder, final ManagedType<T> jpaManagedType,
       final IntermediateSchema schema) {
 
     super(nameBuilder, InternalNameBuilder.buildStructuredTypeName(jpaManagedType.getJavaType()), schema
         .getAnnotationInformation(), false);
+    this.hideRestrictedProperties = false;
     this.resolvedPathMap = new MapCacheSupplier<>(this::buildCompletePathMap);
     this.intermediatePathMap = new MapCacheSupplier<>(this::buildIntermediatePathMap);
     this.resolvedAssociationPathMap = new MapCacheSupplier<>(this::buildCompleteAssociationPathMap);
@@ -123,11 +125,12 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     determineIgnore();
   }
 
-  IntermediateStructuredType(final IntermediateStructuredType<T> source, final List<String> requesterUserGroups)
-      throws ODataJPAModelException {
+  IntermediateStructuredType(final IntermediateStructuredType<T> source, final List<String> requesterUserGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     super(source.nameBuilder, source.getInternalName(), source.schema.getAnnotationInformation(), true);
     edmAnnotations.addAll(source.edmAnnotations);
 
+    this.hideRestrictedProperties = hideRestrictedProperties;
     this.jpaManagedType = source.jpaManagedType;
     this.jpaJavaType = this.jpaManagedType.getJavaType();
     this.schema = source.schema;
@@ -139,8 +142,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     this.resolvedPathMap = new MapCacheFunction<>(this::restrictedPathMap, source.getResolvedPathMap(),
         requesterUserGroups);
     this.intermediatePathMap = new MapCacheFunction<>(this::restrictedIntermediatePathMap, source
-        .getIntermediatePathMap(),
-        requesterUserGroups);
+        .getIntermediatePathMap(), requesterUserGroups);
     this.resolvedAssociationPathMap = new MapCacheFunction<>(this::extractNavigationPropertyPathElements, source
         .getResolvedAssociationPathMap(), requesterUserGroups);
     this.declaredNavigationPropertiesMap = new MapCacheFunction<>(this::extractNavigationPropertiesElements, source
@@ -347,9 +349,12 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       final Map<String, IntermediateProperty> result = new HashMap<>();
       for (final var property : source.entrySet()) {
         if (property.getValue().isComplex())
-          result.put(property.getKey(), property.getValue().asUserGroupRestricted(requesterUserGroups));
-        else
+          result.put(property.getKey(), property.getValue().asUserGroupRestricted(requesterUserGroups,
+              hideRestrictedProperties));
+        else if (!hideRestrictedProperties
+            || property.getValue().userGroupMatches(requesterUserGroups)) {
           result.put(property.getKey(), property.getValue());
+        }
       }
       return result;
     } catch (final ODataJPAModelException e) {
@@ -393,7 +398,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   <B> IntermediateStructuredType<B> baseTypeRestricted(final IntermediateStructuredType<B> type,
       final List<String> requesterUserGroups) {
     try {
-      return type == null ? null : type.asUserGroupRestricted(requesterUserGroups);
+      return type == null ? null : type.asUserGroupRestricted(requesterUserGroups, hideRestrictedProperties);
     } catch (final ODataJPAModelException e) {
       return null;
     }

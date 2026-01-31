@@ -348,7 +348,7 @@ class JPAEdmProviderTest {
   @Test
   void checkAsUserGroupRestricted() {
     final List<String> groups = List.of("Company");
-    final var act = cut.asUserGroupRestricted(groups);
+    final var act = cut.asUserGroupRestricted(groups, true);
     assertNotEquals(cut, act);
     assertEquals(groups, act.getUserGroups());
     assertNotEquals(cut.getServiceDocument(), act.getServiceDocument());

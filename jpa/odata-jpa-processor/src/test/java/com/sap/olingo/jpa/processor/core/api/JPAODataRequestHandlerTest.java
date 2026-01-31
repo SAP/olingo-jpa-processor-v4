@@ -105,6 +105,7 @@ class JPAODataRequestHandlerTest extends TestBase {
     final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
+        .setEntityManagerFactory(emf)
         .build();
 
     final JPAODataRequestContext requestContext = JPAODataRequestContext.with()

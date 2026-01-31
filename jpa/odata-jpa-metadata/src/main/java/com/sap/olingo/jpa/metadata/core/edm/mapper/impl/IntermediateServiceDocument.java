@@ -101,13 +101,14 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     setContainer();
   }
 
-  private IntermediateServiceDocument(final IntermediateServiceDocument source, final List<String> userGroups)
-      throws ODataJPAModelException {
+  private IntermediateServiceDocument(final IntermediateServiceDocument source, final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     this.annotationInfo = source.annotationInfo;
     this.nameBuilder = source.nameBuilder;
     this.jpaMetamodel = source.jpaMetamodel;
-    this.schemaListInternalKey = restrictedSchemas(source.schemaListInternalKey, userGroups);
-    this.container = source.container.asUserGroupRestricted(schemaListInternalKey, userGroups);
+    this.schemaListInternalKey = restrictedSchemas(source.schemaListInternalKey, userGroups, hideRestrictedProperties);
+    this.container = source.container.asUserGroupRestricted(schemaListInternalKey, userGroups,
+        hideRestrictedProperties);
     this.reflections = source.reflections;
     this.claims = source.getClaims();
     this.wrapperAvailable = source.wrapperAvailable;
@@ -115,10 +116,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   private Map<String, IntermediateSchema> restrictedSchemas(final Map<String, IntermediateSchema> source,
-      final List<String> userGroups) throws ODataJPAModelException {
+      final List<String> userGroups, final boolean hideRestrictedProperties) throws ODataJPAModelException {
     final Map<String, IntermediateSchema> restricted = new HashMap<>(source.size());
     for (final var schema : source.entrySet()) {
-      restricted.put(schema.getKey(), schema.getValue().asUserGroupRestricted(userGroups));
+      restricted.put(schema.getKey(), schema.getValue().asUserGroupRestricted(userGroups, hideRestrictedProperties));
     }
     return restricted;
   }
@@ -135,8 +136,9 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     }
   }
 
-  JPAServiceDocument asUserGroupRestricted(final List<String> userGroups) throws ODataJPAModelException {
-    return new IntermediateServiceDocument(this, userGroups);
+  JPAServiceDocument asUserGroupRestricted(final List<String> userGroups, final boolean hideRestrictedProperties)
+      throws ODataJPAModelException {
+    return new IntermediateServiceDocument(this, userGroups, hideRestrictedProperties);
   }
 
   /*
