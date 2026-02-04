@@ -119,12 +119,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
-<<<<<<< HEAD
-			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.10.2</version><!--$NO-MVN-MAN-VER$-->
-=======
 			<artifactId>junit-platform-launcher</artifactId>	
->>>>>>> jpa-processor/master
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

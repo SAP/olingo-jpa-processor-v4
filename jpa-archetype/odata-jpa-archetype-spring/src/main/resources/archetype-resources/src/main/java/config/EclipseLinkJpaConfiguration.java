@@ -46,7 +46,7 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
   }
 
   @Override
-  protected Map<String, Object> getVendorProperties() {
+  protected Map<String, Object> getVendorProperties(final DataSource dataSource) {
     // https://stackoverflow.com/questions/10769051/eclipselinkjpavendoradapter-instead-of-hibernatejpavendoradapter-issue
     HashMap<String, Object> jpaProperties = new HashMap<>();
     jpaProperties.put(WEAVING, "false");
