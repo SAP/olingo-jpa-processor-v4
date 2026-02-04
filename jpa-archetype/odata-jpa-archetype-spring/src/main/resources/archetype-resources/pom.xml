@@ -8,15 +8,15 @@
 	<version>${version}</version>
 	<packaging>jar</packaging>
 
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.3</version>
+		<version>3.5.8</version>
 		<relativePath />
 	</parent>
+
 	<properties>
-		<processor.version>2.4.1-SNAPSHOT</processor.version>
+		<processor.version>2.5.0-SNAPSHOT</processor.version>
 		<java.version>17</java.version>
 		<build.sourceEncoding>UTF-8</build.sourceEncoding>
 		<eclipselink.version>4.0.3</eclipselink.version>
@@ -119,8 +119,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.10.2</version><!--$NO-MVN-MAN-VER$-->
+			<artifactId>junit-platform-launcher</artifactId>	
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

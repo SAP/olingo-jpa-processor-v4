@@ -114,6 +114,10 @@ public interface JPAAttribute extends JPAElement, JPAAnnotatable {
 
   public boolean isTransient();
 
+  public default boolean isVirtual() {
+    return false;
+  }
+
   /**
    *
    * @param <T>

@@ -40,7 +40,7 @@ class TestFunctions {
   private static DataSource ds;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
 
     final Map<String, Object> properties = new HashMap<>();
 

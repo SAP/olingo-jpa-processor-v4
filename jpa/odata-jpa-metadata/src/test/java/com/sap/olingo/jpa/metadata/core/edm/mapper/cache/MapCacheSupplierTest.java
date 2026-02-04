@@ -13,6 +13,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelInternalException;
 
 class MapCacheSupplierTest {
+  private MapCacheSupplier<String, String> cycle;
 
   @Test
   void checkCacheReturnsGivenValue() throws ODataJPAModelException {
@@ -34,6 +35,12 @@ class MapCacheSupplierTest {
     assertThrows(ODataJPAModelException.class, act::get);
   }
 
+  @Test
+  void checkThrowsExceptionOnCallDuringConstruction() throws ODataJPAModelException {
+    cycle = new MapCacheSupplier<>(this::supplierCallsSupplier);
+    cycle.get();
+  }
+
   Map<String, String> supplierReturnString() {
     return Map.of("Test", "String");
   }
@@ -45,4 +52,14 @@ class MapCacheSupplierTest {
   Map<String, String> supplierThrows() {
     throw new ODataJPAModelInternalException(new ODataJPAModelException(MessageKeys.DB_TYPE_NOT_DETERMINED));
   }
+
+  Map<String, String> supplierCallsSupplier() {
+    try {
+      cycle.get();
+    } catch (ODataJPAModelException e) {
+      assertEquals(MessageKeys.CYCLE_DETECTED.getKey(), e.getId());
+    }
+    return Map.of();
+  }
+
 }

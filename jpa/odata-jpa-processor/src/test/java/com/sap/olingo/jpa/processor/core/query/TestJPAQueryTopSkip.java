@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sap.olingo.jpa.metadata.api.JPAApiVersion;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
-import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
@@ -83,9 +83,12 @@ class TestJPAQueryTopSkip extends TestBase {
 
     final var sessionContext = JPAODataServiceContext.with()
         .setPUnit(IntegrationTestHelper.PUNIT_NAME)
-        .setEntityManagerFactory(emf)
         .setRequestMappingPath("bp/v1")
-        .setTypePackage(TestBase.enumPackages)
+        .setVersions(JPAApiVersion.with()
+            .setId("v1")
+            .setEntityManagerFactory(emf)
+            .setTypePackage(enumPackages)
+            .build())
         .build();
 
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
@@ -94,10 +97,11 @@ class TestJPAQueryTopSkip extends TestBase {
     when(externalContext.getGroupsProvider()).thenReturn(Optional.empty());
     when(externalContext.getDebuggerSupport()).thenReturn(new DefaultDebugSupport());
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
+    when(externalContext.getVersion()).thenReturn("v1");
     final var requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext, odata);
 
     final var handler = odata.createHandler(odata.createServiceMetadata(sessionContext
-        .getApiVersion(JPAODataApiVersionAccess.DEFAULT_VERSION).getEdmProvider(),
+        .getApiVersion("v1").getEdmProvider(),
         new ArrayList<>()));
 
     final var request = IntegrationTestHelper.getRequestMock(IntegrationTestHelper.URI_PREFIX + "Persons?$top=5000");

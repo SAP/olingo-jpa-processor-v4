@@ -93,7 +93,8 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups) // NOSONAR
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups,
+      final boolean hideRestrictedProperties) // NOSONAR
       throws ODataJPAModelException {
     return (T) this;
   }

@@ -71,6 +71,7 @@ public final class ExpressionUtility {
   @SuppressWarnings("unchecked")
   public static <T> Path<T> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
       final JPAPath jpaPath) {
+
     Path<?> path = root;
     for (final JPAElement jpaPathElement : jpaPath.getPath())
       if (jpaPathElement instanceof final JPADescriptionAttribute descriptionAttribute) {

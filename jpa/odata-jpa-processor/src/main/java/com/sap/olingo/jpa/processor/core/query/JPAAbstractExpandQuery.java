@@ -20,7 +20,6 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
@@ -31,7 +30,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSkipTokenProvider;
@@ -71,19 +69,6 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     super(odata, et, requestContext, hops);
     this.association = association;
     this.skipTokenProvider = Optional.empty();
-  }
-
-  @Override
-  protected SelectionPathInfo<JPAPath> buildSelectionPathList(final UriInfoResource uriResource)
-      throws ODataApplicationException {
-    try {
-      final SelectionPathInfo<JPAPath> jpaPathList = super.buildSelectionPathList(uriResource);
-      debugger.trace(this, "The following selection path elements were found: %s", jpaPathList.toString());
-      return new SelectionPathInfo<>(association.getRightColumnsList(), jpaPathList);
-    } catch (final ODataJPAModelException e) {
-      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
-          .getStatusCode(), ODataJPAException.getLocales().nextElement(), e);
-    }
   }
 
   protected String buildConcatenatedKey(final Tuple row, final JPAAssociationPath association)

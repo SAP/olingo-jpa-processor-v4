@@ -21,4 +21,6 @@ public interface JPAApiVersion {
   public String getRequestMappingPath();
 
   public JPAEdmMetadataPostProcessor getMetadataPostProcessor();
+
+  public boolean hideRestrictedProperties();
 }

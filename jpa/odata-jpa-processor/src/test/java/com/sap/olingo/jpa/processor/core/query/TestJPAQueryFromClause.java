@@ -30,7 +30,6 @@ import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -73,8 +72,7 @@ class TestJPAQueryFromClause extends TestBase {
 
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
-    sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        emf, dataSource, null, null, null);
+    sessionContext = new JPAODataContextAccessDouble(helper.edmProvider, emf, dataSource, null, null, null);
     createHeaders();
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());

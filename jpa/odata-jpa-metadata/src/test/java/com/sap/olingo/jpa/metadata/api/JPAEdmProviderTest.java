@@ -73,7 +73,8 @@ class JPAEdmProviderTest {
 
   @BeforeEach
   void setup() throws ODataException {
-    cut = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
+    cut = new JPAEdmProvider(emf.getMetamodel(), new JPATestWrapperChecker(), null, enumPackages,
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), List.of());
   }
 
   @Test
@@ -301,7 +302,9 @@ class JPAEdmProviderTest {
   void checkGetActionsReturnsKnownAction() throws ODataException {
     final String[] operationPackages = { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction",
         "com.sap.olingo.jpa.processor.core.testmodel" };
-    cut = new JPAEdmProvider(PUNIT_NAME, emf, null, operationPackages);
+    cut = new JPAEdmProvider(emf.getMetamodel(), new JPATestWrapperChecker(), null, operationPackages,
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), List.of());
+
     final List<CsdlAction> act = cut.getActions(new FullQualifiedName(PUNIT_NAME, "BoundNoImport"));
     assertNotNull(act);
     assertEquals(1, act.size());
@@ -325,7 +328,8 @@ class JPAEdmProviderTest {
     final FullQualifiedName fqn = buildContainerFQN();
     final String[] operationPackages = { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction",
         "com.sap.olingo.jpa.processor.core.testmodel" };
-    cut = new JPAEdmProvider(PUNIT_NAME, emf, null, operationPackages);
+    cut = new JPAEdmProvider(emf.getMetamodel(), new JPATestWrapperChecker(), null, operationPackages,
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), List.of());
     final CsdlActionImport act = cut.getActionImport(fqn, "WithImport");
     assertNotNull(act);
   }
@@ -343,8 +347,8 @@ class JPAEdmProviderTest {
 
   @Test
   void checkAsUserGroupRestricted() {
-    List<String> groups = List.of("Company");
-    final var act = cut.asUserGroupRestricted(groups);
+    final List<String> groups = List.of("Company");
+    final var act = cut.asUserGroupRestricted(groups, true);
     assertNotEquals(cut, act);
     assertEquals(groups, act.getUserGroups());
     assertNotEquals(cut.getServiceDocument(), act.getServiceDocument());
@@ -378,6 +382,14 @@ class JPAEdmProviderTest {
       final IntermediateReferenceAccess reference = references.addReference(uri,
           "annotations/Org.OData.Measures.V1.xml");
       reference.addInclude("Org.OData.Core.V1", "Core");
+    }
+  }
+
+  private static class JPATestWrapperChecker implements JPAWrapperChecker {
+
+    @Override
+    public boolean isWrapped() {
+      return true;
     }
   }
 }

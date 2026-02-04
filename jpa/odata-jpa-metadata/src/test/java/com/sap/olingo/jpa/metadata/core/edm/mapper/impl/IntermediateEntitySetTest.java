@@ -78,7 +78,7 @@ class IntermediateEntitySetTest extends TestMappingRoot {
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     references = mock(IntermediateReferences.class);
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), references);
-    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), reflections, annotationInfo);
+    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), reflections, annotationInfo, true);
   }
 
   @Test
@@ -292,13 +292,13 @@ class IntermediateEntitySetTest extends TestMappingRoot {
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
     final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et, annotationInfo);
 
-    final IntermediateEntitySet act = es.asUserGroupRestricted(List.of("Company"));
+    final IntermediateEntitySet act = es.asUserGroupRestricted(List.of("Company"), true);
     assertEquals(es.getExternalFQN(), act.getExternalFQN());
     assertEquals(es.getExternalName(), act.getExternalName());
     assertEquals(es.getInternalName(), act.getInternalName());
     assertListEquals(es.getEdmItem().getNavigationPropertyBindings(), act.getEdmItem().getNavigationPropertyBindings(),
         CsdlNavigationPropertyBinding.class);
-    final IntermediateEntitySet act2 = es.asUserGroupRestricted(List.of("Person"));
+    final IntermediateEntitySet act2 = es.asUserGroupRestricted(List.of("Person"), true);
     assertEquals(es.getExternalFQN(), act2.getExternalFQN());
     assertEquals(es.getExternalName(), act2.getExternalName());
     assertEquals(es.getInternalName(), act2.getInternalName());

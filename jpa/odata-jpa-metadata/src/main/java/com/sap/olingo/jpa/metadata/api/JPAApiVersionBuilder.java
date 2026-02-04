@@ -32,4 +32,12 @@ public interface JPAApiVersionBuilder {
 
   public Builder setMetadataPostProcessor(final JPAEdmMetadataPostProcessor metadataPostProcessor);
 
+  /**
+   * In the case properties shall be visible/readable only for user belonging to a certain user group, these properties
+   * can either be visible within the metadata or be hidden.
+   * @param hideRestrictedProperties true = properties are hidden
+   * @return
+   */
+  public Builder setHideRestrictedProperties(boolean hideRestrictedProperties);
+
 }

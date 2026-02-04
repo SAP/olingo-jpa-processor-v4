@@ -60,7 +60,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     managedType = mock(ManagedType.class);
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
-    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(Reflections.class), annotationInfo);
+    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(Reflections.class), annotationInfo, true);
   }
 
   @SuppressWarnings("unchecked")

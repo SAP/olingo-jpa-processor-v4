@@ -65,7 +65,7 @@ class IntermediateModelElementTest {
 
   @Test
   void checkAsUserGroupRestrictedReturnsThis() throws ODataJPAModelException {
-    assertEquals(cut, cut.asUserGroupRestricted(List.of("Willi")));
+    assertEquals(cut, cut.asUserGroupRestricted(List.of("Willi"), true));
   }
 
   private static class IntermediateModelElementImpl extends IntermediateModelElement {

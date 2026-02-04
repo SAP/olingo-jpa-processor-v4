@@ -107,7 +107,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     buildProperty(nameBuilder);
   }
 
-  IntermediateProperty(IntermediateProperty source, List<String> userGroups) throws ODataJPAModelException {
+  IntermediateProperty(final IntermediateProperty source, final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     super(source.nameBuilder, source.getInternalName(), source.getAnnotationInformation(), true);
     this.jpaAttribute = source.jpaAttribute;
     this.schema = source.schema;
@@ -116,7 +117,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     this.userGroups = source.userGroups;
     this.requiredAttributes = source.requiredAttributes;
     this.transientCalculatorConstructor = source.transientCalculatorConstructor;
-    this.type = source.type == null ? null : ((IntermediateModelElement) source.type).asUserGroupRestricted(userGroups);
+    this.type = source.type == null ? null : ((IntermediateModelElement) source.type).asUserGroupRestricted(userGroups,
+        hideRestrictedProperties);
     this.valueConverter = source.valueConverter;
     this.dbFieldName = source.dbFieldName;
     this.dbType = source.dbType;
@@ -216,7 +218,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   @Override
   public boolean isEnum() {
     return isEnum;
-
   }
 
   private void determineIsEnum() {
@@ -306,7 +307,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       edmProperty.setMapping(createMapper());
       edmProperty.setAnnotations(edmAnnotations);
 
-      if (type != null && type instanceof IntermediateModelElement element) {
+      if (type != null && type instanceof final IntermediateModelElement element) {
         element.getEdmItem();
       }
     }
@@ -397,13 +398,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   abstract String getDefaultValue() throws ODataJPAModelException;
 
-  /**
-   * @return
-   */
-  List<String> getUserGroups() {
-    return userGroups;
-  }
-
   IntermediateModelElement getODataPrimitiveType() {
     return schema.getEnumerationType(entityType);
   }
@@ -433,8 +427,26 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return result;
   }
 
-  boolean isPartOfGroup() {
+  boolean hasUserGroupRestriction() {
     return !userGroups.isEmpty();
+  }
+
+  /**
+   * @return
+   */
+  List<String> getUserGroups() {
+    return userGroups;
+  }
+
+  boolean userGroupMatches(final List<String> requesterUserGroups) {
+    if (hasUserGroupRestriction()) {
+      for (final String group : getUserGroups()) {
+        if (requesterUserGroups.contains(group))
+          return true;
+      }
+      return false;
+    }
+    return true;
   }
 
   abstract boolean isStream();
@@ -603,7 +615,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       }
     }
     if (dbFieldName == null || dbFieldName.isEmpty())
-      dbFieldName = internalName;
+      dbFieldName = nameBuilder.buildColumnName(internalName);
   }
 
   /**
