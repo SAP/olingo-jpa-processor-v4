@@ -19,9 +19,9 @@ final class IntermediateEmbeddedIdProperty extends IntermediateSimpleProperty {
     super(nameBuilder, jpaAttribute, schema);
   }
 
-  IntermediateEmbeddedIdProperty(IntermediateEmbeddedIdProperty source,
-      List<String> userGroups) throws ODataJPAModelException {
-    super(source, userGroups);
+  IntermediateEmbeddedIdProperty(final IntermediateEmbeddedIdProperty source,
+      final List<String> userGroups, final boolean hideRestrictedProperties) throws ODataJPAModelException {
+    super(source, userGroups, hideRestrictedProperties);
   }
 
   @Override
@@ -41,8 +41,9 @@ final class IntermediateEmbeddedIdProperty extends IntermediateSimpleProperty {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups) // NOSONAR
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups,
+      final boolean hideRestrictedProperties) // NOSONAR
       throws ODataJPAModelException {
-    return (T) new IntermediateEmbeddedIdProperty(this, userGroups);
+    return (T) new IntermediateEmbeddedIdProperty(this, userGroups, hideRestrictedProperties);
   }
 }

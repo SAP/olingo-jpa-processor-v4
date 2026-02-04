@@ -51,9 +51,11 @@ final class IntermediateSchema extends IntermediateModelElement {
   private IntermediateEntityContainer container;
   private final Reflections reflections;
   private CsdlSchema edmSchema;
+  private final boolean emfIsWrapped;
 
   IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel, final Reflections reflections,
-      final IntermediateAnnotationInformation annotationInfo) throws ODataJPAModelException {
+      final IntermediateAnnotationInformation annotationInfo, final boolean emfIsWrapped)
+      throws ODataJPAModelException {
 
     super(nameBuilder, nameBuilder.getNamespace(), annotationInfo);
     this.jpaMetamodel = jpaMetamodel;
@@ -63,42 +65,46 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.entityTypeListInternalKey = buildEntityTypeList();
     this.functionListInternalKey = buildFunctionList();
     this.actionListByKey = buildActionList();
+    this.emfIsWrapped = emfIsWrapped;
   }
 
-  private IntermediateSchema(final IntermediateSchema source, final List<String> userGroups)
+  private IntermediateSchema(final IntermediateSchema source, final List<String> userGroups,
+      final boolean hideRestrictedProperties)
       throws ODataJPAModelException {
     super(source.nameBuilder, source.nameBuilder.getNamespace(), source.getAnnotationInformation());
+    emfIsWrapped = source.emfIsWrapped;
     jpaMetamodel = source.jpaMetamodel;
     reflections = source.reflections;
-    complexTypeListInternalKey = copyRestricted(source.complexTypeListInternalKey, userGroups);
+    complexTypeListInternalKey = copyRestricted(source.complexTypeListInternalKey, userGroups,
+        hideRestrictedProperties);
     enumTypeListInternalKey = source.enumTypeListInternalKey;
-    entityTypeListInternalKey = copyRestricted(source.entityTypeListInternalKey, userGroups);
-    functionListInternalKey = copyRestricted(source.functionListInternalKey, userGroups);
-    actionListByKey = copyRestrictedActions(source.actionListByKey, userGroups);
+    entityTypeListInternalKey = copyRestricted(source.entityTypeListInternalKey, userGroups, hideRestrictedProperties);
+    functionListInternalKey = copyRestricted(source.functionListInternalKey, userGroups, hideRestrictedProperties);
+    actionListByKey = copyRestrictedActions(source.actionListByKey, userGroups, hideRestrictedProperties);
   }
 
   private Map<ODataActionKey, IntermediateJavaAction> copyRestrictedActions(
-      final Map<ODataActionKey, IntermediateJavaAction> source, final List<String> userGroups)
-      throws ODataJPAModelException {
+      final Map<ODataActionKey, IntermediateJavaAction> source, final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     final Map<ODataActionKey, IntermediateJavaAction> result = new HashMap<>(source.size());
     for (final var item : source.entrySet()) {
       if (item.getValue().isAccessibleFor(userGroups)) {
-        result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups));
+        result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups, hideRestrictedProperties));
       }
     }
     return result;
   }
 
   private <T extends IntermediateModelElement> Map<String, T> copyRestricted(final Map<String, T> source,
-      final List<String> userGroups) throws ODataJPAModelException {
+      final List<String> userGroups, final boolean hideRestrictedProperties) throws ODataJPAModelException {
     final Map<String, T> result = new HashMap<>(source.size());
     for (final var item : source.entrySet()) {
       if (item.getValue() instanceof final JPAUserGroupRestrictable restrictable) {
         if (restrictable.isAccessibleFor(userGroups)) {
-          result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups));
+          result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups, hideRestrictedProperties));
         }
       } else {
-        result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups));
+        result.put(item.getKey(), item.getValue().asUserGroupRestricted(userGroups, hideRestrictedProperties));
       }
     }
     return result;
@@ -128,9 +134,9 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups)
-      throws ODataJPAModelException {
-    return (T) new IntermediateSchema(this, userGroups);
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
+    return (T) new IntermediateSchema(this, userGroups, hideRestrictedProperties);
   }
 
   @Override
@@ -270,6 +276,10 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   void setContainer(final IntermediateEntityContainer container) {
     this.container = container;
+  }
+
+  boolean emfIsWrapped() {
+    return emfIsWrapped;
   }
 
   private Map<ODataActionKey, IntermediateJavaAction> buildActionList() throws ODataJPAModelException {

@@ -4,7 +4,9 @@ import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_R
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -43,6 +46,7 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
   private JPAODataRequestContext context;
   private JPAODataSessionContextAccess sessionContext;
   private OData odata;
+  private JPAODataApiVersionAccess version;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -52,6 +56,9 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     keyPredicates = new HashMap<>();
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
+    version = mock(JPAODataApiVersionAccess.class);
+    when(version.getEntityManagerFactory()).thenReturn(emf);
+    when(sessionContext.getApiVersion(any())).thenReturn(version);
     odata = mock(OData.class);
     requestContext = new JPAODataInternalRequestContext(context, sessionContext, odata);
   }

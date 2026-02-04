@@ -73,7 +73,7 @@ class IntermediateReferencesTest extends TestMappingRoot {
   }
 
   @Test
-  void checkAddURIandPath() throws ODataJPAModelException {
+  void checkAddURIAndPath() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final String path = MEASURES_V1_PATH;
     cut.addReference(uri, path);
@@ -89,29 +89,29 @@ class IntermediateReferencesTest extends TestMappingRoot {
   void checkConvertedToCsdlContainsInclude() throws ODataJPAModelException {
     JPAServiceDocument serviceDocument;
     serviceDocument = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor(), null,
-        Collections.emptyList());
+        Collections.emptyList(), true);
     assertEquals(1, serviceDocument.getReferences().size());
 
-    final EdmxReference ref = serviceDocument.getReferences().get(0);
-    assertEquals(1, ref.getIncludes().size());
+    final EdmxReference reference = serviceDocument.getReferences().get(0);
+    assertEquals(1, reference.getIncludes().size());
   }
 
   @Test
   void checkConvertedToCsdlContainsIncludeAnnotation() throws ODataJPAModelException {
     JPAServiceDocument serviceDocument;
     serviceDocument = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor(), null,
-        Collections.emptyList());
+        Collections.emptyList(), true);
     assertEquals(1, serviceDocument.getReferences().size());
 
-    final EdmxReference ref = serviceDocument.getReferences().get(0);
-    assertEquals(1, ref.getIncludeAnnotations().size());
+    final EdmxReference reference = serviceDocument.getReferences().get(0);
+    assertEquals(1, reference.getIncludeAnnotations().size());
   }
 
   @Test
   void checkGetOneSchema() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    ref.addInclude("Org.OData.Measures.V1", "");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    reference.addInclude("Org.OData.Measures.V1", "");
 
     assertEquals(1, cut.getSchemas().size());
   }
@@ -119,8 +119,8 @@ class IntermediateReferencesTest extends TestMappingRoot {
   @Test
   void checkGetTwoSchemas() throws ODataJPAModelException {
     final String uri = TEST_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, TEST_V1_PATH);
-    ref.addInclude("Org.Olingo.Test.V1.xml", "");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, TEST_V1_PATH);
+    reference.addInclude("Org.Olingo.Test.V1.xml", "");
 
     assertEquals(2, cut.getSchemas().size());
   }
@@ -128,8 +128,8 @@ class IntermediateReferencesTest extends TestMappingRoot {
   @Test
   void checkGetComplexType() throws ODataJPAModelException {
     final String uri = TEST_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, TEST_V1_PATH);
-    ref.addInclude("Org.Olingo.Test.V1.xml", "");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, TEST_V1_PATH);
+    reference.addInclude("Org.Olingo.Test.V1.xml", "");
 
     for (final CsdlSchema schema : cut.getSchemas())
       if (schema.getNamespace().equals("Org.OData.Capabilities.V1")) {
@@ -142,8 +142,8 @@ class IntermediateReferencesTest extends TestMappingRoot {
   @Test
   void checkGetTermByNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    ref.addInclude("Org.OData.Measures.V1", "");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    reference.addInclude("Org.OData.Measures.V1", "");
     final FullQualifiedName fqn = new FullQualifiedName("Org.OData.Measures.V1", "ISOCurrency");
     assertNotNull(cut.getTerm(fqn));
   }
@@ -151,8 +151,8 @@ class IntermediateReferencesTest extends TestMappingRoot {
   @Test
   void checkGetTermByAlias() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    ref.addInclude("Org.OData.Measures.V1", "Measures");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    reference.addInclude("Org.OData.Measures.V1", "Measures");
     final FullQualifiedName fqn = new FullQualifiedName("Measures", "ISOCurrency");
     assertNotNull(cut.getTerm(fqn));
   }
@@ -160,8 +160,8 @@ class IntermediateReferencesTest extends TestMappingRoot {
   @Test
   void checkReturnEmptyOptionalUnknownTerm() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    ref.addInclude("Org.OData.Measures.V1", "Measures");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    reference.addInclude("Org.OData.Measures.V1", "Measures");
     final FullQualifiedName fqn = new FullQualifiedName("Measures", "Dummy");
     assertFalse(cut.getTerm(fqn).isPresent());
   }
@@ -169,8 +169,8 @@ class IntermediateReferencesTest extends TestMappingRoot {
   @Test
   void checkReturnEmptyOptionalOnUnknownNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    ref.addInclude("Org.OData.Measures.V1", "Measures");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    reference.addInclude("Org.OData.Measures.V1", "Measures");
     final FullQualifiedName fqn = new FullQualifiedName("Dummy", "ISOCurrency");
     assertFalse(cut.getTerm(fqn).isPresent());
   }
@@ -178,16 +178,16 @@ class IntermediateReferencesTest extends TestMappingRoot {
   @Test
   void checkAddIncludeWithoutNameSpace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    ref.addInclude("Org.OData.Org.OData.Core.V1");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    reference.addInclude("Org.OData.Org.OData.Core.V1");
     assertEquals(1, cut.aliasDirectory.size());
   }
 
   @Test
   void checkAddIncludeWithNameSpace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    ref.addInclude("Org.OData.Org.OData.Core.V1", "Core");
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    reference.addInclude("Org.OData.Org.OData.Core.V1", "Core");
     assertEquals(2, cut.aliasDirectory.size());
   }
 
@@ -195,28 +195,28 @@ class IntermediateReferencesTest extends TestMappingRoot {
   void checkThrowsExceptionOnNullTermNamespace() throws ODataJPAModelException {
 
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(null));
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    assertThrows(ODataJPAModelException.class, () -> reference.addIncludeAnnotation(null));
   }
 
   @Test
   void checkThrowsExceptionOnEmptyTermNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
-    final IntermediateReferenceAccess ref = cut.addReference(uri, MEASURES_V1_PATH);
-    assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(""));
+    final IntermediateReferenceAccess reference = cut.addReference(uri, MEASURES_V1_PATH);
+    assertThrows(ODataJPAModelException.class, () -> reference.addIncludeAnnotation(""));
   }
 
   @Test
   void checkGetTerms() throws ODataJPAModelException {
 
-    final IntermediateReferenceAccess ref = cut.addReference(CORE_V1_URL, CORE_V1_PATH);
-    ref.addInclude("Org.OData.Core.V1", "Core");
+    final IntermediateReferenceAccess reference = cut.addReference(CORE_V1_URL, CORE_V1_PATH);
+    reference.addInclude("Org.OData.Core.V1", "Core");
     final List<CsdlTerm> act = cut.getTerms("Core", Applicability.ENTITY_SET);
     assertNotNull(act);
     assertEquals(6, act.size());
 
-    assertTrue(act.stream().filter(t -> t.getName().equals("ResourcePath")).findFirst().isPresent());
-    assertTrue(act.stream().filter(t -> t.getName().equals("OptimisticConcurrency")).findFirst().isPresent());
+    assertTrue(act.stream().filter(term -> term.getName().equals("ResourcePath")).findFirst().isPresent());
+    assertTrue(act.stream().filter(term -> term.getName().equals("OptimisticConcurrency")).findFirst().isPresent());
   }
 
   private static Stream<Arguments> getTypeFqn() {

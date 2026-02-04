@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -354,7 +356,7 @@ class JPAODataInternalRequestContextTest {
 
     when(requestContext.getGroupsProvider()).thenReturn(Optional.of(groupsProvider));
     when(groupsProvider.getGroups()).thenReturn(groupList);
-    when(edmProvider.asUserGroupRestricted(groupList)).thenReturn(restrictedProvider);
+    when(edmProvider.asUserGroupRestricted(eq(groupList), anyBoolean())).thenReturn(restrictedProvider);
 
     cut = new JPAODataInternalRequestContext(requestContext, sessionContext, odata);
     assertEquals(restrictedProvider, cut.getEdmProvider());

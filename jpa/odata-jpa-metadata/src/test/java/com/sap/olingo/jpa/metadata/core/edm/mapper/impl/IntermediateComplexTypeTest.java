@@ -61,7 +61,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
     etList = emf.getMetamodel().getEmbeddables();
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
     schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), mock(
-        Reflections.class), annotationInfo);
+        Reflections.class), annotationInfo, true);
   }
 
   @Test
@@ -362,12 +362,12 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
 
   @ParameterizedTest
   @MethodSource("complexTypeClassProvider")
-  <T> void checkAsUserGroupRestrictedCopiesUnrestrictedValues(Class<T> clazz) throws ODataJPAModelException {
+  <T> void checkAsUserGroupRestrictedCopiesUnrestrictedValues(final Class<T> clazz) throws ODataJPAModelException {
 
     final IntermediateStructuredType<T> ct = new IntermediateComplexType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEmbeddableType(clazz), schema);
 
-    final IntermediateStructuredType<T> act = ct.asUserGroupRestricted(List.of("Company"));
+    final IntermediateStructuredType<T> act = ct.asUserGroupRestricted(List.of("Company"), true);
 
     assertEquals(ct.getExternalFQN(), act.getExternalFQN());
     assertListEquals(ct.getAttributes(), act.getAttributes(), JPAAttribute.class);
@@ -385,7 +385,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
     final IntermediateStructuredType<ComplexSubType> ct = new IntermediateComplexType<>(nameBuilder,
         getEmbeddableType(ComplexSubType.class), schema);
 
-    final IntermediateStructuredType<ComplexSubType> act = ct.asUserGroupRestricted(List.of("Company"));
+    final IntermediateStructuredType<ComplexSubType> act = ct.asUserGroupRestricted(List.of("Company"), true);
     assertNotEquals(ct.getBaseType(), act.getBaseType());
   }
 //

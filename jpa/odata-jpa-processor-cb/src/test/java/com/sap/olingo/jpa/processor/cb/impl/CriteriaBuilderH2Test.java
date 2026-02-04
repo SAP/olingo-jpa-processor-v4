@@ -37,7 +37,7 @@ class CriteriaBuilderH2Test extends CriteriaBuilderOverallTest {
   private static DataSource ds;
 
   @BeforeAll
-  public static void classSetup() throws ODataException {
+  static void classSetup() throws ODataException {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     edmProvider = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
@@ -46,7 +46,7 @@ class CriteriaBuilderH2Test extends CriteriaBuilderOverallTest {
   }
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     super.setup(emf, sd, null);
   }
 

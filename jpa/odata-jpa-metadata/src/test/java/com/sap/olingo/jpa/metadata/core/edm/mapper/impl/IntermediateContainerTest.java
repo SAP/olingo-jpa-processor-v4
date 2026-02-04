@@ -59,7 +59,7 @@ class IntermediateContainerTest extends TestMappingRoot {
 
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), references);
     schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
-        annotationInfo);
+        annotationInfo, true);
     etList = emf.getMetamodel().getEntities();
     schemas.put(PUNIT_NAME, schema);
 

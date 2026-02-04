@@ -280,7 +280,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return getAnnotationConstantValue(annotation.asConstant());
   }
 
-  protected Object getAnnotationDynamicValue(final String property, final CsdlDynamicExpression expression)
+  protected Object getAnnotationDynamicValue(final String property, final CsdlDynamicExpression expression) // NOSONAR
       throws ODataJPAModelInternalException {
     return null;
   }
@@ -305,8 +305,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   }
 
   @SuppressWarnings("unchecked")
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups) // NOSONAR
-      throws ODataJPAModelException { // NOSONAR
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups, // NOSONAR
+      final boolean hideRestrictedProperties) throws ODataJPAModelException { // NOSONAR
     return (T) this;
   }
 

@@ -34,7 +34,7 @@ class IntermediateJoinTableTest extends TestMappingRoot {
     final Reflections reflections = mock(Reflections.class);
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
     schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
-        annotationInfo);
+        annotationInfo, true);
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     jpaJoinTable = determineJoinTable(JoinSource.class, "oneToMany");
     property = buildNavigationProperty(JoinSource.class, "oneToMany");
