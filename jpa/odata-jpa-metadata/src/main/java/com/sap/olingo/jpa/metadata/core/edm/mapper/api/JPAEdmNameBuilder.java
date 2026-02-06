@@ -127,17 +127,6 @@ public interface JPAEdmNameBuilder {
 
   /**
    * Build the name of the database column in case it is not provided by the annotation {@link Column}.
-<<<<<<< HEAD
-   * The Default converts a field name by adding quotation marks. E.g.: <br>
-   * id -> "id"
-   * <p>
-   * In case you want to use the field name converted into the default database representation, e.g. all upper case,
-   * the you can just return the field name:
-   *
-   * <pre>
-   * {@code
-   * return jpaFieldName
-=======
    * The Default returns the field name, so it will be converted later into the database default representation.
    * <p>
    * In case the field name should be used as such (old default) you need to surround the field name by quotation marks:
@@ -147,16 +136,11 @@ public interface JPAEdmNameBuilder {
    * final var stringBuilder = new StringBuilder(DB_FIELD_NAME_PATTERN);
    * stringBuilder.replace(1, 3, jpaFieldName);
    * return stringBuilder.toString();
->>>>>>> jpa-processor/master
    * }
    * </pre>
    *
    *
-<<<<<<< HEAD
-   * If you would use (upper case) snake case for column names, the implementation could look like this:
-=======
    * If you use (upper case) snake case for column names, the implementation could look like this:
->>>>>>> jpa-processor/master
    *
    * <pre>
    * {@code
