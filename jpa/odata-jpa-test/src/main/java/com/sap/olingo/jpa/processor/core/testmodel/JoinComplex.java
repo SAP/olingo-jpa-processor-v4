@@ -19,4 +19,13 @@ public class JoinComplex {
       joinColumns = @JoinColumn(name = "\"SourceID\"", referencedColumnName = "\"SourceKey\""),
       inverseJoinColumns = @JoinColumn(name = "\"TargetID\""))
   private List<JoinTarget> oneToManyComplex;
+
+  public JoinComplex() {
+
+  }
+
+  public JoinComplex(final Long number) {
+    super();
+    this.number = number;
+  }
 }

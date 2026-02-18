@@ -74,6 +74,9 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.FullNameCalculator;
+import com.sap.olingo.jpa.processor.core.testmodel.JoinComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.JoinSource;
+import com.sap.olingo.jpa.processor.core.testmodel.JoinTarget;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
@@ -308,8 +311,8 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
     final byte[] act = new byte[100];
     response.getContent().read(act);
-    final String s = new String(act).trim();
-    assertEquals("{\"ID\":\"35\"}", s);
+    final String resultAsString = new String(act).trim();
+    assertEquals("{\"ID\":\"35\"}", resultAsString);
   }
 
   @Test
@@ -344,8 +347,8 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
     final byte[] act = new byte[1000];
     response.getContent().read(act);
-    final String s = new String(act).trim();
-    assertTrue(s.contains("\"FullName\":\"Wunder, Willi\""));
+    final String resultAsString = new String(act).trim();
+    assertTrue(resultAsString.contains("\"FullName\":\"Wunder, Willi\""));
   }
 
   @Test
@@ -357,8 +360,8 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
     final byte[] act = new byte[100];
     response.getContent().read(act);
-    final String s = new String(act).trim();
-    assertEquals("{\"ID\":\"35\"}", s);
+    final String resultAsString = new String(act).trim();
+    assertEquals("{\"ID\":\"35\"}", resultAsString);
   }
 
   @Test
@@ -581,7 +584,46 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
       assertEquals("Roles", c.getKey().getAlias());
   }
 
-  protected ODataRequest prepareRequestToCreateChild(final JPAAbstractCUDRequestHandler spy)
+  @Test
+  void testResponseCreateChildWithJoinTable() throws ODataException {
+    when(ets.getName()).thenReturn("JoinSources");
+
+    final var joinTarget = new JoinTarget(10);
+    final var joinSource = new JoinSource(5, new JoinComplex(10L), List.of(joinTarget));
+
+    final RequestHandleSpy spy = new RequestHandleSpy(joinSource);
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareJoinTableRequest(spy, joinSource);
+
+    final UriResourceNavigation uriChild = mock(UriResourceNavigation.class);
+    final List<UriParameter> uriKeys = new ArrayList<>();
+    final EdmNavigationProperty naviProperty = mock(EdmNavigationProperty.class);
+    final EdmNavigationPropertyBinding naviBinding = mock(EdmNavigationPropertyBinding.class);
+    final EdmEntityContainer container = mock(EdmEntityContainer.class);
+    final List<EdmNavigationPropertyBinding> naviBindings = new ArrayList<>(0);
+    final EdmEntitySet targetEts = mock(EdmEntitySet.class);
+    naviBindings.add(naviBinding);
+
+    when(uriChild.getKind()).thenReturn(UriResourceKind.navigationProperty);
+    when(uriChild.getProperty()).thenReturn(naviProperty);
+    when(naviProperty.getName()).thenReturn("OneToMany");
+    when(uriEts.getKeyPredicates()).thenReturn(uriKeys);
+    when(convHelper.convertUriKeys(any(), any(), any())).thenCallRealMethod();
+    when(convHelper.buildGetterMap(joinSource)).thenReturn(new JPAConversionHelper().determineGetter(joinSource));
+    when(convHelper.buildGetterMap(joinTarget)).thenReturn(new JPAConversionHelper().determineGetter(joinTarget));
+    when(ets.getNavigationPropertyBindings()).thenReturn(naviBindings);
+    when(naviBinding.getPath()).thenReturn("OneToMany");
+    when(naviBinding.getTarget()).thenReturn("JoinTargets");
+    when(ets.getEntityContainer()).thenReturn(container);
+    when(container.getEntitySet("JoinTargets")).thenReturn(targetEts);
+    pathParts.add(uriChild);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, convHelper);
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.requestEntity.getKeys());
+  }
+
+  private ODataRequest prepareRequestToCreateChild(final JPAAbstractCUDRequestHandler spy)
       throws ODataException {
     // .../AdministrativeDivisions(DivisionCode='DE6',CodeID='NUTS1',CodePublisher='Eurostat')/Children
     final ODataRequest request = prepareSimpleRequest("return=representation");
@@ -644,6 +686,52 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(property.isNullable()).thenReturn(true);
     when(property.getMaxLength()).thenReturn(255);
     return property;
+  }
+
+  protected ODataRequest prepareJoinTableRequest(final JPAAbstractCUDRequestHandler spy, final JoinSource source)
+      throws ODataException {
+
+    final ODataRequest request = prepareSimpleRequest("return=representation");
+
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(em.find(JoinSource.class, Integer.valueOf(5))).thenReturn(null);
+
+    final Edm edm = mock(Edm.class);
+    when(serviceMetadata.getEdm()).thenReturn(edm);
+
+    createEdmType(edm, "SourceID", "com.sap.olingo.jpa.JoinSource", "5");
+    createEdmType(edm, "TargetID", "com.sap.olingo.jpa.JoinTarget", "50");
+
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(JPAEntityCollectionExtension.class)))
+        .thenReturn(serializerResult);
+    when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"SourceID\":\"5\"}".getBytes()));
+
+    return request;
+  }
+
+  private final EdmKeyPropertyRef createEdmType(final Edm edm, final String externalName, final String name,
+      final String key) {
+
+    final EdmEntityType edmET = mock(EdmEntityType.class);
+    final FullQualifiedName fqn = new FullQualifiedName(name);
+    when(edm.getEntityType(fqn)).thenReturn(edmET);
+    final List<String> keyNames = new ArrayList<>();
+    keyNames.add(externalName);
+    when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
+    final EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
+    when(edmET.getKeyPropertyRef(externalName)).thenReturn(refType);
+    when(edmET.getFullQualifiedName()).thenReturn(fqn);
+
+    final EdmProperty edmProperty = mock(EdmProperty.class);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn(externalName);
+    final EdmPrimitiveType type = mock(EdmPrimitiveType.class);
+    when(edmProperty.getType()).thenReturn(type);
+    when(type.toUriLiteral(ArgumentMatchers.any())).thenReturn(key);
+
+    // serviceMetadata.getEdm().getEntityType(jpaEntityType.getExternalFQN());
+
+    return refType;
   }
 
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {

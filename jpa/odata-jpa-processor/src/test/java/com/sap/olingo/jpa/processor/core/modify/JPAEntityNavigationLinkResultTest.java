@@ -74,7 +74,6 @@ class JPAEntityNavigationLinkResultTest extends TestBase {
   @Test
   void checkConvertsOneResultOneKeyWithLink() throws ODataApplicationException, ODataJPAModelException {
     final var et = helper.getJPAEntityType(Organization.class);
-    final var association = et.getAssociationPath("Roles");
     final Map<String, Object> result = new HashMap<>();
     keyPredicates.put("1", "'1'");
     result.put("ID", "1");
@@ -82,7 +81,7 @@ class JPAEntityNavigationLinkResultTest extends TestBase {
 
     final var jpaResult = new JPAExpandQueryResult(createResult, null, et, List.of(), empty());
     final var linkResult = new JPAEntityNavigationLinkResult(et, List.of(new BusinessPartnerRole("1", "2")), headers,
-        childConverter, association.getForeignKeyColumns());
+        childConverter, "1");
 
     final Map<JPAAssociationPath, JPAExpandResult> childResults = Map.of(et.getAssociationPath("Roles"), linkResult);
     jpaResult.putChildren(childResults);
