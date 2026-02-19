@@ -593,7 +593,7 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
 
     final RequestHandleSpy spy = new RequestHandleSpy(joinSource);
     final ODataResponse response = new ODataResponse();
-    final ODataRequest request = prepareJoinTableRequest(spy, joinSource);
+    final ODataRequest request = prepareJoinTableRequest(spy);
 
     final UriResourceNavigation uriChild = mock(UriResourceNavigation.class);
     final List<UriParameter> uriKeys = new ArrayList<>();
@@ -688,7 +688,7 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     return property;
   }
 
-  protected ODataRequest prepareJoinTableRequest(final JPAAbstractCUDRequestHandler spy, final JoinSource source)
+  protected ODataRequest prepareJoinTableRequest(final JPAAbstractCUDRequestHandler spy)
       throws ODataException {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");
@@ -728,8 +728,6 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     final EdmPrimitiveType type = mock(EdmPrimitiveType.class);
     when(edmProperty.getType()).thenReturn(type);
     when(type.toUriLiteral(ArgumentMatchers.any())).thenReturn(key);
-
-    // serviceMetadata.getEdm().getEntityType(jpaEntityType.getExternalFQN());
 
     return refType;
   }

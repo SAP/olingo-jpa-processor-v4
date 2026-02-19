@@ -48,7 +48,6 @@ class JPAEntityNavigationLinkResultTest extends TestBase {
   private JPAODataRequestContext context;
   private JPAODataSessionContextAccess sessionContext;
   private OData odata;
-  private JPAODataApiVersionAccess version;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -59,7 +58,7 @@ class JPAEntityNavigationLinkResultTest extends TestBase {
     uriHelper = new UriHelperDouble();
     keyPredicates = new HashMap<>();
     uriHelper.setKeyPredicates(keyPredicates, "ID");
-    version = mock(JPAODataApiVersionAccess.class);
+    final var version = mock(JPAODataApiVersionAccess.class);
 
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
