@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter;
  */
 class TimeInstantLongConverterTest {
   private static final String FIVE_DAYS_LATER = "1970-01-06T00:00:00Z";
-  private static final long FIVE_DAYS = 5 * 24 * 60 * 60 * 1000;
+  private static final long FIVE_DAYS = 5 * 24 * 60 * 60 * 1000L;
   private TimeInstantLongConverter cut;
 
   @BeforeEach

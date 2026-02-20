@@ -93,7 +93,7 @@ class TestStandardMethodsOfTestModel {
   private final int expInt = 10;
   private final Boolean expBoolean = Boolean.TRUE;
   private final BigInteger expBigInt = new BigInteger("10");
-  private final BigDecimal expDecimal = new BigDecimal(1.10);
+  private final BigDecimal expDecimal = BigDecimal.valueOf(1.10);
   private final LocalDate expLocalDate = LocalDate.now();
   private final long expLong = 15l;
   private final byte[] expByteArray = new byte[] { 1, 1, 1, 1 };

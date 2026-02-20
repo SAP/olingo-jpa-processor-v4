@@ -52,7 +52,7 @@ class InheritanceJoinReversed<Z, X> extends AbstractJoinImp<Z, X> {
     if (on == null) {
       try {
         createOn(subType.getInheritanceInformation().getReversedJoinColumnsList(), subType);
-      } catch (ODataJPAModelException e) {
+      } catch (final ODataJPAModelException e) {
         throw new InternalServerError(e);
       }
     }
@@ -62,10 +62,10 @@ class InheritanceJoinReversed<Z, X> extends AbstractJoinImp<Z, X> {
   private static JPAEntityType getHop(@Nonnull final JPAEntityType superType, @Nonnull final JPAEntityType targetType) {
     try {
       JPAStructuredType result = targetType;
-      while (result.getBaseType() != null && result.getBaseType() != superType)
+      while (result.getBaseType() != null && result.getBaseType() != superType) // NOSONAR
         result = result.getBaseType();
       return (JPAEntityType) result;
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new InternalServerError(e);
     }
   }
@@ -87,12 +87,12 @@ class InheritanceJoinReversed<Z, X> extends AbstractJoinImp<Z, X> {
   }
 
   @Override
-  Optional<String> getAlias(JPAPath jpaPath) {
+  Optional<String> getAlias(final JPAPath jpaPath) {
     if (isKeyPath(jpaPath))
       return tableAlias;
     final var hierarchy = getInheritanceHierarchy();
     for (int i = hierarchy.size() - 1; i >= 0; i--) {
-      var alias = hierarchy.get(i).getOwnAlias(jpaPath);
+      final var alias = hierarchy.get(i).getOwnAlias(jpaPath);
       if (alias.isPresent())
         return alias;
     }
@@ -119,7 +119,7 @@ class InheritanceJoinReversed<Z, X> extends AbstractJoinImp<Z, X> {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(final Object other) {
     return super.equals(other);
   }
 }

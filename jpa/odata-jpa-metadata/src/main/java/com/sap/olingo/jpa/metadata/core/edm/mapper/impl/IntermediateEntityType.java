@@ -65,6 +65,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.InstanceCacheSupplier;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.cache.ListCacheSupplier;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelInternalException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
 
@@ -316,7 +317,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       final var mapping = this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class);
       final var referenceColumn = !mapping.referencedColumnName().isEmpty()
           ? mapping.referencedColumnName()
-          : ((JPAEntityType) getBaseType()).getKeyPath().get(0).getDBFieldName();
+          : getBaseTypeKey().get(0).getDBFieldName();
       mappings = Map.of(referenceColumn, this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumn.class));
     } else if (jpaJavaType.getAnnotation(PrimaryKeyJoinColumns.class) != null)
       mappings = Arrays.asList(this.jpaJavaType.getAnnotation(PrimaryKeyJoinColumns.class).value())
@@ -325,6 +326,12 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     else
       mappings = Map.of();
     return mappings;
+  }
+
+  private final List<JPAPath> getBaseTypeKey() throws ODataJPAModelException {
+    final var superType = Optional.ofNullable((JPAEntityType) getBaseType()).orElseThrow(
+        () -> new ODataJPAModelException(MessageKeys.PATH_ELEMENT_NOT_FOUND));
+    return superType.getKeyPath();
   }
 
   @Override

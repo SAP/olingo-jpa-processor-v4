@@ -44,7 +44,7 @@ abstract class JPANavigationLinkResult extends JPACreateResult implements JPACon
       final JPAAssociationPath association, final List<JPAODataPageExpandInfo> expandInfo)
       throws ODataApplicationException {
     if (odataResult == null)
-      asEntityCollection(converter);
+      asEntityCollection(converter.copy());
     return odataResult.containsKey(key) ? odataResult.get(key) : new JPAEntityCollection();
   }
 
