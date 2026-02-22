@@ -19,6 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -137,6 +138,17 @@ class JPARequestLinkImplTest {
   }
 
   @Test
+  void testCreateSingleIntegerKeyJoinTable() throws ODataException {
+    final String link = "JoinTarget(5)";
+    cut = new JPARequestLinkImpl(path, link, helper);
+    completeJPAPathJoinTable();
+    final Map<String, Object> act = cut.getValues();
+    assertNotNull(act);
+    assertEquals(5, act.get("sourceID"));
+    assertNotNull(cut.getRelatedKeys());
+  }
+
+  @Test
   void testCreateSingleStringValueThrowsException() throws ODataException {
     final String link = "BusinessPartners('123456')";
     when(path.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
@@ -172,16 +184,56 @@ class JPARequestLinkImplTest {
     when(roleKey2.getInternalName()).thenReturn("roleCategory");
     when(roleKey2.getExternalName()).thenReturn("BusinessPartnerRole");
 
-    if (inverted)
+    JPAPath leftPath;
+    JPAPath rightPath;
+    if (inverted) {
       items.add(createConditionItem("ID", "ID", "businessPartnerID", "BusinessPartnerID"));
-    else
+      leftPath = createConditionPath("ID", "ID");
+      rightPath = createConditionPath("businessPartnerID", "BusinessPartnerID");
+    } else {
       items.add(createConditionItem("businessPartnerID", "BusinessPartnerID", "ID", "ID"));
+      leftPath = createConditionPath("businessPartnerID", "BusinessPartnerID");
+      rightPath = createConditionPath("ID", "ID");
+    }
     when(path.getLeaf()).thenReturn(pathLeaf);
     when(pathLeaf.getInternalName()).thenReturn("businessPartner");
     when(path.getTargetType()).thenReturn(targetEt);
     when(path.getSourceType()).thenReturn(sourceEt);
+    when(path.getLeftColumnsList()).thenReturn(List.of(leftPath));
+    when(path.getRightColumnsList()).thenReturn(List.of(rightPath));
     when(targetEt.getKey()).thenReturn(bupaKeys);
     when(sourceEt.getKey()).thenReturn(roleKeys);
+
+  }
+
+  private void completeJPAPathJoinTable() throws ODataJPAModelException {
+    final JPAEntityType targetEt = mock(JPAEntityType.class);
+    final JPAEntityType sourceEt = mock(JPAEntityType.class);
+    final JPAJoinTable joinTable = mock(JPAJoinTable.class);
+    final JPAAttribute sourceKey = mock(JPAAttribute.class);
+    final JPAAttribute targetKey = mock(JPAAttribute.class);
+    final List<JPAAttribute> sourceKeys = new ArrayList<>();
+    final List<JPAAttribute> targetKeys = new ArrayList<>();
+    sourceKeys.add(sourceKey);
+    targetKeys.add(targetKey);
+    when(sourceKey.getInternalName()).thenReturn("sourceID");
+    when(sourceKey.getExternalName()).thenReturn("SourceID");
+    when(targetKey.getInternalName()).thenReturn("targetID");
+    when(targetKey.getExternalName()).thenReturn("TargetID");
+
+    when(path.getJoinColumnsList()).thenThrow(NullPointerException.class);
+    when(path.getLeaf()).thenReturn(pathLeaf);
+    when(pathLeaf.getInternalName()).thenReturn("oneToMany");
+    when(pathLeaf.getEdmType()).thenReturn(EdmPrimitiveTypeKind.Int32);
+    when(path.getTargetType()).thenReturn(targetEt);
+    when(path.getSourceType()).thenReturn(sourceEt);
+    when(path.getJoinTable()).thenReturn(joinTable);
+    final var leftPath = createConditionPath("sourceID", "SourceID", EdmPrimitiveTypeKind.Int32);
+    final var rightPath = createConditionPath("targetID", "TargetID", EdmPrimitiveTypeKind.Int32);
+    when(joinTable.getLeftColumnsList()).thenReturn(List.of(leftPath));
+    when(joinTable.getRightColumnsList()).thenReturn(List.of(rightPath));
+    when(targetEt.getKey()).thenReturn(targetKeys);
+    when(sourceEt.getKey()).thenReturn(sourceKeys);
   }
 
   private JPAOnConditionItem createConditionItem(final String leftInternalName, final String leftExternalName,
@@ -189,24 +241,30 @@ class JPARequestLinkImplTest {
 
     final JPAOnConditionItem item = mock(JPAOnConditionItem.class);
 
-    final JPAPath leftPath = mock(JPAPath.class);
-    final JPAPath rightPath = mock(JPAPath.class);
+    final JPAPath leftPath = createConditionPath(leftInternalName, leftExternalName);
+    final JPAPath rightPath = createConditionPath(rightInternalName, rightExternalName);
+
     when(item.getLeftPath()).thenReturn(leftPath);
     when(item.getRightPath()).thenReturn(rightPath);
 
-    final JPAAttribute leftAttribute = mock(JPAAttribute.class);
-    final JPAAttribute rightAttribute = mock(JPAAttribute.class);
-    when(leftPath.getLeaf()).thenReturn(leftAttribute);
-    when(rightPath.getLeaf()).thenReturn(rightAttribute);
-
-    when(leftAttribute.getInternalName()).thenReturn(leftInternalName);
-    when(leftAttribute.getExternalName()).thenReturn(leftExternalName);
-    when(rightAttribute.getInternalName()).thenReturn(rightInternalName);
-    when(rightAttribute.getExternalName()).thenReturn(rightExternalName);
-    when(leftAttribute.getEdmType()).thenReturn(EdmPrimitiveTypeKind.String);
-    when(rightAttribute.getEdmType()).thenReturn(EdmPrimitiveTypeKind.String);
-
     return item;
+  }
+
+  private final JPAPath createConditionPath(final String internalName, final String externalName)
+      throws ODataJPAModelException {
+    return createConditionPath(internalName, externalName, EdmPrimitiveTypeKind.String);
+  }
+
+  private final JPAPath createConditionPath(final String internalName, final String externalName,
+      final EdmPrimitiveTypeKind typeKind)
+      throws ODataJPAModelException {
+    final JPAPath conditionPath = mock(JPAPath.class);
+    final JPAAttribute conditionAttribute = mock(JPAAttribute.class);
+    when(conditionPath.getLeaf()).thenReturn(conditionAttribute);
+    when(conditionAttribute.getInternalName()).thenReturn(internalName);
+    when(conditionAttribute.getExternalName()).thenReturn(externalName);
+    when(conditionAttribute.getEdmType()).thenReturn(typeKind);
+    return conditionPath;
   }
 
   private void createAdminDivisionChildrenRelation() throws ODataJPAModelException {
