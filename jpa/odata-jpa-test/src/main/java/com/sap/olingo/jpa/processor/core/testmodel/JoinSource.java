@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -23,7 +25,7 @@ public class JoinSource {
   @JoinTable(name = "\"JoinRelation\"", schema = "\"OLINGO\"",
       joinColumns = @JoinColumn(name = "\"SourceID\""),
       inverseJoinColumns = @JoinColumn(name = "\"TargetID\""))
-  private List<JoinTarget> oneToMany;
+  private List<JoinTarget> oneToMany = new ArrayList<>();
 
   @OneToMany
   @JoinTable(name = "\"JoinHiddenRelation\"", schema = "\"OLINGO\"",
@@ -33,4 +35,50 @@ public class JoinSource {
 
   @Embedded
   private JoinComplex complex;
+
+  public JoinSource(final Integer sourceID, final JoinComplex complex, final List<JoinTarget> oneToMany) {
+    super();
+    this.sourceID = sourceID;
+    this.oneToMany = oneToMany;
+    this.complex = complex;
+  }
+
+  public JoinSource() {
+    super();
+  }
+
+  public Integer getSourceID() {
+    return sourceID;
+  }
+
+  public void setSourceID(final Integer sourceID) {
+    this.sourceID = sourceID;
+  }
+
+  public List<JoinTarget> getOneToMany() {
+    return oneToMany;
+  }
+
+  public void setOneToMany(final List<JoinTarget> oneToMany) {
+    this.oneToMany = oneToMany;
+  }
+
+  public JoinComplex getComplex() {
+    return complex;
+  }
+
+  public void setComplex(final JoinComplex complex) {
+    this.complex = complex;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(sourceID);
+  }
+
+  @Override
+  public boolean equals(final Object object) {
+    return object instanceof final JoinSource other
+        && Objects.equals(sourceID, other.sourceID);
+  }
 }

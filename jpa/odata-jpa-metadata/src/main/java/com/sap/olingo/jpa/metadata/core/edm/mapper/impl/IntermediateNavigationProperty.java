@@ -244,8 +244,14 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
       // Optional --> RelationAnnotation
       determineOnDelete();
       // TODO determine ContainsTarget
-      edmNavigationProperty.setPartner(getPartner() == null ? null : getPartner().getExternalName());
+      edmNavigationProperty.setPartner(buildPartner());
     }
+  }
+
+  private final String buildPartner() throws ODataJPAModelException {
+    return Optional.ofNullable(getPartner())
+        .map(JPAAssociationAttribute::getExternalName)
+        .orElse(null);
   }
 
   @Override

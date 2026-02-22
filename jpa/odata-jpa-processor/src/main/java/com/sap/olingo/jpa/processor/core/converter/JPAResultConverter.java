@@ -23,4 +23,6 @@ public interface JPAResultConverter {
       Collection<JPAPath> requestedSelection,
       String parentKey, List<JPAODataPageExpandInfo> expandInfo) throws ODataApplicationException;
 
+  public JPAResultConverter copy();
+
 }

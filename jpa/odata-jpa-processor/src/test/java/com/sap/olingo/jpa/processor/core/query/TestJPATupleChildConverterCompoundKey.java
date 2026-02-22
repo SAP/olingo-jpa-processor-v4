@@ -46,7 +46,6 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
   private JPAODataRequestContext context;
   private JPAODataSessionContextAccess sessionContext;
   private OData odata;
-  private JPAODataApiVersionAccess version;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -56,7 +55,7 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     keyPredicates = new HashMap<>();
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
-    version = mock(JPAODataApiVersionAccess.class);
+    final var version = mock(JPAODataApiVersionAccess.class);
     when(version.getEntityManagerFactory()).thenReturn(emf);
     when(sessionContext.getApiVersion(any())).thenReturn(version);
     odata = mock(OData.class);

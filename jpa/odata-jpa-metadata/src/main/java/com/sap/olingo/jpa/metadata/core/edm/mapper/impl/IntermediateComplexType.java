@@ -150,9 +150,9 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
 
   @Override
   List<JPAAttribute> getBaseTypeAttributes() throws ODataJPAModelException {
-    final IntermediateStructuredType<? super T> baseType = getBaseType();
-    if (baseType != null)
-      return baseType.getAttributes();
+    final IntermediateStructuredType<? super T> superType = getBaseType();
+    if (superType != null)
+      return superType.getAttributes();
     return List.of();
   }
 }

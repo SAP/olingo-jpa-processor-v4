@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -253,6 +254,8 @@ class EntityManagerWrapperTest {
       e = assertThrows(InvocationTargetException.class, () -> m.invoke(cut, p1));
     } else if (m.getParameterCount() == 2) {
       e = assertThrows(InvocationTargetException.class, () -> m.invoke(cut, p1, p2));
+    } else {
+      fail();
     }
     assertTrue(e.getCause() instanceof NotImplementedException);
   }

@@ -8,7 +8,7 @@ public abstract class SerializerOptionsMatcher<T> implements ArgumentMatcher<T> 
 
   protected String extElement;
 
-  public SerializerOptionsMatcher(final String pattern) {
+  protected SerializerOptionsMatcher(final String pattern) {
     extElement = pattern;
   }
 

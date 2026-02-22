@@ -57,6 +57,11 @@ public class JPATupleRowConverter extends JPATupleResultConverter implements JPA
   }
 
   @Override
+  public JPAResultConverter copy() {
+    return new JPATupleCollectionConverter(sd, uriHelper, serviceMetadata, requestContext);
+  }
+
+  @Override
   public Entity convertRow(final JPAEntityType rowEntity, final Tuple row, final Collection<JPAPath> requestedSelection,
       final List<JPAODataPageExpandInfo> expandInfo, final JPAExpandResult result)
       throws ODataApplicationException {
