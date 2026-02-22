@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +25,7 @@ public class JoinSource {
   @JoinTable(name = "\"JoinRelation\"", schema = "\"OLINGO\"",
       joinColumns = @JoinColumn(name = "\"SourceID\""),
       inverseJoinColumns = @JoinColumn(name = "\"TargetID\""))
-  private List<JoinTarget> oneToMany;
+  private List<JoinTarget> oneToMany = new ArrayList<>();
 
   @OneToMany
   @JoinTable(name = "\"JoinHiddenRelation\"", schema = "\"OLINGO\"",

@@ -38,6 +38,7 @@ import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.deserializer.DeserializerException;
 import org.apache.olingo.server.api.prefer.Preferences;
 import org.apache.olingo.server.api.prefer.Preferences.Return;
 import org.apache.olingo.server.api.serializer.SerializerException;
@@ -344,8 +345,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
    * @throws ODataJPAProcessorException
    */
   final JPARequestEntity createRequestEntity(final Optional<JPATopLevelEntity> topLevelEntity, final JPAEntityType et,
-      final Entity odataEntity,
-      final Map<String, Object> keys, final Map<String, List<String>> headers,
+      final Entity odataEntity, final Map<String, Object> keys, final Map<String, List<String>> headers,
       final JPAAssociationPath jpaAssociationPath) throws ODataJPAProcessorException {
 
     try {
@@ -609,8 +609,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
   }
 
   private Map<JPAAssociationPath, List<JPARequestLink>> createRelationLinks(final JPAEntityType et,
-      final Entity odataEntity)
-      throws ODataJPAModelException {
+      final Entity odataEntity) throws ODataJPAModelException {
 
     final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks =
         new HashMap<>();
