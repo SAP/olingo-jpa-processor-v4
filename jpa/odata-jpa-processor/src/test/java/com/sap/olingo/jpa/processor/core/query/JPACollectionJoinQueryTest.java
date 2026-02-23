@@ -78,7 +78,7 @@ class JPACollectionJoinQueryTest extends TestBase {
     final JPACollectionJoinQuery cut = new JPACollectionJoinQuery(OData.newInstance(), item, requestContext, Optional
         .empty());
 
-    assertThrows(ODataJPAQueryException.class, () -> cut.createWhere());
+    assertThrows(ODataJPAQueryException.class, cut::createWhere);
   }
 
   @Test

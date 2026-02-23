@@ -11,8 +11,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 
 public class ExampleJavaPrivateConstructor implements ODataFunction, ODataAction {
 
-  private ExampleJavaPrivateConstructor(final EntityManager em) {
-    super();
+  private ExampleJavaPrivateConstructor(final EntityManager em) { // NOSONAR
+    // Needed for test
   }
 
   @EdmFunction(name = "", returnType = @ReturnType)
@@ -23,5 +23,7 @@ public class ExampleJavaPrivateConstructor implements ODataFunction, ODataAction
 
   @EdmAction(name = "")
   public void mul(
-      @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {}
+      @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {
+    // Not needed
+  }
 }

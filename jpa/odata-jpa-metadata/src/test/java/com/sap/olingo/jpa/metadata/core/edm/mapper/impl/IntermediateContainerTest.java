@@ -248,7 +248,6 @@ class IntermediateContainerTest extends TestMappingRoot {
     for (final CsdlFunctionImport functionImport : functionImports) {
       if ("Sum".equals(functionImport.getName()))
         return;
-      System.out.println(functionImport.getName());
     }
     fail("Import not found");
   }
@@ -296,23 +295,27 @@ class IntermediateContainerTest extends TestMappingRoot {
 
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(
-          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
-        if (property.getInternalName().equals("communicationData")) {
-          property.setIgnore(true);
-        }
+      if (jpaManagedTypeClassName.equals("com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")
+          && property.getInternalName().equals("communicationData")) {
+        property.setIgnore(true);
       }
     }
 
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
-        final String jpaManagedTypeClassName) {}
+        final String jpaManagedTypeClassName) {
+      // Not needed
+    }
 
     @Override
-    public void processEntityType(final IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {
+      // Not needed
+    }
 
     @Override
-    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}
+    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {
+      // Not needed
+    }
 
     @Override
     public void processEntityContainer(final IntermediateEntityContainerAccess container) {

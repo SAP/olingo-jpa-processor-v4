@@ -6,10 +6,10 @@ import org.mockito.ArgumentMatcher;
 
 public abstract class SerializerOptionsMatcher<T> implements ArgumentMatcher<T> {
 
-  protected String extElement;
+  protected String externalElement;
 
   protected SerializerOptionsMatcher(final String pattern) {
-    extElement = pattern;
+    externalElement = pattern;
   }
 
   @Override
@@ -20,9 +20,8 @@ public abstract class SerializerOptionsMatcher<T> implements ArgumentMatcher<T> 
   protected abstract URI getService(T options);
 
   private boolean verify(final URI serviceRoot) {
-    if (serviceRoot == null && extElement == null)
-      return true;
-    else if (serviceRoot != null && serviceRoot.toString().equals(extElement))
+    if (serviceRoot == null && externalElement == null
+        || serviceRoot != null && serviceRoot.toString().equals(externalElement))
       return true;
     return false;
   }
