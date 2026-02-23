@@ -30,12 +30,4 @@ __Sonar__:
 
 [![Quality Gate Status](https://sonar.tools.sap/api/project_badges/measure?project=odata-jpa-odata-v4-jpa-processor-2cb07&metric=alert_status&token=sqb_4ae2ac408a58579bcef9fb37588a48eef760ed36)](https://sonar.tools.sap/dashboard?id=odata-jpa-odata-v4-jpa-processor-2cb07)
 
-[![Lines of Code](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=ncloc&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
-[![Coverage](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=coverage&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
-[![Bugs](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=bugs&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
-[![Quality Gate Status](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=alert_status&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
-
-[![Security Rating](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=security_rating&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
-[![Reliability Rating](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=reliability_rating&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
-[![Maintainability Rating](https://sonarce.wdf.sap.corp/sonar/api/project_badges/measure?project=com.sap.olingo%3Aodata-jpa&metric=sqale_rating&token=54367031ff55036455562cea076027ab26378337)](https://sonarce.wdf.sap.corp/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
-
+[![Coverage](https://sonar.tools.sap/api/project_badges/measure?project=odata-jpa-odata-v4-jpa-processor-2cb07&metric=coverage&token=sqb_4ae2ac408a58579bcef9fb37588a48eef760ed36)](https://sonar.tools.sap/dashboard?id=odata-jpa-odata-v4-jpa-processor-2cb07)
