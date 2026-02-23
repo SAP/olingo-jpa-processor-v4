@@ -56,13 +56,11 @@ class BatchRequestTest extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
 
     JsonNode value = helper.getBatchResult(1);
-    System.out.println(value);
     assertEquals(200, helper.getBatchResultStatus(1));
     assertNotNull(value.get("ID"));
     assertEquals("3", value.get("ID").asText());
 
     value = helper.getBatchResult(2);
-    System.out.println(value);
     assertEquals(200, helper.getBatchResultStatus(2));
     assertNotNull(value.get("ID"));
     assertEquals("5", value.get("ID").asText());

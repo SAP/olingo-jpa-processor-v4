@@ -28,4 +28,20 @@ public class JoinComplex {
     super();
     this.number = number;
   }
+
+  public Long getNumber() {
+    return number;
+  }
+
+  public void setNumber(final Long number) {
+    this.number = number;
+  }
+
+  public List<JoinTarget> getOneToManyComplex() {
+    return oneToManyComplex;
+  }
+
+  public void setOneToManyComplex(final List<JoinTarget> oneToManyComplex) {
+    this.oneToManyComplex = oneToManyComplex;
+  }
 }

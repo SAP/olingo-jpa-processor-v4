@@ -125,20 +125,11 @@ class TestCriteriaBuilder {
     final Root bupaRoot = roleQ.from(BusinessPartner.class);
 
     bupaQ.select(bupaRoot.get("iD"));
-//    Expression<String> exp = scheduleRequest.get("createdBy");
-//    Predicate predicate = exp.in(myList);
-//    criteria.where(predicate);
 
     final List<String> ids = new ArrayList<>();
     ids.add("1");
     ids.add("2");
     bupaQ.where(bupaRoot.get("iD").in(ids));
-//    bupaQ.select(
-//        (Expression<BusinessPartner>) cb.construct(
-//            BusinessPartner.class,
-//            bupaRoot.get("ID")));
-
-    // roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.multiselect(roleRoot.get("businessPartnerID"));
     final TypedQuery<Tuple> tq = em.createQuery(roleQ);
@@ -324,7 +315,7 @@ class TestCriteriaBuilder {
     final Predicate in = role.in(businessPartner.get("iD"));
     cq.where(in);
     final TypedQuery<Tuple> tq = em.createQuery(cq);
-    assertThrows(PersistenceException.class, () -> tq.getResultList());
+    assertThrows(PersistenceException.class, tq::getResultList);
   }
 
   @Test

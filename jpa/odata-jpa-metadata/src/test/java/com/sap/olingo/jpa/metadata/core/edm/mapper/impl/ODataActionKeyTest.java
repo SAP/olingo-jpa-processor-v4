@@ -35,16 +35,16 @@ class ODataActionKeyTest {
 
   private IntermediateOperation createBoundOperation(final CsdlAction csdlAction, final String actionName)
       throws ODataJPAModelException {
-    final IntermediateOperation operation = mock(IntermediateOperation.class);
+    final IntermediateOperation action = mock(IntermediateOperation.class);
     final List<CsdlParameter> parameters = new ArrayList<>();
     final CsdlParameter parameter = mock(CsdlParameter.class);
     parameters.add(parameter);
-    when(operation.getExternalName()).thenReturn(actionName);
-    when(operation.getEdmItem()).thenReturn(csdlAction);
-    when(operation.isBound()).thenReturn(true);
+    when(action.getExternalName()).thenReturn(actionName);
+    when(action.getEdmItem()).thenReturn(csdlAction);
+    when(action.isBound()).thenReturn(true);
     when(csdlAction.getParameters()).thenReturn(parameters);
     when(parameter.getTypeFQN()).thenReturn(new FullQualifiedName(NAMESPACE, TYPE_NAME));
-    return operation;
+    return action;
   }
 
   @Test
@@ -80,15 +80,12 @@ class ODataActionKeyTest {
 
   @Test
   void checkUnboundAction() throws ODataJPAModelException {
-    final IntermediateOperation operation = mock(IntermediateOperation.class);
-    final List<CsdlParameter> parameters = new ArrayList<>();
-    final CsdlParameter parameter = mock(CsdlParameter.class);
-    parameters.add(parameter);
-    when(operation.getExternalName()).thenReturn(ACTION_NAME);
-    when(operation.getEdmItem()).thenReturn(csdl);
-    when(operation.isBound()).thenReturn(false);
+    final IntermediateOperation action = mock(IntermediateOperation.class);
+    when(action.getExternalName()).thenReturn(ACTION_NAME);
+    when(action.getEdmItem()).thenReturn(csdl);
+    when(action.isBound()).thenReturn(false);
 
-    cut = new ODataActionKey(operation);
+    cut = new ODataActionKey(action);
     assertNull(cut.getBindingParameterType());
   }
 
