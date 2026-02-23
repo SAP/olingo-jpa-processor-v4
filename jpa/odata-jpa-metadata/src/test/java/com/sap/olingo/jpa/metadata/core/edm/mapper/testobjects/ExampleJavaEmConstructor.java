@@ -23,5 +23,7 @@ public class ExampleJavaEmConstructor implements ODataFunction, ODataAction {
 
   @EdmAction(name = "")
   public void mul(
-      @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {}
+      @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {
+    // Not needed
+  }
 }

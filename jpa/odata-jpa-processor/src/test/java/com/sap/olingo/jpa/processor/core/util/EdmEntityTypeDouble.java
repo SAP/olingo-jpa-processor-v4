@@ -29,50 +29,49 @@ public class EdmEntityTypeDouble implements EdmEntityType {
 
   @Override
   public EdmElement getProperty(final String name) {
+    return (EdmElement) failWithNull();
+  }
+
+  private final Object failWithNull() {
     fail();
     return null;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<String> getPropertyNames() {
-    fail();
-    return null;
+    return (List<String>) failWithNull();
   }
 
   @Override
   public EdmProperty getStructuralProperty(final String name) {
-    fail();
-    return null;
+    return (EdmProperty) failWithNull();
   }
 
   @Override
   public EdmNavigationProperty getNavigationProperty(final String name) {
-    fail();
-    return null;
+    return (EdmNavigationProperty) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<String> getNavigationPropertyNames() {
-    fail();
-    return null;
+    return (List<String>) failWithNull();
   }
 
   @Override
   public boolean compatibleTo(final EdmType targetType) {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public boolean isOpenType() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public boolean isAbstract() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
@@ -87,8 +86,7 @@ public class EdmEntityTypeDouble implements EdmEntityType {
 
   @Override
   public EdmTypeKind getKind() {
-    fail();
-    return null;
+    return (EdmTypeKind) failWithNull();
   }
 
   @Override
@@ -98,44 +96,40 @@ public class EdmEntityTypeDouble implements EdmEntityType {
 
   @Override
   public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
-    fail();
-    return null;
+    return (EdmAnnotation) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<EdmAnnotation> getAnnotations() {
-    fail();
-    return null;
+    return (List<EdmAnnotation>) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<String> getKeyPredicateNames() {
-    fail();
-    return null;
+    return (List<String>) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<EdmKeyPropertyRef> getKeyPropertyRefs() {
-    fail();
-    return null;
+    return (List<EdmKeyPropertyRef>) failWithNull();
   }
 
   @Override
   public EdmKeyPropertyRef getKeyPropertyRef(final String keyPredicateName) {
-    fail();
-    return null;
+    return (EdmKeyPropertyRef) failWithNull();
   }
 
   @Override
   public boolean hasStream() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public EdmEntityType getBaseType() {
-    fail();
-    return null;
+    return (EdmEntityType) failWithNull();
   }
 
 }
