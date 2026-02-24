@@ -38,7 +38,6 @@ import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.deserializer.DeserializerException;
 import org.apache.olingo.server.api.prefer.Preferences;
 import org.apache.olingo.server.api.prefer.Preferences.Return;
 import org.apache.olingo.server.api.serializer.SerializerException;
