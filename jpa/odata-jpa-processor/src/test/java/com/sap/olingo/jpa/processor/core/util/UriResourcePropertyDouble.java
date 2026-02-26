@@ -10,15 +10,14 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 public class UriResourcePropertyDouble implements UriResourceProperty {
   private final EdmProperty property;
 
-  public UriResourcePropertyDouble(EdmProperty property) {
+  public UriResourcePropertyDouble(final EdmProperty property) {
     super();
     this.property = property;
   }
 
   @Override
   public EdmType getType() {
-    fail();
-    return null;
+    return (EdmType) failWithNull();
   }
 
   @Override
@@ -27,33 +26,34 @@ public class UriResourcePropertyDouble implements UriResourceProperty {
   }
 
   @Override
-  public String getSegmentValue(boolean includeFilters) {
-    fail();
-    return null;
+  public String getSegmentValue(final boolean includeFilters) {
+    return (String) failWithNull();
   }
 
   @Override
-  public String toString(boolean includeFilters) {
-    fail();
-    return null;
+  public String toString(final boolean includeFilters) {
+    return (String) failWithNull();
   }
 
   @Override
   public UriResourceKind getKind() {
-    fail();
-    return null;
+    return (UriResourceKind) failWithNull();
   }
 
   @Override
   public String getSegmentValue() {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
   @Override
   public EdmProperty getProperty() {
 
     return property;
+  }
+
+  private final Object failWithNull() {
+    fail();
+    return null;
   }
 
 }
