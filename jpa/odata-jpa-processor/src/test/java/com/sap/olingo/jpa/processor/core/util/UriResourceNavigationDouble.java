@@ -32,20 +32,17 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
 
   @Override
   public boolean isCollection() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public String getSegmentValue(final boolean includeFilters) {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
   @Override
   public String toString(final boolean includeFilters) {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
   @Override
@@ -55,8 +52,7 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
 
   @Override
   public String getSegmentValue() {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
   @Override
@@ -64,10 +60,10 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
     return property;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<UriParameter> getKeyPredicates() {
-    fail();
-    return null;
+    return (List<UriParameter>) failWithNull();
   }
 
   @Override
@@ -77,6 +73,11 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
 
   @Override
   public EdmType getTypeFilterOnEntry() {
+    return null;
+  }
+
+  private final Object failWithNull() {
+    fail();
     return null;
   }
 
