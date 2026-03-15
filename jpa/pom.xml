@@ -30,7 +30,7 @@
         <openjpa.version>4.0.0</openjpa.version>
         <derby.version>10.16.1.1</derby.version>
         <junit.version>6.0.2</junit.version>
-        <mockito.version>5.19.0</mockito.version>
+        <mockito.version>5.23.0</mockito.version>
         <jacoco.version>0.8.14</jacoco.version>
         <netty.version>4.2.10.Final</netty.version>
         <org.slf4j.version>2.0.17</org.slf4j.version>
@@ -332,7 +332,7 @@
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
-                    <version>1.22.0</version>
+                    <version>1.22.1</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.pitest</groupId>
