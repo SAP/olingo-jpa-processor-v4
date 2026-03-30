@@ -48,6 +48,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.cb.ProcessorSqlPatternProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
@@ -200,8 +201,9 @@ public class IntegrationTestHelper {
 
   public JPAEdmProvider buildEdmProvider(final EntityManagerFactory localEmf,
       final AnnotationProvider annotationsProvider, final String[] packages) throws ODataException {
-    return new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages,
-        annotationsProvider == null ? Collections.emptyList() : Collections.singletonList(annotationsProvider));
+    return new JPAEdmProvider(localEmf.getMetamodel(), new TestWrapperChecker(), null, packages,
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), annotationsProvider == null ? List.of() : List.of(
+            annotationsProvider));
   }
 
   public HttpServletResponse getResponse() {

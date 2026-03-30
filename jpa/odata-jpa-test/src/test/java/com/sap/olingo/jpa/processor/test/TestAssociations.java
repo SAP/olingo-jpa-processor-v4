@@ -35,7 +35,7 @@ class TestAssociations {
   private CriteriaBuilder cb;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));
@@ -50,90 +50,90 @@ class TestAssociations {
 
   @Test
   void getBuPaRoles() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<BusinessPartner> root = cq.from(BusinessPartner.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<BusinessPartner> root = criteriaQuery.from(BusinessPartner.class);
 
-    cq.multiselect(root.get("roles").alias("roles"));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    criteriaQuery.multiselect(root.get("roles").alias("roles"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final BusinessPartnerRole role = (BusinessPartnerRole) result.get(0).get("roles");
     assertNotNull(role);
   }
 
   @Test
   void getBuPaLocation() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<BusinessPartner> root = cq.from(BusinessPartner.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<BusinessPartner> root = criteriaQuery.from(BusinessPartner.class);
 
-    cq.multiselect(root.get("locationName").alias("L"));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    criteriaQuery.multiselect(root.get("locationName").alias("L"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final AdministrativeDivisionDescription act = (AdministrativeDivisionDescription) result.get(0).get("L");
     assertNotNull(act);
   }
 
   @Test
   void getRoleBuPa() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<BusinessPartnerRole> root = cq.from(BusinessPartnerRole.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<BusinessPartnerRole> root = criteriaQuery.from(BusinessPartnerRole.class);
 
-    cq.multiselect(root.get("businessPartner").alias("BuPa"));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    criteriaQuery.multiselect(root.get("businessPartner").alias("BuPa"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final BusinessPartner bp = (BusinessPartner) result.get(0).get("BuPa");
     assertNotNull(bp);
   }
 
   @Test
   void getBuPaCountryName() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<BusinessPartner> root = cq.from(BusinessPartner.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<BusinessPartner> root = criteriaQuery.from(BusinessPartner.class);
     // Works with eclipselink, but not with openjap
-    cq.multiselect(root.get("address").get("countryName").alias("CN"));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    criteriaQuery.multiselect(root.get("address").get("countryName").alias("CN"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final Country region = (Country) result.get(0).get("CN");
     assertNotNull(region);
   }
 
   @Test
   void getBuPaRegionName() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<BusinessPartner> root = cq.from(BusinessPartner.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<BusinessPartner> root = criteriaQuery.from(BusinessPartner.class);
 
-    cq.multiselect(root.get("address").get("regionName").alias("RN"));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    criteriaQuery.multiselect(root.get("address").get("regionName").alias("RN"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final AdministrativeDivisionDescription region = (AdministrativeDivisionDescription) result.get(0).get("RN");
     assertNotNull(region);
   }
 
   @Test
   void getAdministrativeDivisionParent() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<AdministrativeDivision> root = cq.from(AdministrativeDivision.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<AdministrativeDivision> root = criteriaQuery.from(AdministrativeDivision.class);
 
-    cq.multiselect(root.get("parent").alias("P"));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    criteriaQuery.multiselect(root.get("parent").alias("P"));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final AdministrativeDivision act = (AdministrativeDivision) result.get(0).get("P");
     assertNotNull(act);
   }
 
   @Test
   void getAdministrativeDivisionOneParent() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<AdministrativeDivision> root = cq.from(AdministrativeDivision.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<AdministrativeDivision> root = criteriaQuery.from(AdministrativeDivision.class);
     root.alias("Source");
-    cq.multiselect(root.get("parent").alias("P"));
-    // cq.select((Selection<? extends Tuple>) root);
-    cq.where(cb.and(
+    criteriaQuery.multiselect(root.get("parent").alias("P"));
+    // criteriaQuery.select((Selection<? extends Tuple>) root);
+    criteriaQuery.where(cb.and(
         cb.equal(root.get("codePublisher"), "Eurostat"),
         cb.and(
             cb.equal(root.get("codeID"), "NUTS3"),
             cb.equal(root.get("divisionCode"), "BE251"))));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final AdministrativeDivision act = (AdministrativeDivision) result.get(0).get("P");
     assertNotNull(act);
     assertEquals("NUTS2", act.getCodeID());
@@ -142,18 +142,18 @@ class TestAssociations {
 
   @Test
   void getAdministrativeDivisionChildrenOfOneParent() {
-    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    final Root<AdministrativeDivision> root = cq.from(AdministrativeDivision.class);
+    final CriteriaQuery<Tuple> criteriaQuery = cb.createTupleQuery();
+    final Root<AdministrativeDivision> root = criteriaQuery.from(AdministrativeDivision.class);
     root.alias("Source");
-    cq.multiselect(root.get("children").alias("C"));
-    cq.where(cb.and(
+    criteriaQuery.multiselect(root.get("children").alias("C"));
+    criteriaQuery.where(cb.and(
         cb.equal(root.get("codePublisher"), "Eurostat"),
         cb.and(
             cb.equal(root.get("codeID"), "NUTS2"),
             cb.equal(root.get("divisionCode"), "BE25"))));
-    cq.orderBy(cb.desc(root.get("divisionCode")));
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final List<Tuple> result = tq.getResultList();
+    criteriaQuery.orderBy(cb.desc(root.get("divisionCode")));
+    final TypedQuery<Tuple> typedQuery = em.createQuery(criteriaQuery);
+    final List<Tuple> result = typedQuery.getResultList();
     final AdministrativeDivision act = (AdministrativeDivision) result.get(0).get("C");
     assertNotNull(act);
     assertEquals(8, result.size());

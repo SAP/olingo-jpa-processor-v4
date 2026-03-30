@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.odata.v4.provider;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -41,7 +42,7 @@ public class References implements JPAReferences {
     return termsMap.entrySet().stream()
         .filter(t -> t.getKey().equals(termName.getName()))
         .findFirst()
-        .map(e -> e.getValue());
+        .map(Entry::getValue);
   }
 
   @SuppressWarnings("unchecked")
@@ -67,7 +68,6 @@ public class References implements JPAReferences {
 
   @Override
   public List<CsdlTerm> getTerms(final String capabilitiesAlias, final Applicability appliesTo) {
-    // TODO Auto-generated method stub
     return null;
   }
 

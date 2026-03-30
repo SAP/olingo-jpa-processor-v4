@@ -42,38 +42,36 @@ import org.apache.olingo.server.api.uri.queryoption.TopOption;
 
 public class UriInfoDouble implements UriInfo {
 
-  private final SelectOption selOpts;
+  private final SelectOption selectOption;
   private ExpandOption expandOpts;
   private List<UriResource> uriResources;
 
-  public UriInfoDouble(final SelectOption selOpts) {
+  public UriInfoDouble(final SelectOption selectOptions) {
     super();
-    this.selOpts = selOpts;
+    this.selectOption = selectOptions;
     this.uriResources = new ArrayList<>(0);
   }
 
   public UriInfoDouble(final UriInfoResource resourcePath) {
     super();
-    this.selOpts = null;
+    this.selectOption = null;
     this.uriResources = resourcePath.getUriResourceParts();
   }
 
   @Override
   public FormatOption getFormatOption() {
-    fail();
-    return null;
+    return (FormatOption) failWithNull();
   }
 
   @Override
   public String getFragment() {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<CustomQueryOption> getCustomQueryOptions() {
-    fail();
-    return null;
+    return (List<CustomQueryOption>) failWithNull();
   }
 
   @Override
@@ -83,55 +81,47 @@ public class UriInfoDouble implements UriInfo {
 
   @Override
   public FilterOption getFilterOption() {
-    fail();
-    return null;
+    return (FilterOption) failWithNull();
   }
 
   @Override
   public IdOption getIdOption() {
-    fail();
-    return null;
+    return (IdOption) failWithNull();
   }
 
   @Override
   public CountOption getCountOption() {
-    fail();
-    return null;
+    return (CountOption) failWithNull();
   }
 
   @Override
   public OrderByOption getOrderByOption() {
-    fail();
-    return null;
+    return (OrderByOption) failWithNull();
   }
 
   @Override
   public SearchOption getSearchOption() {
-    fail();
-    return null;
+    return (SearchOption) failWithNull();
   }
 
   @Override
   public SelectOption getSelectOption() {
-    return selOpts;
+    return selectOption;
   }
 
   @Override
   public SkipOption getSkipOption() {
-    fail();
-    return null;
+    return (SkipOption) failWithNull();
   }
 
   @Override
   public SkipTokenOption getSkipTokenOption() {
-    fail();
-    return null;
+    return (SkipTokenOption) failWithNull();
   }
 
   @Override
   public TopOption getTopOption() {
-    fail();
-    return null;
+    return (TopOption) failWithNull();
   }
 
   @Override
@@ -140,125 +130,108 @@ public class UriInfoDouble implements UriInfo {
   }
 
   @Override
-  public String getValueForAlias(String alias) {
-    fail();
-    return null;
+  public String getValueForAlias(final String alias) {
+    return (String) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<String> getEntitySetNames() {
-    fail();
-    return null;
+    return (List<String>) failWithNull();
   }
 
   @Override
   public EdmEntityType getEntityTypeCast() {
-    fail();
-    return null;
+    return (EdmEntityType) failWithNull();
   }
 
   @Override
   public UriInfoKind getKind() {
-    fail();
-    return null;
+    return (UriInfoKind) failWithNull();
   }
 
   @Override
   public UriInfoService asUriInfoService() {
-    fail();
-    return null;
+    return (UriInfoService) failWithNull();
   }
 
   @Override
   public UriInfoAll asUriInfoAll() {
-    fail();
-    return null;
+    return (UriInfoAll) failWithNull();
   }
 
   @Override
   public UriInfoBatch asUriInfoBatch() {
-    fail();
-    return null;
+    return (UriInfoBatch) failWithNull();
   }
 
   @Override
   public UriInfoCrossjoin asUriInfoCrossjoin() {
-    fail();
-    return null;
+    return (UriInfoCrossjoin) failWithNull();
   }
 
   @Override
   public UriInfoEntityId asUriInfoEntityId() {
-    fail();
-    return null;
+    return (UriInfoEntityId) failWithNull();
   }
 
   @Override
   public UriInfoMetadata asUriInfoMetadata() {
-    fail();
-    return null;
+    return (UriInfoMetadata) failWithNull();
   }
 
   @Override
   public UriInfoResource asUriInfoResource() {
-    fail();
-    return null;
+    return (UriInfoResource) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<SystemQueryOption> getSystemQueryOptions() {
-    fail();
-    return null;
+    return (List<SystemQueryOption>) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<AliasQueryOption> getAliases() {
-    fail();
-    return null;
+    return (List<AliasQueryOption>) failWithNull();
   }
 
   class primitiveDouble implements UriResourcePrimitiveProperty {
 
     @Override
     public EdmProperty getProperty() {
-      fail();
-      return null;
+      return (EdmProperty) failWithNull();
     }
 
     @Override
     public EdmType getType() {
-      fail();
-      return null;
+      return (EdmType) failWithNull();
     }
 
     @Override
     public boolean isCollection() {
-      fail();
-      return false;
+      return (boolean) failWithNull();
     }
 
     @Override
-    public String getSegmentValue(boolean includeFilters) {
-      fail();
-      return null;
+    public String getSegmentValue(final boolean includeFilters) {
+      return (String) failWithNull();
     }
 
     @Override
-    public String toString(boolean includeFilters) {
-      fail();
-      return null;
+    public String toString(final boolean includeFilters) {
+      return (String) failWithNull();
     }
 
     @Override
     public UriResourceKind getKind() {
-      fail();
-      return null;
+      return (UriResourceKind) failWithNull();
     }
 
     @Override
     public String getSegmentValue() {
-      fail();
-      return null;
+      return (String) failWithNull();
     }
 
   }
@@ -267,56 +240,47 @@ public class UriInfoDouble implements UriInfo {
 
     @Override
     public EdmProperty getProperty() {
-      fail();
-      return null;
+      return (EdmProperty) failWithNull();
     }
 
     @Override
     public EdmType getType() {
-      fail();
-      return null;
+      return (EdmType) failWithNull();
     }
 
     @Override
     public boolean isCollection() {
-      fail();
-      return false;
+      return (boolean) failWithNull();
     }
 
     @Override
-    public String getSegmentValue(boolean includeFilters) {
-      fail();
-      return null;
+    public String getSegmentValue(final boolean includeFilters) {
+      return (String) failWithNull();
     }
 
     @Override
-    public String toString(boolean includeFilters) {
-      fail();
-      return null;
+    public String toString(final boolean includeFilters) {
+      return (String) failWithNull();
     }
 
     @Override
     public UriResourceKind getKind() {
-      fail();
-      return null;
+      return (UriResourceKind) failWithNull();
     }
 
     @Override
     public String getSegmentValue() {
-      fail();
-      return null;
+      return (String) failWithNull();
     }
 
     @Override
     public EdmComplexType getComplexType() {
-      fail();
-      return null;
+      return (EdmComplexType) failWithNull();
     }
 
     @Override
     public EdmComplexType getComplexTypeFilter() {
-      fail();
-      return null;
+      return (EdmComplexType) failWithNull();
     }
   }
 
@@ -324,52 +288,45 @@ public class UriInfoDouble implements UriInfo {
 
     @Override
     public EdmType getType() {
-      fail();
-      return null;
+      return (EdmType) failWithNull();
     }
 
     @Override
     public boolean isCollection() {
-      fail();
-      return false;
+      return (boolean) failWithNull();
     }
 
     @Override
-    public String getSegmentValue(boolean includeFilters) {
-      fail();
-      return null;
+    public String getSegmentValue(final boolean includeFilters) {
+      return (String) failWithNull();
     }
 
     @Override
-    public String toString(boolean includeFilters) {
-      fail();
-      return null;
+    public String toString(final boolean includeFilters) {
+      return (String) failWithNull();
     }
 
     @Override
     public UriResourceKind getKind() {
-      fail();
-      return null;
+      return (UriResourceKind) failWithNull();
     }
 
     @Override
     public String getSegmentValue() {
-      fail();
-      return null;
+      return (String) failWithNull();
     }
 
     @Override
     public EdmProperty getProperty() {
-      fail();
-      return null;
+      return (EdmProperty) failWithNull();
     }
   }
 
-  public void setExpandOpts(ExpandOption expandOpts) {
+  public void setExpandOpts(final ExpandOption expandOpts) {
     this.expandOpts = expandOpts;
   }
 
-  public void setUriResources(List<UriResource> uriResources) {
+  public void setUriResources(final List<UriResource> uriResources) {
     this.uriResources = uriResources;
   }
 
@@ -380,6 +337,11 @@ public class UriInfoDouble implements UriInfo {
 
   @Override
   public DeltaTokenOption getDeltaTokenOption() {
+    return null;
+  }
+
+  private final Object failWithNull() {
+    fail();
     return null;
   }
 

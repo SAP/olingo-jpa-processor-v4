@@ -48,7 +48,7 @@ public class TestHelper {
 
     this.jpaMetamodel = metamodel;
     this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, reflections,
-        annotationInfo);
+        annotationInfo, true);
   }
 
   public Object findAttribute(final List<? extends JPAAttribute> attributes, final String searchItem) {

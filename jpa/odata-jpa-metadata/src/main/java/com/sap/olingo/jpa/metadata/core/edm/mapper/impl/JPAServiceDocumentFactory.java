@@ -14,19 +14,21 @@ public final class JPAServiceDocumentFactory {
 
   /**
    * Late creation of the service document. A service document contains at least one schema and a container.
+   * @param wrapperAvailable
    * @return
    * @throws ODataJPAModelException
    */
   public JPAServiceDocument getServiceDocument(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
-      final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
-    return new IntermediateServiceDocument(nameBuilder, jpaMetamodel, postProcessor, packageName, annotationProvider);
+      final List<AnnotationProvider> annotationProvider, final boolean wrapperAvailable) throws ODataJPAModelException {
+    return new IntermediateServiceDocument(nameBuilder, jpaMetamodel, postProcessor, packageName, annotationProvider,
+        wrapperAvailable);
   }
 
   public JPAServiceDocument asUserGroupRestricted(final JPAServiceDocument serviceDocument,
-      final List<String> userGroups) throws ODataJPAModelException {
-    if (serviceDocument instanceof IntermediateServiceDocument intermediate)
-      return intermediate.asUserGroupRestricted(userGroups);
+      final List<String> userGroups, final boolean hideRestrictedProperties) throws ODataJPAModelException {
+    if (serviceDocument instanceof final IntermediateServiceDocument intermediate)
+      return intermediate.asUserGroupRestricted(userGroups, hideRestrictedProperties);
     return serviceDocument;
   }
 }

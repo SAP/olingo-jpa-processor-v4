@@ -178,7 +178,7 @@ class IntermediateWrongAnnotationTest {
     final IntermediateEntityType<TeamWithTransientError> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), jpaEt, helper.schema);
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> et.getEdmItem());
+        et::getEdmItem);
     assertEquals(PROPERTY_REQUIRED_UNKNOWN.name(), act.getId());
   }
 }

@@ -130,4 +130,5 @@ class JPAAttributeWrapper implements JPAAttribute {
       throws ODataJPAModelException {
     return null;
   }
+
 }

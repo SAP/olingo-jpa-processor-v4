@@ -19,7 +19,6 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.junit.jupiter.api.BeforeEach;
 
-import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
@@ -45,15 +44,14 @@ public class TestGroupBase extends TestBase {
   }
 
   @BeforeEach
-  public void setup() throws ODataException, ODataJPAIllegalAccessException {
+  void setup() throws ODataException, ODataJPAIllegalAccessException {
     uriInfo = buildUriInfo("BusinessPartnerWithGroupss", "BusinessPartnerWithGroups");
 
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartnerWithGroupss");
     createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        emf, dataSource, null, null, null);
+    context = new JPAODataContextAccessDouble(helper.edmProvider, emf, dataSource, null, null, null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     odata = OData.newInstance();
@@ -67,12 +65,12 @@ public class TestGroupBase extends TestBase {
   }
 
   protected UriInfo buildUriInfo(final String esName, final String etName) {
-    final UriInfo uriInfo = mock(UriInfo.class);
+    final UriInfo result = mock(UriInfo.class);
     final EdmEntitySet odataEs = mock(EdmEntitySet.class);
     final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
-    when(uriInfo.getUriResourceParts()).thenReturn(resources);
+    when(result.getUriResourceParts()).thenReturn(resources);
     when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
     when(esResource.getEntitySet()).thenReturn(odataEs);
     when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
@@ -82,7 +80,7 @@ public class TestGroupBase extends TestBase {
     when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);
-    return uriInfo;
+    return result;
   }
 
 }

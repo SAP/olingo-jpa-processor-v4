@@ -46,7 +46,7 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
   }
 
   @Override
-  protected Map<String, Object> getVendorProperties() {
+  protected Map<String, Object> getVendorProperties(final DataSource dataSource) {
     // https://stackoverflow.com/questions/10769051/eclipselinkjpavendoradapter-instead-of-hibernatejpavendoradapter-issue
     HashMap<String, Object> jpaProperties = new HashMap<>();
     jpaProperties.put(WEAVING, "false");
@@ -54,7 +54,7 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
     jpaProperties.put(DDL_GENERATION, "none");
     jpaProperties.put(LOGGING_LEVEL, SessionLog.FINE_LABEL);
     jpaProperties.put(TRANSACTION_TYPE, "RESOURCE_LOCAL");
-    // do not cache entities locally, as this causes problems if multiple application instances are used
+    // Do not cache entities locally, as this causes problems if multiple application instances are used
     jpaProperties.put(CACHE_SHARED_DEFAULT, "false");
     // You can also tweak your application performance by configuring your database connection pool.
     // https://www.eclipse.org/eclipselink/documentation/2.7/jpa/extensions/persistenceproperties_ref.htm#connectionpool

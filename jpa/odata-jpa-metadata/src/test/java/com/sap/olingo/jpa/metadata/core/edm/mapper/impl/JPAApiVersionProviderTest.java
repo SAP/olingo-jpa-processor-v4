@@ -1,8 +1,10 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import jakarta.persistence.EntityManagerFactory;
@@ -39,7 +41,16 @@ class JPAApiVersionProviderTest {
 
   @Test
   void testBuilderThrowsExceptionOnMissingId() {
-    assertThrows(ODataJPAModelException.class, () -> builder.setEntityManagerFactory(emf).build());
+    final var act = assertThrows(ODataJPAModelException.class, () -> builder.setEntityManagerFactory(emf).build());
+    assertEquals(ODataJPAModelException.MessageKeys.VERSION_ID_MISSING.getKey(), act.getId());
+  }
+
+  @Test
+  void testBuilderThrowsExceptionOnEmptyId() {
+    final var act = assertThrows(ODataJPAModelException.class, () -> builder.setId("")
+        .setEntityManagerFactory(emf)
+        .build());
+    assertEquals(ODataJPAModelException.MessageKeys.VERSION_ID_MISSING.getKey(), act.getId());
   }
 
   @Test
@@ -93,5 +104,20 @@ class JPAApiVersionProviderTest {
   void testGetMetadataPostProcessorReturnsDefaultIfNotProvided() throws ODataJPAModelException {
     final var cut = builder.setId("V1").setEntityManagerFactory(emf).build();
     assertNotNull(cut.getMetadataPostProcessor());
+  }
+
+  @Test
+  void testHideRestrictedPropertiesReturnsDefaultFalse() throws ODataJPAModelException {
+    final var cut = builder.setId("V1").setEntityManagerFactory(emf).build();
+    assertFalse(cut.hideRestrictedProperties());
+  }
+
+  @Test
+  void testHideRestrictedPropertiesReturnsSetValue() throws ODataJPAModelException {
+    final var cut = builder.setId("V1")
+        .setEntityManagerFactory(emf)
+        .setHideRestrictedProperties(true)
+        .build();
+    assertTrue(cut.hideRestrictedProperties());
   }
 }

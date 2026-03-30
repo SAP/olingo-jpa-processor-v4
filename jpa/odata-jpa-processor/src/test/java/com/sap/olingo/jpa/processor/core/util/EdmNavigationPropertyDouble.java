@@ -26,60 +26,57 @@ public class EdmNavigationPropertyDouble implements EdmNavigationProperty {
 
   @Override
   public boolean isCollection() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
-    fail();
-    return null;
+    return (EdmAnnotation) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<EdmAnnotation> getAnnotations() {
-    fail();
-    return null;
+    return (List<EdmAnnotation>) failWithNull();
   }
 
   @Override
   public EdmEntityType getType() {
-    fail();
-    return null;
+    return (EdmEntityType) failWithNull();
   }
 
   @Override
   public boolean isNullable() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public boolean containsTarget() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public EdmNavigationProperty getPartner() {
-    fail();
-    return null;
+    return (EdmNavigationProperty) failWithNull();
   }
 
   @Override
   public String getReferencingPropertyName(final String referencedPropertyName) {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<EdmReferentialConstraint> getReferentialConstraints() {
-    fail();
-    return null;
+    return (List<EdmReferentialConstraint>) failWithNull();
   }
 
   @Override
   public EdmOnDelete getOnDelete() {
+    return (EdmOnDelete) failWithNull();
+  }
+
+  private final Object failWithNull() {
     fail();
     return null;
   }

@@ -21,104 +21,92 @@ public class EdmPropertyDouble implements EdmProperty {
 
   @Override
   public String getName() {
-
     return name;
   }
 
   @Override
   public EdmType getType() {
-    fail();
-    return null;
+    return (EdmType) failWithNull();
   }
 
   @Override
   public boolean isCollection() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public EdmMapping getMapping() {
-    fail();
-    return null;
+    return (EdmMapping) failWithNull();
   }
 
   @Override
   public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
-    fail();
-    return null;
+    return (EdmAnnotation) failWithNull();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<EdmAnnotation> getAnnotations() {
-    fail();
-    return null;
+    return (List<EdmAnnotation>) failWithNull();
   }
 
   @Override
   public String getMimeType() {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
   @Override
   public boolean isPrimitive() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public boolean isNullable() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public Integer getMaxLength() {
-    fail();
-    return null;
+    return (Integer) failWithNull();
   }
 
   @Override
   public Integer getPrecision() {
-    fail();
-    return null;
+    return (Integer) failWithNull();
   }
 
   @Override
   public Integer getScale() {
-    fail();
-    return null;
+    return (Integer) failWithNull();
   }
 
   @Override
   public SRID getSrid() {
-    fail();
-    return null;
+    return (SRID) failWithNull();
   }
 
   @Override
   public boolean isUnicode() {
-    fail();
-    return false;
+    return (boolean) failWithNull();
   }
 
   @Override
   public String getDefaultValue() {
-    fail();
-    return null;
+    return (String) failWithNull();
   }
 
   @Override
   public EdmType getTypeWithAnnotations() {
-    fail();
-    return null;
+    return (EdmType) failWithNull();
   }
 
   @Override
   public String getScaleAsString() {
+    return (String) failWithNull();
+  }
+
+  private final Object failWithNull() {
     fail();
     return null;
   }
-
 }

@@ -65,3 +65,5 @@ hs_err_pid*
 **/jpa-processor/test/**
 /.vscode/
 /.idea/
+/.hyperspace/
+/.pipeline/

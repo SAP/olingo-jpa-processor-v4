@@ -34,7 +34,7 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
   }
 
-  private IntermediateEntitySet(IntermediateEntitySet source, IntermediateEntityType<?> et)
+  private IntermediateEntitySet(final IntermediateEntitySet source, final IntermediateEntityType<?> et)
       throws ODataJPAModelException {
     super(source.nameBuilder, et, source.getAnnotationInformation());
     setExternalName(source.getExternalName());
@@ -96,10 +96,10 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups)
-      throws ODataJPAModelException {
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     lazyBuildEdmItem();
-    return (T) new IntermediateEntitySet(this, entityType.asUserGroupRestricted(userGroups));
+    return (T) new IntermediateEntitySet(this, entityType.asUserGroupRestricted(userGroups, hideRestrictedProperties));
   }
 
   private CsdlEntityType determineEdmType() throws ODataJPAModelException {

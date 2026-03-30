@@ -16,15 +16,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
-public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
+class JPAConversionHelperMapTest extends JPAConversionHelperTest {
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     cut = new JPAConversionHelper();
   }
 
   @Override
   @Test
-  public void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
+  void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
     final Map<String, Object> newPOJO = new HashMap<>();
@@ -38,7 +38,7 @@ public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
 
   @Override
   @Test
-  public void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
+  void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
     final Map<String, Object> newPOJO = new HashMap<>();
@@ -60,7 +60,7 @@ public class JPAConversionHelperMapTest extends JPAConversionHelperTest {
 
   @Override
   @Test
-  public void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
+  void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
     final Map<String, Object> newPOJO = new HashMap<>();

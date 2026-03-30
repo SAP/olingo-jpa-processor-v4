@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_REQUIRED_UNKNOWN;
 import static com.sap.olingo.jpa.processor.core.util.Assertions.assertListEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -68,16 +69,20 @@ import com.sap.olingo.jpa.metadata.odata.v4.core.terms.ExampleProperties;
 import com.sap.olingo.jpa.metadata.odata.v4.core.terms.Terms;
 import com.sap.olingo.jpa.metadata.odata.v4.general.Aliases;
 import com.sap.olingo.jpa.metadata.odata.v4.provider.JavaBasedCoreAnnotationsProvider;
+import com.sap.olingo.jpa.processor.core.errormodel.AssociationVirtualPropertySource;
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.AnnotationsParent;
+import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManySource;
+import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManyTarget;
 import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource;
 import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
@@ -121,9 +126,9 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     references = mock(IntermediateReferences.class);
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), references);
     schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
-        annotationInfo);
+        annotationInfo, true);
     errorSchema = new IntermediateSchema(new JPADefaultEdmNameBuilder(ERROR_PUNIT), errorEmf.getMetamodel(),
-        reflections, annotationInfo);
+        reflections, annotationInfo, true);
   }
 
   @Test
@@ -229,6 +234,23 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals(1, et.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
+  }
+
+  @Test
+  void checkGetAllNavigationPropertiesDoesNotContainIgnored() throws ODataJPAModelException {
+    final IntermediateStructuredType<AssociationOneToManySource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), getEntityType(AssociationOneToManySource.class), schema);
+    assertEquals(3, et.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
+
+  }
+
+  @Test
+  void checkNavigationPropertiesDoNotContainIgnores() throws ODataJPAModelException {
+    final IntermediateStructuredType<AssociationOneToManyTarget> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), getEntityType(AssociationOneToManyTarget.class), schema);
+    assertEquals(2, et.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
   }
 
   @Test
@@ -473,12 +495,13 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
         InheritanceByJoinCompoundSub.class), schema);
 
     assertEquals(3, et.getKey().size());
-    var divisionKey = et.getKey().stream().filter(key -> "DivisionCode".equals(key.getExternalName())).findFirst();
+    final var divisionKey = et.getKey().stream().filter(key -> "DivisionCode".equals(key.getExternalName()))
+        .findFirst();
     assertNotNull(divisionKey);
     assertEquals("\"PartCode\"", ((IntermediateSimpleProperty) divisionKey.get()).dbFieldName);
 
     assertEquals(3, et.getKeyPath().size());
-    var divisionCode = et.getKeyPath().stream().filter(path -> "DivisionCode".equals(path.getAlias()))
+    final var divisionCode = et.getKeyPath().stream().filter(path -> "DivisionCode".equals(path.getAlias()))
         .findFirst();
     assertTrue(divisionCode.isPresent());
     assertEquals("\"PartCode\"", divisionCode.get().getDBFieldName());
@@ -490,12 +513,12 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
         InheritanceByJoinLockedSavingAccount.class), schema);
 
     assertEquals(1, et.getKey().size());
-    var key = et.getKey().get(0);
+    final var key = et.getKey().get(0);
     assertNotNull(key);
     assertEquals("\"AccountId\"", ((IntermediateSimpleProperty) key).dbFieldName);
 
     assertEquals(1, et.getKeyPath().size());
-    var keyPath = et.getKeyPath().get(0);
+    final var keyPath = et.getKeyPath().get(0);
     assertEquals("\"AccountId\"", keyPath.getDBFieldName());
   }
 
@@ -754,7 +777,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertComplexDeep(act);
     assertEquals(3, act.size());
 
-    for (var path : et.getPathList()) {
+    for (final var path : et.getPathList()) {
       if ("ProtectedAdminInfo/Created/By".equals(path.getAlias()))
         assertTrue(path.isPartOfGroups(List.of("Creator")));
     }
@@ -1266,7 +1289,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateEntityType<T> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(clazz), schema);
 
-    final IntermediateEntityType<T> act = et.asUserGroupRestricted(List.of("Company"));
+    final IntermediateEntityType<T> act = et.asUserGroupRestricted(List.of("Company"), true);
 
     assertEquals(et.getExternalFQN(), act.getExternalFQN());
     assertEquals(et.asTopLevelOnly(), act.asTopLevelOnly());
@@ -1281,7 +1304,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertEquals(et.getContentTypeAttributePath(), act.getContentTypeAttributePath());
     assertEquals(et.getEtagPath(), act.getEtagPath());
     assertEquals(et.getEtagValidator(), act.getEtagValidator());
-    assertEquals(et.getKey(), act.getKey());
+    assertListEquals(et.getKey(), act.getKey(), JPAAttribute.class);
     assertListEquals(et.getKeyPath(), act.getKeyPath(), JPAPath.class);
     assertEquals(et.getQueryExtension(), act.getQueryExtension());
     assertEquals(et.getSearchablePath(), act.getSearchablePath());
@@ -1301,7 +1324,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
 
-    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"));
+    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"), true);
     assertNotEquals(et.getBaseType(), act.getBaseType());
   }
 
@@ -1310,14 +1333,14 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final IntermediateEntityType<Person> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(Person.class), schema);
 
-    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"));
+    final IntermediateEntityType<Person> act = et.asUserGroupRestricted(List.of("Company"), true);
     assertListEquals(et.getDeclaredAssociations(), act.getDeclaredAssociations(), JPAAssociationAttribute.class);
     assertListEquals(et.getAssociationPathList(), act.getAssociationPathList(), JPAAssociationPath.class);
     assertListEquals(et.getEdmItem().getNavigationProperties(), act.getEdmItem().getNavigationProperties(),
         CsdlNavigationProperty.class);
     assertAttributesEquals(et.getAttributes(), act.getAttributes());
 
-    final IntermediateEntityType<Person> act2 = et.asUserGroupRestricted(List.of("Person"));
+    final IntermediateEntityType<Person> act2 = et.asUserGroupRestricted(List.of("Person"), true);
     assertEquals(et.getDeclaredAssociations().size() - 1, act2.getDeclaredAssociations().size());
     assertEquals(et.getAssociationPathList().size() - 1, act2.getAssociationPathList().size());
     assertEquals(et.getEdmItem().getNavigationProperties().size() - 1, act2.getEdmItem().getNavigationProperties()
@@ -1344,11 +1367,11 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
     assertEquals(schema.getEntityType(InheritanceByJoinAccount.class), et.getBaseType());
     assertEquals(JPAInheritanceType.JOIN_TABLE, et.getInheritanceInformation().getInheritanceType());
-    var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
+    final var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
     assertEquals(1, joinColumns.size());
     assertEquals("AccountId", joinColumns.get(0).getLeftPath().getAlias());
     assertEquals("AccountId", joinColumns.get(0).getRightPath().getAlias());
-    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    final var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
     assertEquals(1, joinColumns.size());
     assertEquals("AccountId", reversedJoinColumns.get(0).getLeftPath().getAlias());
     assertEquals("AccountId", reversedJoinColumns.get(0).getRightPath().getAlias());
@@ -1361,14 +1384,14 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
     assertEquals(schema.getEntityType(InheritanceByJoinSavingAccount.class), et.getBaseType());
     assertEquals(JPAInheritanceType.JOIN_TABLE, et.getInheritanceInformation().getInheritanceType());
-    var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
+    final var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
     assertEquals(1, joinColumns.size());
     assertEquals("AccountId", joinColumns.get(0).getLeftPath().getAlias());
     assertEquals("\"AccountId\"", joinColumns.get(0).getLeftPath().getDBFieldName());
     assertEquals("AccountId", joinColumns.get(0).getRightPath().getAlias());
     assertEquals("\"ID\"", joinColumns.get(0).getRightPath().getDBFieldName());
 
-    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    final var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
     assertEquals(1, joinColumns.size());
     assertEquals("AccountId", reversedJoinColumns.get(0).getRightPath().getAlias());
     assertEquals("\"AccountId\"", reversedJoinColumns.get(0).getRightPath().getDBFieldName());
@@ -1383,25 +1406,25 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
     assertEquals(schema.getEntityType(InheritanceByJoinCompoundSuper.class), et.getBaseType());
     assertEquals(JPAInheritanceType.JOIN_TABLE, et.getInheritanceInformation().getInheritanceType());
-    var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
+    final var joinColumns = et.getInheritanceInformation().getJoinColumnsList();
     assertEquals(3, joinColumns.size());
-    var codePublisher = joinColumns.stream().filter(column -> "CodePublisher".equals(column.getRightPath()
+    final var codePublisher = joinColumns.stream().filter(column -> "CodePublisher".equals(column.getRightPath()
         .getAlias())).findFirst();
     assertTrue(codePublisher.isPresent());
     assertEquals("\"CodePublisher\"", codePublisher.get().getLeftPath().getDBFieldName());
 
-    var codeID = joinColumns.stream().filter(column -> "CodeID".equals(column.getRightPath()
+    final var codeID = joinColumns.stream().filter(column -> "CodeID".equals(column.getRightPath()
         .getAlias())).findFirst();
     assertTrue(codeID.isPresent());
     assertEquals("\"CodeID\"", codeID.get().getLeftPath().getDBFieldName());
 
-    var divisionCode = joinColumns.stream().filter(column -> "DivisionCode".equals(column.getRightPath()
+    final var divisionCode = joinColumns.stream().filter(column -> "DivisionCode".equals(column.getRightPath()
         .getAlias())).findFirst();
     assertTrue(divisionCode.isPresent());
     assertEquals("\"PartCode\"", divisionCode.get().getLeftPath().getDBFieldName());
 
-    var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
-    var partCode = reversedJoinColumns.stream().filter(column -> "\"PartCode\"".equals(column.getRightPath()
+    final var reversedJoinColumns = et.getInheritanceInformation().getReversedJoinColumnsList();
+    final var partCode = reversedJoinColumns.stream().filter(column -> "\"PartCode\"".equals(column.getRightPath()
         .getDBFieldName())).findFirst();
     assertTrue(partCode.isPresent());
     assertEquals("\"DivisionCode\"", partCode.get().getLeftPath().getDBFieldName());
@@ -1415,7 +1438,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     final var act = et.getAttributes();
 
     assertEquals(6, act.size());
-    var key = act.stream().filter(attribute -> "accountId".equals(attribute.getInternalName())).findFirst();
+    final var key = act.stream().filter(attribute -> "accountId".equals(attribute.getInternalName())).findFirst();
     assertEquals("\"AccountId\"", ((IntermediateProperty) key.get()).getDBFieldName());
   }
 
@@ -1426,6 +1449,58 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
     assertNull(et.getBaseType());
     assertEquals(JPAInheritanceType.NON, et.getInheritanceInformation().getInheritanceType());
+  }
+
+  @Test
+  void checkVirtualPropertiesAreRejectedWithoutCb() throws ODataJPAModelException {
+    final Reflections reflections = mock(Reflections.class);
+    final var localSchema = new IntermediateSchema(new JPADefaultEdmNameBuilder(ERROR_PUNIT), errorEmf.getMetamodel(),
+        reflections, annotationInfo, false);
+
+    final IntermediateEntityType<AssociationVirtualPropertySource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(ERROR_PUNIT), getErrorEntityType(AssociationVirtualPropertySource.class),
+        localSchema);
+
+    assertThrows(ODataJPAModelException.class, et::getEdmItem);
+  }
+
+  @Test
+  void checkVirtualPropertiesAreAllowedWithCb() throws ODataJPAModelException {
+    final Reflections reflections = mock(Reflections.class);
+    final var localSchema = new IntermediateSchema(new JPADefaultEdmNameBuilder(ERROR_PUNIT), errorEmf.getMetamodel(),
+        reflections, annotationInfo, true);
+
+    final IntermediateEntityType<AssociationVirtualPropertySource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(ERROR_PUNIT), getErrorEntityType(AssociationVirtualPropertySource.class),
+        localSchema);
+
+    assertDoesNotThrow(et::getEdmItem);
+  }
+
+  @Test
+  void checkAsUserGroupRestrictedCopiesComplex() throws ODataJPAModelException {
+    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(RestrictedEntityUnrestrictedSource.class), schema);
+
+    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> act = et.asUserGroupRestricted(List.of("Company"),
+        true);
+    assertNotEquals(et.getProperty("relation"), act.getProperty("relation"));
+    assertTrue(act.getProperty("relation").isRestricted());
+
+  }
+
+  @Test
+  void checkAsUserGroupRestrictedHidesRestrictedProperties() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartnerWithGroups> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(BusinessPartnerWithGroups.class), schema);
+
+    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> act = et.asUserGroupRestricted(List.of("Person"),
+        true);
+    assertNull(act.getProperty("creationDateTime"));
+    assertNotNull(act.getProperty("country"));
+
+    assertNull(act.getEdmItem().getProperty("CreationDateTime"));
+    assertNotNull(act.getEdmItem().getProperty("Country"));
   }
 
   private static void assertAttributesEquals(final List<JPAAttribute> expList, final List<JPAAttribute> actList)
@@ -1478,18 +1553,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     }
   }
 
-  @Test
-  void checkAsUserGroupRestrictedCopiesComplex() throws ODataJPAModelException {
-    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> et = new IntermediateEntityType<>(
-        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(RestrictedEntityUnrestrictedSource.class), schema);
-
-    final IntermediateEntityType<RestrictedEntityUnrestrictedSource> act = et.asUserGroupRestricted(List.of("Company"));
-    assertNotEquals(et.getProperty("relation"), act.getProperty("relation"));
-    assertTrue(act.getProperty("relation").isRestricted());
-
-  }
-
-  void assertComplexAnnotated(final List<JPAProtectionInfo> act, final String expClaimName,
+  private void assertComplexAnnotated(final List<JPAProtectionInfo> act, final String expClaimName,
       final String pathElement) {
     for (final JPAProtectionInfo info : act) {
       if (info.getClaimName().equals(expClaimName)) {

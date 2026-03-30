@@ -13,6 +13,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelInternalException;
 
 class MapCacheFunctionTest {
+  private MapCacheFunction<String, String, String, String> cycle;
 
   @Test
   void checkCacheReturnsGivenValue() throws ODataJPAModelException {
@@ -34,6 +35,12 @@ class MapCacheFunctionTest {
     assertThrows(ODataJPAModelException.class, act::get);
   }
 
+  @Test
+  void checkThrowsExceptionOnCallDuringConstruction() throws ODataJPAModelException {
+    cycle = new MapCacheFunction<>(this::functionCallsFunction, "Test", "String");
+    cycle.get();
+  }
+
   Map<String, String> functionReturnString(final String first, final String last) {
     return Map.of("Test", "String");
   }
@@ -45,5 +52,14 @@ class MapCacheFunctionTest {
   Map<String, String> functionThrows(final String first, final String last) {
     throw new ODataJPAModelInternalException(new ODataJPAModelException(MessageKeys.DB_TYPE_NOT_DETERMINED, first,
         last));
+  }
+
+  Map<String, String> functionCallsFunction(final String first, final String last) {
+    try {
+      cycle.get();
+    } catch (ODataJPAModelException e) {
+      assertEquals(MessageKeys.CYCLE_DETECTED.getKey(), e.getId());
+    }
+    return Map.of();
   }
 }

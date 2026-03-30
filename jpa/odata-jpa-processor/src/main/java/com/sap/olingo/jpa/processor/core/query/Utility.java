@@ -7,12 +7,15 @@ import static com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException.
 import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -528,17 +531,30 @@ public final class Utility {
     if (resourceItem.getTypeFilterOnCollection() != null) {
       targetEdmBindingTarget = new EdmBoundCast((EdmEntityType) resourceItem.getTypeFilterOnCollection(), resourceItem
           .getEntitySet());
-      LOGGER.trace(FOUND_CAST_FROM + resourceItem.getEntitySet().getName() + " to "
-          + targetEdmBindingTarget.getName());
+      LOGGER.trace(FOUND_CAST_FROM + getEncodedName(resourceItem) + " to " + getEncodedBindingTargetName(
+          targetEdmBindingTarget));
     } else if (resourceItem.getTypeFilterOnEntry() != null) {
       targetEdmBindingTarget = new EdmBoundCast((EdmEntityType) resourceItem.getTypeFilterOnEntry(), resourceItem
           .getEntitySet());
-      LOGGER.trace(FOUND_CAST_FROM + resourceItem.getEntitySet().getName() + " to "
-          + targetEdmBindingTarget.getName());
+      LOGGER.trace(FOUND_CAST_FROM + getEncodedName(resourceItem) + " to " + getEncodedBindingTargetName(
+          targetEdmBindingTarget));
     } else {
       targetEdmBindingTarget = resourceItem.getEntitySet();
     }
     return targetEdmBindingTarget;
+  }
+
+  private static final String getEncodedBindingTargetName(EdmBindingTarget bindingTarget) {
+    return Optional.ofNullable(bindingTarget.getName())
+        .map(name -> URLEncoder.encode(name, StandardCharsets.UTF_8))
+        .orElse("");
+  }
+
+  private static final String getEncodedName(final UriResourceEntitySet resourceItem) {
+
+    return Optional.ofNullable(resourceItem.getEntitySet().getName())
+        .map(name -> URLEncoder.encode(name, StandardCharsets.UTF_8))
+        .orElse("");
   }
 
   private static EdmBindingTarget determineBindingTargetOfSingleton(final UriResourceSingleton resourceItem) {

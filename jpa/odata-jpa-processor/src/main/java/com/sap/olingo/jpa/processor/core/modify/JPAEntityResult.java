@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,8 +51,9 @@ final class JPAEntityResult extends JPAEntityBasedResult {
       final String pathPropertyName = path.getPath().get(0).getInternalName();
       final Object value = valuePairedResult.get(pathPropertyName);
       if (value instanceof Collection && !((Collection<?>) value).isEmpty()) {
+        final String foreignKey = buildConcatenatedKey(path);
         children.put(path, new JPAEntityNavigationLinkResult((JPAEntityType) path.getTargetType(),
-            (Collection<?>) value, requestHeaders, converter, getForeignKeyColumns(path)));
+            (Collection<?>) value, requestHeaders, converter, foreignKey));
       }
     }
     for (final JPAPath path : et.getCollectionAttributesPath()) {
@@ -86,12 +89,20 @@ final class JPAEntityResult extends JPAEntityBasedResult {
     return tupleResult;
   }
 
-  private List<JPAPath> getForeignKeyColumns(final JPAAssociationPath association) throws ODataJPAProcessorException {
+  private String buildConcatenatedKey(final JPAAssociationPath association) throws ODataJPAProcessorException {
     try {
-      return association.getForeignKeyColumns();
+
+      return association.getLeftColumnsList().stream()
+          .map(this::getKeyValue)
+          .collect(joining(JPAPath.PATH_SEPARATOR));
+
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
+  }
+
+  private final String getKeyValue(final JPAPath column) {
+    return result.get(0).get(column.getAlias()).toString();
   }
 }

@@ -47,7 +47,7 @@ class JPAAbstractQueryTest extends TestQueryBase {
 
   @Override
   @BeforeEach
-  public void setup() throws ODataException, ODataJPAIllegalAccessException {
+  protected void setup() throws ODataException, ODataJPAIllegalAccessException {
     super.setup();
     em = mock(EntityManager.class);
     cut = new Query(null, helper.sd, jpaEntityType, em, Optional.empty());

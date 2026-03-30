@@ -47,8 +47,8 @@ class JPACoreDebuggerTest {
     logHandler = new LogHandler();
     Logger.getLogger("com.sap.olingo.jpa.processor.core.processor.TestJPACoreDebugger").setLevel(Level.FINE);
     Logger.getLogger("com.sap.olingo.jpa.processor.core.processor.TestJPACoreDebugger").addHandler(logHandler);
-    Logger.getLogger("com.sap.olingo.jpa.processor.core.processor.JPACoreDebugger").setLevel(Level.FINEST);
-    Logger.getLogger("com.sap.olingo.jpa.processor.core.processor.JPACoreDebugger").addHandler(logHandler);
+    Logger.getLogger(JPACoreDebugger.class.getName()).setLevel(Level.FINEST);
+    Logger.getLogger(JPACoreDebugger.class.getName()).addHandler(logHandler);
   }
 
   @BeforeEach
@@ -68,14 +68,18 @@ class JPACoreDebuggerTest {
 
   @Test
   void testMeasurementCreated() {
-    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+      // Do nothing
+    }
     assertFalse(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
   @Test
   void testNoMeasurementDebugFalls() {
     cutDebugOn = new JPACoreDebugger(false);
-    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {}
+    try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
+      // Do nothing
+    }
     assertTrue(cutDebugOn.getRuntimeInformation().isEmpty());
   }
 
@@ -164,7 +168,7 @@ class JPACoreDebuggerTest {
     try (JPARuntimeMeasurement measurement = cutDebugOn.newMeasurement(cutDebugOn, "firstTest")) {
       act = measurement;
     } finally {
-
+      // Do nothing
     }
     assertTrue(act.getMemoryConsumption() < 10);
   }
@@ -174,8 +178,8 @@ class JPACoreDebuggerTest {
     private List<LogRecord> cache = new ArrayList<>();
 
     @Override
-    public void publish(final LogRecord record) {
-      cache.add(record);
+    public void publish(final LogRecord item) {
+      cache.add(item);
     }
 
     @Override

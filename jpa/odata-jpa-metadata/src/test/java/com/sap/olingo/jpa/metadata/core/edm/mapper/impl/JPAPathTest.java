@@ -149,12 +149,12 @@ class JPAPathTest extends TestMappingRoot {
     final List<JPAElement> attributes = new ArrayList<>(2);
 
     final IntermediateProperty complex = mock(IntermediateProperty.class);
-    when(complex.isPartOfGroup()).thenReturn(true);
+    when(complex.hasUserGroupRestriction()).thenReturn(true);
     when(complex.getUserGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
     attributes.add(complex);
 
     final IntermediateProperty primitive = mock(IntermediateProperty.class);
-    when(primitive.isPartOfGroup()).thenReturn(true);
+    when(primitive.hasUserGroupRestriction()).thenReturn(true);
     when(primitive.getUserGroups()).thenReturn(Arrays.asList("Dummy"));
     attributes.add(primitive);
 
@@ -170,12 +170,12 @@ class JPAPathTest extends TestMappingRoot {
     final List<JPAElement> attributes = new ArrayList<>(2);
 
     final IntermediateProperty complex = mock(IntermediateProperty.class);
-    when(complex.isPartOfGroup()).thenReturn(true);
+    when(complex.hasUserGroupRestriction()).thenReturn(true);
     when(complex.getUserGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
     attributes.add(complex);
 
     final IntermediateProperty primitive = mock(IntermediateProperty.class);
-    when(primitive.isPartOfGroup()).thenReturn(true);
+    when(primitive.hasUserGroupRestriction()).thenReturn(true);
     when(primitive.getUserGroups()).thenReturn(Arrays.asList("Dummy", "Willi"));
     attributes.add(primitive);
 
@@ -191,12 +191,12 @@ class JPAPathTest extends TestMappingRoot {
     final List<JPAElement> attributes = new ArrayList<>(2);
 
     final IntermediateProperty complex = mock(IntermediateProperty.class);
-    when(complex.isPartOfGroup()).thenReturn(true);
+    when(complex.hasUserGroupRestriction()).thenReturn(true);
     when(complex.getUserGroups()).thenReturn(Arrays.asList("Test", "Dummy"));
     attributes.add(complex);
 
     final IntermediateProperty primitive = mock(IntermediateProperty.class);
-    when(primitive.isPartOfGroup()).thenReturn(true);
+    when(primitive.hasUserGroupRestriction()).thenReturn(true);
     when(primitive.getUserGroups()).thenReturn(Arrays.asList("Dummy", "Test", "Willi"));
     attributes.add(primitive);
 

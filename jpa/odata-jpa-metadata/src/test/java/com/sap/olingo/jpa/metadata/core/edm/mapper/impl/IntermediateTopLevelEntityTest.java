@@ -35,7 +35,7 @@ class IntermediateTopLevelEntityTest extends TestMappingRoot {
     references = mock(IntermediateReferences.class);
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>(), references);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
-    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), reflections, annotationInfo);
+    schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), reflections, annotationInfo, true);
   }
 
   @Test

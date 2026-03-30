@@ -33,7 +33,7 @@ class TestTopSkipCountOnDerby {
   private static DataSource dataSource;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_DERBY);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
   }

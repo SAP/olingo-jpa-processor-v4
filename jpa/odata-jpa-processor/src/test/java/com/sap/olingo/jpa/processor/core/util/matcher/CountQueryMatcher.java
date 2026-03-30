@@ -7,22 +7,21 @@ import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 
 public class CountQueryMatcher implements ArgumentMatcher<JPACountQuery> {
 
-  private final long extCountResult;
+  private final long expCountResult;
   private boolean executed = false;
 
-  public CountQueryMatcher(long exp) {
-    extCountResult = exp;
+  public CountQueryMatcher(final long exp) {
+    expCountResult = exp;
   }
 
   @Override
-  public boolean matches(JPACountQuery query) {
+  public boolean matches(final JPACountQuery query) {
     if (query != null) {
-      if (extCountResult != 0 && !executed) {
+      if (expCountResult != 0 && !executed) {
         try {
           executed = true; // Query can be used only once but matcher is called twice
-          return extCountResult == query.countResults();
-        } catch (ODataApplicationException e) {
-          System.out.print(e.getMessage());
+          return expCountResult == query.countResults();
+        } catch (final ODataApplicationException e) {
           return false;
         }
       }

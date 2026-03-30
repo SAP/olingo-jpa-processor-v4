@@ -37,7 +37,7 @@ class IntermediateVirtualPropertyTest extends TestMappingRoot {
     final Reflections reflections = mock(Reflections.class);
     annotationInfo = new IntermediateAnnotationInformation(new ArrayList<>());
     schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), reflections,
-        annotationInfo);
+        annotationInfo, true);
     jpaAttribute = mock(Attribute.class);
     when(jpaAttribute.getJavaMember()).thenReturn(null);
     when(jpaAttribute.getName()).thenReturn("DummyName");
@@ -70,7 +70,7 @@ class IntermediateVirtualPropertyTest extends TestMappingRoot {
         dynamicTest("isComplex returns false", () -> assertFalse(cut.isComplex())),
         dynamicTest("isKey returns false", () -> assertFalse(cut.isKey())),
         dynamicTest("isStream returns false", () -> assertFalse(cut.isStream())),
-        dynamicTest("isPartOfGroup returns false", () -> assertFalse(cut.isPartOfGroup())));
+        dynamicTest("isPartOfGroup returns false", () -> assertFalse(cut.hasUserGroupRestriction())));
   }
 
   @TestFactory
@@ -108,5 +108,11 @@ class IntermediateVirtualPropertyTest extends TestMappingRoot {
     cut.determineStreamInfo();
     cut.determineStructuredType();
     assertNull(cut.getStructuredType());
+  }
+
+  @Test
+  void testIsVirtualReturnsTrue() {
+    cut.determineIsVersion();
+    assertTrue(cut.isVirtual());
   }
 }

@@ -26,7 +26,6 @@ import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
@@ -55,8 +54,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     createHeaders();
-    sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
-        emf, dataSource, null, null, null);
+    sessionContext = new JPAODataContextAccessDouble(helper.edmProvider, emf, dataSource, null, null, null);
     odata = mock(OData.class);
     externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());

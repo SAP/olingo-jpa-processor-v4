@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class IntermediateStructuredTypeVirtualAttributeTest {
 
-  private final static String COLUMN_NAME = "\"Test\"";
+  private static final String COLUMN_NAME = "\"Test\"";
   private IntermediateStructuredType.VirtualAttribute<?, ?> cut;
   private ManagedType<?> managedType;
 

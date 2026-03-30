@@ -45,4 +45,14 @@ public class TestMappingRoot {
     }
     return null;
   }
+
+  @SuppressWarnings("unchecked")
+  <T> EntityType<T> getErrorEntityType(final Class<T> type) {
+    for (final EntityType<?> entityType : errorEmf.getMetamodel().getEntities()) {
+      if (entityType.getJavaType().equals(type)) {
+        return (EntityType<T>) entityType;
+      }
+    }
+    return null;
+  }
 }

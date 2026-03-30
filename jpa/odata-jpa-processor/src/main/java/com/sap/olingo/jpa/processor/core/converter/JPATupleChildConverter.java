@@ -68,6 +68,11 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
   }
 
   @Override
+  public JPAResultConverter copy() {
+    return new JPATupleChildConverter(sd, uriHelper, serviceMetadata, requestContext);
+  }
+
+  @Override
   public Map<String, List<Object>> getCollectionResult(final JPACollectionResult jpaResult,
       final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import com.sap.olingo.jpa.metadata.api.JPAApiVersion;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -29,9 +30,13 @@ public class ProcessorConfiguration {
 
     return JPAODataServiceContext.with()
         .setPUnit(punit)
-        .setEntityManagerFactory(emf)
-        .setTypePackage(rootPackages)
-        .setRequestMappingPath("${punit}/v1")
+        .setVersions(JPAApiVersion.with()
+            .setId("V1")
+            .setEntityManagerFactory(emf)
+            .setTypePackage(rootPackages)
+            .setRequestMappingPath("${punit}/v1")
+            .setHideRestrictedProperties(true)
+            .build())
         .build();
   }
   
@@ -42,6 +47,7 @@ public class ProcessorConfiguration {
     return JPAODataRequestContext.with()
         .setCUDRequestHandler(new JPAExampleCUDRequestHandler())
         .setDebugSupport(new DefaultDebugSupport())
+        .setVersion("V1")
         .build();
   }
 }

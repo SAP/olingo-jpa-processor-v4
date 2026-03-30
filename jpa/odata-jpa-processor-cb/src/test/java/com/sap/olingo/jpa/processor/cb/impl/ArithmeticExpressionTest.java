@@ -25,7 +25,7 @@ class ArithmeticExpressionTest extends BuilderBaseTest {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     ab = new AliasBuilder();
     et = sd.getEntity(AdministrativeDivision.class);
     root = new FromImpl<>(et, ab, mock(CriteriaBuilder.class));

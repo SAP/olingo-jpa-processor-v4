@@ -31,7 +31,7 @@ class TestJPAQueryOrderByClause {
   protected static DataSource dataSource;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     dataSource = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, dataSource);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
