@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa</artifactId>
-	  <version>2.4.99</version>
+	<version>2.5.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>odata-jpa</name>
-    <url>https://github.com/StefanBollmannCAS/olingo-jpa-processor-v</url>
+    <url>https://github.com/SAP/olingo-jpa-processor-v</url>
     <repositories>
         <repository>
             <id>jitpack</id>
@@ -81,7 +81,7 @@
     <dependencyManagement>
         <dependencies>
 	    <dependency>
-                <groupId>com.github.StefanBollmannCAS</groupId>
+                <groupId>com.github.SAP</groupId>
                 <artifactId>olingo-jpa-processor-v4</artifactId>
                 <version>${project.version}</version>
             </dependency>
