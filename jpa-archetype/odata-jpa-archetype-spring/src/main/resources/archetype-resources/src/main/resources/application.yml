@@ -1,0 +1,29 @@
+logging:
+  level:
+    org:
+      springframework: INFO
+    com:
+      sap:
+        olingo:
+          jpa: TRACE      
+odata:
+  jpa:
+    punit_name: ${punit}
+    root_packages: ${package}
+server:
+  port: ${port}
+spring:
+  datasource:
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    password: ''
+    url: jdbc:hsqldb:file:${punit};DB_CLOSE_DELAY=-1
+    username: sa
+  flyway:
+    password: ''
+    schemas:
+    - ${schema}
+    url: jdbc:hsqldb:file:${punit};DB_CLOSE_DELAY=-1
+    user: sa
+  servlet:
+    multipart:
+      enabled: false
