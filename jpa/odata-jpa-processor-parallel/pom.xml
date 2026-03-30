@@ -7,6 +7,9 @@
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
 		<version>2.4.99</version>
+	</parent>
+
+	<artifactId>odata-jpa-processor-parallel</artifactId>
 
 	<description>
 		This project shall support parallel processing of GET requests. In its
