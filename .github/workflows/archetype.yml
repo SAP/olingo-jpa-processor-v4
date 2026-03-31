@@ -23,5 +23,4 @@ jobs:
       - name: 1. Build JPA
         run: cd ./jpa && mvn clean install -Dmaven.test.skip
       - name: 2. Build and test archetype
-        if: hashFiles('jpa-archetype/pom.xml') != ''
         run: cd ./jpa-archetype && mvn clean install archetype:integration-test
