@@ -28,5 +28,6 @@ jobs:
       security-events: write
       actions: read
       contents: read
+      id-token: write
     with:
       languages: "java"
