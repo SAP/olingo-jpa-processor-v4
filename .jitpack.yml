@@ -5,4 +5,4 @@ before_install:
   - mvn -v
 install:
   - mvn install -f ./jpa/pom.xml
-  - if [ -f "./jpa-archetype/pom.xml" ]; then mvn install -f ./jpa-archetype/pom.xml; fi
+  - mvn install -f ./jpa-archetype/pom.xml;
