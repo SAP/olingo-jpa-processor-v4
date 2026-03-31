@@ -28,7 +28,7 @@ class TestJavaFunctions {
   protected static DataSource ds;
 
   @BeforeAll
-  public static void setupClass() {
+  static void setupClass() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);

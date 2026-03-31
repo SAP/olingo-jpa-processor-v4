@@ -128,4 +128,6 @@ public interface JPAServiceDocument extends CustomETagSupport {
    */
   Map<String, JPAProtectionInfo> getClaims() throws ODataJPAModelException;
 
+  boolean emfIsWrapped();
+
 }

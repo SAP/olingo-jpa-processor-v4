@@ -19,7 +19,6 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
@@ -28,7 +27,6 @@ import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
-import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
@@ -60,7 +58,7 @@ class JPAJoinCountQueryTest extends TestQueryBase {
 
     when(localContext.getUriInfo()).thenReturn(uriInfo);
     when(localContext.getEntityManager()).thenReturn(em);
-    when(localContext.getEdmProvider()).thenReturn(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages));
+    when(localContext.getEdmProvider()).thenReturn(helper.edmProvider);
     when(localContext.getDebugger()).thenReturn(new JPAEmptyDebugger());
     when(localContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
     when(localContext.getHeader()).thenReturn(headerMap);

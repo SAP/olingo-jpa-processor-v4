@@ -25,7 +25,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalcu
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -43,6 +42,11 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
   public JPATupleCollectionConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
     super(sd, uriHelper, serviceMetadata, requestContext);
+  }
+
+  @Override
+  public JPAResultConverter copy() {
+    return new JPATupleCollectionConverter(sd, uriHelper, serviceMetadata, requestContext);
   }
 
   @Override
@@ -118,7 +122,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
         collection.add(complexValueBuffer.get(jpaAssociationPath.getAlias()));
       } else {
         collection.add(convertPrimitiveCollectionAttribute(row.get(jpaAssociationPath.getAlias()),
-            (JPACollectionAttribute) jpaAssociationPath.getLeaf()));
+            jpaAssociationPath.getLeaf()));
       }
 
     }

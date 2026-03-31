@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.NO_METADATA_PROVIDER;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -16,7 +15,6 @@ import javax.annotation.Nullable;
 
 import jakarta.persistence.EntityManager;
 
-import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -41,12 +39,12 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPathInformation;
 import com.sap.olingo.jpa.processor.core.api.JPAODataQueryDirectives;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalArgumentException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtility;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -282,7 +280,9 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private void copyRequestContext(@Nonnull final JPAODataRequestContext requestContext,
       @Nonnull final JPAODataSessionContextAccess sessionContext) {
 
-    final var version = sessionContext.getApiVersion(requestContext.getVersion());
+    final var version = Optional.ofNullable(sessionContext.getApiVersion(requestContext.getVersion()))
+        .orElseThrow(() -> new ODataJPAIllegalArgumentException("Version missing"));
+
     em = determineEntityManager(requestContext, version);
     claims = requestContext.getClaimsProvider();
     groups = requestContext.getGroupsProvider();
@@ -297,12 +297,10 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
         : new JPARequestParameterHashMap();
     dbProcessor = sessionContext.getDatabaseProcessor();
     operationConverter = sessionContext.getOperationConverter();
-    edmProvider = determineEdmProvider(version, sessionContext, em);
+    edmProvider = determineEdmProvider(version);
     queryDirectives = sessionContext.getQueryDirectives();
     pagingProvider = Optional.ofNullable(sessionContext.getPagingProvider());
-    mappingPath = version != null
-        ? version.getMappingPath()
-        : null;
+    mappingPath = version.getMappingPath();
   }
 
   private EntityManager determineEntityManager(final JPAODataRequestContext requestContext,
@@ -318,27 +316,16 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
         : null;
   }
 
-  private Optional<JPAEdmProvider> determineEdmProvider(final JPAODataApiVersionAccess apiVersion,
-      final JPAODataSessionContextAccess sessionContext, final EntityManager em) {
-
-    try {
-      if (apiVersion == null) {
-        if (em != null
-            && sessionContext instanceof final JPAODataServiceContext context)
-          return Optional.of(asUserGroupRestricted(context.getEdmProvider(em)));
-        return Optional.empty();
-      }
-      return Optional.ofNullable(asUserGroupRestricted(apiVersion.getEdmProvider()));
-    } catch (final ODataException e) {
-      debugger.debug(this, Arrays.toString(e.getStackTrace()));
-      return Optional.empty();
-    }
+  private Optional<JPAEdmProvider> determineEdmProvider(final JPAODataApiVersionAccess apiVersion) {
+    return Optional.ofNullable(asUserGroupRestricted(apiVersion.getEdmProvider(), apiVersion
+        .hideRestrictedProperties()));
   }
 
-  private JPAEdmProvider asUserGroupRestricted(final JPAEdmProvider unrestricted) {
+  private JPAEdmProvider asUserGroupRestricted(final JPAEdmProvider unrestricted,
+      final boolean hideRestrictedProperties) {
     if (unrestricted != null)
       return groups.map(JPAODataGroupProvider::getGroups)
-          .map(unrestricted::asUserGroupRestricted)
+          .map(roles -> unrestricted.asUserGroupRestricted(roles, hideRestrictedProperties))
           .orElse(unrestricted);
     return null;
   }

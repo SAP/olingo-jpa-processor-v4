@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Team;
 
 class JoinTableJoinTest extends BuilderBaseTest {
   private JoinTableJoin<Person, Team> cut;
-  private AliasBuilder ab;
+  private AliasBuilder aliasBuilder;
   private CriteriaBuilderImpl cb;
   private ProcessorCriteriaQuery<Tuple> query;
   private JPAAssociationPath path;
@@ -32,11 +32,11 @@ class JoinTableJoinTest extends BuilderBaseTest {
   @BeforeEach
   void setup() throws ODataJPAModelException {
     sqlPattern = new SqlDefaultPattern();
-    ab = new AliasBuilder();
+    aliasBuilder = new AliasBuilder();
     cb = new CriteriaBuilderImpl(sd, sqlPattern);
     query = cb.createTupleQuery();
     path = sd.getEntity(Person.class).getAssociationPath("Teams");
-    cut = new JoinTableJoin<>(path, JoinType.LEFT, query.from(Person.class), ab, cb);
+    cut = new JoinTableJoin<>(path, JoinType.LEFT, query.from(Person.class), aliasBuilder, cb);
   }
 
   @Test
@@ -67,7 +67,7 @@ class JoinTableJoinTest extends BuilderBaseTest {
 
   @Test
   void testGetParentReturnsInnerJoin() throws ODataJPAModelException {
-    final JoinTableJoin<Person, Team> other = new JoinTableJoin<>(path, JoinType.RIGHT, query.from(Person.class), ab,
+    final JoinTableJoin<Person, Team> other = new JoinTableJoin<>(path, JoinType.RIGHT, query.from(Person.class), aliasBuilder,
         cb);
     final AbstractJoinImp<?, Person> act = (AbstractJoinImp<?, Person>) cut.getParent();
     assertNotNull(act);
@@ -75,7 +75,7 @@ class JoinTableJoinTest extends BuilderBaseTest {
     assertTrue(act.equals(act)); // NOSONAR
     assertFalse(act.equals(other.getParent())); // NOSONAR
     assertNotEquals(0, act.hashCode());
-    assertThrows(NotImplementedException.class, () -> act.getAttribute());
+    assertThrows(NotImplementedException.class, act::getAttribute);
     assertEquals(JoinType.LEFT, act.getJoinType());
   }
 }

@@ -30,8 +30,8 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
     setExternalName(nameBuilder.buildSingletonName(et.getEdmItem()));
   }
 
-  private IntermediateSingleton(IntermediateSingleton source,
-      IntermediateEntityType<?> et) throws ODataJPAModelException {
+  private IntermediateSingleton(final IntermediateSingleton source,
+      final IntermediateEntityType<?> et) throws ODataJPAModelException {
     super(source.nameBuilder, et, source.getAnnotationInformation());
     setExternalName(source.getExternalName());
     lazyBuildEdmItem();
@@ -80,10 +80,10 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T extends IntermediateModelElement> T asUserGroupRestricted(List<String> userGroups)
-      throws ODataJPAModelException {
+  protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     lazyBuildEdmItem();
-    return (T) new IntermediateSingleton(this, entityType.asUserGroupRestricted(userGroups));
+    return (T) new IntermediateSingleton(this, entityType.asUserGroupRestricted(userGroups, hideRestrictedProperties));
   }
 
 }

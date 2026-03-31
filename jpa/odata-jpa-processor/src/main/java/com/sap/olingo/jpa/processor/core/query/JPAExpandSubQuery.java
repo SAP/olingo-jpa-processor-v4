@@ -25,11 +25,14 @@ import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
@@ -191,6 +194,19 @@ public class JPAExpandSubQuery extends JPAAbstractExpandSubQuery implements JPAE
       }
       final TypedQuery<Tuple> query = em.createQuery(tupleQuery);
       return new JPAQueryCreationResult(query, selectionPath);
+    }
+  }
+
+  @Override
+  protected SelectionPathInfo<JPAPath> buildSelectionPathList(final UriInfoResource uriResource)
+      throws ODataApplicationException {
+    try {
+      final SelectionPathInfo<JPAPath> jpaPathList = super.buildSelectionPathList(uriResource);
+      debugger.trace(this, "The following selection path elements were found: %s", jpaPathList.toString());
+      return new SelectionPathInfo<>(association.getRightColumnsList(), jpaPathList);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+          .getStatusCode(), ODataJPAException.getLocales().nextElement(), e);
     }
   }
 

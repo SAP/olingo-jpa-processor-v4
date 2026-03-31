@@ -61,6 +61,6 @@ public class TestJavaActionNoParameter {
 
   @EdmAction(isBound = true)
   public void boundBindingSuperType(@EdmParameter(name = "Root") final BusinessPartner root) {
-
+    // Not needed
   }
 }

@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataApiVersionAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -44,11 +47,15 @@ abstract class JPACreateResultTest extends TestBase {
   protected JPAODataRequestContext context;
   protected JPAODataSessionContextAccess sessionContext;
   protected OData odata;
+  private final JPAODataApiVersionAccess version;
 
   JPACreateResultTest() {
     super();
+    version = mock(JPAODataApiVersionAccess.class);
     context = mock(JPAODataRequestContext.class);
     sessionContext = mock(JPAODataSessionContextAccess.class);
+    when(version.getEntityManagerFactory()).thenReturn(emf);
+    when(sessionContext.getApiVersion(any())).thenReturn(version);
     odata = mock(OData.class);
     requestContext = new JPAODataInternalRequestContext(context, sessionContext, odata);
   }

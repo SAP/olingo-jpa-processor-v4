@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -20,4 +22,40 @@ public class JoinTarget {
       joinColumns = @JoinColumn(name = "\"TargetID\""),
       inverseJoinColumns = @JoinColumn(name = "\"SourceID\""))
   private JoinSource manyToOne;
+
+  public JoinTarget() {
+    super();
+  }
+
+  public JoinTarget(final Integer targetID) {
+    super();
+    this.targetID = targetID;
+  }
+
+  public Integer getTargetID() {
+    return targetID;
+  }
+
+  public void setTargetID(final Integer targetID) {
+    this.targetID = targetID;
+  }
+
+  public JoinSource getManyToOne() {
+    return manyToOne;
+  }
+
+  public void setManyToOne(final JoinSource manyToOne) {
+    this.manyToOne = manyToOne;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(targetID);
+  }
+
+  @Override
+  public boolean equals(final Object object) {
+    return object instanceof final JoinTarget other
+        && Objects.equals(targetID, other.targetID);
+  }
 }

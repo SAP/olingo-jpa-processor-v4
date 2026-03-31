@@ -45,7 +45,7 @@ final class JPARequestLinkImpl implements JPARequestLink {
   @Override
   public Map<String, Object> getRelatedKeys() throws ODataJPAProcessorException {
     if (keys.size() == 0) try {
-      buildKeys();
+      build();
     } catch (final Exception e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
@@ -55,17 +55,16 @@ final class JPARequestLinkImpl implements JPARequestLink {
   @Override
   public Map<String, Object> getValues() throws ODataJPAProcessorException {
     if (values.size() == 0) try {
-      buildKeys();
+      build();
     } catch (final Exception e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     return values;
   }
 
-  private void buildKeys() throws ODataJPAModelException, NoSuchMethodException, InstantiationException,
+  private void build() throws ODataJPAModelException, NoSuchMethodException, InstantiationException,
       IllegalAccessException, InvocationTargetException, EdmPrimitiveTypeException {
     final OData odata = OData.newInstance();
-
     // TODO replace by Olingo OData Util
     final String[] entityTypeAndKey = bindingLink.split("[\\(\\)]");
     final String[] keyElements = entityTypeAndKey[1].split("[,=]");
@@ -82,19 +81,23 @@ final class JPARequestLinkImpl implements JPARequestLink {
     // If an entity has only one key property, it is allowed to omit the property name
     final List<JPAAttribute> targetKeys = ((JPAEntityType) path.getTargetType()).getKey();
     final String attributeName = targetKeys.get(0).getInternalName();
-    final JPAOnConditionItem item = path.getJoinColumnsList().get(0);
-    if (item.getRightPath().getLeaf().getInternalName().equals(attributeName)) {
-      keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-          .getRightPath()));
-      values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-          .getLeftPath()));
+    final var leftColumns = path.getJoinTable() != null ? path.getJoinTable().getLeftColumnsList() : path
+        .getLeftColumnsList();
+    final var rightColumns = path.getJoinTable() != null ? path.getJoinTable().getRightColumnsList() : path
+        .getRightColumnsList();
+
+    if (rightColumns.get(0).getLeaf().getInternalName().equals(attributeName)) {
+      keys.put(rightColumns.get(0).getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(),
+          rightColumns.get(0)));
+      values.put(leftColumns.get(0).getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(),
+          leftColumns.get(0)));
       return;
     }
-    if (item.getLeftPath().getLeaf().getInternalName().equals(attributeName)) {
-      keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-          .getLeftPath()));
-      values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-          .getRightPath()));
+    if (leftColumns.get(0).getLeaf().getInternalName().equals(attributeName)) {
+      keys.put(leftColumns.get(0).getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), leftColumns
+          .get(0)));
+      values.put(rightColumns.get(0).getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(),
+          rightColumns.get(0)));
     }
   }
 

@@ -27,8 +27,6 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.reflections8.Reflections;
-import org.reflections8.scanners.SubTypesScanner;
-import org.reflections8.scanners.TypeAnnotationsScanner;
 import org.reflections8.util.ConfigurationBuilder;
 import org.reflections8.util.FilterBuilder;
 
@@ -64,12 +62,14 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final Reflections reflections;
   private Map<String, JPAProtectionInfo> claims;
   private final IntermediateAnnotationInformation annotationInfo;
+  private final boolean wrapperAvailable;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
-      final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
+      final List<AnnotationProvider> annotationProvider, final boolean wrapperAvailable) throws ODataJPAModelException {
 
-    this(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, postProcessor, packageName, annotationProvider);
+    this(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, postProcessor, packageName, annotationProvider,
+        wrapperAvailable);
   }
 
   /**
@@ -78,15 +78,16 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * @param postProcessor
    * @param packageName
    * @param annotationProvider
+   * @param wrapperAvailable
    * @throws ODataJPAModelException
    */
   IntermediateServiceDocument(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
-      final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
+      final List<AnnotationProvider> annotationProvider, final boolean wrapperAvailable) throws ODataJPAModelException {
 
-    var post = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
+    final var post = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
     IntermediateModelElement.setPostProcessor(post);
-
+    this.wrapperAvailable = wrapperAvailable;
     reflections = createReflections(packageName);
     this.annotationInfo = new IntermediateAnnotationInformation(annotationProvider);
     post.provideReferences(annotationInfo.asReferenceList());
@@ -100,23 +101,25 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     setContainer();
   }
 
-  private IntermediateServiceDocument(IntermediateServiceDocument source, List<String> userGroups)
-      throws ODataJPAModelException {
+  private IntermediateServiceDocument(final IntermediateServiceDocument source, final List<String> userGroups,
+      final boolean hideRestrictedProperties) throws ODataJPAModelException {
     this.annotationInfo = source.annotationInfo;
     this.nameBuilder = source.nameBuilder;
     this.jpaMetamodel = source.jpaMetamodel;
-    this.schemaListInternalKey = restrictedSchemas(source.schemaListInternalKey, userGroups);
-    this.container = source.container.asUserGroupRestricted(schemaListInternalKey, userGroups);
+    this.schemaListInternalKey = restrictedSchemas(source.schemaListInternalKey, userGroups, hideRestrictedProperties);
+    this.container = source.container.asUserGroupRestricted(schemaListInternalKey, userGroups,
+        hideRestrictedProperties);
     this.reflections = source.reflections;
     this.claims = source.getClaims();
+    this.wrapperAvailable = source.wrapperAvailable;
     setContainer();
   }
 
-  private Map<String, IntermediateSchema> restrictedSchemas(Map<String, IntermediateSchema> source,
-      List<String> userGroups) throws ODataJPAModelException {
+  private Map<String, IntermediateSchema> restrictedSchemas(final Map<String, IntermediateSchema> source,
+      final List<String> userGroups, final boolean hideRestrictedProperties) throws ODataJPAModelException {
     final Map<String, IntermediateSchema> restricted = new HashMap<>(source.size());
-    for (var schema : source.entrySet()) {
-      restricted.put(schema.getKey(), schema.getValue().asUserGroupRestricted(userGroups));
+    for (final var schema : source.entrySet()) {
+      restricted.put(schema.getKey(), schema.getValue().asUserGroupRestricted(userGroups, hideRestrictedProperties));
     }
     return restricted;
   }
@@ -133,8 +136,9 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     }
   }
 
-  JPAServiceDocument asUserGroupRestricted(List<String> userGroups) throws ODataJPAModelException {
-    return new IntermediateServiceDocument(this, userGroups);
+  JPAServiceDocument asUserGroupRestricted(final List<String> userGroups, final boolean hideRestrictedProperties)
+      throws ODataJPAModelException {
+    return new IntermediateServiceDocument(this, userGroups, hideRestrictedProperties);
   }
 
   /*
@@ -387,15 +391,20 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     return nameBuilder;
   }
 
+  @Override
+  public boolean emfIsWrapped() {
+    return wrapperAvailable;
+  }
+
   private void buildIntermediateSchemas() throws ODataJPAModelException {
-    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections, annotationInfo);
+    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections, annotationInfo,
+        wrapperAvailable);
     schemaListInternalKey.put(schema.internalName, schema);
   }
 
   private Reflections createReflections(final String... packageName) {
     if (packageName != null && packageName.length > 0) {
       final ConfigurationBuilder configBuilder = new ConfigurationBuilder();
-      configBuilder.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner());
       configBuilder.forPackages(packageName);
       configBuilder.filterInputsBy(new FilterBuilder().includePackage(packageName));
       return new Reflections(configBuilder);
@@ -465,5 +474,4 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private FullQualifiedName determineBindingParameter(final EdmOperation operation) {
     return operation.isBound() ? operation.getBindingParameterTypeFqn() : null;
   }
-
 }

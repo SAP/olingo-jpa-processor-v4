@@ -28,12 +28,12 @@ class OffsetDateTimeConverterTest {
   }
 
   @Test
-  void testConervertToDBNull() {
+  void testConvertToDBNull() {
     assertNull(cut.convertToDatabaseColumn(null));
   }
 
   @Test
-  void testConervertToDB() {
+  void testConvertToDB() {
     final ZonedDateTime zdt = ZonedDateTime
         .of(1972, 12, 6, 12, 17, 7, 0, ZoneId.of(ZoneId.SHORT_IDS.get("HST")));
     final OffsetDateTime act = cut.convertToDatabaseColumn(zdt);
@@ -42,12 +42,12 @@ class OffsetDateTimeConverterTest {
   }
 
   @Test
-  void testConervertToEntityNull() {
+  void testConvertToEntityNull() {
     assertNull(cut.convertToEntityAttribute(null));
   }
 
   @Test
-  void testConervertToEntity() {
+  void testConvertToEntity() {
     final OffsetDateTime odt = OffsetDateTime
         .of(1972, 12, 6, 12, 17, 7, 0, ZoneOffset.ofHours(-10));
     final ZonedDateTime act = cut.convertToEntityAttribute(odt);

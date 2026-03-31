@@ -22,7 +22,7 @@ class JPAConversionHelperEntityTest extends JPAConversionHelperTest {
 
   @Override
   @Test
-  public void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
+  void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
     final Organization newPOJO = new Organization();
@@ -35,7 +35,7 @@ class JPAConversionHelperEntityTest extends JPAConversionHelperTest {
 
   @Override
   @Test
-  public void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
+  void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
     final BusinessPartnerRole newPOJO = new BusinessPartnerRole();
@@ -49,7 +49,7 @@ class JPAConversionHelperEntityTest extends JPAConversionHelperTest {
 
   @Override
   @Test
-  public void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
+  void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
     final AdministrativeDivisionDescription newPOJO = new AdministrativeDivisionDescription();

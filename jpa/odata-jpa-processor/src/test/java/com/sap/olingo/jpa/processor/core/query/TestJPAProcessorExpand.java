@@ -1323,8 +1323,8 @@ class TestJPAProcessorExpand extends TestBase {
     final ArrayNode result = helper.getValues();
     assertEquals(3, result.size());
 
-    for (var item : result) {
-      var transactions = (ArrayNode) item.get("Transactions");
+    for (final var item : result) {
+      final var transactions = (ArrayNode) item.get("Transactions");
       if (item.get("AccountId").asText().equals("8ce66481d8114db0bbf7f0fc621dade7"))
         assertEquals(0, transactions.size());
       else if (item.get("AccountId").asText().equals("611b57e8b0784b169a0ccefc6379ff0a"))

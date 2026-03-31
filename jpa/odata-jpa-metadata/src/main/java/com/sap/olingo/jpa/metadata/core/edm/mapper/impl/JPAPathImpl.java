@@ -147,7 +147,7 @@ final class JPAPathImpl implements JPAPath {
     List<String> groups = null;
     for (final JPAElement pathElement : pathElements) {
       if (pathElement instanceof final IntermediateProperty intermediateProperty
-          && intermediateProperty.isPartOfGroup()) {
+          && intermediateProperty.hasUserGroupRestriction()) {
         if (groups == null)
           groups = intermediateProperty.getUserGroups();
         else {
