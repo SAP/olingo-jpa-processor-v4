@@ -10,6 +10,7 @@
   
      <modules>
         <module>jpa</module>
+        <module>jpa-archetype</module>
      </modules>
   
       <properties>

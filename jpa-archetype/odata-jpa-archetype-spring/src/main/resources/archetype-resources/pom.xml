@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<processor.version>2.5.1-SNAPSHOT</processor.version>
+		<processor.version>2.5.0-20260308163300_1a8c9d6240f714c7f250ad78267821b75254ff08</processor.version>
 		<java.version>17</java.version>
 		<build.sourceEncoding>UTF-8</build.sourceEncoding>
 		<eclipselink.version>4.0.3</eclipselink.version>
