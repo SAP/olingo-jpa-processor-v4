@@ -1,0 +1,8 @@
+jdk:
+  - openjdk17
+before_install:
+  - sdk install maven
+  - mvn -v
+install:
+  - mvn install -f ./jpa/pom.xml
+  - mvn install -f ./jpa-archetype/pom.xml;
