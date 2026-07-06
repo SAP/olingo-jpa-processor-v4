@@ -119,7 +119,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   @Override
   @SuppressWarnings("unchecked")
   public Expression<Number> getRightAsExpression() throws ODataApplicationException {
-    return (Expression<Number>) ((JPAMemberOperator) right).get();
+    return (Expression<Number>) right.get();
   }
 
   /*

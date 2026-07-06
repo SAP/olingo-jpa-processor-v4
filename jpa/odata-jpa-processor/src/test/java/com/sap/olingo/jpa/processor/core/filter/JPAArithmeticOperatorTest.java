@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -189,5 +190,19 @@ class JPAArithmeticOperatorTest {
     final JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
 
     assertThrows(ODataApplicationException.class, () -> cut.getRightAsNumber(cb));
+  }
+
+  @Test
+  void testGetRightAsExpressionRightIsArithmeticExpression() throws ODataApplicationException {
+    final JPAMemberOperator left = mock(JPAMemberOperator.class);
+    final JPAArithmeticOperator right = mock(JPAArithmeticOperator.class);
+    @SuppressWarnings("unchecked")
+    final Expression<Number> expression = mock(Expression.class);
+
+    when(right.get()).thenReturn(expression);
+
+    final JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.DIV, left, right);
+
+    assertNotNull(cut.getRightAsExpression());
   }
 }
