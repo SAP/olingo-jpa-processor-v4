@@ -173,9 +173,7 @@ class TestJPATupleChildConverter extends TestBase {
 
   @Test
   void checkConvertsOneResultsOneComplexElement() throws ODataApplicationException, ODataJPAModelException {
-    HashMap<String, Object> result;
-
-    result = new HashMap<>();
+    final HashMap<String, Object> result = new HashMap<>();
     result.put("ID", "1");
     result.put("Address/CityName", "Test City");
     result.put("Address/Country", "GB");
@@ -342,4 +340,20 @@ class TestJPATupleChildConverter extends TestBase {
     assertEquals(2, act.getEntities().get(0).getProperties().size());
   }
 
+  @Test
+  void checkConvertEntityTypeWithIgnoredNavigation() throws ODataJPAModelException, ODataApplicationException {
+    uriHelper.setKeyPredicates(keyPredicates, "Key");
+    cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder, "OneToManySource"),
+        requestContext);
+
+    final HashMap<String, Object> result = new HashMap<>();
+    result.put("Key", "1");
+    jpaQueryResult.add(new TupleDouble(result));
+
+    keyPredicates.put("1", "OneToManySources('1')");
+
+    final var act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "OneToManySources"), emptyList(), empty()), emptyList()).get(ROOT_RESULT_KEY);
+    assertEquals(1, act.getEntities().size());
+  }
 }
