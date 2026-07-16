@@ -141,7 +141,7 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
     if (et == null)
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.JOIN_TABLE_NOT_FOUND);
     if (castFrom != null)
-      LOGGER.trace("Found cast from " + castFrom + " to " + encode(et.getExternalName()));
+      LOGGER.trace("Found cast from " + encode(castFrom) + " to " + et.getExternalName());
     return et;
   }
 
