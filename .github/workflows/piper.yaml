@@ -2,9 +2,9 @@ name: Piper
 on:
   workflow_dispatch:
   pull_request:
-  push: 
+  push:
     branches:
-    - "master"
+      - "master"
 
 jobs:
   piper:
