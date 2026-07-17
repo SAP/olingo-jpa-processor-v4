@@ -15,11 +15,12 @@
 
     <properties>
         <odata.version>5.0.0</odata.version>
-        <jackson.version>2.21.4</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <cf-logging.version>4.0.1</cf-logging.version>
+        <commons.io.version>2.21.0</commons.io.version>
         <flyway.version>12.10.0</flyway.version>
+        <jackson.version>2.21.5</jackson.version>
         <jakarta.version>6.1.0</jakarta.version>
         <javax.version>4.0.1</javax.version>
         <jpa.version>3.1.0</jpa.version>
@@ -225,7 +226,7 @@
             <dependency>
                  <groupId>commons-io</groupId>
                  <artifactId>commons-io</artifactId>
-                 <version>2.21.0</version>
+                 <version>${commons.io.version}</version>
             </dependency>            
             <dependency>
                 <groupId>org.slf4j</groupId>
