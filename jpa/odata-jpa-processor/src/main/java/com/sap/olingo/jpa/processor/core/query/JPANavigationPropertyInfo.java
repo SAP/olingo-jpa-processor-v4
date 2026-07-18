@@ -1,7 +1,5 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +33,14 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
   private JPAFilterComplier filterCompiler = null;
 
   public static String encode(final String log) {
-    return java.net.URLEncoder.encode(log, UTF_8);
+    if (log == null) return null;
+    try {
+      return java.net.URLEncoder.encode(log,
+          java.nio.charset.StandardCharsets.UTF_8.name());
+      // res = res.replace("+", " "); // for better log readability, optional
+    } catch (final java.io.UnsupportedEncodingException e) {
+      throw new RuntimeException("[ENCODE_ERR - this should not happen]", e);
+    }
   }
 
   /**
@@ -136,7 +141,7 @@ public final class JPANavigationPropertyInfo implements JPANavigationPropertyInf
     if (et == null)
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.JOIN_TABLE_NOT_FOUND);
     if (castFrom != null)
-      LOGGER.trace("Found cast from " + castFrom + " to " + encode(et.getExternalName()));
+      LOGGER.trace("Found cast from " + encode(castFrom) + " to " + et.getExternalName());
     return et;
   }
 

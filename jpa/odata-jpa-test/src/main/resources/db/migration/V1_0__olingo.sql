@@ -698,6 +698,9 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38008','BEL','
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38014','BEL','NUTS3','BE258',null,43959624,22202);	
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38016','BEL','NUTS3','BE258',null,31004430,11434);	
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','NUTS3','BE258',null,96339703,11509);	
+insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '21004','BEL','NUTS3','BE100',null,33086535,193528); 
+
+--------------------------------------------	
 
 --------------------------------------------	
 

@@ -21,7 +21,6 @@ public class MapCacheSupplier<K, V> implements MapCache<K, V> {
 
   @Override
   public Map<K, V> get() throws ODataJPAModelException {
-
     if (value.isEmpty() && !underConstruction) {
       try {
         underConstruction = true;

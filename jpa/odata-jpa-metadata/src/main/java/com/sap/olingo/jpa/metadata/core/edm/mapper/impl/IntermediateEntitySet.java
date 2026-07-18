@@ -97,7 +97,8 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
   @SuppressWarnings("unchecked")
   @Override
   protected <T extends IntermediateModelElement> T asUserGroupRestricted(final List<String> userGroups,
-      final boolean hideRestrictedProperties) throws ODataJPAModelException {
+      final boolean hideRestrictedProperties)
+      throws ODataJPAModelException {
     lazyBuildEdmItem();
     return (T) new IntermediateEntitySet(this, entityType.asUserGroupRestricted(userGroups, hideRestrictedProperties));
   }

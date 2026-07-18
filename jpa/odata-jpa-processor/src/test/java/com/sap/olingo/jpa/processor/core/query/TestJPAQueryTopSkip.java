@@ -46,7 +46,7 @@ class TestJPAQueryTopSkip extends TestBase {
     assertEquals(10, act.size());
     assertEquals("Eurostat", act.get(0).get("CodePublisher").asText());
     assertEquals("LAU2", act.get(0).get("CodeID").asText());
-    assertEquals("31003", act.get(0).get("DivisionCode").asText());
+    assertEquals("21004", act.get(0).get("DivisionCode").asText());
   }
 
   @Test
@@ -57,10 +57,10 @@ class TestJPAQueryTopSkip extends TestBase {
     helper.assertStatus(200);
     final ObjectNode collection = helper.getValue();
     final ArrayNode act = ((ArrayNode) collection.get("value"));
-    assertEquals(243, act.size());
+    assertEquals(244, act.size());
     assertEquals("Eurostat", act.get(0).get("CodePublisher").asText());
     assertEquals("LAU2", act.get(0).get("CodeID").asText());
-    assertEquals("31022", act.get(0).get("DivisionCode").asText());
+    assertEquals("31012", act.get(0).get("DivisionCode").asText());
   }
 
   @Test
@@ -74,7 +74,7 @@ class TestJPAQueryTopSkip extends TestBase {
     assertEquals(5, act.size());
     assertEquals("Eurostat", act.get(0).get("CodePublisher").asText());
     assertEquals("LAU2", act.get(0).get("CodeID").asText());
-    assertEquals("31022", act.get(0).get("DivisionCode").asText());
+    assertEquals("31012", act.get(0).get("DivisionCode").asText());
   }
 
   @Test

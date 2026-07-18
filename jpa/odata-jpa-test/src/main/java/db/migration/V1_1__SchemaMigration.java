@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
-import org.flywaydb.core.internal.database.DatabaseType;
 
 /**
  *
@@ -25,17 +24,16 @@ public class V1_1__SchemaMigration extends BaseJavaMigration { // NOSONAR
 
   @Override
   public void migrate(final Context context) throws Exception {
-    final var configuration = context.getConfiguration();
     final var connection = context.getConnection();
-    final DatabaseType dbType = configuration.getDatabaseType();
-    final List<Optional<PreparedStatement>> preparedStatements = switch (dbType.getName()) {
+    final var dbName = connection.getMetaData().getDatabaseProductName();
+    final List<Optional<PreparedStatement>> preparedStatements = switch (dbName) {
       case "H2" -> createFunctionH2();
-      case "SAP HANA" -> createFunctionHANA(connection);
-      case "HSQLDB" -> createFunctionHSQLDB(connection);
+      case "SAP HANA", "HDB" -> createFunctionHANA(connection);
+      case "HSQLDB", "HSQL Database Engine" -> createFunctionHSQLDB(connection);
       case "PostgreSQL" -> createFunctionPostgres(connection);
-      case "Derby" -> createFunctionDerby();
+      case "Derby", "Apache Derby" -> createFunctionDerby();
       case "MySQL" -> createFunctionDerby();
-      default -> raiseUnsupportedDbException(dbType);
+      default -> raiseUnsupportedDbException(dbName);
 
     };
 
@@ -47,8 +45,8 @@ public class V1_1__SchemaMigration extends BaseJavaMigration { // NOSONAR
     }
   }
 
-  private List<Optional<PreparedStatement>> raiseUnsupportedDbException(final DatabaseType dbType) {
-    throw new IllegalArgumentException("No migration for database of type: " + dbType.getName());
+  private List<Optional<PreparedStatement>> raiseUnsupportedDbException(final String dbName) {
+    throw new IllegalArgumentException("No migration for database of type: " + dbName);
   }
 
   private List<Optional<PreparedStatement>> createFunctionPostgres(final Connection connection) throws SQLException {

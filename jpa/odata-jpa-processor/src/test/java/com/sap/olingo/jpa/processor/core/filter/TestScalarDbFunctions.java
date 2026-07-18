@@ -64,16 +64,16 @@ class TestScalarDbFunctions {
     return Stream.of(
         arguments("FunctionAndMultiply",
             "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=Area,Population=Population)  mul 1000000 gt 100",
-            59),
+            60),
         arguments("FunctionWithFixedValue",
             "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=13079087,Population=$it/Population)  mul 1000000 gt 1000",
-            29),
+            30),
         arguments("FunctionComputedValue",
             "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=Area div 1000000,Population=Population) gt 1000",
-            7),
+            8),
         arguments("FunctionMixParamOrder",
             "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Population=Population,Area=Area) mul 1000000 gt 1000",
-            7),
+            8),
         arguments("FunctionMixParamOrder",
             "AdministrativeDivisions?$filter=com.sap.olingo.jpa.ConvertToQkm(Area=$it/Area) gt 100",
             4));
@@ -101,6 +101,6 @@ class TestScalarDbFunctions {
             com.sap.olingo.jpa.ConvertToQkm(Area=$it/Area),Population=$it/Population) gt 1000""");
     helper.assertStatus(200);
     final ArrayNode jobs = helper.getValues();
-    assertEquals(7, jobs.size());
+    assertEquals(8, jobs.size());
   }
 }
