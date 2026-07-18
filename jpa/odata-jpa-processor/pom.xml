@@ -45,7 +45,6 @@
 		<dependency>
              <groupId>commons-io</groupId>
              <artifactId>commons-io</artifactId>
-             <version>2.21.0</version>
         </dependency>
 		<dependency>
 			<groupId>jakarta.persistence</groupId>

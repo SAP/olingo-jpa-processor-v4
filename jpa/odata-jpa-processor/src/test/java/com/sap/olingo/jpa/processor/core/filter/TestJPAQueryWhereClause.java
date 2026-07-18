@@ -41,7 +41,7 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("OneNotEqual", "Organizations?$filter=ID ne '3'", 9),
         // '10' is smaller than '5' when comparing strings!
         arguments("OneGreaterEquals", "Organizations?$filter=ID ge '5'", 5),
-        arguments("OneLowerThanTwo", "AdministrativeDivisions?$filter=DivisionCode lt CountryCode", 244),
+        arguments("OneLowerThanTwo", "AdministrativeDivisions?$filter=DivisionCode lt CountryCode", 245),
         arguments("OneGreaterThan", "Organizations?$filter=ID gt '5'", 4),
         arguments("OneLowerThan", "Organizations?$filter=ID lt '5'", 5),
         arguments("OneLowerEquals", "Organizations?$filter=ID le '5'", 6),
@@ -53,14 +53,14 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("AddGreater", "AdministrativeDivisions?$filter=Area add 7000000 ge 50000000", 31),
         arguments("SubGreater", "AdministrativeDivisions?$filter=Area sub 7000000 ge 60000000", 15),
         arguments("DivGreater", "AdministrativeDivisions?$filter=Area gt 0 and Area div Population ge 6000", 9),
-        arguments("MulGreater", "AdministrativeDivisions?$filter=Area mul Population gt 0", 64),
+        arguments("MulGreater", "AdministrativeDivisions?$filter=Area mul Population gt 0", 65),
         arguments("Mod", "AdministrativeDivisions?$filter=Area gt 0 and Area mod 3578335 eq 0", 1),
         arguments("Length", "AdministrativeDivisionDescriptions?$filter=length(Name) eq 10", 11),
         arguments("Now", "Persons?$filter=AdministrativeInformation/Created/At lt now()", 3),
         arguments("Contains", "AdministrativeDivisions?$filter=contains(CodeID,'166')", 110),
         arguments("Endswith", "AdministrativeDivisions?$filter=endswith(CodeID,'166-1')", 4),
         arguments("Startswith", "AdministrativeDivisions?$filter=startswith(DivisionCode,'DE-')", 16),
-        arguments("Not Startswith", "AdministrativeDivisions?$filter=not startswith(DivisionCode,'BE')", 176),
+        arguments("Not Startswith", "AdministrativeDivisions?$filter=not startswith(DivisionCode,'BE')", 177),
         arguments("IndexOf", "AdministrativeDivisions?$filter=indexof(DivisionCode,'3') eq 4", 7),
         arguments("SubstringStartIndex",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,6) eq 'Dakota'", 2),
@@ -81,11 +81,14 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("SubstringStartEndIndexToLower",
             "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
             2),
+        // Filter nested arithmetic operator
+        arguments("Nested arithmetic operator",
+            "AdministrativeDivisions?$filter=((Population mul 1000000) div Area) gt 5000 and Area gt 0", 1),
         // Filter on property with converter
         arguments("Property with converter, from boolean to string", "Teams?$filter=Active eq false", 2),
         // IN expression
         arguments("Simple IN", "AdministrativeDivisions?$filter=ParentDivisionCode in ('BE1', 'BE2')", 6),
-        arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 219),
+        arguments("Simple NOT IN", "AdministrativeDivisions?$filter=not (ParentDivisionCode in ('BE1', 'BE2'))", 220),
         arguments("IN via navigation", "AdministrativeDivisions?$filter=Parent/ParentDivisionCode in ('BE2')", 22),
         // Filter to many associations
         arguments("NavigationPropertyToManyValueAnyNoRestriction", "Organizations?$select=ID&$filter=Roles/any()", 4),
@@ -904,7 +907,7 @@ class TestJPAQueryWhereClause extends TestBase {
 
   @Test
   void testInheritanceJoinWithFilter() throws IOException, ODataException {
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "InheritanceSavingAccounts?$filter=InterestRate gt 3.0");
     final ArrayNode accounts = helper.getValues();
     assertEquals(2, accounts.size());
@@ -912,7 +915,7 @@ class TestJPAQueryWhereClause extends TestBase {
 
   @Test
   void testInheritanceJoinCompoundKeyWithFilter() throws IOException, ODataException {
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "InheritanceByJoinCompoundSubs?$filter=Value eq 'Schweiz'");
     helper.assertStatus(200);
     final ObjectNode sub = helper.getValue();

@@ -55,7 +55,6 @@ class ListCacheSupplierTest {
     throw new ODataJPAModelInternalException(new ODataJPAModelException(MessageKeys.DB_TYPE_NOT_DETERMINED));
   }
 
-
   List<String> supplierCallsSupplier() {
     try {
       cycle.get();
